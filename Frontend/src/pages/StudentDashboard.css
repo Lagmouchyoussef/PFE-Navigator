@@ -1,8 +1,131 @@
-/* Student Dashboard Styles - Reset */
-.sd-dashboard-wrapper {
+/* Student Dashboard - Custom Components Styling */
+
+.sd-page-container {
   min-height: 100vh;
+  padding-bottom: 50px;
 }
 
-.sd-container {
-  /* Ready for content */
+/* Timeline Stepper */
+.sd-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 20px 0;
+}
+
+.sd-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.sd-step-node {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.sd-step-label {
+  margin-top: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.sd-step-line {
+  position: absolute;
+  top: 16px;
+  left: calc(50% + 16px);
+  right: calc(-50% + 16px);
+  height: 2px;
+  background-color: var(--border);
+  z-index: -1;
+}
+
+.sd-step.completed .sd-step-node {
+  background-color: var(--pfe-success);
+  border-color: var(--pfe-success);
+  color: white;
+}
+
+.sd-step.completed .sd-step-line {
+  background-color: var(--pfe-success);
+}
+
+.sd-step.active .sd-step-node {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--surface);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
+.sd-step.active .sd-step-label {
+  color: var(--primary);
+}
+
+/* Upload Zone */
+.sd-upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  transition: all 0.2s ease;
+  background-color: rgba(var(--primary-rgb), 0.02);
+}
+
+.sd-upload-zone:hover, .sd-upload-zone.active {
+  border-color: var(--primary);
+  background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+/* Documents Table */
+.sd-doc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Utilities */
+.hover-primary:hover {
+  color: var(--primary) !important;
+  background-color: rgba(var(--primary-rgb), 0.05) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+  color: white !important;
+}
+
+.pfe-badge-approved { background-color: rgba(39, 174, 96, 0.1); color: #27ae60; }
+.pfe-badge-pending { background-color: rgba(243, 156, 18, 0.1); color: #f39c12; }
+
+/* Custom Scrollbar for the page */
+.main-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 10px;
 }
