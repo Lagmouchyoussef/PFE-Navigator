@@ -19,8 +19,8 @@ const StudentDashboard = () => {
   const steps = [
     { name: 'Proposal', status: 'completed' },
     { name: 'Interim Report', status: 'completed' },
-    { name: 'Final Report', status: 'active' },
-    { name: 'Defense', status: 'pending' },
+    { name: '3 Final Report', status: 'active' },
+    { name: '4 Defense', status: 'pending' },
   ];
 
   const documents = [
