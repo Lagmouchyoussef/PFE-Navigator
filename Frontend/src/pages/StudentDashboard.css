@@ -1,239 +1,242 @@
-/* Student Dashboard - Professional Organization & Layout */
+/* Executive Student Dashboard - High-End Professionalism */
 
 :root {
-  --sd-bg: #f8f9fa;
-  --sd-card-bg: #ffffff;
-  --sd-text-main: #1e293b;
-  --sd-text-muted: #64748b;
-  --sd-border: #e2e8f0;
-  --sd-primary: #3498db;
-  --sd-success: #27ae60;
-  --sd-warning: #f39c12;
+  --exe-bg: #fcfcfd;
+  --exe-surface: #ffffff;
+  --exe-navy: #0f172a;
+  --exe-slate: #64748b;
+  --exe-border: #f1f5f9;
+  --exe-primary: #2563eb;
+  --exe-success: #10b981;
+  --exe-accent: #f8fafc;
 }
 
 .sd-page-container {
-  background-color: var(--sd-bg) !important;
-  color: var(--sd-text-main) !important;
+  background-color: var(--exe-bg) !important;
+  color: var(--exe-navy) !important;
+  font-family: 'Inter', -apple-system, sans-serif !important;
+  padding: 3rem !important;
   min-height: 100vh;
-  padding: 2rem;
 }
 
-/* Header Section */
-.sd-header-section {
-  margin-bottom: 2rem;
-}
-
+/* Typography Refinement */
 .sd-welcome-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--exe-navy);
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
 }
 
-/* Base Card Styling */
-.sd-premium-card {
-  background-color: var(--sd-card-bg) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+/* Premium Executive Card */
+.sd-exe-card {
+  background-color: var(--exe-surface) !important;
+  border: 1px solid var(--exe-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
   transition: all 0.2s ease;
 }
 
-/* Stat Cards */
-.sd-stat-card {
+/* Stat Tiles */
+.sd-stat-tile {
   padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sd-stat-info h4 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0.25rem 0 0.5rem 0;
 }
 
 .sd-stat-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--sd-text-muted);
+  color: var(--exe-slate);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  display: block;
 }
 
-.sd-stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+.sd-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--exe-navy);
+  margin-bottom: 0.25rem;
+}
+
+.sd-stat-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Minimalist Timeline */
+.sd-timeline-wrapper {
+  padding: 3rem 1rem;
+}
+
+.sd-timeline-line-base {
+  position: absolute;
+  top: 15px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background-color: #e2e8f0;
+}
+
+.sd-timeline-line-fill {
+  position: absolute;
+  top: 15px;
+  left: 10%;
+  width: 53%; /* Match step 3 */
+  height: 1.5px;
+  background-color: var(--exe-success);
+}
+
+.sd-timeline-step {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.sd-timeline-node {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--exe-surface);
+  border: 1.5px solid #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 1rem auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px var(--exe-surface);
+}
+
+.sd-timeline-node.completed {
+  background-color: var(--exe-success);
+  border-color: var(--exe-success);
   color: white;
 }
 
-/* Progress Stepper */
-.sd-progress-section {
-  padding: 2.5rem 1.5rem;
-  position: relative;
+.sd-timeline-node.active {
+  border-color: var(--exe-primary);
+  color: var(--exe-primary);
+  border-width: 2px;
 }
 
-.sd-stepper {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  position: relative;
-  width: 100%;
+.sd-timeline-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--exe-slate);
 }
 
-.sd-step-node-wrapper {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.sd-step-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.active .sd-timeline-label {
+  color: var(--exe-navy);
   font-weight: 700;
-  margin-bottom: 1rem;
-  box-shadow: 0 0 0 6px var(--sd-card-bg);
 }
 
-.sd-step-circle.completed { background-color: var(--sd-success); color: white; }
-.sd-step-circle.active { background-color: var(--sd-primary); color: white; }
-.sd-step-circle.pending { background-color: #f1f3f4; color: #9aa0a6; border: 2px solid #e8eaed; }
-
-.sd-step-line-bg {
-  position: absolute;
-  top: 20px;
-  left: 12.5%;
-  right: 12.5%;
-  height: 2px;
-  background-color: #e8eaed;
-  z-index: 1;
-}
-
-.sd-step-line-active {
-  position: absolute;
-  top: 20px;
-  left: 12.5%;
-  width: 50%; /* Reaches step 3 */
-  height: 2px;
-  background-color: var(--sd-success);
-  z-index: 1;
-}
-
-/* Upload Area */
-.sd-upload-box {
-  border: 2px dashed #dadce0;
-  border-radius: 12px;
-  padding: 3rem 1.5rem;
-  text-align: center;
-  background-color: #fcfcfc;
-  transition: all 0.2s ease;
-}
-
-.sd-upload-box:hover {
-  border-color: var(--sd-primary);
-  background-color: #f8fbff;
-}
-
-/* Content List */
-.sd-list-item {
-  padding: 1rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.sd-list-item:last-child {
-  border-bottom: none;
-}
-
-.sd-doc-preview {
-  width: 40px;
-  height: 40px;
-  background-color: #f1f3f4;
+/* File Workspace */
+.sd-upload-area {
+  border: 1px dashed #cbd5e1;
+  background-color: var(--exe-accent);
   border-radius: 8px;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.sd-doc-row {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--exe-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sd-doc-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--exe-primary);
 }
 
 /* Sidebar Widgets */
-.sd-widget-defense {
-  background-color: #f1f7fe;
+.sd-widget-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--exe-navy);
+  margin-bottom: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.sd-defense-card {
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
   border-radius: 8px;
   padding: 1.25rem;
 }
 
-.sd-feedback-note {
-  border-left: 4px solid var(--sd-primary);
-  padding-left: 1rem;
+.sd-feedback-strip {
+  border-left: 3px solid var(--exe-primary);
+  padding: 0.5rem 1rem;
+  background-color: #f8fafc;
 }
 
-.sd-avatar-initials {
-  width: 44px;
-  height: 44px;
-  background-color: var(--sd-primary);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+/* Executive Progress Circle */
+.exe-circle-progress {
+  width: 100px;
+  height: 100px;
+  position: relative;
 }
 
-/* Circular Chart */
-.circular-chart-pfe {
-  display: block;
-  margin: 0 auto;
+.exe-circle-svg {
+  transform: rotate(-90deg);
 }
 
-.circle-bg {
+.exe-circle-bg {
   fill: none;
-  stroke: #eee;
-  stroke-width: 2.8;
+  stroke: #f1f5f9;
+  stroke-width: 3;
 }
 
-.circle {
+.exe-circle-fill {
   fill: none;
-  stroke-width: 2.8;
+  stroke: var(--exe-primary);
+  stroke-width: 3;
   stroke-linecap: round;
-  stroke: var(--sd-primary);
-  animation: progress 1s ease-out forwards;
+  transition: stroke-dashoffset 1s ease;
 }
 
-@keyframes progress {
-  0% { stroke-dasharray: 0 100; }
-}
-
-.percentage {
-  fill: var(--sd-text-main);
-  font-family: sans-serif;
-  font-size: 0.5rem;
+.exe-circle-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
   font-weight: 800;
-  text-anchor: middle;
+  color: var(--exe-navy);
 }
 
-.bg-light-soft {
+/* Buttons */
+.btn-exe-primary {
+  background-color: var(--exe-navy) !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+  border: none !important;
+}
+
+.btn-exe-outline {
+  background-color: white !important;
+  border: 1px solid #e2e8f0 !important;
+  color: var(--exe-navy) !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+.btn-exe-outline:hover {
   background-color: #f8fafc !important;
-}
-
-/* Responsive Grid Spacing */
-.sd-main-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-}
-
-@media (max-width: 1200px) {
-  .sd-main-grid {
-    grid-template-columns: 1fr;
-  }
 }
