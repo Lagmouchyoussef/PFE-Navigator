@@ -50,34 +50,33 @@ const StudentDashboard = () => {
 
   return (
     <div className="sd-page-container">
-      <Container fluid className="px-4">
-        
-        {/* HEADER */}
-        <section className="mb-5">
+      <Container fluid className="px-3">
+        {/* HEADER SECTION */}
+        <header className="sd-welcome-header mb-4">
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="sd-welcome-text mb-1"
+            className="mb-0"
           >
             Welcome, Ahmed Khalil
           </motion.h1>
-          <p className="text-muted small fw-medium">Academic Year 2025/2026 • Computer Science Department</p>
-        </section>
-
-        {/* SECTION 1: KEY METRICS */}
-        <Row className="g-4 mb-5">
-          <StatCard label="Project Status" value="In Progress" sub="Active" color="blue" icon={<Activity size={24} />} />
-          <StatCard label="Submission Deadline" value="15 Days" color="orange" icon={<Calendar size={24} />} />
-          <StatCard label="Documents Submitted" value="8/10" color="green" icon={<FileText size={24} />} />
-          <StatCard label="Current Grade" value="85/100" color="navy" icon={<GraduationCap size={24} />} />
+          <p className="text-muted small fw-medium mb-0">Student Management System • CS Department</p>
+        </header>
+        {/* TOP STATS GRID */}
+        <Row className="g-3 mb-3">
+          {[
+            { label: 'Project Status', value: 'In Progress', sub: 'Active', color: 'blue', icon: <Activity size={20} /> },
+            { label: 'Submission Deadline', value: '15 Days', color: 'orange', icon: <Calendar size={20} /> },
+            { label: 'Documents Submitted', value: '8 / 10', color: 'green', icon: <FileText size={20} /> },
+            { label: 'Current Grade', value: '85 / 100', color: 'navy', icon: <GraduationCap size={20} /> }
+          ].map((stat, i) => (
+            <StatCard key={i} {...stat} />
+          ))}
         </Row>
-
-        {/* SECTION 2: PROJECT PROGRESS */}
-        <Card className="sd-card mb-5 shadow-sm border-0">
-          <Card.Header className="bg-transparent border-0 p-4 pb-0">
-            <h5 className="fw-bold mb-0">Project Progress</h5>
-          </Card.Header>
-          <Card.Body className="sd-timeline-container">
+        {/* PROGRESS TIMELINE */}
+        <Card className="sd-card mb-3">
+          <Card.Header className="sd-card-header"><h5 className="mb-0">Project Progress</h5></Card.Header>
+          <Card.Body className="sd-stepper-container py-4">
             <div className="sd-timeline-line"></div>
             <div className="sd-timeline-progress-line"></div>
             <div className="sd-timeline-row">
@@ -92,16 +91,11 @@ const StudentDashboard = () => {
             </div>
           </Card.Body>
         </Card>
-
-        {/* SECTION 3: WORKSPACE & SIDEBAR */}
-        <Row className="g-4">
-          
-          {/* Main Content Area (Workspace) */}
+        {/* MAIN WORKSPACE & SIDEBAR */}
+        <Row className="g-3">
           <Col lg={8}>
-            <Card className="sd-card mb-4 shadow-sm border-0">
-              <Card.Header className="bg-transparent border-0 p-4 pb-0">
-                <h5 className="fw-bold mb-0">Upload Documents</h5>
-              </Card.Header>
+            <Card className="sd-card mb-3">
+              <Card.Header className="sd-card-header"><h5 className="mb-0">Upload Documents</h5></Card.Header>
               <Card.Body className="p-4">
                 <div className="sd-upload-area text-center">
                   <FileUp size={48} className="text-muted mb-3 opacity-25" />
@@ -112,11 +106,8 @@ const StudentDashboard = () => {
                 </div>
               </Card.Body>
             </Card>
-
-            <Card className="sd-card shadow-sm border-0">
-              <Card.Header className="bg-transparent border-0 p-4 pb-0">
-                <h5 className="fw-bold mb-0">Uploaded Documents</h5>
-              </Card.Header>
+            <Card className="sd-card">
+              <Card.Header className="sd-card-header"><h5 className="mb-0">Uploaded Documents</h5></Card.Header>
               <Card.Body className="p-4 pt-2">
                 <Table responsive hover className="mb-0">
                   <tbody>
