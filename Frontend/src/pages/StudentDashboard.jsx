@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Container, Row, Col, Card, Badge, 
+  Container, Row, Col, Badge, 
   ProgressBar, Button
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
@@ -8,7 +8,8 @@ import {
   Check, Clock, FileText, GraduationCap, 
   LayoutDashboard, FileUp, Calendar, 
   ChevronRight, Mail, MessageSquare,
-  AlertCircle, Activity, ExternalLink
+  AlertCircle, Activity, ExternalLink,
+  Target, Zap, Bell, User
 } from 'lucide-react';
 import './StudentDashboard.css';
 
@@ -17,191 +18,162 @@ const StudentDashboard = () => {
     <div className="sd-page-container">
       <Container fluid className="px-0">
         
-        {/* EXECUTIVE HEADER */}
-        <div className="d-flex justify-content-between align-items-end mb-5">
+        {/* HEADER AREA */}
+        <div className="bento-profile-top">
+          <div className="bento-avatar">AK</div>
           <div>
-            <h1 className="sd-welcome-title mb-1">Ahmed Khalil</h1>
-            <p className="text-muted small mb-0 fw-medium">PFE Management System • CS Department</p>
+            <h5 className="fw-black mb-0">Ahmed Khalil</h5>
+            <p className="text-muted extra-small mb-0 fw-bold">CS Department • Final Year Project</p>
           </div>
-          <div className="d-flex gap-2">
-            <Button className="btn-exe-outline d-flex align-items-center gap-2 small">
-              <MessageSquare size={16} /> Contact Support
-            </Button>
-            <Button className="btn-exe-primary d-flex align-items-center gap-2 small shadow-sm">
-              <FileUp size={16} /> New Submission
-            </Button>
+          <div className="ms-auto d-flex gap-2">
+            <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-light"><Bell size={20} /></Button>
+            <Button className="btn-bento shadow-sm">Submit Deliverable</Button>
           </div>
         </div>
 
-        {/* MINIMALIST METRIC TILES */}
-        <Row className="g-4 mb-5">
-          {[
-            { label: 'Project Status', value: 'In Progress', sub: 'Active', color: '#10b981' },
-            { label: 'Submission Deadline', value: '15 Days', sub: 'Until final report', color: '#f59e0b' },
-            { label: 'Documents Submitted', value: '8/10', sub: 'Approved versions', color: '#3b82f6' },
-            { label: 'Current Grade', value: '85/100', sub: 'Project estimation', color: '#6366f1' }
-          ].map((stat, i) => (
-            <Col key={i} lg={3} md={6}>
-              <Card className="sd-exe-card sd-stat-tile">
-                <span className="sd-stat-label">{stat.label}</span>
-                <div className="sd-stat-value">{stat.value}</div>
-                <div className="d-flex align-items-center gap-2">
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: stat.color }}></div>
-                  <span className="text-muted extra-small fw-bold uppercase">{stat.sub}</span>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        {/* REFINED TIMELINE */}
-        <Card className="sd-exe-card mb-5 border-0 bg-transparent shadow-none">
-          <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-            <h6 className="sd-widget-title mb-0">Project Progress</h6>
-            <Badge bg="light" className="text-dark border small fw-normal">Step 3 of 4</Badge>
-          </div>
-          <div className="sd-timeline-wrapper position-relative">
-            <div className="sd-timeline-line-base"></div>
-            <div className="sd-timeline-line-fill"></div>
-            <Row className="justify-content-between">
-              {[
-                { name: 'Proposal', status: 'completed' },
-                { name: 'Interim Report', status: 'completed' },
-                { name: 'Final Report', status: 'active' },
-                { name: 'Defense', status: 'pending' }
-              ].map((step, i) => (
-                <Col key={i} className={`sd-timeline-step ${step.status}`}>
-                  <div className={`sd-timeline-node ${step.status}`}>
-                    {step.status === 'completed' ? <Check size={16} /> : <span>{i + 1}</span>}
-                  </div>
-                  <div className="sd-timeline-label">{step.name}</div>
-                </Col>
-              ))}
-            </Row>
-          </div>
-        </Card>
-
-        {/* WORKSPACE & ANALYTICS */}
-        <Row className="g-5">
+        {/* BENTO GRID */}
+        <div className="bento-grid">
           
-          <Col lg={8}>
-            <div className="d-flex flex-column gap-5">
-              
-              <section>
-                <h6 className="sd-widget-title">Deliverable Submission</h6>
-                <div className="sd-upload-area">
-                  <div className="mx-auto mb-3 text-muted opacity-25">
-                    <FileUp size={48} />
+          {/* 1. Large Card: Project Progression (Vertical Timeline) */}
+          <div className="bento-item bento-tall">
+            <span className="bento-stat-label">Project Progression</span>
+            <div className="bento-timeline">
+              {[
+                { name: 'Research & Proposal', status: 'done', desc: 'Validated Feb 12' },
+                { name: 'System Architecture', status: 'done', desc: 'Validated Mar 05' },
+                { name: 'Core Development', status: 'active', desc: 'Phase 2 in progress' },
+                { name: 'Testing & QA', status: 'next', desc: 'Scheduled May 10' },
+                { name: 'Final Defense', status: 'next', desc: 'Scheduled Jun 15' }
+              ].map((step, i) => (
+                <div key={i} className="timeline-item-bento">
+                  <div className={`bento-dot ${step.status}`}>
+                    {step.status === 'done' ? <Check size={14} /> : <span>{i + 1}</span>}
                   </div>
-                  <h6 className="fw-bold mb-2">Upload Final Report</h6>
-                  <p className="text-muted small mb-4">Drag and drop your report files here (PDF, DOCX)</p>
-                  <Button className="btn-exe-outline px-5">Select Files</Button>
+                  <div>
+                    <div className={`fw-bold small ${step.status === 'next' ? 'text-muted' : ''}`}>{step.name}</div>
+                    <div className="extra-small text-muted opacity-75">{step.desc}</div>
+                  </div>
                 </div>
-              </section>
-
-              <section>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="sd-widget-title mb-0">Submission History</h6>
-                  <Button variant="link" className="text-primary small p-0 text-decoration-none fw-bold">View Archive</Button>
-                </div>
-                <div className="sd-exe-card overflow-hidden">
-                  {[
-                    { name: 'Interim_Report_v2.pdf', date: 'Apr 20, 2026', size: '2.4 MB', status: 'Approved' },
-                    { name: 'Project_Proposal_v1.pdf', date: 'Mar 15, 2026', size: '1.8 MB', status: 'Approved' }
-                  ].map((doc, i) => (
-                    <div key={i} className="sd-doc-row px-4">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="sd-doc-icon">
-                          <FileText size={18} />
-                        </div>
-                        <div>
-                          <div className="fw-bold small">{doc.name}</div>
-                          <div className="text-muted extra-small">{doc.date} • {doc.size}</div>
-                        </div>
-                      </div>
-                      <div className="d-flex align-items-center gap-4">
-                        <Badge bg="success" className="bg-opacity-10 text-success rounded-pill px-3 py-1 extra-small fw-bold">{doc.status}</Badge>
-                        <Button variant="link" className="p-0 text-muted"><ChevronRight size={18} /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
+              ))}
             </div>
-          </Col>
-
-          <Col lg={4}>
-            <div className="d-flex flex-column gap-5">
-              
-              <section>
-                <h6 className="sd-widget-title">Executive Summary</h6>
-                <Card className="sd-exe-card p-4">
-                  <div className="d-flex align-items-center gap-4 mb-4">
-                    <div className="exe-circle-progress">
-                      <svg className="exe-circle-svg" width="100" height="100">
-                        <circle className="exe-circle-bg" cx="50" cy="50" r="45" />
-                        <circle className="exe-circle-fill" cx="50" cy="50" r="45" style={{ strokeDasharray: '283', strokeDashoffset: '70' }} />
-                      </svg>
-                      <div className="exe-circle-text">75%</div>
-                    </div>
-                    <div>
-                      <div className="fw-bold h6 mb-1">Overall Progress</div>
-                      <p className="text-muted extra-small mb-0">15 of 20 tasks completed successfully.</p>
-                    </div>
-                  </div>
-                  <div className="d-flex gap-2">
-                    <div className="flex-grow-1 p-3 bg-light rounded text-center">
-                      <div className="fw-bold small">15</div>
-                      <div className="text-muted extra-small fw-bold">DONE</div>
-                    </div>
-                    <div className="flex-grow-1 p-3 bg-light rounded text-center">
-                      <div className="fw-bold small">05</div>
-                      <div className="text-muted extra-small fw-bold">LEFT</div>
-                    </div>
-                  </div>
-                </Card>
-              </section>
-
-              <section>
-                <h6 className="sd-widget-title">Academic Support</h6>
-                <Card className="sd-exe-card p-4">
-                  <div className="d-flex align-items-center gap-3 mb-4">
-                    <div className="rounded-circle bg-navy text-white d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontWeight: '700' }}>SS</div>
-                    <div>
-                      <div className="fw-bold small">Dr. Sarah Smith</div>
-                      <div className="text-muted extra-small">CS Department Supervisor</div>
-                    </div>
-                  </div>
-                  <div className="sd-feedback-strip mb-4">
-                    <p className="extra-small text-muted mb-0">"The current architecture is solid. Focus on documentation."</p>
-                  </div>
-                  <Button className="btn-exe-primary w-100 py-2 small">Message Supervisor</Button>
-                </Card>
-              </section>
-
-              <section>
-                <h6 className="sd-widget-title">Quick Actions</h6>
-                <div className="d-grid gap-2">
-                  {[
-                    { label: 'Review Guidelines', icon: <AlertCircle size={16} /> },
-                    { label: 'Download Template', icon: <FileText size={16} /> },
-                    { label: 'View Evaluation', icon: <Activity size={16} /> }
-                  ].map((action, i) => (
-                    <Button key={i} className="btn-exe-outline w-100 d-flex align-items-center justify-content-between py-2 text-muted">
-                      <div className="d-flex align-items-center gap-2 small fw-bold">
-                        {action.icon} {action.label}
-                      </div>
-                      <ExternalLink size={14} className="opacity-50" />
-                    </Button>
-                  ))}
-                </div>
-              </section>
-
+            <div className="mt-5 p-3 rounded-4 bg-light border border-white">
+              <div className="d-flex justify-content-between mb-2">
+                <span className="extra-small fw-bold text-muted">CURRENT PHASE</span>
+                <Badge bg="primary" className="extra-small">On Track</Badge>
+              </div>
+              <ProgressBar now={65} className="rounded-pill" style={{ height: '6px' }} />
             </div>
-          </Col>
+          </div>
 
-        </Row>
+          {/* 2. Stat Card: Deadline */}
+          <div className="bento-item">
+            <span className="bento-stat-label">Submission Deadline</span>
+            <div className="bento-stat-value text-warning">15 Days</div>
+            <div className="extra-small text-muted fw-bold">UNTIL FINAL REPORT</div>
+            <div className="mt-3 text-warning-custom d-flex align-items-center gap-1 extra-small fw-bold">
+              <Clock size={12} /> May 20, 2026
+            </div>
+          </div>
+
+          {/* 3. Stat Card: Documents */}
+          <div className="bento-item">
+            <span className="bento-stat-label">Deliverables</span>
+            <div className="bento-stat-value text-primary">8 / 10</div>
+            <div className="extra-small text-muted fw-bold">VERSIONS VALIDATED</div>
+            <div className="mt-3 text-primary d-flex align-items-center gap-1 extra-small fw-bold">
+              <FileText size={12} /> 2 Pending Review
+            </div>
+          </div>
+
+          {/* 4. Large Card: Overall Performance Ring */}
+          <div className="bento-item bento-tall text-center">
+            <span className="bento-stat-label">Overall Completion</span>
+            <div className="bento-ring-wrapper my-4">
+              <svg className="bento-ring-svg" width="120" height="120">
+                <circle className="bento-ring-bg" cx="60" cy="60" r="54" />
+                <circle className="bento-ring-fill" cx="60" cy="60" r="54" style={{ strokeDasharray: '339', strokeDashoffset: '84' }} />
+              </svg>
+              <div className="bento-ring-text">75%</div>
+            </div>
+            <div className="d-grid gap-2 text-start">
+              <div className="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center">
+                <span className="extra-small fw-bold text-muted">COMPLETED TASKS</span>
+                <span className="fw-black small text-success">15</span>
+              </div>
+              <div className="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center">
+                <span className="extra-small fw-bold text-muted">REMAINING</span>
+                <span className="fw-black small text-warning">05</span>
+              </div>
+            </div>
+            <Button className="btn-bento w-100 mt-4 py-2 small">Task Management</Button>
+          </div>
+
+          {/* 5. Stat Card: Current Grade */}
+          <div className="bento-item">
+            <span className="bento-stat-label">Project Score</span>
+            <div className="bento-stat-value text-success">85 / 100</div>
+            <div className="extra-small text-muted fw-bold">ESTIMATED PERFORMANCE</div>
+          </div>
+
+          {/* 6. Stat Card: Status */}
+          <div className="bento-item">
+            <span className="bento-stat-label">System Status</span>
+            <div className="d-flex align-items-center gap-2 mt-2">
+              <div className="status-pulse"></div>
+              <span className="fw-black h5 mb-0">Active</span>
+            </div>
+            <div className="extra-small text-muted fw-bold mt-1">CONNECTED TO SERVER</div>
+          </div>
+
+          {/* 7. Wide Card: Workspace / History */}
+          <div className="bento-item bento-wide">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <span className="bento-stat-label mb-0">Submission History</span>
+              <Button variant="link" className="text-primary small p-0 text-decoration-none fw-bold">View Repository</Button>
+            </div>
+            <div className="d-grid gap-3">
+              {[
+                { name: 'Interim_Report_v2.pdf', date: 'Yesterday', type: 'Report' },
+                { name: 'Architecture_Docs.zip', date: '3 days ago', type: 'Tech' }
+              ].map((doc, i) => (
+                <div key={i} className="p-3 rounded-4 bg-light d-flex align-items-center justify-content-between hover-bg-white border-white border">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="p-2 bg-white rounded-3 shadow-sm text-primary"><FileText size={18} /></div>
+                    <div>
+                      <div className="fw-bold small">{doc.name}</div>
+                      <div className="extra-small text-muted">{doc.date} • {doc.type}</div>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-muted opacity-50" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 8. Card: Supervisor info */}
+          <div className="bento-item">
+            <span className="bento-stat-label">Supervisor</span>
+            <div className="d-flex align-items-center gap-3 mt-2 mb-3">
+              <div className="avatar-circle-sm bg-navy text-white">SS</div>
+              <div>
+                <div className="fw-bold small">Dr. Sarah Smith</div>
+                <div className="extra-small text-muted">CS Dept</div>
+              </div>
+            </div>
+            <Button className="btn-bento-outline w-100 py-2 small fw-bold">Message</Button>
+          </div>
+
+          {/* 9. Card: Feedback */}
+          <div className="bento-item">
+            <span className="bento-stat-label">Last Feedback</span>
+            <p className="extra-small text-muted mb-0 italic mt-2">
+              "The architecture is solid. Focus on the testing phase results."
+            </p>
+            <div className="text-primary fw-bold extra-small mt-2">2 days ago</div>
+          </div>
+
+        </div>
+
       </Container>
     </div>
   );
