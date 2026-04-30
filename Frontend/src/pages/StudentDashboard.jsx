@@ -5,10 +5,10 @@ import {
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
-  Check, Clock, FileText, Star, 
-  Activity, UploadCloud, Calendar, 
-  ExternalLink, Mail, Phone, MessageSquare,
-  ChevronRight, Info
+  CheckCircle, Clock, FileText, GraduationCap, 
+  LayoutDashboard, FileUp, Calendar, 
+  ChevronRight, Mail, MessageSquare,
+  AlertCircle, Search
 } from 'lucide-react';
 import './StudentDashboard.css';
 
@@ -37,7 +37,7 @@ const StudentDashboard = () => {
                   <Badge className="badge-active">Active</Badge>
                 </div>
                 <div className="sd-icon-box bg-pfe-blue">
-                  <Activity size={24} />
+                  <LayoutDashboard size={24} />
                 </div>
               </div>
             </Card>
@@ -76,14 +76,14 @@ const StudentDashboard = () => {
                   <h4 className="fw-bold mb-3">85/100</h4>
                 </div>
                 <div className="sd-icon-box bg-pfe-navy">
-                  <Star size={24} />
+                  <GraduationCap size={24} />
                 </div>
               </div>
             </Card>
           </Col>
         </Row>
 
-        {/* Project Progress - Exactly like screenshot */}
+        {/* Project Progress */}
         <Card className="sd-card mb-4">
           <Card.Header className="bg-transparent border-0 p-4 pb-0">
             <h5 className="fw-bold">Project Progress</h5>
@@ -93,11 +93,11 @@ const StudentDashboard = () => {
             <div className="sd-timeline-progress-line"></div>
             <div className="sd-timeline-row">
               <div className="sd-step-item">
-                <div className="sd-step-circle completed"><Check size={24} /></div>
+                <div className="sd-step-circle completed"><CheckCircle size={22} /></div>
                 <div className="sd-step-label">Proposal</div>
               </div>
               <div className="sd-step-item">
-                <div className="sd-step-circle completed"><Check size={24} /></div>
+                <div className="sd-step-circle completed"><CheckCircle size={22} /></div>
                 <div className="sd-step-label">Interim Report</div>
               </div>
               <div className="sd-step-item">
@@ -113,7 +113,6 @@ const StudentDashboard = () => {
         </Card>
 
         <Row className="g-4">
-          {/* Left Column */}
           <Col lg={8}>
             {/* Upload Area */}
             <Card className="sd-card mb-4">
@@ -122,7 +121,7 @@ const StudentDashboard = () => {
               </Card.Header>
               <Card.Body className="p-4">
                 <div className="sd-upload-area text-center">
-                  <UploadCloud size={48} className="text-muted mb-3" />
+                  <FileUp size={48} className="text-muted mb-3" />
                   <h6 className="fw-bold mb-2">Drag and drop your files here</h6>
                   <p className="text-muted small">or</p>
                   <Button variant="outline-primary" className="rounded-pill px-5 mb-2">Browse Files</Button>
@@ -164,7 +163,6 @@ const StudentDashboard = () => {
             </Card>
           </Col>
 
-          {/* Right Column */}
           <Col lg={4}>
             {/* Upcoming Defense */}
             <Card className="sd-card mb-4">
@@ -212,7 +210,7 @@ const StudentDashboard = () => {
                 </div>
                 <div className="d-grid gap-2 mb-4">
                   <div className="extra-small text-muted d-flex align-items-center gap-2"><Mail size={14} /> s.smith@university.edu</div>
-                  <div className="extra-small text-muted d-flex align-items-center gap-2"><Phone size={14} /> +1 (555) 123-4567</div>
+                  <div className="extra-small text-muted d-flex align-items-center gap-2"><MessageSquare size={14} /> +1 (555) 123-4567</div>
                 </div>
                 <Button variant="primary" className="w-100 rounded-pill py-2 fw-bold small">Contact Supervisor</Button>
               </Card.Body>
@@ -250,9 +248,9 @@ const StudentDashboard = () => {
                 <div className="d-grid gap-2">
                   {[
                     { label: 'PFE Guidelines', icon: <FileText size={16} /> },
-                    { label: 'Report Template', icon: <Activity size={16} /> },
-                    { label: 'Evaluation Criteria', icon: <Target size={16} /> },
-                    { label: 'FAQ & Support', icon: <Info size={16} /> }
+                    { label: 'Report Template', icon: <LayoutDashboard size={16} /> },
+                    { label: 'Evaluation Criteria', icon: <CheckCircle size={16} /> },
+                    { label: 'FAQ & Support', icon: <AlertCircle size={16} /> }
                   ].map((link, i) => (
                     <div key={i} className="d-flex align-items-center justify-content-between p-2 rounded hover-bg-light cursor-pointer">
                       <div className="d-flex align-items-center gap-2 small fw-medium text-muted">
