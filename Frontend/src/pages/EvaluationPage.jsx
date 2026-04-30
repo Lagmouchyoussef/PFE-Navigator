@@ -1,225 +1,275 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, ProgressBar, Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { Award, FileText, Download, TrendingUp, CheckCircle, Clock, AlertCircle, HelpCircle, Save, Send, Info } from 'lucide-react';
-import { useApp, SCORE_LABELS } from '../context/AppContext.jsx';
+import React from 'react';
+import { 
+  Container, Row, Col, Card, Badge, 
+  ProgressBar, Table, Button 
+} from 'react-bootstrap';
+import { motion } from 'framer-motion';
+import { 
+  Award, TrendingUp, Users, CheckCircle, 
+  Clock, Download, Calendar, MessageSquare,
+  Activity, Star, ChevronRight
+} from 'lucide-react';
+import { 
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
+  CartesianGrid, Tooltip, Radar, RadarChart, 
+  PolarGrid, PolarAngleAxis, PolarRadiusAxis 
+} from 'recharts';
+import './EvaluationPage.css';
 
 const EvaluationPage = () => {
-  const { 
-    session, 
-    scores, 
-    saveScore, 
-    submitEvaluation, 
-    globalGrade, 
-    coefficients, 
-    juryComment 
-  } = useApp();
+  const performanceData = [
+    { name: 'Proposal', score: 85 },
+    { name: 'Interim', score: 88 },
+    { name: 'Final', score: 0 },
+    { name: 'Defense', score: 0 },
+  ];
 
-  const isJury = session?.role === 'jury';
-  const [tempComment, setTempComment] = useState(juryComment || '');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const criteriaData = [
+    { subject: 'Technical Quality', A: 90, fullMark: 100 },
+    { subject: 'Innovation', A: 75, fullMark: 100 },
+    { subject: 'Documentation', A: 85, fullMark: 100 },
+    { subject: 'Implementation', A: 95, fullMark: 100 },
+    { subject: 'Presentation', A: 80, fullMark: 100 },
+  ];
 
-  const handleScoreChange = (criterion, value) => {
-    if (value === '' || (Number(value) >= 0 && Number(value) <= 20)) {
-      saveScore(criterion, value);
+  const breakdownData = [
+    { component: 'Proposal', weight: '15%', score: '85/100', points: '12.75', progress: 85, status: 'Completed' },
+    { component: 'Interim Report', weight: '20%', score: '88/100', points: '17.60', progress: 88, status: 'Completed' },
+    { component: 'Final Report', weight: '35%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
+    { component: 'Defense Presentation', weight: '20%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
+    { component: 'Supervisor Evaluation', weight: '10%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
+  ];
+
+  const history = [
+    {
+      title: 'Project Proposal',
+      status: 'Completed',
+      evaluator: 'Dr. Sarah Smith',
+      date: '2026-03-20',
+      score: '85',
+      comments: 'Excellent problem statement and methodology. Good research background.'
+    },
+    {
+      title: 'Interim Report',
+      status: 'Completed',
+      evaluator: 'Dr. Sarah Smith',
+      date: '2026-04-22',
+      score: '88',
+      comments: 'Strong progress on implementation. Technical sections are well-written.'
+    },
+    {
+      title: 'Final Report',
+      status: 'Pending',
+      evaluator: 'Dr. Sarah Smith',
+      date: '2026-05-15',
+      score: '-',
+      comments: 'Awaiting submission'
+    },
+    {
+      title: 'Final Defense',
+      status: 'Pending',
+      evaluator: 'Evaluation Committee',
+      date: '2026-05-20',
+      score: '-',
+      comments: 'Scheduled for May 20, 2026'
     }
-  };
-
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-    submitEvaluation(tempComment);
-    setTimeout(() => setIsSubmitting(false), 1500);
-  };
-
-  const getGradeColor = (score) => {
-    if (score === null) return 'secondary';
-    if (score >= 16) return 'success';
-    if (score >= 12) return 'primary';
-    return 'danger';
-  };
+  ];
 
   return (
-    <div className="dashboard-container bg-light min-vh-100 p-4">
-      <Container fluid>
+    <div className="eval-page-layout p-4">
+      <Container fluid className="px-0">
         {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-          <div>
-            <h3 className="fw-bold text-dark mb-1">
-              {isJury ? 'Evaluation Workspace' : 'Academic Results'}
-            </h3>
-            <p className="text-muted small mb-0">
-              {isJury 
-                ? 'Review candidate performance and assign scores based on academic criteria.' 
-                : 'Track your assessment scores and final GPA calculation.'}
-            </p>
-          </div>
-          <div className="d-flex gap-2">
-            {!isJury ? (
-              <Button variant="outline-primary" className="fw-bold px-3 small d-flex align-items-center gap-2">
-                <Download size={16} /> Export Transcript
-              </Button>
-            ) : (
-              <Button 
-                variant="primary" 
-                className="fw-bold px-4 shadow-sm d-flex align-items-center gap-2"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? <Clock size={18} /> : <Send size={18} />}
-                {isSubmitting ? 'Finalizing...' : 'Submit Evaluation'}
-              </Button>
-            )}
-          </div>
-        </div>
+        <header className="d-flex justify-content-between align-items-center mb-5">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h1 className="eval-title mb-1">Evaluation & Grading</h1>
+            <p className="eval-subtitle text-muted mb-0">Track your project assessments and academic performance</p>
+          </motion.div>
+          <Button className="btn-export d-flex align-items-center gap-2 px-4 py-2">
+            <Download size={18} /> Export Results
+          </Button>
+        </header>
 
-        <Row className="g-4 mb-4">
-          {/* Global Score Summary */}
-          <Col lg={4}>
-            <Card className="border-0 shadow-sm rounded-3 h-100 bg-white p-4 text-center border-top border-4 border-primary">
-              <div className="mx-auto mb-3 p-3 rounded-circle bg-light text-primary" style={{ width: 'fit-content' }}>
-                <Award size={40} />
-              </div>
-              <h6 className="fw-bold text-dark mb-1">{isJury ? 'Current Average' : 'Final GPA'}</h6>
-              <div className="display-4 fw-bold text-primary mb-1">
-                {globalGrade ? globalGrade.toFixed(2) : '—'}
-                <small className="h6 text-muted ms-1">/20</small>
-              </div>
-              <div className="mt-2">
-                <Badge bg={getGradeColor(globalGrade)} className="rounded-pill px-4 py-2 small fw-bold">
-                  {globalGrade >= 12 ? 'PASS' : globalGrade === null ? 'PENDING' : 'FAIL'}
-                </Badge>
-              </div>
-            </Card>
-          </Col>
-
-          {/* Detailed Breakdown / Grading Form */}
-          <Col lg={8}>
-            <Card className="border-0 shadow-sm rounded-3 h-100 bg-white overflow-hidden">
-              <div className="p-3 border-bottom bg-light bg-opacity-50">
-                <h6 className="fw-bold mb-0">Scoring Grid Breakdown</h6>
-              </div>
-              <Table responsive hover className="mb-0 align-middle">
-                <thead className="bg-light text-muted extra-small text-uppercase">
-                  <tr>
-                    <th className="ps-4 py-3">Criterion</th>
-                    <th className="py-3 text-center">Coeff.</th>
-                    <th className="py-3">Progress / Score</th>
-                    <th className="text-end pe-4 py-3">Value /20</th>
-                  </tr>
-                </thead>
-                <tbody className="border-top-0">
-                  {Object.keys(SCORE_LABELS).map((key) => {
-                    const score = scores[key];
-                    const color = getGradeColor(score);
-                    return (
-                      <tr key={key}>
-                        <td className="ps-4 py-3">
-                          <span className="fw-bold text-dark small">{SCORE_LABELS[key]}</span>
-                        </td>
-                        <td className="text-center small text-muted">x{coefficients[key]}</td>
-                        <td style={{ minWidth: isJury ? '200px' : '150px' }}>
-                          {isJury ? (
-                            <div className="d-flex align-items-center gap-3">
-                              <Form.Range 
-                                min="0" max="20" step="0.5" 
-                                value={score || 0}
-                                onChange={(e) => handleScoreChange(key, e.target.value)}
-                                className="flex-grow-1"
-                              />
-                              <Form.Control 
-                                size="sm" type="number" 
-                                className="bg-light border-0 text-center fw-bold rounded-2" 
-                                style={{ width: '60px' }}
-                                value={score === null ? '' : score}
-                                onChange={(e) => handleScoreChange(key, e.target.value)}
-                              />
-                            </div>
-                          ) : (
-                            <ProgressBar now={(score / 20) * 100} variant={color} className="rounded-pill" style={{ height: '6px' }} />
-                          )}
-                        </td>
-                        <td className="text-end pe-4">
-                          <span className={`fw-bold small text-${color}`}>
-                            {score !== null ? score.toFixed(1) : '—'}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </Card>
-          </Col>
+        {/* Stats Grid */}
+        <Row className="g-4 mb-5">
+          {[
+            { label: 'Current Grade', value: '30.4', sub: 'out of 100', icon: <Award size={24} />, color: 'primary' },
+            { label: 'Completed', value: '2/4', sub: 'Evaluations', icon: <CheckCircle size={24} />, color: 'success' },
+            { label: 'Average Score', value: '86.5', sub: '%', icon: <TrendingUp size={24} />, color: 'info' },
+            { label: 'Class Rank', value: '12th', sub: 'out of 45', icon: <Users size={24} />, color: 'warning' },
+          ].map((stat, i) => (
+            <Col key={i} lg={3} md={6}>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                <Card className="eval-stat-card border-0 shadow-sm h-100">
+                  <Card.Body className="p-4">
+                    <div className="d-flex justify-content-between mb-3">
+                      <div className={`eval-icon-wrap bg-${stat.color}-soft text-${stat.color}`}>
+                        {stat.icon}
+                      </div>
+                      <div className="text-muted extra-small fw-bold">LIVE DATA</div>
+                    </div>
+                    <div className="small text-muted fw-medium mb-1">{stat.label}</div>
+                    <div className="d-flex align-items-baseline gap-2">
+                      <h2 className="fw-bold mb-0 text-navy">{stat.value}</h2>
+                      <span className="extra-small text-muted">{stat.sub}</span>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </motion.div>
+            </Col>
+          ))}
         </Row>
 
-        <Row className="g-4">
-          {/* Remarks */}
+        <Row className="g-4 mb-5">
+          {/* Charts Section */}
           <Col lg={7}>
-            <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
-              <div className="p-3 border-bottom bg-light bg-opacity-50">
-                <h6 className="fw-bold mb-0">Observations & Remarks</h6>
-              </div>
+            <Card className="eval-main-card border-0 shadow-sm h-100">
               <Card.Body className="p-4">
-                {isJury ? (
-                  <Form.Group>
-                    <Form.Control 
-                      as="textarea" 
-                      rows={6} 
-                      placeholder="Write constructive observations for the candidate..."
-                      className="bg-light border-0 shadow-none rounded-3 p-3 small fw-medium"
-                      value={tempComment}
-                      onChange={(e) => setTempComment(e.target.value)}
-                    />
-                    <div className="mt-3 text-end">
-                      <Button variant="outline-primary" size="sm" className="rounded-pill px-4 fw-bold" onClick={() => submitEvaluation(tempComment)}>
-                        Save Observations
-                      </Button>
-                    </div>
-                  </Form.Group>
-                ) : (
-                  juryComment ? (
-                    <div className="p-4 rounded-3 bg-light border-start border-4 border-primary">
-                      <p className="text-dark small fw-medium mb-0" style={{ lineHeight: '1.7' }}>
-                        "{juryComment}"
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <Clock size={40} className="text-muted opacity-25 mb-2" />
-                      <p className="text-muted small mb-0">Jury observations have not been published yet.</p>
-                    </div>
-                  )
-                )}
+                <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+                  <Activity size={18} className="text-primary" /> Performance Overview
+                </h6>
+                <div style={{ height: '300px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={performanceData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                      />
+                      <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={50} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </Card.Body>
             </Card>
           </Col>
-
-          {/* Policy */}
           <Col lg={5}>
-            <Card className="border-0 shadow-sm rounded-3 bg-primary text-white h-100 p-4 position-relative overflow-hidden">
-              <div className="position-absolute top-0 end-0 p-3 opacity-10"><HelpCircle size={80} /></div>
-              <h6 className="fw-bold mb-4">Grading Policy</h6>
-              <div className="d-flex flex-column gap-3 mb-4">
-                {[
-                  { range: '18 - 20', label: 'Excellent - Outstanding work' },
-                  { range: '15 - 17', label: 'Very Good - Solid performance' },
-                  { range: '12 - 14', label: 'Good - Standard requirements met' },
-                ].map((item, i) => (
-                  <div key={i} className="d-flex align-items-center gap-3">
-                    <Badge bg="white" text="primary" className="rounded-pill px-3 py-1 fw-bold">{item.range}</Badge>
-                    <span className="extra-small opacity-90 fw-medium">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-10 d-flex gap-3">
-                <AlertCircle size={18} className="flex-shrink-0" />
-                <p className="extra-small mb-0 opacity-75">All scores are finalized after the oral defense validation. For queries, contact academic affairs.</p>
-              </div>
+            <Card className="eval-main-card border-0 shadow-sm h-100">
+              <Card.Body className="p-4">
+                <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+                  <Star size={18} className="text-warning" /> Criteria Assessment
+                </h6>
+                <div style={{ height: '300px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={criteriaData}>
+                      <PolarGrid stroke="#e2e8f0" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                      <Radar name="Student" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card.Body>
             </Card>
           </Col>
         </Row>
+
+        {/* Grade Breakdown Table */}
+        <Card className="eval-main-card border-0 shadow-sm mb-5">
+          <Card.Body className="p-0">
+            <div className="p-4 border-bottom">
+              <h6 className="fw-bold text-navy mb-0">Grade Breakdown</h6>
+            </div>
+            <div className="table-responsive">
+              <Table hover className="mb-0 eval-table">
+                <thead>
+                  <tr>
+                    <th className="ps-4">COMPONENT</th>
+                    <th>WEIGHT</th>
+                    <th>SCORE</th>
+                    <th>POINTS EARNED</th>
+                    <th className="pe-4">PROGRESS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {breakdownData.map((row, i) => (
+                    <tr key={i} className="align-middle">
+                      <td className="ps-4 py-3">
+                        <div className="fw-bold small text-navy">{row.component}</div>
+                      </td>
+                      <td><span className="small text-muted">{row.weight}</span></td>
+                      <td>
+                        <Badge className={`px-3 py-1 fw-bold ${row.score === 'Pending' ? 'bg-light text-muted' : 'badge-score'}`}>
+                          {row.score}
+                        </Badge>
+                      </td>
+                      <td><span className="fw-bold text-navy small">{row.points}</span></td>
+                      <td className="pe-4" style={{ width: '200px' }}>
+                        <ProgressBar now={row.progress} variant="primary" style={{ height: '6px' }} className="rounded-pill bg-light" />
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="bg-light-soft align-middle">
+                    <td colSpan="3" className="ps-4 py-4 fw-bold text-navy">Total Points Calculated</td>
+                    <td colSpan="2" className="pe-4 py-4">
+                      <div className="d-flex align-items-baseline gap-2">
+                        <h4 className="fw-bold text-primary mb-0">30.35</h4>
+                        <span className="text-muted small">/ 100</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
+
+        {/* Evaluation History Section */}
+        <h5 className="fw-bold text-navy mb-4">Evaluation History</h5>
+        <div className="eval-history-grid">
+          {history.map((item, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
+              <Card className="eval-history-card border-0 shadow-sm mb-4">
+                <Card.Body className="p-4">
+                  <Row className="align-items-center">
+                    <Col md={8}>
+                      <div className="d-flex align-items-center gap-3 mb-3">
+                        <h5 className="fw-bold text-navy mb-0">{item.title}</h5>
+                        <Badge className={`px-3 py-1 fw-bold ${item.status === 'Completed' ? 'badge-completed' : 'badge-pending'}`}>
+                          {item.status}
+                        </Badge>
+                      </div>
+                      <div className="d-flex flex-wrap gap-4 mb-4">
+                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
+                          <Users size={14} className="text-primary" /> {item.evaluator}
+                        </div>
+                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
+                          <Calendar size={14} className="text-primary" /> {item.date}
+                        </div>
+                        {item.status === 'Completed' && (
+                          <div className="d-flex align-items-center gap-2 extra-small text-success fw-bold">
+                            <Star size={14} /> Score: {item.score}/100
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 bg-light-soft rounded-lg border-start border-4 border-primary">
+                        <div className="extra-small fw-bold text-muted text-uppercase mb-2">Comments:</div>
+                        <p className="small text-navy mb-0 italic">"{item.comments}"</p>
+                      </div>
+                    </Col>
+                    <Col md={4} className="text-center mt-4 mt-md-0">
+                      {item.status === 'Completed' ? (
+                        <div className="eval-score-circle mx-auto">
+                          <div className="eval-score-value">{item.score}</div>
+                          <div className="eval-score-label">out of 100</div>
+                        </div>
+                      ) : (
+                        <div className="eval-pending-box mx-auto d-flex flex-column align-items-center justify-content-center">
+                          <Clock size={32} className="text-muted opacity-25 mb-2" />
+                          <div className="extra-small text-muted fw-bold">AWAITING EVALUATION</div>
+                        </div>
+                      )}
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </Container>
     </div>
   );
 };
 
 export default EvaluationPage;
+

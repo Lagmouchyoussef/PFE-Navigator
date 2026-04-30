@@ -31,7 +31,6 @@ import ReportValidationPage from './pages/ReportValidationPage';
 import SupervisorEvaluationPage from './pages/SupervisorEvaluationPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdministrativeNotesPage from './pages/AdministrativeNotesPage';
-import DesignSystem from './pages/DesignSystem';
 import './App.css';
 
 const RequireAuth = ({ children, requiredRole }) => {
@@ -202,7 +201,6 @@ function App() {
               badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null}
             />
             <SidebarLink to={session.role === 'admin' ? '/admin/notes' : session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} label={!isSidebarCollapsed && "Admin Notes"} />
-            <SidebarLink to="/design-system" icon={<Activity size={20} />} label={!isSidebarCollapsed && "Design System"} />
           </nav>
         )}
 
@@ -392,7 +390,6 @@ function App() {
             {/* Common Routes */}
             <Route path="/resources" element={<RequireAuth><ResourceHubPage /></RequireAuth>} />
             <Route path="/settings"  element={<RequireAuth><SettingsPage /></RequireAuth>} />
-            <Route path="/design-system" element={<DesignSystem />} />
 
             {/* Jury Routes */}
             <Route path="/jury/dashboard"  element={<RequireAuth requiredRole="jury"><JuryDashboard /></RequireAuth>} />

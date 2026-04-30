@@ -1,41 +1,334 @@
 import React from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  ProgressBar, Button, Table
+  ProgressBar, Button, Table, Dropdown
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle, Clock, FileText, GraduationCap, 
-  LayoutDashboard, FileUp, Calendar, 
-  ChevronRight, Mail, MessageSquare,
-  AlertCircle, Search, Activity
+  Plus, MoreHorizontal, TrendingUp, Target,
+  AlertCircle, Activity, Download, Eye,
+  Mail, MessageSquare, Calendar, ExternalLink
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  PieChart, Pie, Cell, ResponsiveContainer, 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
+} from 'recharts';
 import './StudentDashboard.css';
 
 /**
- * StudentDashboard Component
- * High-fidelity PFE management interface for students.
- * Organized into logical sections for better maintainability.
+ * Professional Dashboard Sub-components
  */
 
-const StatCard = ({ label, value, sub, color, icon }) => (
-  <Col lg={3} md={6}>
-    <Card className="sd-card sd-stat-card shadow-sm border-0">
-      <div className="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <div className="text-dark-muted mb-1">{label}</div>
-          <h4 className="fw-bold mb-3">{value}</h4>
-          {sub && <Badge className="badge-active">{sub}</Badge>}
-        </div>
-        <div className={`sd-icon-box bg-pfe-${color} shadow-sm`}>
-          {icon}
-        </div>
+const DashboardHeader = ({ name, onNewSubmission }) => (
+  <header className="sd-welcome-header mb-4">
+    <div className="d-flex justify-content-between align-items-end">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="sd-welcome-title mb-1">Welcome, {name}</h1>
+        <p className="sd-welcome-subtitle text-muted mb-0">
+          PFE Management System • 2026 PFE Candidate
+        </p>
+      </motion.div>
+      <div className="d-flex gap-3">
+        <Button 
+          className="btn-pro-primary d-flex align-items-center gap-2 shadow-sm rounded-pill px-4"
+          onClick={onNewSubmission}
+        >
+          <Plus size={18} /> New Submission
+        </Button>
       </div>
-    </Card>
+    </div>
+  </header>
+);
+
+const StatCard = ({ label, value, sub, color, icon, delay = 0 }) => (
+  <Col lg={3} md={6}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay }}
+    >
+      <Card className="sd-card-professional h-100 border-0 shadow-sm">
+        <Card.Body className="d-flex justify-content-between align-items-center p-4">
+          <div>
+            <div className="text-uppercase text-muted extra-small fw-bold mb-1 tracking-wider">{label}</div>
+            <h3 className="fw-bold mb-0 text-navy">{value}</h3>
+            {sub && <div className="mt-1 text-primary small fw-semibold">{sub}</div>}
+          </div>
+          <div className={`sd-stat-icon bg-pfe-${color}`}>
+            {icon}
+          </div>
+        </Card.Body>
+      </Card>
+    </motion.div>
   </Col>
 );
 
+const ProjectStepper = ({ steps }) => (
+  <Card className="sd-card-professional border-0 mb-4 overflow-hidden">
+    <div className="sd-card-header-clean d-flex justify-content-between align-items-center">
+      <h5>Project Steps</h5>
+      <Badge className="badge-soft-primary">Active Phase: Final Report</Badge>
+    </div>
+    <Card.Body className="py-5 bg-white">
+      <div className="position-relative px-4">
+        <div className="sd-stepper-line"></div>
+        <div className="sd-stepper-line-fill"></div>
+        <div className="sd-stepper-row">
+          {steps.map((step, i) => (
+            <div key={i} className={`sd-stepper-item ${step.status}`}>
+              <div className="sd-stepper-dot shadow-sm">
+                {step.status === 'completed' ? <CheckCircle size={16} /> : i + 1}
+              </div>
+              <div className="text-center mt-2">
+                <div className={`small fw-bold ${step.status === 'pending' ? 'text-muted' : 'text-navy'}`}>
+                  {step.name}
+                </div>
+                <div className="extra-small text-muted text-uppercase fw-bold" style={{ fontSize: '0.65rem' }}>
+                  {step.status === 'completed' ? 'Validated' : step.status === 'active' ? 'In Progress' : 'Pending'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card.Body>
+  </Card>
+);
+
+const AnalyticsView = () => {
+  const barData = [
+    { name: 'Jan', score: 65 }, { name: 'Feb', score: 78 },
+    { name: 'Mar', score: 82 }, { name: 'Apr', score: 90 },
+  ];
+
+  return (
+    <Row className="g-4 mb-4">
+      <Col lg={7}>
+        <Card className="sd-card-professional border-0 h-100">
+          <div className="sd-card-header-clean">
+            <h5>Engagement & Performance</h5>
+          </div>
+          <Card.Body>
+            <div style={{ height: '220px', width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="score" fill="#0046ad" radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col lg={5}>
+        <Card className="sd-card-professional border-0 h-100 bg-navy text-white">
+          <Card.Body className="p-4 d-flex flex-column justify-content-between">
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 className="fw-bold text-uppercase opacity-50 small tracking-widest">Confidence Score</h6>
+                <h1 className="display-4 fw-bold mb-0 mt-2">98.2</h1>
+              </div>
+              <div className="p-3 bg-white bg-opacity-10 rounded-lg text-success">
+                <Target size={28} />
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-10 text-success">
+              <div className="d-flex align-items-center gap-2 small">
+                <Target size={18} />
+                <span className="fw-bold">Goal: Highest Distinction</span>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <div className="d-flex justify-content-between small mb-2">
+                <span>Goal Progression</span>
+                <span className="fw-bold">Excellent</span>
+              </div>
+              <ProgressBar now={90} variant="info" style={{ height: '8px' }} className="bg-white bg-opacity-10 rounded-pill" />
+              <p className="extra-small opacity-75 mt-3 mb-0 text-center">
+                Based on submission punctuality and feedback.
+              </p>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
+  );
+};
+
+const DocumentsList = ({ documents }) => (
+  <Card className="sd-card-professional border-0">
+    <div className="sd-card-header-clean d-flex justify-content-between align-items-center">
+      <h5>Recent Documents</h5>
+      <Button variant="link" className="text-primary small fw-bold text-decoration-none">
+        View all
+      </Button>
+    </div>
+    <div className="p-0">
+      <Table responsive hover className="mb-0 sd-table-pro">
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Last Modified</th>
+            <th className="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {documents.map((doc, i) => (
+            <tr key={i}>
+              <td>
+                <div className="d-flex align-items-center gap-3">
+                  <div className="sd-doc-avatar">
+                    <FileText size={18} />
+                  </div>
+                  <div>
+                    <div className="fw-bold small">{doc.name}</div>
+                    <div className="extra-small text-muted">{doc.size}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <Badge className="badge-pdf px-3 py-1">PDF Document</Badge>
+              </td>
+              <td className="small text-muted fw-medium">{doc.date}</td>
+              <td className="text-end">
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 no-caret text-muted">
+                    <MoreHorizontal size={20} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="border-0 shadow-lg small">
+                    <Dropdown.Item className="d-flex align-items-center gap-2"><Eye size={14} /> View</Dropdown.Item>
+                    <Dropdown.Item className="d-flex align-items-center gap-2"><Download size={14} /> Download</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2"><Plus size={14} className="rotate-45" /> Delete</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  </Card>
+);
+
+const SidebarWidgets = () => {
+  const progressData = [
+    { name: 'Done', value: 75, color: '#0046ad' },
+    { name: 'Todo', value: 25, color: '#f1f5f9' },
+  ];
+
+  return (
+    <div className="d-flex flex-column gap-4">
+      {/* Overall Progress */}
+      <Card className="sd-card-professional border-0 p-4 shadow-sm">
+        <div className="sd-widget-title">
+          <span>Global Progress</span>
+          <Activity size={16} className="text-primary" />
+        </div>
+        <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '140px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={progressData} innerRadius={45} outerRadius={60} paddingAngle={4} dataKey="value" stroke="none">
+                {progressData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="position-absolute text-center">
+            <div className="h4 fw-bold mb-0 text-navy">75%</div>
+            <div className="extra-small text-muted fw-bold">COMPLETED</div>
+          </div>
+        </div>
+        <Row className="g-2 text-center mt-3">
+          <Col xs={6}>
+            <div className="bg-light p-2 rounded-lg border">
+              <div className="text-primary fw-bold small">15</div>
+              <div className="extra-small text-muted">Completed</div>
+            </div>
+          </Col>
+          <Col xs={6}>
+            <div className="bg-light p-2 rounded-lg border">
+              <div className="text-navy fw-bold small">05</div>
+              <div className="extra-small text-muted">Remaining</div>
+            </div>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Upcoming Defense Widget */}
+      <Card className="sd-card-professional border-0 p-4 shadow-sm bg-primary text-white">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h6 className="fw-bold mb-0">Upcoming Defense</h6>
+          <Calendar size={18} className="opacity-75" />
+        </div>
+        <div className="mb-3">
+          <div className="fw-bold fs-6 mb-1">Final Defense Presentation</div>
+          <div className="small opacity-75">May 20, 2026</div>
+          <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
+            <Clock size={12} /> 10:00 AM - Room 304
+          </div>
+        </div>
+        <Button variant="light" size="sm" className="w-100 fw-bold rounded-pill text-primary">
+          Convocation Details
+        </Button>
+      </Card>
+
+      {/* Recent Feedback Widget */}
+      <Card className="sd-card-professional border-0 p-4 shadow-sm">
+        <div className="sd-widget-title mb-3">
+          <span>Recent Feedback</span>
+          <MessageSquare size={16} className="text-primary" />
+        </div>
+        <div className="p-3 bg-light rounded-lg border-start border-primary border-4">
+          <div className="fw-bold small mb-1 text-navy">Interim Report Revision</div>
+          <p className="extra-small text-muted mb-2">
+            "Please revise sections 3.2 and 4.1. Good progress overall!"
+          </p>
+          <div className="d-flex justify-content-between align-items-center extra-small mt-2">
+            <span className="text-primary fw-bold">Dr. Sarah Smith</span>
+            <span className="opacity-50">2 days ago</span>
+          </div>
+        </div>
+      </Card>
+
+      {/* Supervisor Card */}
+      <Card className="sd-card-professional border-0 p-4 shadow-sm">
+        <div className="sd-widget-title">Academic Supervisor</div>
+        <div className="d-flex align-items-center gap-3 mb-4">
+          <div className="sd-avatar-pro">SS</div>
+          <div>
+            <h6 className="fw-bold mb-0">Dr. Sarah Smith</h6>
+            <div className="extra-small text-muted">AI Systems Lab</div>
+          </div>
+        </div>
+        <Button className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2">
+          <Mail size={16} /> Send Message
+        </Button>
+      </Card>
+    </div>
+  );
+};
+
 const StudentDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleNewSubmission = () => {
+    navigate('/student/reports');
+  };
+
   const steps = [
     { name: 'Proposal', status: 'completed' },
     { name: 'Interim Report', status: 'completed' },
@@ -44,171 +337,31 @@ const StudentDashboard = () => {
   ];
 
   const documents = [
-    { name: 'Interim_Report_v2.pdf', date: '2026-04-20', size: '2.4 MB' },
-    { name: 'Project_Proposal_v1.pdf', date: '2026-03-15', size: '1.8 MB' }
+    { name: 'Final_Report_Draft_v1.pdf', date: 'Apr 28, 2026', size: '3.1 MB' },
+    { name: 'Interim_Report_Validated.pdf', date: 'Mar 15, 2026', size: '2.4 MB' },
   ];
 
   return (
-    <div className="sd-page-container">
-      <Container fluid className="px-3">
-        {/* HEADER SECTION */}
-        <header className="sd-welcome-header mb-4">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-0"
-          >
-            Welcome, Ahmed Khalil
-          </motion.h1>
-          <p className="text-muted small fw-medium mb-0">Student Management System • CS Department</p>
-        </header>
-        {/* TOP STATS GRID */}
-        <Row className="g-3 mb-3">
-          {[
-            { label: 'Project Status', value: 'In Progress', sub: 'Active', color: 'blue', icon: <Activity size={20} /> },
-            { label: 'Submission Deadline', value: '15 Days', color: 'orange', icon: <Calendar size={20} /> },
-            { label: 'Documents Submitted', value: '8 / 10', color: 'green', icon: <FileText size={20} /> },
-            { label: 'Current Grade', value: '85 / 100', color: 'navy', icon: <GraduationCap size={20} /> }
-          ].map((stat, i) => (
-            <StatCard key={i} {...stat} />
-          ))}
+    <div className="sd-dashboard-layout">
+      <Container fluid="xxl" className="px-0">
+        <DashboardHeader name="Ahmed Khalil" onNewSubmission={handleNewSubmission} />
+
+        {/* Global Statistics Grid */}
+        <Row className="g-4 mb-5">
+          <StatCard label="Current Phase" value="Writing" trend="Phase 3/4" color="blue" icon={<TrendingUp size={20} />} />
+          <StatCard label="Time Remaining" value="15 Days" color="orange" icon={<Clock size={20} />} />
+          <StatCard label="Average Feedback" value="18.5 / 20" trend="+1.2 vs phase 2" color="green" icon={<GraduationCap size={20} />} />
+          <StatCard label="Alerts" value="02" color="navy" icon={<AlertCircle size={20} />} />
         </Row>
-        {/* PROGRESS TIMELINE */}
-        <Card className="sd-card mb-3">
-          <Card.Header className="sd-card-header"><h5 className="mb-0">Project Progress</h5></Card.Header>
-          <Card.Body className="sd-stepper-container py-4">
-            <div className="sd-timeline-line"></div>
-            <div className="sd-timeline-progress-line"></div>
-            <div className="sd-timeline-row">
-              {steps.map((step, i) => (
-                <div key={i} className="sd-step-item">
-                  <div className={`sd-step-circle ${step.status}`}>
-                    {step.status === 'completed' ? <CheckCircle size={22} /> : <span>{i + 1}</span>}
-                  </div>
-                  <div className="sd-step-label">{step.name}</div>
-                </div>
-              ))}
-            </div>
-          </Card.Body>
-        </Card>
-        {/* MAIN WORKSPACE & SIDEBAR */}
-        <Row className="g-3">
+
+        <Row className="g-5">
           <Col lg={8}>
-            <Card className="sd-card mb-3">
-              <Card.Header className="sd-card-header"><h5 className="mb-0">Upload Documents</h5></Card.Header>
-              <Card.Body className="p-4">
-                <div className="sd-upload-area text-center">
-                  <FileUp size={48} className="text-muted mb-3 opacity-25" />
-                  <h6 className="fw-bold mb-2">Drag and drop your files here</h6>
-                  <p className="text-muted small">or</p>
-                  <Button variant="outline-primary" className="rounded-pill px-5 mb-2">Browse Files</Button>
-                  <p className="extra-small text-muted mb-0">Supported formats: PDF, DOCX (Max 10MB)</p>
-                </div>
-              </Card.Body>
-            </Card>
-            <Card className="sd-card">
-              <Card.Header className="sd-card-header"><h5 className="mb-0">Uploaded Documents</h5></Card.Header>
-              <Card.Body className="p-4 pt-2">
-                <Table responsive hover className="mb-0">
-                  <tbody>
-                    {documents.map((doc, i) => (
-                      <tr key={i} className="align-middle border-bottom">
-                        <td className="py-3">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="p-2 rounded bg-light">
-                              <FileText size={20} className="text-primary" />
-                            </div>
-                            <div>
-                              <div className="fw-bold small">{doc.name}</div>
-                              <div className="extra-small text-muted">{doc.date} • {doc.size}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-end">
-                          <Button variant="link" className="text-primary fw-bold text-decoration-none small">View</Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Card.Body>
-            </Card>
+            <ProjectStepper steps={steps} />
+            <AnalyticsView />
+            <DocumentsList documents={documents} />
           </Col>
-
-          {/* Sidebar Widgets */}
           <Col lg={4}>
-            <div className="d-flex flex-column gap-4">
-              
-              <Card className="sd-card shadow-sm border-0">
-                <Card.Header className="bg-transparent border-0 p-4 pb-0">
-                  <h6 className="fw-bold mb-0">Upcoming Defense</h6>
-                </Card.Header>
-                <Card.Body className="p-4">
-                  <div className="sd-defense-box shadow-none">
-                    <div className="d-flex align-items-start gap-3">
-                      <Calendar size={24} className="text-primary mt-1" />
-                      <div>
-                        <h6 className="fw-bold mb-1">Final Defense Presentation</h6>
-                        <div className="small text-muted mb-1">May 20, 2026</div>
-                        <div className="extra-small text-muted">10:00 AM - Room 304</div>
-                      </div>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-
-              <Card className="sd-card shadow-sm border-0">
-                <Card.Header className="bg-transparent border-0 p-4 pb-0">
-                  <h6 className="fw-bold mb-0">Recent Feedback</h6>
-                </Card.Header>
-                <Card.Body className="p-4">
-                  <div className="border-start border-primary border-4 ps-3">
-                    <div className="fw-bold small mb-1">Interim Report Revision</div>
-                    <p className="extra-small text-muted mb-1">"Please revise sections 3.2 and 4.1. Good progress overall!"</p>
-                    <div className="extra-small text-primary fw-bold">2 days ago</div>
-                  </div>
-                </Card.Body>
-              </Card>
-
-              <Card className="sd-card shadow-sm border-0">
-                <Card.Body className="p-4">
-                  <div className="text-muted extra-small text-uppercase fw-bold mb-3">Your Supervisor</div>
-                  <div className="d-flex align-items-center gap-3 mb-4">
-                    <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '45px', height: '45px' }}>SS</div>
-                    <div>
-                      <h6 className="fw-bold mb-0">Dr. Sarah Smith</h6>
-                      <div className="extra-small text-muted">Computer Science Department</div>
-                    </div>
-                  </div>
-                  <Button variant="primary" className="w-100 rounded-pill py-2 fw-bold small shadow-sm border-0">Contact Supervisor</Button>
-                </Card.Body>
-              </Card>
-
-              <Card className="sd-card shadow-sm border-0">
-                <Card.Body className="p-4">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="fw-bold mb-0">Overall Progress</h6>
-                    <span className="text-primary fw-bold">75%</span>
-                  </div>
-                  <ProgressBar now={75} className="mb-4 rounded-pill" style={{ height: '10px' }} />
-                  <Row className="g-2 text-center">
-                    <Col xs={6}>
-                      <div className="bg-light p-2 rounded">
-                        <div className="text-success fw-bold small">15/20</div>
-                        <div className="text-muted extra-small">Completed</div>
-                      </div>
-                    </Col>
-                    <Col xs={6}>
-                      <div className="bg-light p-2 rounded">
-                        <div className="text-warning fw-bold small">5/20</div>
-                        <div className="text-muted extra-small">Remaining</div>
-                      </div>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-
-            </div>
+            <SidebarWidgets />
           </Col>
         </Row>
       </Container>

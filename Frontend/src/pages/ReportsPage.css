@@ -1,0 +1,125 @@
+/* Documents Page - Professional SaaS Design */
+
+.doc-page-layout {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+}
+
+.doc-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.btn-upload {
+  background-color: #3b82f6 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-upload:hover {
+  background-color: #2563eb !important;
+  transform: translateY(-1px);
+}
+
+/* Stat Cards */
+.doc-stat-card {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  transition: transform 0.2s ease;
+}
+
+.doc-stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.doc-folder-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #eff6ff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dropzone */
+.doc-dropzone {
+  background-color: #ffffff;
+  border: 2px dashed #e2e8f0;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.doc-dropzone:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.doc-dropzone-icon {
+  width: 64px;
+  height: 64px;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* Main Card & Table */
+.doc-main-card {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.doc-table thead th {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.5rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.doc-table tbody td {
+  padding: 1rem 1.5rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.badge-approved {
+  background-color: #d1fae5 !important;
+  color: #059669 !important;
+  border-radius: 20px !important;
+  font-size: 0.75rem !important;
+}
+
+.badge-pdf {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fee2e2 !important;
+  border-radius: 20px !important;
+}
+
+.cursor-pointer { cursor: pointer; }
+.hover-navy:hover { color: #0f172a !important; }
+.hover-opacity:hover { opacity: 0.8; }
+
+.extra-small { font-size: 0.75rem; }
+
+/* Dark Mode */
+[data-theme='dark'] .doc-page-layout { background-color: #020617; }
+[data-theme='dark'] .doc-main-card,
+[data-theme='dark'] .doc-stat-card { background-color: #0f172a !important; border: 1px solid #1e293b !important; }
+[data-theme='dark'] .doc-title,
+[data-theme='dark'] .doc-stat-card h2 { color: #f8fafc; }
+[data-theme='dark'] .doc-table thead th { background-color: #1e293b !important; color: #94a3b8 !important; }
+[data-theme='dark'] .doc-dropzone { background-color: #0f172a; border-color: #1e293b; }
+[data-theme='dark'] .doc-dropzone h5 { color: #f8fafc; }

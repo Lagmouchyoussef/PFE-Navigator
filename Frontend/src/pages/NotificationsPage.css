@@ -1,76 +1,113 @@
-.notifications-container {
-  min-height: 100vh;
-  background: var(--background);
+/* Notifications Page - Premium Institutional Styling */
+
+.notifications-page-layout {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
 }
 
-.notification-item {
+.text-navy { color: #0f172a !important; }
+.bg-navy { background-color: #0f172a !important; }
+
+/* Tabs Styling */
+.notif-tabs .nav-link {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.notif-tabs .nav-link:hover {
+  color: #3b82f6;
+  background: transparent;
+}
+
+.notif-tabs .nav-link.active {
+  color: #3b82f6 !important;
+  background: transparent !important;
+  border-bottom-color: #3b82f6 !important;
+}
+
+/* Notification Cards */
+.notif-card {
+  border-radius: 20px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-left: 4px solid transparent !important;
+  border-left: 0 solid #3b82f6 !important;
 }
 
-.notification-item:hover {
-  background: rgba(var(--bs-primary-rgb), 0.03) !important;
-  transform: translateX(4px);
+.notif-card.unread {
+  background-color: #ffffff;
+  border-left: 4px solid #3b82f6 !important;
 }
 
-.notification-item.unread {
-  border-left-color: var(--secondary) !important;
-  background: rgba(var(--bs-primary-rgb), 0.05) !important;
+.notif-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0,0,0,0.08) !important;
 }
 
 .notif-icon-box {
-  position: relative;
-  transition: transform 0.3s ease;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.notification-item:hover .notif-icon-box {
-  transform: scale(1.1);
-}
-
-.filter-tab {
-  cursor: pointer;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.filter-tab:hover {
-  background: rgba(var(--bs-primary-rgb), 0.05);
-}
-
-.filter-tab.active {
-  background: var(--surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: var(--border);
-  color: var(--secondary);
-}
-
-.notif-category-badge {
-  font-size: 0.65rem;
+.unread-dot-badge {
+  font-size: 0.65rem !important;
+  padding: 0.35rem 0.6rem !important;
+  border-radius: 6px !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 800;
-  padding: 4px 8px;
 }
 
-.empty-state-notif {
-  padding: 80px 20px;
+.category-tag {
+  font-size: 0.65rem !important;
+  padding: 0.35rem 0.6rem !important;
+  border-radius: 6px !important;
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  font-weight: 700 !important;
 }
 
-.notif-action-btn {
-  opacity: 0;
-  transition: opacity 0.2s ease;
+/* Action Icons */
+.no-caret::after {
+  display: none;
 }
 
-.notification-item:hover .notif-action-btn {
-  opacity: 1;
+.hover-navy:hover {
+  color: #0f172a !important;
 }
 
-.glass-nav {
-  background: rgba(var(--bs-surface-rgb), 0.8);
-  backdrop-filter: blur(8px);
-  z-index: 10;
+/* Sidebar Helpers */
+.notification-settings .form-check-input:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
 }
+
+.decor-circle {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
+/* Dark Mode */
+[data-theme='dark'] .notifications-page-layout { background-color: #020617; }
+[data-theme='dark'] .notif-card,
+[data-theme='dark'] .notif-tabs { 
+  background-color: #0f172a !important; 
+  border-color: #1e293b !important; 
+}
+[data-theme='dark'] .notif-card.unread { background-color: rgba(59, 130, 246, 0.05) !important; }
+[data-theme='dark'] .text-navy { color: #f8fafc !important; }
+[data-theme='dark'] .category-tag { background-color: #1e293b !important; color: #94a3b8 !important; }
+[data-theme='dark'] .notif-tabs .nav-link { color: #94a3b8; }
+[data-theme='dark'] .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }

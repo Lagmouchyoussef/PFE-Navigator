@@ -1,0 +1,145 @@
+/* Messages Page - High-Fidelity Chat Interface */
+
+.messages-page-layout {
+  height: calc(100vh - 80px);
+  background-color: #f8fafc;
+}
+
+.text-navy { color: #0f172a !important; }
+
+/* Sidebar */
+.search-bar {
+  padding: 0.5rem 1rem;
+}
+
+.conv-item {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.conv-item:hover {
+  background-color: #f1f5f9;
+}
+
+.conv-item.active {
+  background-color: #eff6ff;
+  border-left-color: #3b82f6;
+}
+
+.avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.avatar-circle.sm {
+  width: 40px;
+  height: 40px;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.status-dot.online { background-color: #10b981; }
+
+.unread-badge {
+  background-color: #3b82f6 !important;
+  font-size: 0.7rem !important;
+  padding: 0.35em 0.65em !important;
+}
+
+/* Chat Header */
+.chat-header {
+  height: 72px;
+  background-color: white;
+}
+
+.hover-light:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Message Canvas */
+.message-canvas {
+  background-color: #ffffff;
+}
+
+.message-bubble-wrapper {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-bubble-wrapper.mine {
+  align-items: flex-end;
+}
+
+.bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.mine .bubble {
+  background-color: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.theirs .bubble {
+  background-color: #f8fafc;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 2px;
+}
+
+.bubble-meta {
+  font-size: 0.75rem;
+}
+
+/* Footer */
+.chat-footer {
+  background-color: white;
+}
+
+.btn-send {
+  background-color: #3b82f6 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+.btn-send:hover {
+  background-color: #2563eb !important;
+  transform: translateY(-1px);
+}
+
+/* Scrollbar */
+.overflow-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
