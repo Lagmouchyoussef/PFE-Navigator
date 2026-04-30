@@ -189,6 +189,42 @@
   font-weight: 700;
 }
 
+/* Circular Chart */
+.circular-chart-pfe {
+  display: block;
+  margin: 0 auto;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 2.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke: var(--sd-primary);
+  animation: progress 1s ease-out forwards;
+}
+
+@keyframes progress {
+  0% { stroke-dasharray: 0 100; }
+}
+
+.percentage {
+  fill: var(--sd-text-main);
+  font-family: sans-serif;
+  font-size: 0.5rem;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.bg-light-soft {
+  background-color: #f8fafc !important;
+}
+
 /* Responsive Grid Spacing */
 .sd-main-grid {
   display: grid;

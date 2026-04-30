@@ -187,23 +187,41 @@ const StudentDashboard = () => {
                 <Button variant="primary" className="w-100 rounded-pill py-2 fw-bold small border-0">Contact Supervisor</Button>
               </Card>
 
-              <Card className="sd-premium-card p-4 text-center">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-bold mb-0">Overall Progress</h6>
-                  <span className="text-primary fw-bold">75%</span>
+              {/* Overall Progress Section */}
+              <Card className="sd-premium-card p-4">
+                <h6 className="fw-bold mb-4">Overall Progress</h6>
+                <div className="d-flex align-items-center justify-content-between gap-4 mb-4">
+                  <div className="position-relative d-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px' }}>
+                    <svg viewBox="0 0 36 36" className="circular-chart-pfe" style={{ width: '80px', height: '80px' }}>
+                      <path className="circle-bg"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path className="circle"
+                        strokeDasharray="75, 100"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <text x="18" y="20.35" className="percentage">75%</text>
+                    </svg>
+                  </div>
+                  <div className="flex-grow-1">
+                    <div className="text-muted extra-small fw-bold text-uppercase mb-2">Project Completion</div>
+                    <ProgressBar now={75} className="rounded-pill" style={{ height: '8px' }} />
+                    <div className="mt-2 extra-small text-muted fw-medium">
+                      You are ahead of <span className="text-success">82%</span> of other students
+                    </div>
+                  </div>
                 </div>
-                <ProgressBar now={75} className="mb-3 rounded-pill" style={{ height: '8px' }} />
                 <Row className="g-2">
                   <Col xs={6}>
-                    <div className="bg-light py-2 rounded">
-                      <div className="text-success fw-bold small">15/20</div>
-                      <div className="text-muted extra-small">Completed</div>
+                    <div className="bg-light-soft py-3 rounded-3 text-center border">
+                      <div className="text-success fw-bold h5 mb-0">15/20</div>
+                      <div className="text-muted extra-small fw-bold">COMPLETED</div>
                     </div>
                   </Col>
                   <Col xs={6}>
-                    <div className="bg-light py-2 rounded">
-                      <div className="text-warning fw-bold small">5/20</div>
-                      <div className="text-muted extra-small">Remaining</div>
+                    <div className="bg-light-soft py-3 rounded-3 text-center border">
+                      <div className="text-warning fw-bold h5 mb-0">5/20</div>
+                      <div className="text-muted extra-small fw-bold">REMAINING</div>
                     </div>
                   </Col>
                 </Row>
