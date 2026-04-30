@@ -1,110 +1,62 @@
-/* Student Dashboard - Refined Academic Professional Design */
-
-:root {
-  --sd-bg: #f5f7fa;
-  --sd-card-white: #ffffff;
-  --sd-border: #eef2f6;
-  --sd-text-primary: #1e293b;
-  --sd-text-secondary: #64748b;
-  --sd-navy: #2c3e50;
-  --sd-blue: #3498db;
-  --sd-green: #27ae60;
-  --sd-orange: #f39c12;
-}
+/* Student Dashboard - Original Screenshot Match */
 
 .sd-page-container {
-  background-color: var(--sd-bg) !important;
-  color: var(--sd-text-primary) !important;
+  background-color: #f0f2f5 !important;
+  color: #2c3e50 !important;
   min-height: 100vh;
-  padding: 2.5rem !important;
+  padding: 30px;
 }
 
-/* Header Typography */
-.sd-welcome-header {
-  margin-bottom: 2rem;
-}
-
-.sd-welcome-header h1 {
-  font-size: 1.75rem;
+/* Welcome Header */
+.sd-welcome-text {
+  font-size: 1.8rem;
   font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: -0.02em;
+  color: #1a1a1a !important;
+  margin-bottom: 25px;
 }
 
-/* Card Architecture */
-.sd-premium-card {
-  background-color: var(--sd-card-white) !important;
-  border: 1px solid var(--sd-border) !important;
+/* Modern Cards */
+.sd-card {
+  background-color: #ffffff !important;
+  border: none !important;
   border-radius: 12px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
   height: 100%;
 }
 
-.sd-card-header {
-  padding: 1.5rem 1.5rem 0 1.5rem;
-  background: transparent !important;
-  border: none !important;
+.sd-stat-card {
+  padding: 25px !important;
 }
 
-.sd-card-header h5 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--sd-navy);
-}
-
-.sd-card-body {
-  padding: 1.5rem !important;
-}
-
-/* Stat Tiles */
-.sd-stat-tile {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.sd-stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--sd-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.sd-stat-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 0.25rem;
-}
-
-.sd-stat-icon-wrapper {
-  width: 44px;
-  height: 44px;
+.sd-icon-box {
+  width: 48px;
+  height: 48px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: white !important;
 }
 
-/* Progress Stepper - High Fidelity */
-.sd-stepper-container {
-  padding: 2.5rem 1rem;
+.bg-pfe-blue { background-color: #3498db !important; }
+.bg-pfe-orange { background-color: #f39c12 !important; }
+.bg-pfe-green { background-color: #27ae60 !important; }
+.bg-pfe-navy { background-color: #2c3e50 !important; }
+
+/* Timeline Stepper */
+.sd-timeline-container {
+  padding: 40px 20px;
   position: relative;
 }
 
-.sd-stepper-row {
+.sd-timeline-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   position: relative;
-  width: 100%;
 }
 
-.sd-stepper-item {
+.sd-step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,103 +65,81 @@
   flex: 1;
 }
 
-.sd-stepper-circle {
-  width: 40px;
-  height: 40px;
+.sd-step-circle {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: white !important;
+  margin-bottom: 15px;
   transition: all 0.3s ease;
-  box-shadow: 0 0 0 6px var(--sd-card-white);
 }
 
-.sd-stepper-circle.completed { background-color: var(--sd-green); color: white; }
-.sd-stepper-circle.active { background-color: var(--sd-blue); color: white; }
-.sd-stepper-circle.pending { background-color: #f1f3f4; color: #9aa0a6; border: 1.5px solid #e2e8f0; }
+.sd-step-circle.completed { background-color: #27ae60 !important; }
+.sd-step-circle.active { background-color: #3498db !important; }
+.sd-step-circle.pending { background-color: #ecf0f1 !important; color: #95a5a6 !important; border: 2px solid #dcdde1 !important; }
 
-.sd-stepper-line {
+.sd-step-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2c3e50 !important;
+}
+
+.sd-timeline-line {
   position: absolute;
-  top: 20px;
+  top: 22px;
   left: 12.5%;
   right: 12.5%;
   height: 2px;
-  background-color: #f1f3f4;
+  background-color: #ecf0f1 !important;
   z-index: 1;
 }
 
-.sd-stepper-line-progress {
+.sd-timeline-progress-line {
   position: absolute;
-  top: 20px;
+  top: 22px;
   left: 12.5%;
-  width: 50%; /* Adjust to active step */
+  width: 50%;
   height: 2px;
-  background-color: var(--sd-green);
+  background-color: #27ae60 !important;
   z-index: 1;
 }
 
-/* Workspace Elements */
-.sd-drop-zone {
-  border: 2px dashed #dadce0;
-  background-color: #fcfcfc;
-  border-radius: 12px;
-  padding: 3rem 1.5rem;
-  text-align: center;
-  transition: all 0.2s ease;
+/* Upload Zone */
+.sd-upload-area {
+  border: 2px dashed #dcdde1 !important;
+  border-radius: 12px !important;
+  padding: 40px !important;
+  background-color: white !important;
 }
 
-.sd-drop-zone:hover {
-  border-color: var(--sd-blue);
-  background-color: #f8fbff;
-}
-
-/* Table Refinement */
-.sd-table thead th {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--sd-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-bottom: 2px solid var(--sd-bg);
-  padding-bottom: 1rem;
-}
-
-.sd-table-row:hover {
-  background-color: #fcfcfc !important;
-}
-
-/* Widget Styling */
-.sd-widget-highlight {
-  background-color: #f1f7fe;
-  border-radius: 10px;
-  padding: 1.25rem;
-}
-
-.sd-feedback-border {
-  border-left: 4px solid var(--sd-blue);
-  padding-left: 1rem;
-}
-
-.sd-avatar-lg {
-  width: 48px;
-  height: 48px;
-  background-color: var(--sd-navy);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+/* Upcoming Defense Box */
+.sd-defense-box {
+  background-color: #f1f7fe !important;
+  border-radius: 10px !important;
+  padding: 20px !important;
 }
 
 /* Badges */
-.badge-sd-active {
-  background-color: var(--sd-green);
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.65rem;
-  font-weight: 700;
+.badge-active {
+  background-color: #27ae60 !important;
+  color: white !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  font-size: 0.7rem !important;
+}
+
+/* Typography Fixes */
+.text-dark-muted {
+  color: #7f8c8d !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
 }
