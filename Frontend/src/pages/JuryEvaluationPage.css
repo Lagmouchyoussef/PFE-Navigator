@@ -1,0 +1,174 @@
+/* Jury Evaluation Page - Premium Gris Noir */
+.ev-page-layout {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem !important;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+[data-theme='dark'] .ev-page-layout {
+  background-color: #020617;
+}
+
+.ev-header-section h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+[data-theme='dark'] .ev-header-section h1 {
+  color: #f1f5f9;
+}
+
+/* Stat Cards */
+.ev-stat-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+[data-theme='dark'] .ev-stat-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.ev-stat-val {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .ev-stat-val {
+  color: #f1f5f9;
+}
+
+.ev-stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Chart Card */
+.ev-chart-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+}
+
+[data-theme='dark'] .ev-chart-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+/* Table Section */
+.ev-table-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .ev-table-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.ev-table {
+  width: 100%;
+  table-layout: fixed; /* Force fixed layout */
+}
+
+.ev-table thead th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  padding: 1rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .ev-table thead th {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-bottom-color: #334155 !important;
+}
+
+/* Active Evaluation Panel */
+.ev-active-panel {
+  background: white;
+  border-radius: 20px;
+  border: 2px solid #3b82f6;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1);
+}
+
+[data-theme='dark'] .ev-active-panel {
+  background: #0f172a;
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.ev-scoring-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ev-scoring-table th {
+  background: transparent !important;
+  font-size: 0.75rem;
+  color: #64748b;
+  padding: 0.75rem !important;
+}
+
+.ev-score-input {
+  width: 70px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  font-weight: 700;
+  background: #f8fafc;
+}
+
+[data-theme='dark'] .ev-score-input {
+  background: #1e293b;
+  border-color: #334155;
+  color: white;
+}
+
+.ev-total-box {
+  background: #f0f7ff;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid #dbeafe;
+}
+
+[data-theme='dark'] .ev-total-box {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.ev-submit-btn {
+  background: #0046ad !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0.75rem 2.5rem !important;
+  font-weight: 800 !important;
+  transition: all 0.2s;
+}
+
+.ev-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 70, 173, 0.3);
+}

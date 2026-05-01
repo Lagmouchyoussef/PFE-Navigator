@@ -1,0 +1,229 @@
+/* Resource Hub Page - Premium Gris Noir */
+.rh-page-layout {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem !important;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+[data-theme='dark'] .rh-page-layout {
+  background-color: #020617;
+}
+
+.rh-header-section h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+[data-theme='dark'] .rh-header-section h1 {
+  color: #f1f5f9;
+}
+
+/* Stat Cards */
+.rh-stat-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+}
+
+[data-theme='dark'] .rh-stat-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.rh-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f0f7ff;
+  color: #0046ad;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme='dark'] .rh-stat-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.rh-stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+[data-theme='dark'] .rh-stat-val {
+  color: #f1f5f9;
+}
+
+.rh-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* Sidebar */
+.rh-sidebar {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+}
+
+[data-theme='dark'] .rh-sidebar {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.rh-cat-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .rh-cat-btn {
+  color: #94a3b8;
+}
+
+.rh-cat-btn:hover, .rh-cat-btn.active {
+  background: #f1f5f9;
+  color: #0046ad;
+}
+
+[data-theme='dark'] .rh-cat-btn:hover, [data-theme='dark'] .rh-cat-btn.active {
+  background: #1e293b;
+  color: #3b82f6;
+}
+
+.rh-cat-count {
+  font-size: 0.75rem;
+  background: #f8fafc;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .rh-cat-count {
+  background: #1e293b;
+}
+
+/* Table */
+.rh-table-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .rh-table-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.rh-table {
+  width: 100%;
+  table-layout: fixed; /* Force fixed layout */
+}
+
+.rh-table thead th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 1rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .rh-table thead th {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-bottom-color: #334155 !important;
+}
+
+.rh-table tbody td {
+  padding: 1rem !important;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rh-doc-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.9rem;
+  margin-bottom: 0.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .rh-doc-name {
+  color: #f1f5f9;
+}
+
+.rh-doc-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.rh-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .rh-action-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+.rh-action-btn:hover {
+  background: #f1f5f9;
+  color: #0046ad;
+  border-color: #0046ad;
+}
+
+.rh-search-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+[data-theme='dark'] .rh-search-box {
+  background: #1e293b;
+  border-color: #334155;
+}

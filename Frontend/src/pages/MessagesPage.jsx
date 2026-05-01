@@ -75,28 +75,28 @@ const MessagesPage = () => {
 
   return (
     <div className="messages-page-layout">
-      <Container fluid className="h-100 p-0">
+      <Container fluid className="h-100 p-0 overflow-hidden">
         <Row className="g-0 h-100">
           {/* Sidebar */}
-          <Col lg={4} xl={3} className="border-end bg-white h-100 d-flex flex-column">
-            <div className="p-4">
-              <h4 className="fw-bold text-navy mb-4">Messages</h4>
-              <InputGroup className="bg-light rounded-3 border-0 search-bar">
+          <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column shadow-sm">
+            <div className="p-4 border-bottom bg-surface-sidebar">
+              <h4 className="fw-black text-gradient-primary mb-4">Chat Space</h4>
+              <InputGroup className="search-bar-modern rounded-pill border-0">
                 <InputGroup.Text className="bg-transparent border-0 pe-1">
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Search conversations..." 
-                  className="bg-transparent border-0 shadow-none small"
+                  placeholder="Search contacts..." 
+                  className="bg-transparent border-0 shadow-none small fw-medium"
                 />
               </InputGroup>
             </div>
 
-            <div className="flex-grow-1 overflow-auto conversations-list">
+            <div className="flex-grow-1 overflow-auto conversations-list bg-white-soft">
               {conversations.map((conv) => (
                 <div key={conv.id} className={`conv-item p-3 d-flex gap-3 align-items-center ${conv.id === 1 ? 'active' : ''}`}>
                   <div className="position-relative">
-                    <div className="avatar-circle" style={{ backgroundColor: conv.color }}>{conv.avatar}</div>
+                    <div className="avatar-circle-modern shadow-sm" style={{ backgroundColor: conv.color }}>{conv.avatar}</div>
                     {conv.online && <div className="status-dot online"></div>}
                   </div>
                   <div className="flex-grow-1 overflow-hidden">
@@ -104,11 +104,11 @@ const MessagesPage = () => {
                       <div className="fw-bold small text-navy text-truncate">{conv.name}</div>
                       <div className="extra-small text-muted">{conv.time}</div>
                     </div>
-                    <div className="extra-small text-muted mb-1">{conv.role}</div>
-                    <p className="extra-small text-muted mb-0 text-truncate">{conv.lastMsg}</p>
+                    <div className="extra-small text-muted mb-1 opacity-75">{conv.role}</div>
+                    <p className="extra-small text-muted mb-0 text-truncate font-italic">{conv.lastMsg}</p>
                   </div>
                   {conv.unread > 0 && (
-                    <Badge pill bg="primary" className="unread-badge">{conv.unread}</Badge>
+                    <Badge pill className="unread-badge-gradient">{conv.unread}</Badge>
                   )}
                 </div>
               ))}
@@ -116,43 +116,50 @@ const MessagesPage = () => {
           </Col>
 
           {/* Chat Area */}
-          <Col lg={8} xl={9} className="h-100 d-flex flex-column bg-white">
+          <Col lg={8} xl={9} className="h-100 d-flex flex-column chat-main-canvas">
             {/* Chat Header */}
-            <header className="chat-header p-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <header className="chat-header-glass p-3 px-4 d-flex justify-content-between align-items-center shadow-sm">
               <div className="d-flex align-items-center gap-3">
                 <div className="position-relative">
-                  <div className="avatar-circle sm bg-navy text-white">DS</div>
+                  <div className="avatar-circle sm bg-navy text-white shadow-sm">DS</div>
                   <div className="status-dot online"></div>
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-navy">Dr. Sarah Smith</h6>
-                  <div className="extra-small text-muted">Online • Project Supervisor</div>
+                  <h6 className="fw-black mb-0 text-navy">Dr. Sarah Smith</h6>
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="dot bg-success"></div>
+                    <span className="extra-small text-muted fw-semibold">Active Now • Project Supervisor</span>
+                  </div>
                 </div>
               </div>
               <div className="d-flex gap-2">
-                <Button variant="link" className="text-muted p-2 hover-light"><Phone size={20}/></Button>
-                <Button variant="link" className="text-muted p-2 hover-light"><Video size={20}/></Button>
-                <Button variant="link" className="text-muted p-2 hover-light"><MoreVertical size={20}/></Button>
+                <Button variant="link" className="action-icon-btn"><Phone size={20}/></Button>
+                <Button variant="link" className="action-icon-btn"><Video size={20}/></Button>
+                <Button variant="link" className="action-icon-btn"><MoreVertical size={20}/></Button>
               </div>
             </header>
 
             {/* Message Area */}
-            <div ref={scrollRef} className="flex-grow-1 p-4 overflow-auto message-canvas d-flex flex-column gap-4">
+            <div ref={scrollRef} className="flex-grow-1 p-4 overflow-auto message-canvas d-flex flex-column gap-3">
+              <div className="text-center my-4">
+                <Badge bg="light" className="text-muted fw-bold px-3 py-2 rounded-pill border">Today, May 01</Badge>
+              </div>
+              
               {chatMessages.map((msg) => {
                 const isMe = msg.sender === 'me';
                 return (
                   <motion.div 
                     key={msg.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: isMe ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     className={`d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}`}
                   >
                     <div className={`message-bubble-wrapper ${isMe ? 'mine' : 'theirs'}`}>
-                      <div className="bubble">
+                      <div className="bubble shadow-sm">
                         {msg.text}
                       </div>
-                      <div className="bubble-meta d-flex align-items-center gap-2 mt-1">
-                        <span className="extra-small text-muted">{msg.time}</span>
+                      <div className="bubble-meta d-flex align-items-center gap-2 mt-2 px-1">
+                        <span className="extra-small text-muted fw-medium">{msg.time}</span>
                         {isMe && (
                           msg.status === 'read' ? <CheckCheck size={14} className="text-primary" /> : <Check size={14} className="text-muted" />
                         )}
@@ -164,19 +171,17 @@ const MessagesPage = () => {
             </div>
 
             {/* Input Footer */}
-            <footer className="chat-footer p-4 border-top">
-              <div className="d-flex align-items-center gap-3">
-                <Button variant="link" className="text-muted p-0"><Paperclip size={24}/></Button>
-                <InputGroup className="bg-white rounded-pill border shadow-none px-3 py-1">
-                  <Form.Control 
-                    placeholder="Type your message..." 
-                    className="border-0 shadow-none small fw-medium"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                  />
-                </InputGroup>
-                <Button className="btn-send d-flex align-items-center gap-2 px-4 py-2">
-                  <Send size={18} /> Send
+            <footer className="chat-footer-modern p-4">
+              <div className="d-flex align-items-center gap-3 bg-white rounded-4 shadow-sm border p-2">
+                <Button variant="link" className="text-primary hover-bg-light rounded-circle p-2"><Paperclip size={22}/></Button>
+                <Form.Control 
+                  placeholder="Share your thoughts with Dr. Sarah Smith..." 
+                  className="border-0 shadow-none small fw-medium bg-transparent"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                />
+                <Button className="btn-send-modern d-flex align-items-center justify-content-center p-2 rounded-circle">
+                  <Send size={20} className="ms-1" />
                 </Button>
               </div>
             </footer>

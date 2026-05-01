@@ -122,4 +122,8 @@
 [data-theme='dark'] .doc-stat-card h2 { color: #f8fafc; }
 [data-theme='dark'] .doc-table thead th { background-color: #1e293b !important; color: #94a3b8 !important; }
 [data-theme='dark'] .doc-dropzone { background-color: #0f172a; border-color: #1e293b; }
+[data-theme='dark'] .doc-dropzone:hover { border-color: #3b82f6; background-color: rgba(30, 41, 59, 0.5); }
+[data-theme='dark'] .doc-dropzone-icon { background-color: #1e293b; }
 [data-theme='dark'] .doc-dropzone h5 { color: #f8fafc; }
+[data-theme='dark'] .doc-table tbody td { border-bottom-color: #1e293b; color: #94a3b8; }
+[data-theme='dark'] .doc-folder-icon { background-color: #1e293b; }

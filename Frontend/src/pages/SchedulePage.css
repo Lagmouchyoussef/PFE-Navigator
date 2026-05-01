@@ -242,6 +242,7 @@
 [data-theme='dark'] .schedule-page-layout { background-color: #020617; }
 [data-theme='dark'] .schedule-stat-card { background: rgba(15, 23, 42, 0.8) !important; border-color: rgba(30, 41, 59, 0.5) !important; }
 [data-theme='dark'] .schedule-calendar-card,
+[data-theme='dark'] .schedule-main-card,
 [data-theme='dark'] .event-detail-card,
 [data-theme='dark'] .schedule-side-card { background-color: #0f172a !important; border-color: #1e293b !important; }
 [data-theme='dark'] .calendar-grid { background-color: #1e293b; }
@@ -251,3 +252,8 @@
 [data-theme='dark'] .tag-meeting { background-color: #1e293b; color: #a5b4fc; }
 [data-theme='dark'] .tag-deadline { background-color: #1e293b; color: #fda4af; }
 [data-theme='dark'] .tag-submission { background-color: #1e293b; color: #6ee7b7; }
+[data-theme='dark'] .event-item-row,
+[data-theme='dark'] .border-bottom { border-color: #1e293b !important; }
+[data-theme='dark'] .event-item-row:hover { background-color: rgba(30, 41, 59, 0.5); }
+[data-theme='dark'] .text-navy { color: #f1f5f9 !important; }
+[data-theme='dark'] .schedule-title { background: linear-gradient(135deg, #f8fafc 0%, #3b82f6 100%); -webkit-background-clip: text; }

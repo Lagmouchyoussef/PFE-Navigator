@@ -1,0 +1,183 @@
+/* Jury Schedule Page - Premium Gris Noir */
+.sc-page-layout {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem !important;
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .sc-page-layout {
+  background-color: #020617;
+}
+
+.sc-header-section h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+[data-theme='dark'] .sc-header-section h1 {
+  color: #f1f5f9;
+}
+
+/* Stat Cards */
+.sc-stat-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  text-align: center;
+  height: 100%;
+}
+
+[data-theme='dark'] .sc-stat-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.sc-stat-val {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0046ad;
+  margin-bottom: 0.25rem;
+}
+
+.sc-stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Calendar Grid */
+.sc-calendar-container {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  padding: 2rem;
+}
+
+[data-theme='dark'] .sc-calendar-container {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.sc-cal-header {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 2rem;
+}
+
+[data-theme='dark'] .sc-cal-header {
+  color: #f1f5f9;
+}
+
+.sc-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.sc-day-label {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.sc-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #475569;
+}
+
+[data-theme='dark'] .sc-day-cell {
+  color: #cbd5e1;
+}
+
+.sc-day-cell:hover {
+  background: #f1f5f9;
+  color: #0046ad;
+}
+
+[data-theme='dark'] .sc-day-cell:hover {
+  background: #1e293b;
+}
+
+.sc-day-active {
+  background: #0046ad !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 70, 173, 0.3);
+}
+
+.sc-day-event {
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+}
+
+/* Defense Card */
+.sc-defense-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .sc-defense-card {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.sc-defense-card:hover {
+  transform: translateX(10px);
+  border-color: #3b82f6;
+}
+
+.sc-date-badge {
+  background: #f0f7ff;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  min-width: 80px;
+}
+
+[data-theme='dark'] .sc-date-badge {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.sc-day-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0046ad;
+  line-height: 1;
+}
+
+.sc-month-small {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.sc-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}

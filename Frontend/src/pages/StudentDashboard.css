@@ -104,20 +104,29 @@
 }
 
 .sd-stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: white !important;
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
-.bg-pfe-blue { background-color: #3b82f6 !important; }
-.bg-pfe-orange { background-color: #f59e0b !important; font-size: 1.25rem; }
-.bg-pfe-green { background-color: #10b981 !important; }
-.bg-pfe-navy { background-color: #1e293b !important; }
+.sd-stat-icon:hover {
+  transform: scale(1.05);
+}
+
+.bg-pfe-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important; }
+.bg-pfe-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; }
+.bg-pfe-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; }
+.bg-pfe-navy { background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important; }
+
+[data-theme='dark'] .bg-pfe-navy { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; border: 1px solid rgba(255,255,255,0.1); }
+
 
 .sd-welcome-header {
   border-bottom: 1px solid var(--sd-border);
@@ -289,6 +298,14 @@
 }
 [data-theme='dark'] .sd-welcome-title,
 [data-theme='dark'] .sd-card-header-clean h5,
-[data-theme='dark'] .sd-stat-info .value { color: #f8fafc; }
-[data-theme='dark'] .sd-border { border-color: #1e293b !important; }
+[data-theme='dark'] .sd-widget-title,
+[data-theme='dark'] .sd-stat-info .value,
+[data-theme='dark'] h6 { color: #f8fafc !important; }
+[data-theme='dark'] .sd-border,
+[data-theme='dark'] .border { border-color: #1e293b !important; }
 [data-theme='dark'] .sd-table-pro th { background: #1e293b !important; }
+[data-theme='dark'] .bg-light { background-color: #1e293b !important; }
+[data-theme='dark'] .btn-pro-outline { border-color: #1e293b !important; color: #f8fafc !important; }
+[data-theme='dark'] .btn-pro-outline:hover { background-color: #1e293b !important; }
+[data-theme='dark'] .text-navy { color: #f8fafc !important; }
+[data-theme='dark'] .sd-avatar-pro { background-color: #3b82f6 !important; }

@@ -620,6 +620,10 @@
   color: #e2e8f0 !important; /* Presque blanc */
 }
 
+[data-theme='dark'] .header-actions .text-muted {
+  color: #f8fafc !important; /* Plus blanc pour les icônes du header */
+}
+
 [data-theme='dark'] .icon-box-muted {
   background-color: #1c1f26;
   color: #3498db;
@@ -660,16 +664,38 @@
 }
 
 [data-theme='dark'] .dropdown-menu {
-  background-color: #1c1f26 !important;
-  border: 1px solid #34495e !important;
+  background-color: #1c2636 !important;
+  border: 1px solid #2e3b4e !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
 }
 
 [data-theme='dark'] .dropdown-item {
-  color: #ffffff !important;
+  color: #f8fafc !important;
 }
 
 [data-theme='dark'] .dropdown-item:hover {
-  background-color: #2c3e50 !important;
+  background-color: #2e3b4e !important;
+}
+
+[data-theme='dark'] .bg-surface {
+  background-color: #1c2636 !important;
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .text-secondary-custom {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .border-bottom-dashed-light {
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme='dark'] .notification-list {
+  background-color: #1c2636;
+}
+
+[data-theme='dark'] .dropdown-item.bg-primary.bg-opacity-5 {
+  background-color: rgba(52, 152, 219, 0.15) !important;
 }
 
 /* Admin Dashboard Specific Styles */

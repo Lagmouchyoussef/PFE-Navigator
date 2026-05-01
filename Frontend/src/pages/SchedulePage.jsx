@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Button, Table 
+  Button, Table, Modal, Form 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
   Calendar as CalendarIcon, Clock, MapPin, 
   Plus, ChevronLeft, ChevronRight, 
   MoreVertical, CheckCircle, AlertCircle,
-  Users, Info, Bell, Activity
+  Users, Info, Bell, Activity, X
 } from 'lucide-react';
 import './SchedulePage.css';
 
 const SchedulePage = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'Meeting' });
+
+  const handleAddEvent = (e) => {
+    e.preventDefault();
+    setShowAddModal(false);
+    alert('Event added successfully! (Demo Mode)');
+  };
   const milestones = [
     { name: 'Project Proposal', date: '2026-03-15', status: 'completed' },
     { name: 'Interim Report', date: '2026-04-20', status: 'completed' },
@@ -109,10 +117,75 @@ const SchedulePage = () => {
             <h1 className="schedule-title mb-1">Schedule & Calendar</h1>
             <p className="schedule-subtitle text-muted mb-0">Manage your deadlines, meetings, and milestones</p>
           </motion.div>
-          <Button className="btn-add-event d-flex align-items-center gap-2 px-4 py-2">
+          <Button 
+            className="btn-add-event d-flex align-items-center gap-2 px-4 py-2"
+            onClick={() => setShowAddModal(true)}
+          >
             <Plus size={18} /> Add Event
           </Button>
         </header>
+
+        {/* Add Event Modal */}
+        <Modal 
+          show={showAddModal} 
+          onHide={() => setShowAddModal(false)}
+          centered
+          className="schedule-modal"
+        >
+          <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
+            <Modal.Title className="fw-black text-navy h5 mb-0">Create New Event</Modal.Title>
+            <Button variant="link" className="text-muted p-0 border-0" onClick={() => setShowAddModal(false)}>
+              <X size={24} />
+            </Button>
+          </Modal.Header>
+          <Modal.Body className="p-4">
+            <Form onSubmit={handleAddEvent}>
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-bold text-navy">Event Title</Form.Label>
+                <Form.Control 
+                  type="text" 
+                  placeholder="e.g. Meeting with Supervisor" 
+                  className="rounded-3 border-light-soft bg-light py-2"
+                  required
+                />
+              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="small fw-bold text-navy">Date</Form.Label>
+                    <Form.Control 
+                      type="date" 
+                      className="rounded-3 border-light-soft bg-light py-2"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="small fw-bold text-navy">Time</Form.Label>
+                    <Form.Control 
+                      type="time" 
+                      className="rounded-3 border-light-soft bg-light py-2"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Form.Group className="mb-4">
+                <Form.Label className="small fw-bold text-navy">Event Type</Form.Label>
+                <Form.Select className="rounded-3 border-light-soft bg-light py-2 shadow-none">
+                  <option>Meeting</option>
+                  <option>Deadline</option>
+                  <option>Code Review</option>
+                  <option>Defense Prep</option>
+                </Form.Select>
+              </Form.Group>
+              <Button type="submit" className="btn-add-event w-100 py-2 fw-bold rounded-3">
+                Schedule Event
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
 
         {/* Stats Row */}
         <Row className="g-4 mb-5">

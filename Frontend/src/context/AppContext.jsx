@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
@@ -128,6 +128,30 @@ export const AppProvider = ({ children }) => {
   const [defenses, setDefenses] = useState(INITIAL_DEFENSES);
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const [juryComment, setJuryComment] = useState('');
+  
+  // THEME MANAGEMENT
+  const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'system');
+
+  const applyTheme = useCallback((targetTheme) => {
+    let resolvedTheme = targetTheme;
+    if (targetTheme === 'system') {
+      resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
+    localStorage.setItem('app-theme', targetTheme);
+  }, []);
+
+  useEffect(() => {
+    applyTheme(theme);
+
+    // Listen for system theme changes if in 'system' mode
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => applyTheme('system');
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [theme, applyTheme]);
 
   // ── AUTH ────────────────────────────────────────────────────────────────────
   const login = useCallback((emailOrRole, password, role) => {
@@ -222,6 +246,10 @@ export const AppProvider = ({ children }) => {
     return newDoc;
   }, [documents]);
 
+  const deleteDocument = useCallback((id) => {
+    setDocuments(prev => prev.filter(d => d.id !== id));
+  }, []);
+
   // ── MESSAGES ─────────────────────────────────────────────────────────────────
   const sendMessage = useCallback((text, senderRole) => {
     const newMsg = {
@@ -305,7 +333,7 @@ export const AppProvider = ({ children }) => {
       SCORE_LABELS,
 
       // Documents
-      documents, uploadDocument, approveDocument, rejectDocument, pendingDocsCount,
+      documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
 
       // Messages
       messages, sendMessage, markMessagesRead, unreadCountForRole,
@@ -318,6 +346,9 @@ export const AppProvider = ({ children }) => {
 
       // Computed
       progressPct, approvedDocs, totalRequired,
+
+      // Theme
+      theme, setTheme
     }}>
       {children}
     </AppContext.Provider>

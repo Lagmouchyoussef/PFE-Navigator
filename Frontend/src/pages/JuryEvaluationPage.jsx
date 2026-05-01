@@ -1,231 +1,249 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, ProgressBar, Badge, Table } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
 import { 
-  CheckCircle, FileText, User, Star, Award, MessageSquare, 
-  ChevronRight, Save, Download, AlertCircle, TrendingUp,
-  Layout, BookOpen, Presentation, ClipboardCheck
+  Container, Row, Col, Card, Badge, 
+  Form, Button, Table, ProgressBar 
+} from 'react-bootstrap';
+import { motion } from 'framer-motion';
+import { 
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
+import { 
+  ClipboardCheck, Clock, CheckCircle, AlertCircle, 
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
+import './JuryEvaluationPage.css';
+
+const CHART_DATA = [
+  { name: 'Jan', completed: 5, pending: 15 },
+  { name: 'Feb', completed: 8, pending: 12 },
+  { name: 'Mar', completed: 15, pending: 10 },
+  { name: 'Apr', completed: 22, pending: 8 },
+  { name: 'May', completed: 28, pending: 12 },
+];
+
+const PROJECTS_LIST = [
+  { id: 'STU-01', name: 'Ahmed Benali', title: 'AI-Powered Student Management System', sup: 'Prof. Martin', date: '2026-04-15', status: 'Ready for Review' },
+  { id: 'STU-02', name: 'Sara Kamali', title: 'Blockchain-based Certificate Verification', sup: 'Dr. Chen', date: '2026-04-18', status: 'Pending' },
+  { id: 'STU-03', name: 'Mohamed Alaoui', title: 'IoT Smart Campus Solution', sup: 'Prof. Smith', date: '2026-04-10', status: 'Evaluated' },
+  { id: 'STU-04', name: 'Fatima Zahra', title: 'Mobile App for Course Registration', sup: 'Dr. Johnson', date: '2026-04-20', status: 'Ready for Review' },
+  { id: 'STU-05', name: 'Youssef Idrissi', title: 'Machine Learning Prediction Models', sup: 'Prof. Garcia', date: '2026-04-12', status: 'Evaluated' },
+];
+
+const CRITERIA = [
+  { id: 'innovation', label: 'Innovation' },
+  { id: 'methodology', label: 'Methodology' },
+  { id: 'quality', label: 'Technical Quality' },
+  { id: 'presentation', label: 'Presentation' },
+  { id: 'docs', label: 'Documentation' },
+];
 
 const JuryEvaluationPage = () => {
   const { session } = useApp();
-  const [activeStep, setActiveStep] = useState(1);
+  const evaluationRef = useRef(null);
+  const [activeStudent, setActiveStudent] = useState(PROJECTS_LIST[0]);
   const [scores, setScores] = useState({
-    reportQuality: 0,
-    technicalDepth: 0,
-    presentationSkills: 0,
-    qAndA: 0,
-    innovation: 0
+    innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
   });
 
-  const [comment, setComment] = useState('');
+  const handleScoreChange = (id, val) => {
+    const num = Math.min(20, Math.max(0, parseFloat(val) || 0));
+    setScores(prev => ({ ...prev, [id]: num }));
+  };
 
-  const handleScoreChange = (criteria, value) => {
-    setScores(prev => ({ ...prev, [criteria]: value }));
+  const handleOpenEvaluation = (student) => {
+    setActiveStudent(student);
+    // Reset scores for new student if needed, or load existing
+    // Scroll to form
+    evaluationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
-  const finalGrade = (totalScore / 5).toFixed(1);
 
   return (
-    <Container fluid className="p-4 p-xl-5 bg-background animate-fade-in">
-      <div className="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-          <h2 className="fw-bold mb-1 text-dark-custom tracking-tight">Jury Evaluation Portal</h2>
-          <p className="text-muted small mb-0 fw-medium">Academic Year 2025/2026 • Official Deliberation Workspace</p>
-        </div>
-        <div className="d-flex gap-2">
-          <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fw-bold">
-            Project Ref: #PFE-2026-IT04
-          </Badge>
-          <Button variant="outline-primary" className="rounded-pill px-3 btn-sm fw-bold border-1 bg-white">
-            <Download size={14} className="me-1" /> Export Grid
-          </Button>
-        </div>
-      </div>
+    <div className="ev-page-layout">
+      <Container fluid className="px-0">
+        
+        {/* Header */}
+        <header className="ev-header-section mb-5">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h1 className="mb-1 text-navy">Centre d'Évaluation</h1>
+            <p className="fw-medium text-muted">Gérez toutes vos évaluations de projets et suivis académiques</p>
+          </motion.div>
+        </header>
 
-      <Row className="g-4">
-        {/* Left Column: Evaluation Form */}
-        <Col lg={8}>
-          <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-            <div className="p-4 border-bottom bg-surface d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary">
-                  <ClipboardCheck size={24} />
+        {/* Stats Grid */}
+        <Row className="g-4 mb-5">
+          <Col lg={3} md={6}>
+            <StatCard label="En attente" value="12" icon={<Clock size={24} className="text-warning" />} />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Complétées" value="28" icon={<CheckCircle size={24} className="text-success" />} />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="En cours" value="5" icon={<Activity size={24} className="text-primary" />} />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Urgentes" value="3" icon={<AlertCircle size={24} className="text-danger" />} />
+          </Col>
+        </Row>
+
+        {/* Chart Section */}
+        <Row className="g-4 mb-5">
+          <Col lg={12}>
+            <Card className="ev-chart-card shadow-sm border-0">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h5 className="fw-bold text-navy mb-0">Évolution des Évaluations</h5>
+                  <p className="extra-small text-muted mb-0">Comparaison mensuelle des projets complétés vs en attente</p>
                 </div>
-                <h5 className="fw-bold mb-0 text-dark-custom">Official Scoring Grid</h5>
+                <Badge bg="light" text="dark" className="border px-3 py-2 rounded-pill">Année 2025/2026</Badge>
               </div>
-              <div className="d-flex gap-2">
-                {[1, 2, 3].map(step => (
-                  <div key={step} className={`step-dot ${activeStep >= step ? 'bg-primary' : 'bg-light'}`} style={{ width: 12, height: 12, borderRadius: '50%' }}></div>
+              <div style={{ height: '300px', width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={CHART_DATA}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.1} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                    <Legend iconType="circle" />
+                    <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} name="Complétées" />
+                    <Line type="monotone" dataKey="pending" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} name="En attente" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Projects List Table */}
+        <div className="ev-table-card shadow-sm border-0 mb-5">
+          <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
+            <h5 className="fw-bold text-navy mb-0">Projets à Évaluer</h5>
+            <Button variant="light" className="extra-small fw-bold border shadow-none">Voir tout <ChevronRight size={14} /></Button>
+          </div>
+          <Table className="ev-table mb-0">
+            <thead>
+              <tr>
+                <th style={{ width: '25%' }} className="ps-4">Student Name</th>
+                <th style={{ width: '35%' }}>Project Title</th>
+                <th style={{ width: '20%' }}>Supervisor</th>
+                <th style={{ width: '20%' }} className="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PROJECTS_LIST.map((p, i) => (
+                <tr key={i} className={`align-middle ${activeStudent?.id === p.id ? 'bg-primary bg-opacity-5' : ''}`}>
+                  <td className="fw-bold text-navy px-4 text-truncate">{p.name}</td>
+                  <td className="small text-muted text-truncate">{p.title}</td>
+                  <td className="small fw-medium text-truncate">{p.sup}</td>
+                  <td className="text-end px-4">
+                    <Button 
+                      variant="link" 
+                      className="p-0 text-primary fw-bold text-decoration-none small"
+                      onClick={() => handleOpenEvaluation(p)}
+                    >
+                      Ouvrir
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+
+        {/* Active Evaluation Panel */}
+        <section ref={evaluationRef} className="animate-slide-up">
+          <div className="ev-active-panel">
+            <Row className="align-items-start mb-5">
+              <Col md={8}>
+                <Badge bg="primary" className="mb-3 px-3 py-2 rounded-pill bg-opacity-10 text-primary">Évaluation en Cours</Badge>
+                <h2 className="fw-black text-navy mb-1">{activeStudent?.name}</h2>
+                <p className="text-muted fw-medium fs-5">{activeStudent?.title}</p>
+              </Col>
+              <Col md={4} className="text-end">
+                <div className="ev-total-box d-inline-block text-center shadow-sm">
+                  <div className="extra-small text-muted fw-bold mb-1">TOTAL SCORE</div>
+                  <div className="h2 fw-black text-primary mb-0">{totalScore}<small className="h6 text-muted">/100</small></div>
+                </div>
+              </Col>
+            </Row>
+
+            <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+              <Target size={20} className="text-primary" /> Scoring Rubric
+            </h6>
+            
+            <Table responsive borderless className="ev-scoring-table mb-5">
+              <thead>
+                <tr>
+                  <th style={{ width: '40%' }}>CRITERIA</th>
+                  <th className="text-center">SCORE (0-20)</th>
+                  <th>RATING</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CRITERIA.map(item => (
+                  <tr key={item.id} className="align-middle border-bottom-dashed">
+                    <td className="py-3">
+                      <div className="fw-bold text-navy small">{item.label}</div>
+                      <div className="extra-small text-muted opacity-75">Detailed assessment of the {item.label.toLowerCase()}</div>
+                    </td>
+                    <td className="text-center">
+                      <Form.Control 
+                        type="number" 
+                        className="ev-score-input mx-auto" 
+                        value={scores[item.id]}
+                        onChange={(e) => handleScoreChange(item.id, e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <Badge bg="light" text="dark" className="border px-3 py-2 extra-small">
+                        {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Good' : 'Pending'}
+                      </Badge>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
-            
-            <Card.Body className="p-4">
-              <TabContent step={activeStep} scores={scores} onScoreChange={handleScoreChange} comment={comment} setComment={setComment} />
-              
-              <div className="d-flex justify-content-between mt-5 pt-4 border-top">
-                <Button 
-                  variant="light" 
-                  className="rounded-pill px-4 fw-bold" 
-                  onClick={() => setActiveStep(Math.max(1, activeStep - 1))}
-                  disabled={activeStep === 1}
-                >
-                  Previous
-                </Button>
-                <Button 
-                  variant="primary" 
-                  className="rounded-pill px-5 fw-bold shadow-sm border-0" 
-                  onClick={() => activeStep < 3 ? setActiveStep(activeStep + 1) : alert('Grade Submitted Successfully!')}
-                >
-                  {activeStep === 3 ? 'Finalize & Submit Grade' : 'Next Section'}
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
+              </tbody>
+            </Table>
 
-          <Card className="border-0 shadow-sm rounded-4 bg-surface p-4 border-start border-5 border-info">
-            <div className="d-flex align-items-start gap-3">
-              <AlertCircle size={24} className="text-info" />
-              <div>
-                <h6 className="fw-bold mb-1">Confidentiality Notice</h6>
-                <p className="extra-small text-muted mb-0">
-                  All evaluations and comments entered here are strictly confidential and only visible to the Administration and the other Jury members. 
-                  Grades will be released to students only after final administrative validation.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </Col>
+            <Form.Group className="mb-5">
+              <Form.Label className="fw-bold text-navy small d-flex align-items-center gap-2">
+                <FileText size={18} className="text-primary" /> Evaluation Comments
+              </Form.Label>
+              <Form.Control 
+                as="textarea" 
+                rows={5} 
+                className="rounded-4 border-0 bg-light p-4 small shadow-none"
+                placeholder="Provide detailed feedback on the project strengths, weaknesses, and recommendations..."
+              />
+            </Form.Group>
 
-        {/* Right Column: Project Info & Real-time Calc */}
-        <Col lg={4}>
-          <Card className="border-0 shadow-sm rounded-4 bg-navy text-white p-4 mb-4">
-            <div className="d-flex align-items-center gap-3 mb-4">
-              <div className="avatar-circle shadow-sm border border-white border-opacity-25" style={{ width: '48px', height: '48px', fontSize: '1.2rem', backgroundColor: 'rgba(255,255,255,0.1)' }}>Y</div>
-              <div>
-                <h6 className="fw-bold mb-0">Youssef Mourad</h6>
-                <p className="extra-small opacity-75 mb-0">CS Major • Final Year Student</p>
-              </div>
+            <div className="d-flex justify-content-end gap-3 border-top pt-5">
+              <Button variant="light" className="px-4 py-2 fw-bold rounded-3">Enregistrer Brouillon</Button>
+              <Button className="ev-submit-btn px-5 py-3 d-flex align-items-center gap-2">
+                <Send size={18} /> Soumettre l'Évaluation
+              </Button>
             </div>
-            <h5 className="fw-bold mb-3">AI-based Academic Integrity System</h5>
-            <div className="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 mb-4">
-              <div className="d-flex justify-content-between extra-small mb-2 opacity-75">
-                <span>Supervisor Validation</span>
-                <span className="fw-bold text-success">Approved</span>
-              </div>
-              <div className="d-flex justify-content-between extra-small">
-                <span>Submission Date</span>
-                <span className="fw-bold">April 15, 2026</span>
-              </div>
-            </div>
-            <Button variant="light" className="w-100 rounded-pill py-2 fw-bold small shadow-none border-0 mb-2">
-              <FileText size={16} className="me-2" /> Preview Final Report
-            </Button>
-          </Card>
+          </div>
+        </section>
 
-          <Card className="border-0 shadow-sm rounded-4 bg-surface p-4 text-center">
-            <h6 className="fw-bold text-muted text-uppercase mb-4 extra-small tracking-wider">Live Grade Calculator</h6>
-            <div className="display-4 fw-bold text-primary mb-1">{finalGrade}<small className="h4 text-muted">/20</small></div>
-            <p className="extra-small text-muted mb-4">Based on weighted criteria below</p>
-            
-            <div className="d-flex flex-column gap-3 text-start">
-              <CriteriaProgress label="Scientific Rigor" val={scores.reportQuality * 5} color="primary" />
-              <CriteriaProgress label="Technical Quality" val={scores.technicalDepth * 5} color="success" />
-              <CriteriaProgress label="Presentation" val={scores.presentationSkills * 5} color="info" />
-            </div>
-            
-            <hr className="my-4 opacity-5" />
-            <div className="p-3 rounded-4 bg-light-soft text-start">
-              <div className="d-flex align-items-center gap-2 mb-2">
-                <Star size={16} className="text-warning fill-warning" />
-                <span className="small fw-bold">Jury Verdict</span>
-              </div>
-              <p className="extra-small text-muted mb-0">
-                Current score corresponds to <strong className="text-dark">"{finalGrade >= 16 ? 'Excellent' : finalGrade >= 14 ? 'Very Good' : 'Pass'}"</strong> honors.
-              </p>
-            </div>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
-  );
-};
-
-const TabContent = ({ step, scores, onScoreChange, comment, setComment }) => {
-  if (step === 1) {
-    return (
-      <div className="animate-slide-in">
-        <h6 className="fw-bold mb-4 d-flex align-items-center gap-2"><BookOpen size={18} className="text-primary" /> Section 1: Written Report & Technical Depth</h6>
-        <div className="mb-4">
-          <ScoreSlider label="Quality of the Written Document (Grammar, Structure, Formatting)" value={scores.reportQuality} onChange={(v) => onScoreChange('reportQuality', v)} />
-          <ScoreSlider label="Technical Complexity & Scientific Depth" value={scores.technicalDepth} onChange={(v) => onScoreChange('technicalDepth', v)} />
-          <ScoreSlider label="Innovation & Originality of the Solution" value={scores.innovation} onChange={(v) => onScoreChange('innovation', v)} />
-        </div>
-      </div>
-    );
-  }
-  if (step === 2) {
-    return (
-      <div className="animate-slide-in">
-        <h6 className="fw-bold mb-4 d-flex align-items-center gap-2"><Presentation size={18} className="text-primary" /> Section 2: Oral Presentation & Communication</h6>
-        <div className="mb-4">
-          <ScoreSlider label="Clarity of Presentation & Quality of Visual Aids" value={scores.presentationSkills} onChange={(v) => onScoreChange('presentationSkills', v)} />
-          <ScoreSlider label="Ability to Answer Technical Questions (Q&A Session)" value={scores.qAndA} onChange={(v) => onScoreChange('qAndA', v)} />
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="animate-slide-in">
-      <h6 className="fw-bold mb-4 d-flex align-items-center gap-2"><MessageSquare size={18} className="text-primary" /> Section 3: Final Jury Remarks & Deliberation</h6>
-      <Form.Group className="mb-4">
-        <Form.Label className="small fw-bold text-muted">Confidential Jury Feedback</Form.Label>
-        <Form.Control 
-          as="textarea" 
-          rows={6} 
-          placeholder="Enter the official jury remarks here. These will be archived in the student's permanent file..." 
-          className="bg-light border-0 p-3 rounded-4 shadow-none extra-small"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-      </Form.Group>
-      <div className="p-3 rounded-4 bg-primary bg-opacity-5 border border-primary border-opacity-10 d-flex gap-3">
-        <TrendingUp size={20} className="text-primary" />
-        <p className="extra-small mb-0 text-muted">
-          By clicking 'Finalize', you acknowledge that this grade is final and has been agreed upon by all members of the jury panel present today.
-        </p>
-      </div>
+      </Container>
     </div>
   );
 };
 
-const ScoreSlider = ({ label, value, onChange }) => (
-  <div className="mb-4">
-    <div className="d-flex justify-content-between align-items-center mb-2">
-      <label className="small fw-bold text-dark-custom opacity-75">{label}</label>
-      <span className="badge bg-primary rounded-pill px-3">{value}/20</span>
+const StatCard = ({ label, value, icon }) => (
+  <Card className="ev-stat-card shadow-sm border-0">
+    <div className="d-flex justify-content-between align-items-start">
+      <div>
+        <div className="ev-stat-val">{value}</div>
+        <div className="ev-stat-label">{label}</div>
+      </div>
+      <div className="p-3 rounded-4 bg-light">
+        {icon}
+      </div>
     </div>
-    <Form.Range 
-      min="0" 
-      max="20" 
-      step="0.5" 
-      value={value} 
-      onChange={(e) => onChange(parseFloat(e.target.value))} 
-      className="custom-range"
-    />
-  </div>
-);
-
-const CriteriaProgress = ({ label, val, color }) => (
-  <div>
-    <div className="d-flex justify-content-between mb-1">
-      <span className="extra-small fw-bold text-muted">{label}</span>
-      <span className="extra-small fw-bold">{val}%</span>
-    </div>
-    <ProgressBar now={val} variant={color} style={{ height: '6px' }} className="rounded-pill bg-light" />
-  </div>
+  </Card>
 );
 
 export default JuryEvaluationPage;

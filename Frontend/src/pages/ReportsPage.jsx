@@ -38,6 +38,23 @@ const ReportsPage = () => {
     }
   };
 
+  const handleView = (doc) => {
+    // Professional simulation: Open in new tab
+    const samplePdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+    window.open(samplePdfUrl, '_blank');
+  };
+
+  const handleDownload = (doc) => {
+    // Professional simulation: Trigger file download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.setAttribute('download', doc.title);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    alert(`Starting download for: ${doc.title}`);
+  };
+
   const filteredDocs = documents.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
@@ -107,7 +124,7 @@ const ReportsPage = () => {
         >
           <div className="doc-dropzone p-5 text-center">
             <div className="doc-dropzone-icon mb-3">
-              <Upload size={32} className="text-muted" />
+              <Upload size={32} className="text-primary" />
             </div>
             <h5 className="fw-bold mb-1">Drag and drop files here or click to browse</h5>
             <p className="extra-small text-muted mb-0">Supported: PDF, DOCX, PPTX (Max 10MB)</p>
@@ -181,9 +198,25 @@ const ReportsPage = () => {
                         </td>
                         <td className="pe-4 text-end">
                           <div className="d-flex justify-content-end gap-3 text-muted">
-                            <Eye size={18} className="cursor-pointer hover-navy" />
-                            <Download size={18} className="cursor-pointer hover-navy" />
-                            <Trash2 size={18} className="cursor-pointer text-danger hover-opacity" onClick={() => deleteDocument(doc.id)} />
+                            <Eye 
+                              size={18} 
+                              className="cursor-pointer hover-navy" 
+                              onClick={() => handleView(doc)}
+                            />
+                            <Download 
+                              size={18} 
+                              className="cursor-pointer hover-navy" 
+                              onClick={() => handleDownload(doc)}
+                            />
+                            <Trash2 
+                              size={18} 
+                              className="cursor-pointer text-danger hover-opacity" 
+                              onClick={() => {
+                                if(window.confirm(`Are you sure you want to delete ${doc.title}?`)) {
+                                  deleteDocument(doc.id);
+                                }
+                              }} 
+                            />
                           </div>
                         </td>
                       </tr>

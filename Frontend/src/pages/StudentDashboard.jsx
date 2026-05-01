@@ -15,6 +15,7 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer, 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
+import { useApp } from '../context/AppContext.jsx';
 import './StudentDashboard.css';
 
 /**
@@ -61,7 +62,7 @@ const StatCard = ({ label, value, sub, color, icon, delay = 0 }) => (
             {sub && <div className="mt-1 text-primary small fw-semibold">{sub}</div>}
           </div>
           <div className={`sd-stat-icon bg-pfe-${color}`}>
-            {icon}
+            {React.cloneElement(icon, { size: 28 })}
           </div>
         </Card.Body>
       </Card>
@@ -83,7 +84,7 @@ const ProjectStepper = ({ steps }) => (
           {steps.map((step, i) => (
             <div key={i} className={`sd-stepper-item ${step.status}`}>
               <div className="sd-stepper-dot shadow-sm">
-                {step.status === 'completed' ? <CheckCircle size={16} /> : i + 1}
+                {step.status === 'completed' ? <CheckCircle size={26} /> : i + 1}
               </div>
               <div className="text-center mt-2">
                 <div className={`small fw-bold ${step.status === 'pending' ? 'text-muted' : 'text-navy'}`}>
@@ -168,7 +169,7 @@ const AnalyticsView = () => {
   );
 };
 
-const DocumentsList = ({ documents }) => (
+const DocumentsList = ({ documents, onView, onDownload, onDelete }) => (
   <Card className="sd-card-professional border-0">
     <div className="sd-card-header-clean d-flex justify-content-between align-items-center">
       <h5>Recent Documents</h5>
@@ -195,7 +196,7 @@ const DocumentsList = ({ documents }) => (
                     <FileText size={18} />
                   </div>
                   <div>
-                    <div className="fw-bold small">{doc.name}</div>
+                    <div className="fw-bold small">{doc.title || doc.name}</div>
                     <div className="extra-small text-muted">{doc.size}</div>
                   </div>
                 </div>
@@ -210,10 +211,16 @@ const DocumentsList = ({ documents }) => (
                     <MoreHorizontal size={20} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="border-0 shadow-lg small">
-                    <Dropdown.Item className="d-flex align-items-center gap-2"><Eye size={14} /> View</Dropdown.Item>
-                    <Dropdown.Item className="d-flex align-items-center gap-2"><Download size={14} /> Download</Dropdown.Item>
+                    <Dropdown.Item className="d-flex align-items-center gap-2" onClick={() => onView(doc)}>
+                      <Eye size={14} /> View
+                    </Dropdown.Item>
+                    <Dropdown.Item className="d-flex align-items-center gap-2" onClick={() => onDownload(doc)}>
+                      <Download size={14} /> Download
+                    </Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2"><Plus size={14} className="rotate-45" /> Delete</Dropdown.Item>
+                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2" onClick={() => onDelete(doc.id)}>
+                      <Plus size={14} className="rotate-45" /> Delete
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </td>
@@ -324,9 +331,24 @@ const SidebarWidgets = () => {
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const { 
+    documents: globalDocs, 
+    deleteDocument, 
+    progressPct, 
+    approvedDocs, 
+    totalRequired 
+  } = useApp();
 
   const handleNewSubmission = () => {
     navigate('/student/reports');
+  };
+
+  const handleView = (doc) => {
+    window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
+  };
+
+  const handleDownload = (doc) => {
+    alert(`Downloading ${doc.name}...`);
   };
 
   const steps = [
@@ -348,17 +370,24 @@ const StudentDashboard = () => {
 
         {/* Global Statistics Grid */}
         <Row className="g-4 mb-5">
-          <StatCard label="Current Phase" value="Writing" trend="Phase 3/4" color="blue" icon={<TrendingUp size={20} />} />
-          <StatCard label="Time Remaining" value="15 Days" color="orange" icon={<Clock size={20} />} />
-          <StatCard label="Average Feedback" value="18.5 / 20" trend="+1.2 vs phase 2" color="green" icon={<GraduationCap size={20} />} />
-          <StatCard label="Alerts" value="02" color="navy" icon={<AlertCircle size={20} />} />
+          <StatCard label="Upcoming Events" value="05" color="blue" icon={<Calendar />} delay={0.1} />
+          <StatCard label="Pending Deadlines" value="02" color="orange" icon={<Clock />} delay={0.2} />
+          <StatCard label="Tasks This Month" value="05" color="green" icon={<CheckCircle />} delay={0.3} />
+          <StatCard label="Average Score" value="18.5" color="navy" icon={<GraduationCap />} delay={0.4} />
         </Row>
 
         <Row className="g-5">
           <Col lg={8}>
             <ProjectStepper steps={steps} />
             <AnalyticsView />
-            <DocumentsList documents={documents} />
+            <DocumentsList 
+              documents={globalDocs} 
+              onView={handleView} 
+              onDownload={handleDownload} 
+              onDelete={(id) => {
+                if(window.confirm('Are you sure you want to delete this document?')) deleteDocument(id);
+              }} 
+            />
           </Col>
           <Col lg={4}>
             <SidebarWidgets />

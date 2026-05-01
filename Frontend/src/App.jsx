@@ -135,33 +135,33 @@ function App() {
           <nav className="nav flex-column px-3">
             {session.role === 'jury' ? (
               <>
-                <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} />} label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/jury/projects"  icon={<FileUp size={20} />}          label={!isSidebarCollapsed && "Assigned Projects"} />
-                <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} />}  label={!isSidebarCollapsed && "Evaluation"} />
-                <SidebarLink to="/jury/schedule"  icon={<Calendar size={20} />}         label={!isSidebarCollapsed && "Calendar"} />
+                <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/jury/projects"  icon={<FileUp size={20} color="#10b981" />}          label={!isSidebarCollapsed && "Assigned Projects"} />
+                <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} color="#f59e0b" />}  label={!isSidebarCollapsed && "Evaluation"} />
+                <SidebarLink to="/jury/schedule"  icon={<Calendar size={20} color="#6366f1" />}         label={!isSidebarCollapsed && "Calendar"} />
               </>
             ) : session.role === 'supervisor' ? (
               <>
-                <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} />} label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/supervisor/students"  icon={<GraduationCap size={20} />}    label={!isSidebarCollapsed && "My Students"} />
-                <SidebarLink to="/supervisor/validation" icon={<FileUp size={20} />}          label={!isSidebarCollapsed && "Report Validation"} />
-                <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} />}   label={!isSidebarCollapsed && "Feedback & Evaluations"} />
-                <SidebarLink to="/supervisor/schedule"  icon={<Calendar size={20} />}         label={!isSidebarCollapsed && "Defense Calendar"} />
+                <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/supervisor/students"  icon={<GraduationCap size={20} color="#6366f1" />}    label={!isSidebarCollapsed && "My Students"} />
+                <SidebarLink to="/supervisor/validation" icon={<FileUp size={20} color="#10b981" />}          label={!isSidebarCollapsed && "Report Validation"} />
+                <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} color="#f59e0b" />}   label={!isSidebarCollapsed && "Feedback & Evaluations"} />
+                <SidebarLink to="/supervisor/schedule"  icon={<Calendar size={20} color="#8b5cf6" />}         label={!isSidebarCollapsed && "Defense Calendar"} />
               </>
             ) : session.role === 'admin' ? (
               <>
-                <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} />} label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/admin/users"     icon={<Users size={20} />}           label={!isSidebarCollapsed && "User Management"} />
-                <SidebarLink to="/admin/jury"      icon={<Calendar size={20} />}        label={!isSidebarCollapsed && "Jury Planning"} />
-                <SidebarLink to="/admin/archive"   icon={<Briefcase size={20} />}       label={!isSidebarCollapsed && "Projects Archive"} />
-                <SidebarLink to="/admin/analytics" icon={<Activity size={20} />}        label={!isSidebarCollapsed && "Analytics Center"} />
+                <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/admin/users"     icon={<Users size={20} color="#8b5cf6" />}           label={!isSidebarCollapsed && "User Management"} />
+                <SidebarLink to="/admin/jury"      icon={<Calendar size={20} color="#6366f1" />}        label={!isSidebarCollapsed && "Jury Planning"} />
+                <SidebarLink to="/admin/archive"   icon={<Briefcase size={20} color="#06b6d4" />}       label={!isSidebarCollapsed && "Projects Archive"} />
+                <SidebarLink to="/admin/analytics" icon={<Activity size={20} color="#f43f5e" />}        label={!isSidebarCollapsed && "Analytics Center"} />
               </>
             ) : (
               <>
-                <SidebarLink to="/student/dashboard"     icon={<LayoutDashboard size={20} />} label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/student/reports"       icon={<FileUp size={20} />}           label={!isSidebarCollapsed && "Documents"} />
-                <SidebarLink to="/student/evaluation"    icon={<GraduationCap size={20} />}    label={!isSidebarCollapsed && "Evaluation"} />
-                <SidebarLink to="/student/schedule"      icon={<Calendar size={20} />}          label={!isSidebarCollapsed && "Schedule"} />
+                <SidebarLink to="/student/dashboard"     icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/student/reports"       icon={<FileUp size={20} color="#10b981" />}           label={!isSidebarCollapsed && "Documents"} />
+                <SidebarLink to="/student/evaluation"    icon={<GraduationCap size={20} color="#f59e0b" />}    label={!isSidebarCollapsed && "Evaluation"} />
+                <SidebarLink to="/student/schedule"      icon={<Calendar size={20} color="#6366f1" />}          label={!isSidebarCollapsed && "Schedule"} />
               </>
             )}
           </nav>
@@ -187,25 +187,25 @@ function App() {
         
         {expandedGroups.resources && (
           <nav className="nav flex-column px-3">
-            <SidebarLink to="/resources" icon={<Briefcase size={20} />} label={!isSidebarCollapsed && "Resource Hub"} />
+            <SidebarLink to="/resources" icon={<Briefcase size={20} color="#f97316" />} label={!isSidebarCollapsed && "Resource Hub"} />
             <SidebarLink 
               to={session.role === 'admin' ? '/admin/messages' : session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} 
-              icon={<MessageSquare size={20} />} 
+              icon={<MessageSquare size={20} color="#14b8a6" />} 
               label={!isSidebarCollapsed && "Messages"} 
               badge={unreadMsgCount > 0 ? unreadMsgCount : null}
             />
             <SidebarLink 
               to={session.role === 'admin' ? '/admin/notifications' : session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'} 
-              icon={<Bell size={20} />} 
+              icon={<Bell size={20} color="#f43f5e" />} 
               label={!isSidebarCollapsed && "Notifications"} 
               badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null}
             />
-            <SidebarLink to={session.role === 'admin' ? '/admin/notes' : session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} label={!isSidebarCollapsed && "Admin Notes"} />
+            <SidebarLink to={session.role === 'admin' ? '/admin/notes' : session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Admin Notes"} />
           </nav>
         )}
 
         <div className="mt-auto mb-4 px-3 pt-4 border-top border-secondary border-opacity-25">
-          <SidebarLink to="/settings" icon={<Settings size={20} />} label={!isSidebarCollapsed && "Portal Settings"} />
+          <SidebarLink to="/settings" icon={<Settings size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Portal Settings"} />
         </div>
       </aside>
 
