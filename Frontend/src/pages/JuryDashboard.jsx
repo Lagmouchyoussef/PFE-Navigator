@@ -8,6 +8,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, LabelList
 } from 'recharts';
+import { AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, Star, Users, 
   Clock, Calendar, Activity, Brain, FileText, MessageSquare, CheckCircle
@@ -50,10 +51,65 @@ const CRITERIA_DATA = [
 const JuryDashboard = () => {
   const { session } = useApp();
   const [activeTab, setActiveTab] = useState('all');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+
+  const handleGenerateReport = () => {
+    setIsGenerating(true);
+    setShowSuccessCard(false);
+    
+    // Simulate API call for report generation
+    setTimeout(() => {
+      setIsGenerating(false);
+      setShowSuccessCard(true);
+      
+      // Auto-hide after 10 seconds
+      setTimeout(() => setShowSuccessCard(false), 10000);
+    }, 2000);
+  };
+
+  const handleDownloadReport = () => {
+    // Simulate downloading a PDF file
+    alert('Le téléchargement de votre rapport (Format PDF) a commencé...');
+    setShowSuccessCard(false);
+  };
 
   return (
     <div className="jd-dashboard-layout">
       <Container fluid="xxl" className="px-0">
+        
+        {/* Success Notification Card */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="jd-success-card-top mb-4 d-flex align-items-center justify-content-between shadow-lg"
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="icon-box bg-success bg-opacity-20 text-success p-2 rounded-circle">
+                  <CheckCircle size={24} />
+                </div>
+                <div>
+                  <h6 className="mb-0 fw-bold">Rapport Prêt !</h6>
+                  <p className="extra-small mb-0 opacity-75">Le rapport analytique a été généré avec succès et est prêt pour le téléchargement.</p>
+                </div>
+              </div>
+              <div className="d-flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="success" 
+                  className="extra-small fw-bold px-3 py-1 border-0 shadow-sm"
+                  onClick={handleDownloadReport}
+                >
+                  Télécharger
+                </Button>
+                <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* Header Section */}
         <header className="jd-welcome-header mb-5 d-flex justify-content-between align-items-end">
@@ -67,8 +123,19 @@ const JuryDashboard = () => {
             <Button className="btn-pro-outline d-flex align-items-center gap-2">
               <Calendar size={18} color="#6366f1" /> Programmer Soutenance
             </Button>
-            <Button className="btn-pro-primary d-flex align-items-center gap-2 shadow-sm border-0">
-              <Activity size={18} /> Générer Rapport
+            <Button 
+              className="btn-pro-primary d-flex align-items-center gap-2 shadow-sm border-0"
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+            >
+              {isGenerating ? (
+                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+                  <Activity size={18} />
+                </motion.div>
+              ) : (
+                <Activity size={18} />
+              )}
+              {isGenerating ? 'Génération...' : 'Générer Rapport'}
             </Button>
           </div>
         </header>
@@ -288,10 +355,10 @@ const StatCard = ({ label, value, trend, trendUp, icon, delay }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }} className="jd-stat-card">
     <div className="d-flex justify-content-between align-items-start mb-3">
       <div className="p-3 rounded-4 bg-primary bg-opacity-10 text-primary">{icon}</div>
-      <Badge className={`jd-trend-badge ${trendUp ? 'jd-trend-up' : 'jd-trend-down'}`}>
-        {trendUp ? <TrendingUp size={12} className="me-1" /> : <TrendingDown size={12} className="me-1" />}
+      <div className={`jd-trend-badge ${trendUp ? 'jd-trend-up' : 'jd-trend-down'} d-flex align-items-center fw-bold`}>
+        {trendUp ? <TrendingUp size={14} className="me-1" /> : <TrendingDown size={14} className="me-1" />}
         {trend}
-      </Badge>
+      </div>
     </div>
     <div className="extra-small text-muted fw-bold text-uppercase tracking-widest mb-1">{label}</div>
     <div className="h2 fw-black text-navy mb-0">{value}</div>
