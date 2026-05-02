@@ -11,6 +11,7 @@ import './MessagesPage.css';
 const MessagesPage = () => {
   const [inputText, setInputText] = useState('');
   const scrollRef = useRef(null);
+  const fileRef = useRef(null);
 
   const [conversations] = useState([
     { id: 1, name: 'Dr. Sarah Smith', role: 'Project Supervisor', lastMsg: 'Great work on the interim report. Jus...', time: '2 hours ago', avatar: 'DS', color: '#3b82f6', online: true, unread: 2 },
@@ -96,8 +97,8 @@ const MessagesPage = () => {
                 </div>
               </div>
               <div className="d-flex gap-2">
-                <Button variant="link" className="action-icon-btn"><Phone size={20}/></Button>
-                <Button variant="link" className="action-icon-btn"><Video size={20}/></Button>
+                <Button variant="link" className="action-icon-btn" onClick={() => alert("Fonction d'appel audio non disponible dans cette version.")}><Phone size={20}/></Button>
+                <Button variant="link" className="action-icon-btn" onClick={() => alert("Fonction d'appel vidéo non disponible dans cette version.")}><Video size={20}/></Button>
                 <Dropdown align="end">
                   <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
                     <MoreVertical size={20} />
@@ -146,15 +147,30 @@ const MessagesPage = () => {
 
             {/* Input Footer */}
             <footer className="chat-footer-modern p-4">
+              <input type="file" ref={fileRef} className="d-none" onChange={() => alert("Fichier sélectionné !")} />
               <div className="d-flex align-items-center gap-3 bg-white rounded-4 shadow-sm border p-2">
-                <Button variant="link" className="text-primary hover-bg-light rounded-circle p-2"><Paperclip size={22}/></Button>
+                <Button 
+                  variant="link" 
+                  className="text-primary hover-bg-light rounded-circle p-2"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <Paperclip size={22}/>
+                </Button>
                 <Form.Control 
                   placeholder="Share your thoughts with Dr. Sarah Smith..." 
                   className="border-0 shadow-none small fw-medium bg-transparent"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                 />
-                <Button className="btn-send-modern d-flex align-items-center justify-content-center p-2 rounded-circle">
+                <Button 
+                  className="btn-send-modern d-flex align-items-center justify-content-center p-2 rounded-circle"
+                  onClick={() => {
+                    if(inputText.trim()) {
+                      alert(`Message envoyé : ${inputText}`);
+                      setInputText('');
+                    }
+                  }}
+                >
                   <Send size={20} className="ms-1" />
                 </Button>
               </div>

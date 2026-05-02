@@ -218,8 +218,8 @@ const SchedulePage = () => {
                 <div className="p-4 d-flex justify-content-between align-items-center border-bottom">
                   <h5 className="fw-bold text-navy mb-0">May 2026</h5>
                   <div className="d-flex gap-2">
-                    <Button variant="light" size="sm" className="rounded-circle p-2"><ChevronLeft size={16} /></Button>
-                    <Button variant="light" size="sm" className="rounded-circle p-2"><ChevronRight size={16} /></Button>
+                    <Button variant="light" size="sm" className="rounded-circle p-2" onClick={() => alert("Navigation vers le mois précédent (Simulé)")}><ChevronLeft size={16} /></Button>
+                    <Button variant="light" size="sm" className="rounded-circle p-2" onClick={() => alert("Navigation vers le mois suivant (Simulé)")}><ChevronRight size={16} /></Button>
                   </div>
                 </div>
                 <div className="calendar-grid">

@@ -169,11 +169,15 @@ const AnalyticsView = () => {
   );
 };
 
-const DocumentsList = ({ documents, onView, onDownload, onDelete }) => (
+const DocumentsList = ({ documents, onView, onDownload, onDelete, navigate }) => (
   <Card className="sd-card-professional border-0">
     <div className="sd-card-header-clean d-flex justify-content-between align-items-center">
       <h5>Recent Documents</h5>
-      <Button variant="link" className="text-primary small fw-bold text-decoration-none">
+      <Button 
+        variant="link" 
+        className="text-primary small fw-bold text-decoration-none"
+        onClick={() => navigate('/student/reports')}
+      >
         View all
       </Button>
     </div>
@@ -232,7 +236,7 @@ const DocumentsList = ({ documents, onView, onDownload, onDelete }) => (
   </Card>
 );
 
-const SidebarWidgets = () => {
+const SidebarWidgets = ({ navigate }) => {
   const progressData = [
     { name: 'Done', value: 75, color: '#0046ad' },
     { name: 'Todo', value: 25, color: '#f1f5f9' },
@@ -288,7 +292,12 @@ const SidebarWidgets = () => {
             <Clock size={12} /> 10:00 AM - Room 304
           </div>
         </div>
-        <Button variant="light" size="sm" className="w-100 fw-bold rounded-pill text-primary">
+        <Button 
+          variant="light" 
+          size="sm" 
+          className="w-100 fw-bold rounded-pill text-primary"
+          onClick={() => alert("Détails de convocation: \nDate: 20 Mai 2026\nSalle: 304\nHeure: 10:00 AM")}
+        >
           Convocation Details
         </Button>
       </Card>
@@ -321,7 +330,10 @@ const SidebarWidgets = () => {
             <div className="extra-small text-muted">AI Systems Lab</div>
           </div>
         </div>
-        <Button className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2">
+        <Button 
+          className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2"
+          onClick={() => navigate('/student/messages')}
+        >
           <Mail size={16} /> Send Message
         </Button>
       </Card>
@@ -387,10 +399,11 @@ const StudentDashboard = () => {
               onDelete={(id) => {
                 if(window.confirm('Are you sure you want to delete this document?')) deleteDocument(id);
               }} 
+              navigate={navigate}
             />
           </Col>
           <Col lg={4}>
-            <SidebarWidgets />
+            <SidebarWidgets navigate={navigate} />
           </Col>
         </Row>
       </Container>

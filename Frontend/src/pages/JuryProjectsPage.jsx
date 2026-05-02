@@ -136,7 +136,10 @@ const JuryProjectsPage = () => {
               </div>
             </div>
             <div className="d-flex gap-2">
-              <Button className="jp-btn-match d-flex align-items-center gap-2 py-1 px-3 extra-small border">
+              <Button 
+                className="jp-btn-match d-flex align-items-center gap-2 py-1 px-3 extra-small border"
+                onClick={() => alert("Génération du rapport CSV en cours...")}
+              >
                 <Download size={14} /> Exporter la liste
               </Button>
             </div>

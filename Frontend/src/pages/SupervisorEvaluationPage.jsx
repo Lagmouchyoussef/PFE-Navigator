@@ -128,7 +128,7 @@ const SupervisorEvaluationPage = () => {
                     <span>Validated</span>
                   </div>
                </div>
-               <Button variant="outline-primary" size="sm" className="w-100 rounded-pill fw-bold small border-1 d-flex align-items-center justify-content-center gap-2">
+               <Button variant="outline-primary" size="sm" className="w-100 rounded-pill fw-bold small border-1 d-flex align-items-center justify-content-center gap-2" onClick={() => window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank')}>
                   <FileText size={14} /> View Final Report
                </Button>
             </Card>

@@ -108,7 +108,12 @@ const AdminDashboard = () => {
                 <Button variant="light" size="sm" className="rounded-pill border px-3 extra-small fw-bold">
                   <Filter size={14} className="me-1" /> Filter
                 </Button>
-                <Button variant="primary" size="sm" className="rounded-pill px-3 extra-small fw-bold bg-navy border-0">
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  className="rounded-pill px-3 extra-small fw-bold bg-navy border-0"
+                  onClick={() => alert("Formulaire d'ajout d'utilisateur (Simulé)")}
+                >
                   <Plus size={14} className="me-1" /> Add User
                 </Button>
               </div>
@@ -176,7 +181,14 @@ const AdminDashboard = () => {
               <h5 className="fw-bold mb-0">Jury Planning Widget</h5>
               <div className="d-flex gap-2">
                 <Button variant="light" size="sm" className="rounded-3 border extra-small fw-bold">Conflict Check</Button>
-                <Button variant="primary" size="sm" className="rounded-3 extra-small fw-bold bg-light-blue border-0">Schedule Defense</Button>
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  className="rounded-3 extra-small fw-bold bg-light-blue border-0"
+                  onClick={() => alert("Interface de planification ouverte.")}
+                >
+                  Schedule Defense
+                </Button>
               </div>
             </div>
             <div className="jury-planning-container bg-light rounded-4 p-3 mb-3">
@@ -431,8 +443,20 @@ const AdminDashboard = () => {
               <h2 className="fw-black text-navy display-6 tracking-tighter mb-0">Administration <span className="text-light-blue">Control Panel</span></h2>
             </div>
             <div className="d-flex gap-2">
-              <Button variant="white" className="border rounded-pill px-4 fw-bold extra-small shadow-sm"><Download size={14} className="me-2" /> Export Summary</Button>
-              <Button variant="primary" className="bg-navy border-0 rounded-pill px-4 fw-bold extra-small shadow-lg"><RefreshCw size={14} className="me-2" /> Sync Data</Button>
+              <Button 
+                variant="white" 
+                className="border rounded-pill px-4 fw-bold extra-small shadow-sm"
+                onClick={() => alert("Génération du rapport global...")}
+              >
+                <Download size={14} className="me-2" /> Export Summary
+              </Button>
+              <Button 
+                variant="primary" 
+                className="bg-navy border-0 rounded-pill px-4 fw-bold extra-small shadow-lg"
+                onClick={() => alert("Synchronisation des données avec le serveur...")}
+              >
+                <RefreshCw size={14} className="me-2" /> Sync Data
+              </Button>
             </div>
           </div>
 

@@ -200,7 +200,10 @@ const JuryDashboard = () => {
             </p>
           </motion.div>
           <div className="d-flex gap-3">
-            <Button className="btn-pro-outline d-flex align-items-center gap-2">
+            <Button 
+              className="btn-pro-outline d-flex align-items-center gap-2"
+              onClick={() => navigate('/jury/schedule')}
+            >
               <Calendar size={18} color="#8b5cf6" /> Programmer Soutenance
             </Button>
             <Button 

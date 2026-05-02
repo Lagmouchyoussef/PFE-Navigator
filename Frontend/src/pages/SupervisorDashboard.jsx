@@ -4,10 +4,12 @@ import {
   Users, CheckCircle, Clock, Calendar, ChevronRight, Activity, Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '../context/AppContext.jsx';
 
 const SupervisorDashboard = () => {
+  const navigate = useNavigate();
   const { myStudents = [] } = useApp();
   const activityData = [{v: 12}, {v: 18}, {v: 15}, {v: 22}];
 
@@ -24,11 +26,15 @@ const SupervisorDashboard = () => {
             <h1 className="fw-black display-5 mb-1 tracking-tighter text-white">Academic <span className="text-gradient">Supervision</span></h1>
             <p className="text-muted small mb-0">Managing {myStudents.length} research projects and monitoring student progress.</p>
           </div>
-          <Button variant="primary" className="bg-gradient-primary border-0 rounded-pill px-4 shadow-lg d-flex align-items-center gap-2">
+          <Button 
+            variant="primary" 
+            className="bg-gradient-primary border-0 rounded-pill px-4 shadow-lg d-flex align-items-center gap-2"
+            onClick={() => navigate('/supervisor/schedule')}
+          >
             <Calendar size={18} /> Schedule defense
           </Button>
         </motion.div>
-
+ 
         <Row className="g-4 mb-5">
           {[
             { label: 'Assigned Students', val: myStudents.length, icon: <Users />, color: 'primary' },
@@ -46,7 +52,7 @@ const SupervisorDashboard = () => {
             </Col>
           ))}
         </Row>
-
+ 
         <Row className="g-4">
           <Col lg={8}>
             <Card className="glass-card border-0 p-4">
@@ -70,7 +76,11 @@ const SupervisorDashboard = () => {
                         </ProgressBar>
                       </Col>
                       <Col md={4} className="text-end">
-                        <Button variant="link" className="text-primary p-0 fw-bold extra-small text-decoration-none">
+                        <Button 
+                          variant="link" 
+                          className="text-primary p-0 fw-bold extra-small text-decoration-none"
+                          onClick={() => navigate('/supervisor/evaluation')}
+                        >
                           Review <ChevronRight size={14} className="ms-1" />
                         </Button>
                       </Col>

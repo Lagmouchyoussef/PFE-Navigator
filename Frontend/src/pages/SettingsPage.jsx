@@ -235,7 +235,13 @@ const SettingsPage = () => {
                             <div className="extra-small text-muted">Utilisez Google Authenticator pour sécuriser votre accès.</div>
                           </div>
                         </div>
-                        <Button variant="primary" className="fw-bold px-4 py-2 small">Configurer</Button>
+                        <Button 
+                          variant="primary" 
+                          className="fw-bold px-4 py-2 small"
+                          onClick={() => alert("Le module de configuration 2FA sera disponible prochainement.")}
+                        >
+                          Configurer
+                        </Button>
                       </div>
 
                       <h5 className="fw-bold text-navy mb-4">Sessions Actives</h5>
@@ -368,7 +374,17 @@ const SettingsPage = () => {
                 </AnimatePresence>
               </Card.Body>
               <Card.Footer className="bg-light bg-opacity-50 border-0 p-4 text-end">
-                <Button variant="outline-danger" className="fw-bold px-4 extra-small border-2 me-3">Désactiver le compte</Button>
+                <Button 
+                  variant="outline-danger" 
+                  className="fw-bold px-4 extra-small border-2 me-3"
+                  onClick={() => {
+                    if(window.confirm("Êtes-vous sûr de vouloir désactiver votre compte ? Cette action est irréversible.")) {
+                      alert("Demande de désactivation envoyée à l'administration.");
+                    }
+                  }}
+                >
+                  Désactiver le compte
+                </Button>
                 <Button className="btn-save-settings px-5" onClick={handleSave}>Enregistrer les modifications</Button>
               </Card.Footer>
             </Card>

@@ -76,8 +76,8 @@ const JurySchedulePage = () => {
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="sc-cal-header mb-0">Mai 2026</h3>
                 <div className="d-flex gap-2">
-                  <Button variant="light" className="rounded-circle p-2 shadow-none"><ChevronLeft size={20} /></Button>
-                  <Button variant="light" className="rounded-circle p-2 shadow-none"><ChevronRight size={20} /></Button>
+                  <Button variant="light" className="rounded-circle p-2 shadow-none" onClick={() => alert("Mois précédent (Simulé)")}><ChevronLeft size={20} /></Button>
+                  <Button variant="light" className="rounded-circle p-2 shadow-none" onClick={() => alert("Mois suivant (Simulé)")}><ChevronRight size={20} /></Button>
                 </div>
               </div>
 
@@ -148,7 +148,11 @@ const JurySchedulePage = () => {
               ))}
             </div>
             
-            <Button variant="outline-primary" className="w-100 mt-4 py-3 fw-bold rounded-4 border-2">
+            <Button 
+              variant="outline-primary" 
+              className="w-100 mt-4 py-3 fw-bold rounded-4 border-2"
+              onClick={() => alert("Génération du planning mensuel en cours...")}
+            >
               <Download size={18} className="me-2" /> Exporter le planning mensuel
             </Button>
           </Col>

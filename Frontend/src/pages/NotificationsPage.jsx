@@ -132,9 +132,15 @@ const NotificationsPage = () => {
           <Col lg={10}>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h5 className="fw-bold text-navy mb-0">Dernières Activités</h5>
-              <Button variant="link" className="text-primary fw-bold text-decoration-none small">Tout marquer comme lu</Button>
+              <Button 
+                variant="link" 
+                className="text-primary fw-bold text-decoration-none small"
+                onClick={() => alert("Toutes les notifications ont été marquées comme lues.")}
+              >
+                Tout marquer comme lu
+              </Button>
             </div>
-
+ 
             <div className="nt-feed">
               {NOTIFICATIONS_DATA.map((n, i) => (
                 <motion.div 
@@ -174,8 +180,12 @@ const NotificationsPage = () => {
                 </motion.div>
               ))}
             </div>
-
-            <Button variant="outline-primary" className="w-100 mt-4 py-3 fw-bold rounded-4 border-2">
+ 
+            <Button 
+              variant="outline-primary" 
+              className="w-100 mt-4 py-3 fw-bold rounded-4 border-2"
+              onClick={() => alert("Chargement des notifications archivées...")}
+            >
               Voir les notifications archivées
             </Button>
           </Col>

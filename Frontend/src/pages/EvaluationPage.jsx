@@ -84,7 +84,10 @@ const EvaluationPage = () => {
             <h1 className="eval-title mb-1">Evaluation & Grading</h1>
             <p className="eval-subtitle text-muted mb-0">Track your project assessments and academic performance</p>
           </motion.div>
-          <Button className="btn-export d-flex align-items-center gap-2 px-4 py-2">
+          <Button 
+            className="btn-export d-flex align-items-center gap-2 px-4 py-2"
+            onClick={() => alert("Génération du rapport de notes PDF...")}
+          >
             <Download size={18} /> Export Results
           </Button>
         </header>

@@ -136,8 +136,22 @@ const ReportValidationPage = () => {
                         </div>
                      </div>
                      <div className="d-flex gap-2">
-                        <Button variant="outline-primary" size="sm" className="rounded-3 px-3 fw-bold border-1"><Download size={14} className="me-2" /> Get PDF</Button>
-                        <Button variant="light" size="sm" className="rounded-3 px-3 fw-bold border"><ExternalLink size={14} className="me-2" /> Open</Button>
+                         <Button 
+                           variant="outline-primary" 
+                           size="sm" 
+                           className="rounded-3 px-3 fw-bold border-1"
+                           onClick={() => window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank')}
+                         >
+                           <Download size={14} className="me-2" /> Get PDF
+                         </Button>
+                         <Button 
+                           variant="light" 
+                           size="sm" 
+                           className="rounded-3 px-3 fw-bold border"
+                           onClick={() => window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank')}
+                         >
+                           <ExternalLink size={14} className="me-2" /> Open
+                         </Button>
                      </div>
                   </div>
 
