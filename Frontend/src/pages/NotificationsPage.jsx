@@ -3,8 +3,9 @@ import { Container, Row, Col, Badge, Card, Button, Form } from 'react-bootstrap'
 import { motion } from 'framer-motion';
 import { 
   Bell, CheckCircle, Mail, AlertCircle, Calendar, 
-  Settings, Clock, MessageSquare, Activity, Shield, RefreshCcw, Search
+  Settings, Clock, MessageSquare, Activity, Shield, RefreshCcw, Search, MoreVertical
 } from 'lucide-react';
+import { Dropdown } from 'react-bootstrap';
 import './NotificationsPage.css';
 
 const STATS = [
@@ -146,13 +147,29 @@ const NotificationsPage = () => {
                   <div className={`nt-icon-box bg-${n.type}`}>
                     {n.icon}
                   </div>
-                  <div className="nt-content">
+                  <div className="nt-content pe-5">
                     <div className="nt-title">{n.title}</div>
                     <div className="nt-time d-flex align-items-center gap-1">
                       <Clock size={12} /> {n.time}
                     </div>
                     <div className="nt-desc">{n.desc}</div>
                   </div>
+                  
+                  <div className="nt-options-menu">
+                    <Dropdown align="end">
+                      <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                        <MoreVertical size={18} />
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                        <Dropdown.Item className="fw-bold">Voir les détails</Dropdown.Item>
+                        <Dropdown.Item>Marquer comme lu</Dropdown.Item>
+                        <Dropdown.Item>Archiver</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item className="text-danger">Supprimer</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </div>
+                  
                   {n.unread && <div className="nt-unread-dot"></div>}
                 </motion.div>
               ))}

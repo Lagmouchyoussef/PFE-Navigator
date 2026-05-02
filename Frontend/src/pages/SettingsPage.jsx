@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Container, Row, Col, Card, Form, Button, 
   Badge, Tab, Table, InputGroup, ProgressBar 
@@ -6,8 +6,9 @@ import {
 import { 
   User, Bell, Shield, Moon, Sun, CheckCircle, Save, Camera, 
   ChevronRight, Lock, Smartphone, Languages, Eye, EyeOff, 
-  Globe2, Clock, Mail, Briefcase, MapPin, Hash, Trash2, Search
+  Globe2, Clock, Mail, Briefcase, MapPin, Hash, Trash2, Search, MoreVertical
 } from 'lucide-react';
+import { Dropdown } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext.jsx';
 import './SettingsPage.css';
@@ -29,10 +30,10 @@ const SettingsPage = () => {
   };
 
   const navItems = [
-    { id: 'profile', label: 'Profil Public', icon: <User size={20} className="text-primary" /> },
+    { id: 'profile', label: 'Profil Public', icon: <User size={20} className="text-orange" style={{ color: '#f97316' }} /> },
     { id: 'security', label: 'Sécurité & Accès', icon: <Shield size={20} className="text-success" /> },
-    { id: 'notifications', label: 'Notifications', icon: <Bell size={20} className="text-warning" /> },
-    { id: 'preferences', label: 'Préférences UI', icon: <Sun size={20} className="text-info" /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell size={20} className="text-danger" /> },
+    { id: 'preferences', label: 'Préférences UI', icon: <Sun size={20} className="text-purple" style={{ color: '#a855f7' }} /> },
   ];
 
   return (
@@ -90,7 +91,7 @@ const SettingsPage = () => {
               className="btn-save-settings px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
               onClick={handleSave}
             >
-              {showSuccessCard ? <CheckCircle size={18} className="text-success" /> : <Save size={18} className="text-info" />}
+              {showSuccessCard ? <CheckCircle size={18} className="text-success" /> : <Save size={18} style={{ color: '#ec4899' }} />}
               {showSuccessCard ? 'Modifications Enregistrées' : 'Enregistrer'}
             </Button>
           </div>
@@ -138,7 +139,9 @@ const SettingsPage = () => {
                           <div className="profile-avatar-large bg-primary bg-opacity-10 text-primary">
                             {session?.name?.charAt(0)}
                           </div>
-                          <Button className="avatar-upload-btn shadow-sm"><Camera size={14} className="text-primary" /></Button>
+                          <Button className="avatar-upload-btn shadow-sm" onClick={() => fileInputRef.current?.click()}>
+                            <Camera size={16} color="white" />
+                          </Button>
                         </div>
                         <div>
                           <h4 className="fw-bold text-navy mb-1">{session?.name}</h4>
@@ -260,7 +263,15 @@ const SettingsPage = () => {
                             </td>
                             <td className="small text-muted">Rabat, Maroc</td>
                             <td className="text-end">
-                              <Button variant="link" className="p-0 text-danger extra-small fw-bold">Déconnecter</Button>
+                              <Dropdown align="end">
+                                <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                                  <MoreVertical size={18} />
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                                  <Dropdown.Item>Détails de la session</Dropdown.Item>
+                                  <Dropdown.Item className="text-danger">Déconnecter l'appareil</Dropdown.Item>
+                                </Dropdown.Menu>
+                              </Dropdown>
                             </td>
                           </tr>
                         </tbody>

@@ -89,7 +89,19 @@ const ResourceHubPage = () => {
                   <p className="extra-small mb-0 opacity-75">{successMsg}</p>
                 </div>
               </div>
-              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              <div className="d-flex align-items-center gap-2">
+                <Dropdown align="end">
+                  <Dropdown.Toggle as="button" className="btn btn-link p-0 text-muted shadow-none">
+                    <MoreVertical size={16} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="shadow border-0 rounded-3">
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Supprimer</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Archiver</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Mettre en favori</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

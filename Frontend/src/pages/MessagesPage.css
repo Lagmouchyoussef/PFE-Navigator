@@ -201,7 +201,77 @@
   opacity: 1;
 }
 
+[data-theme='dark'] .search-bar-modern {
+  background-color: #1e293b;
+}
+
+[data-theme='dark'] .search-bar-modern:focus-within {
+  background-color: #0f172a;
+  border-color: #3b82f6;
+}
+
+[data-theme='dark'] .search-bar-modern input {
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .search-bar-modern input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme='dark'] .text-navy {
+  color: #f1f5f9 !important;
+}
+
 .search-bar-modern input::placeholder {
   color: #94a3b8 !important;
   opacity: 1;
+}
+
+/* Custom Scrollbar for Conversations and Messages */
+.conversations-list,
+.message-canvas {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  min-height: 0; /* Critical for Flexbox scrolling */
+}
+
+[data-theme='dark'] .conversations-list,
+[data-theme='dark'] .message-canvas {
+  scrollbar-color: #334155 transparent;
+}
+
+.conversations-list::-webkit-scrollbar,
+.message-canvas::-webkit-scrollbar {
+  width: 8px; /* Slightly wider for better visibility */
+}
+
+.conversations-list::-webkit-scrollbar-track,
+.message-canvas::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.conversations-list::-webkit-scrollbar-thumb,
+.message-canvas::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid transparent; /* Create some space around the thumb */
+  background-clip: content-box;
+}
+
+[data-theme='dark'] .conversations-list::-webkit-scrollbar-thumb,
+[data-theme='dark'] .message-canvas::-webkit-scrollbar-thumb {
+  background: #334155;
+  background-clip: content-box;
+}
+
+.conversations-list::-webkit-scrollbar-thumb:hover,
+.message-canvas::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+[data-theme='dark'] .conversations-list::-webkit-scrollbar-thumb:hover,
+[data-theme='dark'] .message-canvas::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+  background-clip: content-box;
 }

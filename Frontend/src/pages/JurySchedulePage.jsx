@@ -5,8 +5,9 @@ import {
 import { motion } from 'framer-motion';
 import { 
   Calendar as CalendarIcon, Clock, MapPin, Users, 
-  ChevronLeft, ChevronRight, Download, Info, Video
+  ChevronLeft, ChevronRight, Download, Info, Video, MoreVertical
 } from 'lucide-react';
+import { Dropdown } from 'react-bootstrap';
 import './JurySchedulePage.css';
 
 const SCHEDULE_LIST = [
@@ -131,9 +132,18 @@ const JurySchedulePage = () => {
                     </div>
                   </div>
                   
-                  <Button variant="light" className="p-2 rounded-circle border-0 text-primary">
-                    <ChevronRight size={20} />
-                  </Button>
+                  <Dropdown align="end">
+                    <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                      <MoreVertical size={18} />
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                      <Dropdown.Item>Détails de la session</Dropdown.Item>
+                      <Dropdown.Item>Contacter le candidat</Dropdown.Item>
+                      <Dropdown.Item>Modifier l'horaire</Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item className="text-danger">Annuler la session</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </motion.div>
               ))}
             </div>

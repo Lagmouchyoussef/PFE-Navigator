@@ -115,15 +115,26 @@
   position: absolute;
   bottom: -5px;
   right: -5px;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: #0046ad;
-  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #0046ad !important;
+  color: white !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white;
+  border: 3px solid white !important;
+  padding: 0 !important;
+  transition: all 0.2s ease;
+}
+
+.avatar-upload-btn:hover {
+  background: #003785 !important;
+  transform: scale(1.1);
+}
+
+[data-theme='dark'] .avatar-upload-btn {
+  border-color: #0f172a !important;
 }
 
 .badge-role {
@@ -133,6 +144,11 @@
   font-size: 0.65rem;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
+}
+
+[data-theme='dark'] .badge-role {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .btn-save-settings {
@@ -152,6 +168,7 @@
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
+  background: #f8fafc;
 }
 
 .theme-card.active {
@@ -159,8 +176,22 @@
   background: #f0f7ff;
 }
 
+[data-theme='dark'] .theme-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme='dark'] .theme-card h6 {
+  color: #f1f5f9 !important;
+}
+
 [data-theme='dark'] .theme-card.active {
-  background: rgba(0, 70, 173, 0.1);
+  background: rgba(0, 70, 173, 0.2);
+  border-color: #3498db;
+}
+
+[data-theme='dark'] .text-navy {
+  color: #f1f5f9 !important;
 }
 
 .settings-search-bar {
@@ -177,6 +208,11 @@
   border-color: #334155 !important;
 }
 
-[data-theme='dark'] .settings-search-bar input {
-  color: white !important;
+[data-theme='dark'] .form-check-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .settings-nav-item.active {
+  background: #3498db;
+  color: white;
 }

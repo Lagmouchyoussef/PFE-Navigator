@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Button, Table, Form 
+  Button, Table, Form, Dropdown 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, TrendingDown, Star, Users, 
   Clock, Calendar, Activity, Brain, FileText, MessageSquare, CheckCircle,
-  User, BookOpen, GraduationCap, ArrowRightCircle
+  User, BookOpen, GraduationCap, ArrowRightCircle, MoreVertical
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import './JuryDashboard.css';
@@ -48,6 +48,65 @@ const CRITERIA_DATA = [
   { subject: 'Qualité Tech', me: 19, avg: 16 },
   { subject: 'Présentation', me: 17, avg: 16 },
   { subject: 'Documentation', me: 15, avg: 15 },
+];
+
+const RECENT_ACTIVITIES = [
+  {
+    id: 1,
+    title: 'Nouvelle évaluation assignée',
+    time: 'Il y a 2 heures',
+    desc: 'Le projet de Sara Kamali "Blockchain Certificate Verification" nécessite votre évaluation',
+    icon: <Clock size={16} color="#f59e0b" />,
+    color: '#f59e0b'
+  },
+  {
+    id: 2,
+    title: 'Soutenance programmée',
+    time: 'Il y a 5 heures',
+    desc: "Soutenance d'Ahmed Benali prévue le 5 Mai à 09:00 en salle A-204",
+    icon: <Calendar size={16} color="#3b82f6" />,
+    color: '#3b82f6'
+  },
+  {
+    id: 3,
+    title: 'Nouveau message',
+    time: 'Hier',
+    desc: 'Prof. Martin vous a envoyé un message concernant la grille d\'évaluation',
+    icon: <MessageSquare size={16} color="#6366f1" />,
+    color: '#6366f1'
+  },
+  {
+    id: 4,
+    title: 'Mise à jour du système',
+    time: 'Il y a 2 jours',
+    desc: 'Nouvelles fonctionnalités d\'analyse prédictive disponibles dans le tableau de bord',
+    icon: <Activity size={16} color="#10b981" />,
+    color: '#10b981'
+  },
+  {
+    id: 5,
+    title: 'Évaluation complétée',
+    time: 'Il y a 3 jours',
+    desc: 'Votre évaluation pour Mohamed Alaoui a été soumise avec succès',
+    icon: <CheckCircle size={16} color="#10b981" />,
+    color: '#10b981'
+  },
+  {
+    id: 6,
+    title: 'Date limite proche',
+    time: 'Il y a 3 jours',
+    desc: 'L\'évaluation de Fatima Zahra doit être complétée avant le 7 Mai',
+    icon: <Clock size={16} color="#ef4444" />,
+    color: '#ef4444'
+  },
+  {
+    id: 7,
+    title: 'Paramètres modifiés',
+    time: 'Il y a 1 semaine',
+    desc: 'Vos préférences de notification ont été mises à jour',
+    icon: <User size={16} color="#94a3b8" />,
+    color: '#94a3b8'
+  }
 ];
 
 const JuryDashboard = () => {
@@ -107,7 +166,7 @@ const JuryDashboard = () => {
                   <p className="extra-small mb-0 opacity-75">Le rapport analytique a été généré avec succès et est prêt pour le téléchargement.</p>
                 </div>
               </div>
-              <div className="d-flex gap-2">
+              <div className="d-flex align-items-center gap-2">
                 <Button 
                   size="sm" 
                   variant="success" 
@@ -116,6 +175,16 @@ const JuryDashboard = () => {
                 >
                   Télécharger
                 </Button>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                    <MoreVertical size={16} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="shadow border-0 rounded-3">
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Supprimer</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Archiver</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Mettre en favori</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
                 <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
               </div>
             </motion.div>
@@ -132,7 +201,7 @@ const JuryDashboard = () => {
           </motion.div>
           <div className="d-flex gap-3">
             <Button className="btn-pro-outline d-flex align-items-center gap-2">
-              <Calendar size={18} color="#6366f1" /> Programmer Soutenance
+              <Calendar size={18} color="#8b5cf6" /> Programmer Soutenance
             </Button>
             <Button 
               className="btn-pro-primary d-flex align-items-center gap-2 shadow-sm border-0"
@@ -141,10 +210,10 @@ const JuryDashboard = () => {
             >
               {isGenerating ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-                  <Activity size={18} color="#93c5fd" />
+                  <Activity size={18} color="#f59e0b" />
                 </motion.div>
               ) : (
-                <Activity size={18} color="#93c5fd" />
+                <Activity size={18} color="#f59e0b" />
               )}
               {isGenerating ? 'Génération...' : 'Générer Rapport'}
             </Button>
@@ -176,7 +245,15 @@ const JuryDashboard = () => {
                   <h6>Performance des Évaluations</h6>
                   <p className="extra-small opacity-75 mb-0" style={{ color: 'var(--jd-text-muted)' }}>Évolution mensuelle des évaluations et scores moyens</p>
                 </div>
-                <Badge bg="transparent" className="border text-white">Derniers 5 Mois</Badge>
+                <Form.Select 
+                  size="sm" 
+                  className="jd-select-match extra-small fw-bold border shadow-sm"
+                  defaultValue="5months"
+                >
+                  <option value="1month">Dernier Mois</option>
+                  <option value="5months">Derniers 5 Mois</option>
+                  <option value="year">Cette Année</option>
+                </Form.Select>
               </div>
               <div style={{ height: '300px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -323,11 +400,11 @@ const JuryDashboard = () => {
                 <Table className="jd-table-pro">
                   <thead>
                     <tr>
-                      <th style={{ width: '25%', color: 'var(--jd-text)' }}><User size={14} className="me-2 text-primary" />Étudiant</th>
-                      <th style={{ width: '35%', color: 'var(--jd-text)' }}><BookOpen size={14} className="me-2 text-info" />Titre du Projet</th>
-                      <th style={{ width: '20%', color: 'var(--jd-text)' }}><Users size={14} className="me-2 text-success" />Encadrant</th>
-                      <th style={{ width: '10%', color: 'var(--jd-text)' }}><Calendar size={14} className="me-2 text-warning" />Date</th>
-                      <th style={{ width: '10%', color: 'var(--jd-text)' }} className="text-end">Actions</th>
+                      <th style={{ color: 'var(--jd-text)' }}><User size={14} className="me-2 text-primary" />Étudiant</th>
+                      <th style={{ color: 'var(--jd-text)' }}><BookOpen size={14} className="me-2 text-info" />Titre du Projet</th>
+                      <th style={{ color: 'var(--jd-text)' }}><Users size={14} className="me-2 text-success" />Encadrant</th>
+                      <th style={{ color: 'var(--jd-text)' }}><Calendar size={14} className="me-2 text-warning" />Date</th>
+                      <th style={{ color: 'var(--jd-text)' }} className="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -343,16 +420,23 @@ const JuryDashboard = () => {
           <Col lg={4}>
             <Card className="jd-chart-card h-100">
               <h5 className="jd-section-title d-flex align-items-center gap-2">
-                <Activity size={20} color="#3b82f6" /> Suivi Actif
+                <Activity size={20} color="#3b82f6" /> Dernières Activités
               </h5>
               <div className="jd-ai-insight mb-4">
                 <div className="extra-small fw-bold text-primary mb-1">ALERTE IA</div>
                 <p className="extra-small mb-0 opacity-90" style={{ color: 'var(--jd-text)' }}>Le projet "IoT Smart Campus" nécessite votre attention.</p>
               </div>
               <div className="jd-activity-list">
-                <ActivityItem icon={<Clock size={16} color="#f59e0b" />} title="Soutenance" desc="Demain à 09:00" />
-                <ActivityItem icon={<MessageSquare size={16} color="#3b82f6" />} title="Message" desc="Nouveau commentaire" />
-                <ActivityItem icon={<FileText size={16} color="#10b981" />} title="Rapport" desc="Version finale reçue" />
+                {RECENT_ACTIVITIES.map((activity) => (
+                  <ActivityItem 
+                    key={activity.id}
+                    icon={activity.icon} 
+                    title={activity.title} 
+                    time={activity.time}
+                    desc={activity.desc} 
+                    color={activity.color}
+                  />
+                ))}
               </div>
             </Card>
           </Col>
@@ -377,12 +461,29 @@ const StatCard = ({ label, value, trend, trendUp, icon, delay }) => (
   </motion.div>
 );
 
-const ActivityItem = ({ icon, title, desc }) => (
-  <div className="jd-activity-item d-flex align-items-center gap-3 mb-3">
-    <div className="jd-activity-icon bg-primary bg-opacity-10 text-primary p-2 rounded-circle">{icon}</div>
-    <div className="overflow-hidden">
-      <div className="extra-small fw-bold text-navy text-truncate">{title}</div>
-      <div className="extra-small text-muted text-truncate">{desc}</div>
+const ActivityItem = ({ icon, title, time, desc, color }) => (
+  <div className="jd-activity-item d-flex align-items-start gap-3 mb-3 position-relative">
+    <div className="jd-activity-icon p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ backgroundColor: `${color}15`, color: color, width: '36px', height: '36px' }}>
+      {icon}
+    </div>
+    <div className="flex-grow-1 overflow-hidden pe-4">
+      <div className="d-flex justify-content-between align-items-center mb-1">
+        <div className="extra-small fw-bold text-navy">{title}</div>
+        <div className="extra-small text-muted" style={{ fontSize: '10px' }}>{time}</div>
+      </div>
+      <div className="extra-small text-muted text-wrap" style={{ lineHeight: '1.4' }}>{desc}</div>
+    </div>
+    <div className="position-absolute top-0 end-0">
+      <Dropdown align="end">
+        <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+          <MoreVertical size={14} />
+        </Dropdown.Toggle>
+        <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+          <Dropdown.Item>Voir les détails</Dropdown.Item>
+          <Dropdown.Item>Marquer comme lu</Dropdown.Item>
+          <Dropdown.Item className="text-danger">Supprimer</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   </div>
 );
@@ -392,30 +493,30 @@ const ProjectRow = ({ name, title, sup, date, status, onReview }) => (
     <td>
       <div className="d-flex align-items-center gap-3">
         <div className="avatar-xs bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style={{ width: '28px', height: '28px', fontSize: '10px' }}>{name.charAt(0)}</div>
-        <div className="small fw-bold text-navy text-truncate">{name}</div>
+        <div className="small fw-bold text-navy">{name}</div>
       </div>
     </td>
     <td>
       <div className="d-flex align-items-center gap-2">
-        <BookOpen size={14} className="text-info" />
-        <div className="extra-small fw-bold opacity-75 text-truncate" style={{ color: 'var(--jd-text)' }}>{title}</div>
+        <BookOpen size={14} className="text-info flex-shrink-0" />
+        <div className="extra-small fw-bold opacity-90" style={{ color: 'var(--jd-text)', lineHeight: '1.4' }}>{title}</div>
       </div>
     </td>
     <td>
       <div className="d-flex align-items-center gap-2">
-        <Users size={14} className="text-success" />
-        <div className="extra-small opacity-75 text-truncate" style={{ color: 'var(--jd-text-muted)' }}>{sup}</div>
+        <Users size={14} className="text-success flex-shrink-0" />
+        <div className="extra-small opacity-75 fw-medium" style={{ color: 'var(--jd-text-muted)' }}>{sup}</div>
       </div>
     </td>
     <td>
       <div className="d-flex align-items-center gap-2">
-        <Calendar size={14} className="text-warning" />
-        <div className="extra-small opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{date}</div>
+        <Calendar size={14} className="text-warning flex-shrink-0" />
+        <div className="extra-small opacity-75 fw-bold" style={{ color: 'var(--jd-text-muted)' }}>{date}</div>
       </div>
     </td>
     <td className="text-end">
       <Button variant="link" className="p-0 text-primary fw-bold text-decoration-none extra-small d-inline-flex align-items-center gap-1" onClick={onReview}>
-        Review <ArrowRightCircle size={14} className="text-info" />
+        Review <ArrowRightCircle size={14} style={{ color: '#ec4899' }} />
       </Button>
     </td>
   </tr>

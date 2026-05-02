@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, Eye, MoreHorizontal, Download, Settings, ChevronDown, Edit, FileText,
+  Search, Eye, MoreVertical, Download, Settings, ChevronDown, Edit, FileText,
   Trash2, Mail, Archive, ExternalLink, Calendar, User, Briefcase, X
 } from 'lucide-react';
 import './JuryProjectsPage.css';
@@ -146,7 +146,7 @@ const JuryProjectsPage = () => {
         {/* Table */}
         <div className="jp-table-match shadow-sm overflow-hidden">
           <Table className="mb-0 align-middle">
-            <thead className="bg-light">
+            <thead>
               <tr>
                 <th className="ps-3" style={{width: '30px'}}><Form.Check size="sm" /></th>
                 <th style={{width: '22%'}}>Étudiant</th>
@@ -209,8 +209,8 @@ const JuryProjectsPage = () => {
                       </div>
 
                       <Dropdown align="end">
-                        <Dropdown.Toggle as="div" className="jp-icon-box no-caret">
-                          <MoreHorizontal size={14} />
+                        <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                          <MoreVertical size={18} />
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="border-0 shadow-lg small py-1">
                           <Dropdown.Item className="d-flex align-items-center gap-2 py-2">

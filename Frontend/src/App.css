@@ -654,14 +654,27 @@
   display: none !important;
 }
 
-.border-bottom-dashed-light {
+.notif-unread {
+  background-color: rgba(52, 152, 219, 0.03) !important;
+}
+
+[data-theme='dark'] .notif-unread {
+  background-color: rgba(52, 152, 219, 0.06) !important;
+}
+
+.notification-dropdown-menu .dropdown-item:active, 
+.notification-dropdown-menu .dropdown-item:focus,
+.notification-dropdown-menu .dropdown-item:hover {
+  background-color: var(--background) !important;
+  color: inherit !important;
+}
+
+.notif-item {
+  transition: all 0.2s ease;
   border-bottom: 1px dashed var(--border);
 }
 
-.notification-menu .dropdown-item:active, 
-.notification-menu .dropdown-item:focus {
-  background-color: var(--background);
-}
+
 
 [data-theme='dark'] .dropdown-menu {
   background-color: #1c2636 !important;
@@ -694,9 +707,7 @@
   background-color: #1c2636;
 }
 
-[data-theme='dark'] .dropdown-item.bg-primary.bg-opacity-5 {
-  background-color: rgba(52, 152, 219, 0.15) !important;
-}
+
 
 /* Admin Dashboard Specific Styles */
 :root {

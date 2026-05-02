@@ -52,7 +52,7 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
   const { session, logout, notifications, markNotificationRead, markAllNotificationsRead,
-          unreadNotificationsCount, unreadCountForRole } = useApp();
+          unreadNotificationsCount, unreadCountForRole, messages, markMessagesRead } = useApp();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
@@ -97,7 +97,9 @@ function App() {
   };
 
   const unreadMsgCount = unreadCountForRole ? unreadCountForRole(session.role) : 0;
+  const localUnreadNotifs = notifications ? notifications.filter(n => !n.read).length : 0;
   const recentNotifs = notifications ? notifications.slice(0, 4) : [];
+  const unreadMessages = messages ? messages.filter(m => m.sender !== session.role && (session.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) : [];
 
   if (!session) return null;
 
@@ -198,7 +200,7 @@ function App() {
               to={session.role === 'admin' ? '/admin/notifications' : session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'} 
               icon={<Bell size={20} color="#f43f5e" />} 
               label={!isSidebarCollapsed && "Notifications"} 
-              badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null}
+              badge={localUnreadNotifs > 0 ? localUnreadNotifs : null}
             />
             <SidebarLink to={session.role === 'admin' ? '/admin/notes' : session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Admin Notes"} />
           </nav>
@@ -257,25 +259,51 @@ function App() {
                 variant="link"
                 className="p-0 text-muted shadow-none position-relative border-0 no-caret"
               >
-                <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}>
+                <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <MessageSquare size={22} />
                   {unreadMsgCount > 0 && (
                     <span
-                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary"
-                      style={{ fontSize: '0.6rem', padding: '3px 5px' }}
+                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-2 border-white"
+                      style={{ fontSize: '0.6rem', padding: '3px 5px', zIndex: 10 }}
                     >
                       {unreadMsgCount}
                     </span>
                   )}
                 </motion.div>
               </Dropdown.Toggle>
-              <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
+              <Dropdown.Menu className="notification-dropdown-menu border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
                 <div className="px-3 py-3 border-bottom bg-surface d-flex justify-content-between align-items-center">
                   <span className="fw-bold">Messages</span>
                   <Link to={session.role === 'admin' ? '/admin/messages' : session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
                 </div>
-                <div className="px-3 py-4 text-center text-muted small">
-                  {unreadMsgCount > 0 ? `You have ${unreadMsgCount} unread messages` : 'No new messages'}
+                <div className="message-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                  {unreadMessages.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-muted small">No new messages</div>
+                  ) : (
+                    unreadMessages.map(m => (
+                      <Dropdown.Item 
+                        key={m.id} 
+                        className="px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start"
+                        onClick={() => markMessagesRead(session.role)}
+                        as={Link}
+                        to={session.role === 'admin' ? '/admin/messages' : session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+                      >
+                        <div className="p-2 rounded-circle bg-primary bg-opacity-10 text-primary mt-1 flex-shrink-0">
+                          <MessageSquare size={14} />
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="extra-small fw-bold text-navy text-capitalize">{m.sender}</span>
+                            <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
+                              {new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <div className="extra-small text-muted text-truncate">{m.text}</div>
+                        </div>
+                        <div className="ms-auto mt-2 bg-primary rounded-circle" style={{ width: '6px', height: '6px' }}></div>
+                      </Dropdown.Item>
+                    ))
+                  )}
                 </div>
               </Dropdown.Menu>
             </Dropdown>
@@ -286,22 +314,28 @@ function App() {
                 variant="link"
                 className="p-0 text-muted shadow-none position-relative border-0 no-caret"
               >
-                <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}>
+                <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <Bell size={22} />
-                  {unreadNotificationsCount > 0 && (
+                  {localUnreadNotifs > 0 && (
                     <span
-                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                      style={{ fontSize: '0.6rem', padding: '3px 5px' }}
+                      className="position-absolute badge rounded-pill bg-danger border border-2 border-white"
+                      style={{ 
+                        fontSize: '0.65rem', 
+                        padding: '2px 5px', 
+                        zIndex: 10,
+                        top: '-6px',
+                        right: '-8px'
+                      }}
                     >
-                      {unreadNotificationsCount}
+                      {localUnreadNotifs}
                     </span>
                   )}
                 </motion.div>
               </Dropdown.Toggle>
-              <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
+              <Dropdown.Menu className="notification-dropdown-menu border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
                 <div className="px-3 py-3 border-bottom bg-surface d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">Notifications</span>
-                  {unreadNotificationsCount > 0 && (
+                  <span className="fw-bold">Notifications {localUnreadNotifs > 0 && `(${localUnreadNotifs})`}</span>
+                  {localUnreadNotifs > 0 && (
                     <button
                       className="extra-small text-primary fw-bold bg-transparent border-0 p-0"
                       onClick={markAllNotificationsRead}
@@ -478,7 +512,7 @@ const NOTIF_COLORS = {
 const NotificationItem = ({ notif, onClick }) => (
   <Dropdown.Item
     onClick={onClick}
-    className={`px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start ${!notif.read ? 'bg-primary bg-opacity-5' : ''}`}
+    className={`notif-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start ${!notif.read ? 'notif-unread' : ''}`}
   >
     <div
       className={`p-2 rounded-circle bg-${NOTIF_COLORS[notif.type] || 'secondary'} bg-opacity-10 text-${NOTIF_COLORS[notif.type] || 'secondary'} mt-1 flex-shrink-0`}

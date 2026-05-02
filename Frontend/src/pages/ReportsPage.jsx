@@ -9,6 +9,7 @@ import {
   Search, Trash2, Eye, Folder, Filter, ChevronDown,
   FilePlus, MoreVertical, X
 } from 'lucide-react';
+import { Dropdown } from 'react-bootstrap';
 import { useApp } from '../context/AppContext.jsx';
 import './ReportsPage.css';
 
@@ -234,27 +235,21 @@ const ReportsPage = () => {
                           <Badge className="badge-approved px-3 py-1 fw-bold">Approved</Badge>
                         </td>
                         <td className="pe-4 text-end">
-                          <div className="d-flex justify-content-end gap-3 text-muted">
-                            <Eye 
-                              size={18} 
-                              className="cursor-pointer hover-navy" 
-                              onClick={() => handleView(doc)}
-                            />
-                            <Download 
-                              size={18} 
-                              className="cursor-pointer hover-navy" 
-                              onClick={() => handleDownload(doc)}
-                            />
-                            <Trash2 
-                              size={18} 
-                              className="cursor-pointer text-danger hover-opacity" 
-                              onClick={() => {
+                          <Dropdown align="end">
+                            <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                              <MoreVertical size={18} />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                              <Dropdown.Item onClick={() => handleView(doc)}><Eye size={14} className="me-2" /> Voir</Dropdown.Item>
+                              <Dropdown.Item onClick={() => handleDownload(doc)}><Download size={14} className="me-2" /> Télécharger</Dropdown.Item>
+                              <Dropdown.Divider />
+                              <Dropdown.Item className="text-danger" onClick={() => {
                                 if(window.confirm(`Are you sure you want to delete ${doc.title}?`)) {
                                   deleteDocument(doc.id);
                                 }
-                              }} 
-                            />
-                          </div>
+                              }}><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
                         </td>
                       </tr>
                     ))

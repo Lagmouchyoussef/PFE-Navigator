@@ -65,7 +65,7 @@
   margin-bottom: 1rem;
   transition: all 0.2s;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Allow dropdowns to be visible outside the card */
 }
 
 [data-theme='dark'] .nt-card {
@@ -124,14 +124,27 @@
   color: #94a3b8;
 }
 
+.nt-urgent { background: #fef2f2; color: #991b1b; }
+
+.nt-feed {
+  overflow: visible !important;
+}
+
+.nt-options-menu {
+  position: absolute;
+  top: 1.25rem;
+  right: 1rem;
+  z-index: 10;
+}
+
 .nt-unread-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: #3b82f6;
   border-radius: 50%;
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 1.25rem;
+  right: 3rem; /* Move it to the left of the 3 points */
 }
 /* Icons colors */
 .bg-eval { background: #f0f7ff; color: #0046ad; }

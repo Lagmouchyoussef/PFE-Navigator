@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Form, InputGroup, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Form, InputGroup, Button, Dropdown } from 'react-bootstrap';
 import { 
   Search, Pin, AlertCircle, FileText, 
   Calendar, Users, Bell, Bookmark, ChevronRight,
@@ -227,7 +227,20 @@ const NoteCard = ({ note, getPriorityBadge }) => (
             {getPriorityBadge(note.priority)}
             <Badge bg="light" text="dark" className="category-badge border">{note.category}</Badge>
           </div>
-          <Button variant="link" className="p-0 text-muted"><MoreVertical size={18}/></Button>
+          <div className="note-options">
+            <Dropdown align="end">
+              <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                <MoreVertical size={18} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                <Dropdown.Item className="fw-bold">Mark as Read</Dropdown.Item>
+                <Dropdown.Item>Pin this Note</Dropdown.Item>
+                <Dropdown.Item>Copy Link</Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item className="text-danger">Delete Note</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
         </div>
         
         <h5 className="fw-bold text-navy mb-3">{note.title}</h5>

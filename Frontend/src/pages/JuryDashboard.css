@@ -98,6 +98,7 @@
   border-radius: 24px;
   padding: 1.5rem;
   height: 100%;
+  overflow: visible !important;
 }
 
 .jd-chart-header {
@@ -142,9 +143,8 @@
 /* Projects Table */
 .jd-table-pro {
   border-collapse: separate;
-  border-spacing: 0 0.75rem;
+  border-spacing: 0 0.5rem;
   width: 100%;
-  table-layout: fixed; /* Enforce fixed layout */
 }
 
 .jd-table-pro thead th {
@@ -170,12 +170,9 @@
 }
 
 .jd-table-pro td {
-  padding: 1rem 0.75rem !important;
+  padding: 1.25rem 1rem !important;
   border: none !important;
   vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .jd-table-pro td:first-child { border-radius: 16px 0 0 16px; }
@@ -240,4 +237,31 @@
 
 [data-theme='dark'] .jd-success-card-top .text-muted {
   color: #a7f3d0 !important;
+}
+
+.jd-select-match {
+  width: auto !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+  color: #0f172a !important;
+  padding-right: 2rem !important;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .jd-select-match {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .text-navy {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .text-navy {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .bg-light {
+  background-color: #1e293b !important;
 }

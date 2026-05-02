@@ -146,3 +146,12 @@ body {
   justify-content: center;
   font-weight: 800;
 }
+
+/* Global Dropdown Caret Removal */
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+.dropdown-menu {
+  z-index: 1050 !important; /* Ensure it stays above other elements */
+}

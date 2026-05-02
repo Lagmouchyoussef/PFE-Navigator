@@ -116,10 +116,10 @@
 }
 
 .jp-table-match thead th {
-  background: white !important;
+  background: #f8fafc !important;
   color: #0f172a !important;
   font-weight: 700 !important;
-  padding: 0.75rem 0.5rem !important;
+  padding: 1rem 0.75rem !important;
   border-bottom: 1px solid #e2e8f0 !important;
   white-space: nowrap;
 }
@@ -131,7 +131,7 @@
 }
 
 .jp-table-match tbody td {
-  padding: 0.75rem 0.5rem !important;
+  padding: 1rem 0.75rem !important;
   border-bottom: 1px solid #f1f5f9;
 }
 

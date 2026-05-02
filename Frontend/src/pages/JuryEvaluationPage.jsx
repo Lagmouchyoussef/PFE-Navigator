@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Form, Button, Table, ProgressBar 
+  Button, Table, Form, Dropdown, ProgressBar 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, CheckCircle
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext.jsx';
@@ -89,7 +89,19 @@ const JuryEvaluationPage = () => {
                   <p className="extra-small mb-0 opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{successMsg}</p>
                 </div>
               </div>
-              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              <div className="d-flex align-items-center gap-2">
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                    <MoreVertical size={16} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="shadow border-0 rounded-3">
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Supprimer</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Archiver</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Mettre en favori</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -171,13 +183,16 @@ const JuryEvaluationPage = () => {
                   <td className="small text-muted text-truncate">{p.title}</td>
                   <td className="small fw-medium text-truncate">{p.sup}</td>
                   <td className="text-end px-4">
-                    <Button 
-                      variant="link" 
-                      className="p-0 text-primary fw-bold text-decoration-none small"
-                      onClick={() => handleOpenEvaluation(p)}
-                    >
-                      Ouvrir
-                    </Button>
+                    <Dropdown align="end">
+                      <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                        <MoreVertical size={18} />
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                        <Dropdown.Item onClick={() => handleOpenEvaluation(p)}>Ouvrir l'évaluation</Dropdown.Item>
+                        <Dropdown.Item>Détails du projet</Dropdown.Item>
+                        <Dropdown.Item>Télécharger le rapport</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                   </td>
                 </tr>
               ))}

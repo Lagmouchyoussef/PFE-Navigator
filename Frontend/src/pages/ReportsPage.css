@@ -75,7 +75,7 @@
 /* Main Card & Table */
 .doc-main-card {
   border-radius: 16px !important;
-  overflow: hidden;
+  overflow: visible !important;
 }
 
 .doc-table thead th {

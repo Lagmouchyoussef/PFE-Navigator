@@ -110,6 +110,14 @@ const INITIAL_NOTIFICATIONS = [
     read: false,
     link: '/admin/dashboard',
   },
+  {
+    id: 3,
+    type: 'message',
+    text: 'New message from Youssef (Student) regarding archiving.',
+    date: new Date().toISOString(),
+    read: false,
+    link: '/jury/messages',
+  },
 ];
 
 // ─── CONTEXT ─────────────────────────────────────────────────────────────────
@@ -262,11 +270,11 @@ export const AppProvider = ({ children }) => {
     };
     setMessages(prev => [...prev, newMsg]);
 
-    // Notification to the other side
+    // Notification to the recipient
     if (senderRole === 'student') {
-      // no in-app notification for jury in this MVP
+      addNotification('message', 'New message from a student.', '/jury/messages');
     } else {
-      addNotification('message', 'New message from the jury.', '/student/messages');
+      addNotification('message', `New message from ${senderRole}.`, '/student/messages');
     }
   }, []);
 

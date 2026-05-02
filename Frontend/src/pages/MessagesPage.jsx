@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Badge, InputGroup } from 'react-bootstrap';
 import { 
   Send, Search, Paperclip, Phone, Video, 
-  MoreVertical, Check, CheckCheck, Users, 
-  MessageSquare, User
+  MessageSquare, User, Check, CheckCheck, MoreVertical
 } from 'lucide-react';
+import { Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import './MessagesPage.css';
 
@@ -12,52 +12,15 @@ const MessagesPage = () => {
   const [inputText, setInputText] = useState('');
   const scrollRef = useRef(null);
 
-  const conversations = [
-    { 
-      id: 1, 
-      name: 'Dr. Sarah Smith', 
-      role: 'Project Supervisor', 
-      lastMsg: 'Great work on the interim report. Jus...', 
-      time: '2 hours ago', 
-      unread: 2, 
-      online: true, 
-      avatar: 'DS',
-      color: '#1e293b'
-    },
-    { 
-      id: 2, 
-      name: 'Ahmed Ben Ali', 
-      role: 'Student - Team Member', 
-      lastMsg: 'Can we meet tomorrow to discuss the impl...', 
-      time: '5 hours ago', 
-      unread: 0, 
-      online: true, 
-      avatar: 'AA',
-      color: '#3b82f6'
-    },
-    { 
-      id: 3, 
-      name: 'PFE Coordination Office', 
-      role: 'Administration', 
-      lastMsg: 'Reminder: Defense schedule will be p...', 
-      time: '1 day ago', 
-      unread: 1, 
-      online: false, 
-      avatar: 'PO',
-      color: '#10b981'
-    },
-    { 
-      id: 4, 
-      name: 'Fatima Zahra', 
-      role: 'Student - Team Member', 
-      lastMsg: 'I finished the documentation part', 
-      time: '2 days ago', 
-      unread: 0, 
-      online: false, 
-      avatar: 'FZ',
-      color: '#8b5cf6'
-    }
-  ];
+  const [conversations] = useState([
+    { id: 1, name: 'Dr. Sarah Smith', role: 'Project Supervisor', lastMsg: 'Great work on the interim report. Jus...', time: '2 hours ago', avatar: 'DS', color: '#3b82f6', online: true, unread: 2 },
+    { id: 2, name: 'Ahmed Ben Ali', role: 'Student - Team Member', lastMsg: 'Can we meet tomorrow to discuss the impl...', time: '5 hours ago', avatar: 'AA', color: '#10b981', online: true, unread: 0 },
+    { id: 3, name: 'PFE Coordination Office', role: 'Administration', lastMsg: 'Reminder: Defense schedule will be p...', time: '1 day ago', avatar: 'PO', color: '#f59e0b', online: false, unread: 1 },
+    { id: 4, name: 'Fatima Zahra', role: 'Student - Team Member', lastMsg: 'I finished the documentation part', time: '2 days ago', avatar: 'FZ', color: '#6366f1', online: false, unread: 0 },
+    { id: 5, name: 'Prof. Mohamed Alaoui', role: 'Jury Member', lastMsg: 'Please send me the latest source code.', time: '3 days ago', avatar: 'MA', color: '#ec4899', online: false, unread: 0 },
+    { id: 6, name: 'Leila Mansouri', role: 'Student', lastMsg: 'The diagrams are ready for review.', time: '4 days ago', avatar: 'LM', color: '#8b5cf6', online: true, unread: 0 },
+    { id: 7, name: 'Support Technique', role: 'Helpdesk', lastMsg: 'Your password has been successfully reset.', time: '1 week ago', avatar: 'ST', color: '#64748b', online: false, unread: 0 },
+  ]);
 
   const chatMessages = [
     { id: 1, text: 'Hello Professor! I have completed the interim report and uploaded it to the portal.', time: '10:30 AM', sender: 'me', status: 'read' },
@@ -100,16 +63,16 @@ const MessagesPage = () => {
                     {conv.online && <div className="status-dot online"></div>}
                   </div>
                   <div className="flex-grow-1 overflow-hidden">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <div className="fw-bold small text-navy text-truncate">{conv.name}</div>
-                      <div className="extra-small text-muted">{conv.time}</div>
-                    </div>
+                    <div className="fw-bold small text-navy text-truncate">{conv.name}</div>
                     <div className="extra-small text-muted mb-1 opacity-75">{conv.role}</div>
                     <p className="extra-small text-muted mb-0 text-truncate font-italic">{conv.lastMsg}</p>
                   </div>
-                  {conv.unread > 0 && (
-                    <Badge pill className="unread-badge-gradient">{conv.unread}</Badge>
-                  )}
+                  <div className="d-flex flex-column align-items-end gap-2 flex-shrink-0">
+                    <div className="extra-small text-muted" style={{ whiteSpace: 'nowrap' }}>{conv.time}</div>
+                    {conv.unread > 0 && (
+                      <Badge pill className="unread-badge-gradient">{conv.unread}</Badge>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -135,7 +98,18 @@ const MessagesPage = () => {
               <div className="d-flex gap-2">
                 <Button variant="link" className="action-icon-btn"><Phone size={20}/></Button>
                 <Button variant="link" className="action-icon-btn"><Video size={20}/></Button>
-                <Button variant="link" className="action-icon-btn"><MoreVertical size={20}/></Button>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                    <MoreVertical size={20} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
+                    <Dropdown.Item>Voir le profil</Dropdown.Item>
+                    <Dropdown.Item>Muter les notifications</Dropdown.Item>
+                    <Dropdown.Item>Rechercher dans la discussion</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item className="text-danger">Bloquer le contact</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </div>
             </header>
 
