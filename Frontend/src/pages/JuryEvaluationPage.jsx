@@ -9,8 +9,9 @@ import {
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, CheckCircle
 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext.jsx';
 import './JuryEvaluationPage.css';
 
@@ -45,6 +46,8 @@ const JuryEvaluationPage = () => {
   const [scores, setScores] = useState({
     innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
   });
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleScoreChange = (id, val) => {
     const num = Math.min(20, Math.max(0, parseFloat(val) || 0));
@@ -53,9 +56,13 @@ const JuryEvaluationPage = () => {
 
   const handleOpenEvaluation = (student) => {
     setActiveStudent(student);
-    // Reset scores for new student if needed, or load existing
-    // Scroll to form
     evaluationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleSubmit = () => {
+    setSuccessMsg(`L'évaluation pour ${activeStudent.name} a été soumise avec succès.`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 8000);
   };
 
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -64,6 +71,29 @@ const JuryEvaluationPage = () => {
     <div className="ev-page-layout">
       <Container fluid className="px-0">
         
+        {/* Success Notification Card */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="ev-success-card mb-4 d-flex align-items-center justify-content-between shadow-lg"
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <CheckCircle size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <h6 className="mb-0 fw-bold" style={{ color: 'var(--jd-text)' }}>Évaluation Enregistrée</h6>
+                  <p className="extra-small mb-0 opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{successMsg}</p>
+                </div>
+              </div>
+              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <header className="ev-header-section mb-5">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -94,7 +124,10 @@ const JuryEvaluationPage = () => {
             <Card className="ev-chart-card shadow-sm border-0">
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                  <h5 className="fw-bold text-navy mb-0">Évolution des Évaluations</h5>
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <Clock size={18} className="text-warning" />
+                    <span className="fw-bold extra-small text-navy">Heures de Session</span>
+                  </div>
                   <p className="extra-small text-muted mb-0">Comparaison mensuelle des projets complétés vs en attente</p>
                 </div>
                 <Badge bg="light" text="dark" className="border px-3 py-2 rounded-pill">Année 2025/2026</Badge>
@@ -120,7 +153,7 @@ const JuryEvaluationPage = () => {
         <div className="ev-table-card shadow-sm border-0 mb-5">
           <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
             <h5 className="fw-bold text-navy mb-0">Projets à Évaluer</h5>
-            <Button variant="light" className="extra-small fw-bold border shadow-none">Voir tout <ChevronRight size={14} /></Button>
+            <Button variant="light" className="extra-small fw-bold border shadow-none">Voir tout <ChevronRight size={14} className="text-primary" /></Button>
           </div>
           <Table className="ev-table mb-0">
             <thead>
@@ -158,8 +191,8 @@ const JuryEvaluationPage = () => {
             <Row className="align-items-start mb-5">
               <Col md={8}>
                 <Badge bg="primary" className="mb-3 px-3 py-2 rounded-pill bg-opacity-10 text-primary">Évaluation en Cours</Badge>
-                <h2 className="fw-black text-navy mb-1">{activeStudent?.name}</h2>
-                <p className="text-muted fw-medium fs-5">{activeStudent?.title}</p>
+                <h2 className="fw-black mb-1" style={{ color: 'var(--jd-text)' }}>{activeStudent?.name}</h2>
+                <p className="fw-medium fs-5 opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{activeStudent?.title}</p>
               </Col>
               <Col md={4} className="text-end">
                 <div className="ev-total-box d-inline-block text-center shadow-sm">
@@ -169,24 +202,24 @@ const JuryEvaluationPage = () => {
               </Col>
             </Row>
 
-            <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+            <h6 className="fw-bold mb-4 d-flex align-items-center gap-2" style={{ color: 'var(--jd-text)' }}>
               <Target size={20} className="text-primary" /> Scoring Rubric
             </h6>
             
             <Table responsive borderless className="ev-scoring-table mb-5">
               <thead>
                 <tr>
-                  <th style={{ width: '40%' }}>CRITERIA</th>
-                  <th className="text-center">SCORE (0-20)</th>
-                  <th>RATING</th>
+                  <th style={{ width: '40%', color: 'var(--jd-text)' }}>CRITERIA</th>
+                  <th className="text-center" style={{ color: 'var(--jd-text)' }}>SCORE (0-20)</th>
+                  <th style={{ color: 'var(--jd-text)' }}>RATING</th>
                 </tr>
               </thead>
               <tbody>
                 {CRITERIA.map(item => (
                   <tr key={item.id} className="align-middle border-bottom-dashed">
                     <td className="py-3">
-                      <div className="fw-bold text-navy small">{item.label}</div>
-                      <div className="extra-small text-muted opacity-75">Detailed assessment of the {item.label.toLowerCase()}</div>
+                      <div className="fw-bold small" style={{ color: 'var(--jd-text)' }}>{item.label}</div>
+                      <div className="extra-small opacity-75" style={{ color: 'var(--jd-text-muted)' }}>Detailed assessment of the {item.label.toLowerCase()}</div>
                     </td>
                     <td className="text-center">
                       <Form.Control 
@@ -197,7 +230,7 @@ const JuryEvaluationPage = () => {
                       />
                     </td>
                     <td>
-                      <Badge bg="light" text="dark" className="border px-3 py-2 extra-small">
+                      <Badge bg="transparent" className="border px-3 py-2 extra-small fw-bold" style={{ color: 'var(--jd-text)' }}>
                         {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Good' : 'Pending'}
                       </Badge>
                     </td>
@@ -207,21 +240,21 @@ const JuryEvaluationPage = () => {
             </Table>
 
             <Form.Group className="mb-5">
-              <Form.Label className="fw-bold text-navy small d-flex align-items-center gap-2">
+              <Form.Label className="fw-bold small d-flex align-items-center gap-2" style={{ color: 'var(--jd-text)' }}>
                 <FileText size={18} className="text-primary" /> Evaluation Comments
               </Form.Label>
               <Form.Control 
                 as="textarea" 
                 rows={5} 
-                className="rounded-4 border-0 bg-light p-4 small shadow-none"
+                className="rounded-4 border-0 p-4 small shadow-none"
                 placeholder="Provide detailed feedback on the project strengths, weaknesses, and recommendations..."
               />
             </Form.Group>
 
             <div className="d-flex justify-content-end gap-3 border-top pt-5">
               <Button variant="light" className="px-4 py-2 fw-bold rounded-3">Enregistrer Brouillon</Button>
-              <Button className="ev-submit-btn px-5 py-3 d-flex align-items-center gap-2">
-                <Send size={18} /> Soumettre l'Évaluation
+              <Button className="ev-submit-btn px-5 py-3 d-flex align-items-center gap-2" onClick={handleSubmit}>
+                <Send size={18} className="text-info" /> Soumettre l'Évaluation
               </Button>
             </div>
           </div>

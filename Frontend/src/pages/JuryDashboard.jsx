@@ -9,9 +9,11 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, LabelList
 } from 'recharts';
 import { AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, TrendingDown, Star, Users, 
-  Clock, Calendar, Activity, Brain, FileText, MessageSquare, CheckCircle
+  Clock, Calendar, Activity, Brain, FileText, MessageSquare, CheckCircle,
+  User, BookOpen, GraduationCap, ArrowRightCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import './JuryDashboard.css';
@@ -49,10 +51,19 @@ const CRITERIA_DATA = [
 ];
 
 const JuryDashboard = () => {
-  const { session } = useApp();
+  const { session, theme } = useApp();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
+
+  // Helper to get high-contrast text color based on theme
+  const getChartTextColor = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return isDark ? '#FFFFFF' : '#1E293B';
+  };
+
+  const chartTextColor = getChartTextColor();
 
   const handleGenerateReport = () => {
     setIsGenerating(true);
@@ -88,8 +99,8 @@ const JuryDashboard = () => {
               className="jd-success-card-top mb-4 d-flex align-items-center justify-content-between shadow-lg"
             >
               <div className="d-flex align-items-center gap-3">
-                <div className="icon-box bg-success bg-opacity-20 text-success p-2 rounded-circle">
-                  <CheckCircle size={24} />
+                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <CheckCircle size={24} color="#ffffff" />
                 </div>
                 <div>
                   <h6 className="mb-0 fw-bold">Rapport Prêt !</h6>
@@ -115,7 +126,7 @@ const JuryDashboard = () => {
         <header className="jd-welcome-header mb-5 d-flex justify-content-between align-items-end">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h1 className="mb-1">Tableau de Bord Analytique</h1>
-            <p className="mb-0">
+            <p className="mb-0 opacity-90" style={{ color: 'var(--jd-text-muted)' }}>
               Bienvenue, Dr. {session?.name || 'Jane Doe'} • Dernière connexion : Aujourd'hui à 14:32
             </p>
           </motion.div>
@@ -130,10 +141,10 @@ const JuryDashboard = () => {
             >
               {isGenerating ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-                  <Activity size={18} />
+                  <Activity size={18} color="#93c5fd" />
                 </motion.div>
               ) : (
-                <Activity size={18} />
+                <Activity size={18} color="#93c5fd" />
               )}
               {isGenerating ? 'Génération...' : 'Générer Rapport'}
             </Button>
@@ -163,9 +174,9 @@ const JuryDashboard = () => {
               <div className="jd-chart-header d-flex justify-content-between align-items-start">
                 <div>
                   <h6>Performance des Évaluations</h6>
-                  <p className="extra-small text-muted mb-0">Évolution mensuelle des évaluations et scores moyens</p>
+                  <p className="extra-small opacity-75 mb-0" style={{ color: 'var(--jd-text-muted)' }}>Évolution mensuelle des évaluations et scores moyens</p>
                 </div>
-                <Badge bg="light" text="dark" className="border">Derniers 5 Mois</Badge>
+                <Badge bg="transparent" className="border text-white">Derniers 5 Mois</Badge>
               </div>
               <div style={{ height: '300px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -193,7 +204,7 @@ const JuryDashboard = () => {
             <Card className="jd-chart-card">
               <div className="jd-chart-header">
                 <h6>Taux de Réussite</h6>
-                <p className="extra-small text-muted mb-0">Répartition par niveau d'appréciation</p>
+                <p className="extra-small opacity-75 mb-0" style={{ color: 'var(--jd-text-muted)' }}>Répartition par niveau d'appréciation</p>
               </div>
               <div className="position-relative d-flex justify-content-center" style={{ height: '220px' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -204,7 +215,8 @@ const JuryDashboard = () => {
                       outerRadius={80} 
                       paddingAngle={5} 
                       dataKey="value"
-                      label={({ name, value }) => `${value}%`}
+                      label={({ value }) => `${value}%`}
+                      labelLine={false}
                     >
                       {SUCCESS_RATE_DATA.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -239,17 +251,17 @@ const JuryDashboard = () => {
             <Card className="jd-chart-card">
               <div className="jd-chart-header">
                 <h6>Distribution des Notes</h6>
-                <p className="extra-small text-muted mb-0">Répartition des scores attribués</p>
+                <p className="extra-small opacity-75 mb-0" style={{ color: 'var(--jd-text-muted)' }}>Répartition des scores attribués</p>
               </div>
               <div style={{ height: '220px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={GRADE_DISTRIBUTION}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.1} />
-                    <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10}} />
+                    <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: chartTextColor, fontWeight: 600}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: chartTextColor, fontWeight: 600}} />
                     <Tooltip cursor={{fill: 'transparent'}} />
                     <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} name="Projets">
-                      <LabelList dataKey="count" position="top" formatter={(val) => `${((val/39)*100).toFixed(0)}%`} style={{ fontSize: '10px', fontWeight: 'bold', fill: 'var(--jd-text)' }} />
+                      <LabelList dataKey="count" position="top" formatter={(val) => `${((val/39)*100).toFixed(0)}%`} style={{ fontSize: '11px', fontWeight: '800', fill: chartTextColor }} />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -262,13 +274,13 @@ const JuryDashboard = () => {
             <Card className="jd-chart-card">
               <div className="jd-chart-header">
                 <h6>Analyse par Critères</h6>
-                <p className="extra-small text-muted mb-0">Comparaison avec la moyenne</p>
+                <p className="extra-small opacity-75 mb-0" style={{ color: 'var(--jd-text-muted)' }}>Comparaison avec la moyenne</p>
               </div>
               <div style={{ height: '220px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="50%" outerRadius="70%" data={CRITERIA_DATA}>
-                    <PolarGrid strokeOpacity={0.1} />
-                    <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700}} />
+                    <PolarGrid strokeOpacity={0.2} stroke={chartTextColor} />
+                    <PolarAngleAxis dataKey="subject" tick={{fontSize: 11, fontWeight: 800, fill: chartTextColor}} />
                     <Radar name="Moi" dataKey="me" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
                     <Radar name="Jury" dataKey="avg" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.3} />
                     <Legend />
@@ -301,8 +313,8 @@ const JuryDashboard = () => {
 
             {/* Mobile Cards */}
             <div className="d-block d-xl-none">
-              <ProjectCard name="Ahmed Benali" title="AI-Powered Student System" sup="Prof. Martin" date="2026-04-15" status="Ready" />
-              <ProjectCard name="Sara Kamali" title="Blockchain Certificate Verif." sup="Dr. Chen" date="2026-04-18" status="Pending" />
+              <ProjectCard name="Ahmed Benali" title="AI-Powered Student System" sup="Prof. Martin" date="15/04/2026" status="Ready" onReview={() => navigate('/jury/evaluation')} />
+              <ProjectCard name="Sara Kamali" title="Blockchain Certificate Verif." sup="Dr. Chen" date="18/04/2026" status="Pending" onReview={() => navigate('/jury/evaluation')} />
             </div>
 
             {/* Desktop Table */}
@@ -311,17 +323,17 @@ const JuryDashboard = () => {
                 <Table className="jd-table-pro">
                   <thead>
                     <tr>
-                      <th style={{ width: '25%' }}>Étudiant</th>
-                      <th style={{ width: '35%' }}>Titre du Projet</th>
-                      <th style={{ width: '20%' }}>Encadrant</th>
-                      <th style={{ width: '10%' }}>Date</th>
-                      <th style={{ width: '10%' }} className="text-end">Actions</th>
+                      <th style={{ width: '25%', color: 'var(--jd-text)' }}><User size={14} className="me-2 text-primary" />Étudiant</th>
+                      <th style={{ width: '35%', color: 'var(--jd-text)' }}><BookOpen size={14} className="me-2 text-info" />Titre du Projet</th>
+                      <th style={{ width: '20%', color: 'var(--jd-text)' }}><Users size={14} className="me-2 text-success" />Encadrant</th>
+                      <th style={{ width: '10%', color: 'var(--jd-text)' }}><Calendar size={14} className="me-2 text-warning" />Date</th>
+                      <th style={{ width: '10%', color: 'var(--jd-text)' }} className="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <ProjectRow name="Ahmed Benali" title="AI-Powered Student System" sup="Prof. Martin" date="2026-04-15" status="Ready" />
-                    <ProjectRow name="Sara Kamali" title="Blockchain Certificate Verif." sup="Dr. Chen" date="2026-04-18" status="Pending" />
-                    <ProjectRow name="Mohamed Alaoui" title="IoT Smart Campus Solution" sup="Prof. Smith" date="2026-04-10" status="Evaluated" />
+                    <ProjectRow name="Ahmed Benali" title="AI-Powered Student System" sup="Prof. Martin" date="15/04/2026" status="Ready" onReview={() => navigate('/jury/evaluation')} />
+                    <ProjectRow name="Sara Kamali" title="Blockchain Certificate Verif." sup="Dr. Chen" date="18/04/2026" status="Pending" onReview={() => navigate('/jury/evaluation')} />
+                    <ProjectRow name="Mohamed Alaoui" title="IoT Smart Campus Solution" sup="Prof. Smith" date="10/04/2026" status="Evaluated" onReview={() => navigate('/jury/evaluation')} />
                   </tbody>
                 </Table>
               </div>
@@ -335,7 +347,7 @@ const JuryDashboard = () => {
               </h5>
               <div className="jd-ai-insight mb-4">
                 <div className="extra-small fw-bold text-primary mb-1">ALERTE IA</div>
-                <p className="extra-small mb-0 opacity-75">Le projet "IoT Smart Campus" nécessite votre attention.</p>
+                <p className="extra-small mb-0 opacity-90" style={{ color: 'var(--jd-text)' }}>Le projet "IoT Smart Campus" nécessite votre attention.</p>
               </div>
               <div className="jd-activity-list">
                 <ActivityItem icon={<Clock size={16} color="#f59e0b" />} title="Soutenance" desc="Demain à 09:00" />
@@ -360,8 +372,8 @@ const StatCard = ({ label, value, trend, trendUp, icon, delay }) => (
         {trend}
       </div>
     </div>
-    <div className="extra-small text-muted fw-bold text-uppercase tracking-widest mb-1">{label}</div>
-    <div className="h2 fw-black text-navy mb-0">{value}</div>
+    <div className="extra-small opacity-90 fw-bold text-uppercase tracking-widest mb-1" style={{ color: 'var(--jd-text-muted)' }}>{label}</div>
+    <div className="h2 fw-black mb-0" style={{ color: 'var(--jd-text)' }}>{value}</div>
   </motion.div>
 );
 
@@ -375,7 +387,7 @@ const ActivityItem = ({ icon, title, desc }) => (
   </div>
 );
 
-const ProjectRow = ({ name, title, sup, date, status }) => (
+const ProjectRow = ({ name, title, sup, date, status, onReview }) => (
   <tr>
     <td>
       <div className="d-flex align-items-center gap-3">
@@ -383,16 +395,33 @@ const ProjectRow = ({ name, title, sup, date, status }) => (
         <div className="small fw-bold text-navy text-truncate">{name}</div>
       </div>
     </td>
-    <td><div className="extra-small fw-bold text-muted text-truncate">{title}</div></td>
-    <td><div className="extra-small text-muted text-truncate">{sup}</div></td>
-    <td><div className="extra-small text-muted">{date}</div></td>
+    <td>
+      <div className="d-flex align-items-center gap-2">
+        <BookOpen size={14} className="text-info" />
+        <div className="extra-small fw-bold opacity-75 text-truncate" style={{ color: 'var(--jd-text)' }}>{title}</div>
+      </div>
+    </td>
+    <td>
+      <div className="d-flex align-items-center gap-2">
+        <Users size={14} className="text-success" />
+        <div className="extra-small opacity-75 text-truncate" style={{ color: 'var(--jd-text-muted)' }}>{sup}</div>
+      </div>
+    </td>
+    <td>
+      <div className="d-flex align-items-center gap-2">
+        <Calendar size={14} className="text-warning" />
+        <div className="extra-small opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{date}</div>
+      </div>
+    </td>
     <td className="text-end">
-      <Button variant="link" className="p-0 text-primary fw-bold text-decoration-none extra-small">Review</Button>
+      <Button variant="link" className="p-0 text-primary fw-bold text-decoration-none extra-small d-inline-flex align-items-center gap-1" onClick={onReview}>
+        Review <ArrowRightCircle size={14} className="text-info" />
+      </Button>
     </td>
   </tr>
 );
 
-const ProjectCard = ({ name, title, sup, date, status }) => (
+const ProjectCard = ({ name, title, sup, date, status, onReview }) => (
   <Card className="border-0 shadow-sm rounded-4 p-3 mb-3 jd-card-mobile">
     <div className="d-flex justify-content-between align-items-center mb-3">
       <div className="d-flex align-items-center gap-2">
@@ -403,13 +432,17 @@ const ProjectCard = ({ name, title, sup, date, status }) => (
         {status}
       </Badge>
     </div>
-    <div className="extra-small fw-bold text-muted mb-2 text-wrap">{title}</div>
+    <div className="extra-small fw-bold opacity-90 mb-2 text-wrap d-flex align-items-center gap-2" style={{ color: 'var(--jd-text)' }}>
+      <BookOpen size={14} className="text-primary" /> {title}
+    </div>
     <div className="d-flex justify-content-between align-items-center mt-3 border-top pt-2">
-      <div className="extra-small text-muted d-flex flex-column">
-        <span className="d-flex align-items-center gap-1"><Users size={10} color="#6366f1" /> {sup}</span>
-        <span className="mt-1">{date}</span>
+      <div className="extra-small opacity-75 d-flex flex-column gap-1" style={{ color: 'var(--jd-text-muted)' }}>
+        <span className="d-flex align-items-center gap-1"><Users size={12} color="#6366f1" /> {sup}</span>
+        <span className="d-flex align-items-center gap-1"><Calendar size={12} color="#6366f1" /> {date}</span>
       </div>
-      <Button variant="primary" size="sm" className="rounded-3 extra-small px-3 py-1 shadow-sm border-0">Ouvrir</Button>
+      <Button variant="primary" size="sm" className="rounded-3 extra-small px-3 py-1 shadow-sm border-0 d-flex align-items-center gap-2" onClick={onReview}>
+        Ouvrir <ArrowRightCircle size={14} />
+      </Button>
     </div>
   </Card>
 );

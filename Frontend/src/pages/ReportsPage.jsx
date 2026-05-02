@@ -3,7 +3,7 @@ import {
   Container, Row, Col, Card, Badge, 
   Button, Table, Form, InputGroup 
 } from 'react-bootstrap';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, Upload, Download, CheckCircle, Clock, 
   Search, Trash2, Eye, Folder, Filter, ChevronDown,
@@ -17,6 +17,8 @@ const ReportsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const fileInputRef = useRef(null);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const categories = [
     { name: 'Proposal', count: 1, icon: <Folder size={20} />, color: 'blue' },
@@ -52,7 +54,10 @@ const ReportsPage = () => {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    alert(`Starting download for: ${doc.title}`);
+    
+    setSuccessMsg(`Téléchargement de "${doc.title}" commencé...`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 8000);
   };
 
   const filteredDocs = documents.filter(doc => {
@@ -63,6 +68,38 @@ const ReportsPage = () => {
   return (
     <div className="doc-page-layout p-4">
       <Container fluid className="px-0">
+        
+        {/* Success Notification Card */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="doc-success-card mb-4 d-flex align-items-center justify-content-between shadow-lg"
+              style={{
+                background: 'white',
+                border: '1px solid #10b981',
+                borderLeft: '5px solid #10b981',
+                borderRadius: '16px',
+                padding: '1.25rem 1.5rem',
+                zIndex: 1000
+              }}
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <CheckCircle size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <h6 className="mb-0 fw-bold">Document Prêt</h6>
+                  <p className="extra-small mb-0 opacity-75">{successMsg}</p>
+                </div>
+              </div>
+              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Hidden File Input */}
         <input 
           type="file" 

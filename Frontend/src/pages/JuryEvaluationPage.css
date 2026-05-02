@@ -172,3 +172,33 @@
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 70, 173, 0.3);
 }
+
+/* Form Controls Dark Mode */
+[data-theme='dark'] .form-control {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .form-control::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-label {
+  color: #f1f5f9 !important;
+}
+
+/* Success Card Styling */
+.ev-success-card {
+  background: white;
+  border: 1px solid #10b981;
+  border-left: 5px solid #10b981;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+}
+
+[data-theme='dark'] .ev-success-card {
+  background: #064e3b;
+  border-color: #10b981;
+  color: #ecfdf5;
+}

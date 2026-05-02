@@ -132,7 +132,6 @@
   background: white;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
-  overflow: hidden;
 }
 
 [data-theme='dark'] .rh-table-card {
@@ -167,9 +166,6 @@
 .rh-table tbody td {
   padding: 1rem !important;
   vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .rh-doc-name {
@@ -226,4 +222,38 @@
 [data-theme='dark'] .rh-search-box {
   background: #1e293b;
   border-color: #334155;
+}
+
+/* Success Card Styling */
+.rh-success-card {
+  background: var(--rh-card, #ffffff);
+  border: 1px solid #10b981;
+  border-left: 5px solid #10b981;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  z-index: 1000;
+}
+
+[data-theme='dark'] .rh-success-card {
+  background: #064e3b;
+  border-color: #10b981;
+  color: #ecfdf5;
+}
+
+/* Dropdown visibility fix */
+.dropdown-menu {
+  z-index: 1050 !important;
+}
+
+[data-theme='dark'] .dropdown-menu {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+}
+
+[data-theme='dark'] .dropdown-item {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .dropdown-item:hover {
+  background-color: #1e293b;
 }

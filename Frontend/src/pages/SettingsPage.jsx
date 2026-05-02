@@ -17,23 +17,59 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaved, setIsSaved] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    setSuccessMsg("Vos paramètres ont été enregistrés avec succès.");
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 8000);
   };
 
   const navItems = [
-    { id: 'profile', label: 'Profil Public', icon: <User size={20} /> },
-    { id: 'security', label: 'Sécurité & Accès', icon: <Shield size={20} /> },
-    { id: 'notifications', label: 'Notifications', icon: <Bell size={20} /> },
-    { id: 'preferences', label: 'Préférences UI', icon: <Sun size={20} /> },
+    { id: 'profile', label: 'Profil Public', icon: <User size={20} className="text-primary" /> },
+    { id: 'security', label: 'Sécurité & Accès', icon: <Shield size={20} className="text-success" /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell size={20} className="text-warning" /> },
+    { id: 'preferences', label: 'Préférences UI', icon: <Sun size={20} className="text-info" /> },
   ];
 
   return (
     <div className="settings-page-layout">
       <Container className="py-5">
         
+        {/* Success Notification Card */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="settings-success-card mb-4 d-flex align-items-center justify-content-between shadow-lg"
+              style={{
+                background: theme === 'dark' ? '#064e3b' : 'white',
+                border: '1px solid #10b981',
+                borderLeft: '5px solid #10b981',
+                borderRadius: '16px',
+                padding: '1.25rem 1.5rem',
+                zIndex: 1000
+              }}
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <CheckCircle size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <h6 className="mb-0 fw-bold" style={{ color: theme === 'dark' ? '#ecfdf5' : 'inherit' }}>Succès</h6>
+                  <p className="extra-small mb-0 opacity-75" style={{ color: theme === 'dark' ? '#ecfdf5' : 'inherit' }}>{successMsg}</p>
+                </div>
+              </div>
+              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <header className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -54,8 +90,8 @@ const SettingsPage = () => {
               className="btn-save-settings px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
               onClick={handleSave}
             >
-              {isSaved ? <CheckCircle size={18} /> : <Save size={18} />}
-              {isSaved ? 'Modifications Enregistrées' : 'Enregistrer'}
+              {showSuccessCard ? <CheckCircle size={18} className="text-success" /> : <Save size={18} className="text-info" />}
+              {showSuccessCard ? 'Modifications Enregistrées' : 'Enregistrer'}
             </Button>
           </div>
         </header>
@@ -81,7 +117,7 @@ const SettingsPage = () => {
 
             <Card className="border-0 shadow-sm rounded-4 bg-navy text-white p-4">
               <div className="d-flex align-items-center gap-2 mb-3">
-                <Lock size={18} className="text-primary" />
+                <Lock size={18} className="text-info" />
                 <h6 className="fw-bold mb-0 small">État de Sécurité</h6>
               </div>
               <div className="extra-small opacity-75 mb-2">Votre score de protection: 85%</div>
@@ -102,7 +138,7 @@ const SettingsPage = () => {
                           <div className="profile-avatar-large bg-primary bg-opacity-10 text-primary">
                             {session?.name?.charAt(0)}
                           </div>
-                          <Button className="avatar-upload-btn shadow-sm"><Camera size={14} /></Button>
+                          <Button className="avatar-upload-btn shadow-sm"><Camera size={14} className="text-primary" /></Button>
                         </div>
                         <div>
                           <h4 className="fw-bold text-navy mb-1">{session?.name}</h4>
@@ -190,7 +226,7 @@ const SettingsPage = () => {
                       <h5 className="fw-bold text-navy mb-4">Double Authentification (2FA)</h5>
                       <div className="p-4 rounded-4 border border-dashed d-flex align-items-center justify-content-between mb-5">
                         <div className="d-flex align-items-center gap-3">
-                          <div className="p-3 rounded-3 bg-light text-primary"><Smartphone size={24} /></div>
+                          <div className="p-3 rounded-3 bg-light text-primary"><Smartphone size={24} className="text-primary" /></div>
                           <div>
                             <div className="fw-bold text-navy small">Application d'authentification</div>
                             <div className="extra-small text-muted">Utilisez Google Authenticator pour sécuriser votre accès.</div>
