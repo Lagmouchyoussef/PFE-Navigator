@@ -302,16 +302,18 @@ const UserManagement = () => {
         </Card>
       </Container>
 
-      {/* Add User Modal */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered size="lg" className="theme-modal">
+      {/* Add/Edit User Modal */}
+      <Modal show={showAddModal} onHide={closeModal} centered size="lg" className="theme-modal">
         <Modal.Header className="border-light border-opacity-10 bg-surface text-theme px-4 py-3">
-          <Modal.Title className="h6 fw-bold mb-0">Ajouter un Nouvel Utilisateur</Modal.Title>
-          <Button variant="link" className="p-0 text-muted shadow-none border-0 ms-auto" onClick={() => setShowAddModal(false)}>
+          <Modal.Title className="h6 fw-bold mb-0">
+            {isEditMode ? 'Modifier l\'Utilisateur' : 'Ajouter un Nouvel Utilisateur'}
+          </Modal.Title>
+          <Button variant="link" className="p-0 text-muted shadow-none border-0 ms-auto" onClick={closeModal}>
             <X size={20} />
           </Button>
         </Modal.Header>
         <Modal.Body className="bg-surface text-theme p-4">
-          <Form onSubmit={handleAddUser}>
+          <Form onSubmit={handleSaveUser}>
             {/* Photo Upload Section */}
             <div className="d-flex flex-column align-items-center mb-4">
               <div 
@@ -319,9 +321,9 @@ const UserManagement = () => {
                 onClick={handlePhotoClick}
                 style={{ width: '100px', height: '100px' }}
               >
-                {newUser.avatarPreview ? (
+                {formData.avatarPreview ? (
                   <img 
-                    src={newUser.avatarPreview} 
+                    src={formData.avatarPreview} 
                     className="rounded-circle border border-3 border-primary" 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     alt="Preview"
@@ -353,8 +355,8 @@ const UserManagement = () => {
                     required 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="Ex: Ahmed"
-                    value={newUser.firstName}
-                    onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -365,8 +367,8 @@ const UserManagement = () => {
                     required 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="Ex: Benali"
-                    value={newUser.lastName}
-                    onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -378,8 +380,8 @@ const UserManagement = () => {
                     type="email" 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="nom.prenom@emsi.ma"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -390,9 +392,9 @@ const UserManagement = () => {
                   <Form.Control 
                     required
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
-                    placeholder={newUser.role === 'Student' ? 'ETU-2024-001' : newUser.role === 'Admin' ? 'ADM-2024-001' : 'USR-2024-001'}
-                    value={newUser.studentId}
-                    onChange={(e) => setNewUser({...newUser, studentId: e.target.value})}
+                    placeholder={formData.role === 'Student' ? 'ETU-2024-001' : formData.role === 'Admin' ? 'ADM-2024-001' : 'USR-2024-001'}
+                    value={formData.studentId}
+                    onChange={(e) => setFormData({...formData, studentId: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -402,8 +404,8 @@ const UserManagement = () => {
                   <Form.Label className="extra-small fw-bold text-muted text-uppercase">Rôle Platforme</Form.Label>
                   <Form.Select 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none cursor-pointer"
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
                   >
                     <option>Student</option>
                     <option>Supervisor</option>
@@ -418,8 +420,8 @@ const UserManagement = () => {
                   <Form.Label className="extra-small fw-bold text-muted text-uppercase">Statut Initial</Form.Label>
                   <Form.Select 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none cursor-pointer"
-                    value={newUser.status}
-                    onChange={(e) => setNewUser({...newUser, status: e.target.value})}
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
                   >
                     <option>Active</option>
                     <option>Pending</option>
@@ -434,8 +436,8 @@ const UserManagement = () => {
                   <Form.Control 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="BE123456"
-                    value={newUser.cin}
-                    onChange={(e) => setNewUser({...newUser, cin: e.target.value})}
+                    value={formData.cin}
+                    onChange={(e) => setFormData({...formData, cin: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -446,8 +448,8 @@ const UserManagement = () => {
                   <Form.Control 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="Ex: G1-A or Info-Dept"
-                    value={newUser.group}
-                    onChange={(e) => setNewUser({...newUser, group: e.target.value})}
+                    value={formData.group}
+                    onChange={(e) => setFormData({...formData, group: e.target.value})}
                   />
                 </Form.Group>
               </Col>
@@ -458,18 +460,18 @@ const UserManagement = () => {
                   <Form.Control 
                     className="theme-bg-light border text-theme rounded-3 py-2 shadow-none" 
                     placeholder="+212 600-000000"
-                    value={newUser.phone}
-                    onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </Form.Group>
               </Col>
             </Row>
             <div className="mt-4 pt-3 border-top border-light border-opacity-10 d-flex justify-content-end gap-2">
-              <Button variant="link" className="text-muted text-decoration-none extra-small fw-bold" onClick={() => setShowAddModal(false)}>
+              <Button variant="link" className="text-muted text-decoration-none extra-small fw-bold" onClick={closeModal}>
                 Annuler
               </Button>
               <Button type="submit" variant="primary" className="theme-btn-primary px-4 py-2 rounded-3 border-0 small fw-bold">
-                Créer le Compte
+                {isEditMode ? 'Enregistrer les modifications' : 'Créer le Compte'}
               </Button>
             </div>
           </Form>

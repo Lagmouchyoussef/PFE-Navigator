@@ -1,130 +1,210 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-  Plus, ChevronLeft, ChevronRight, MapPin, 
-  Users, Calendar as CalendarIcon, Clock,
-  MoreVertical, CheckCircle2
+  Plus, ChevronLeft, ChevronRight, MapPin, Users, X, Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Container, Row, Col, Card, Button, Badge, ButtonGroup, Modal, Form } from 'react-bootstrap';
+import { useApp } from '../../../context/AppContext';
 
-const JURIES_LIST = [
-  { id: 15, title: 'Innovation Tech', type: 'Technology', date: 'May 12-15, 2026', members: 5, location: 'Room A101', status: 'In Progress', color: 'blue' },
-  { id: 14, title: 'Design Créatif', type: 'Arts & Design', date: 'May 20-22, 2026', members: 4, location: 'Room B202', status: 'Confirmed', color: 'purple' },
-  { id: 13, title: 'Recherche Scientifique', type: 'Science', date: 'May 27, 2026', members: 3, location: 'Amphi C', status: 'Planned', color: 'amber' },
-  { id: 16, title: 'Recherche Avancée', type: 'Research', date: 'May 28-30, 2026', members: 6, location: 'Room D301', status: 'Planned', color: 'emerald' },
+const INITIAL_JURIES = [
+  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A' },
+  { id: 2, title: 'Session Technique', day: 3, date: '3 Jan 2025', location: 'Salle B' },
+  { id: 3, title: 'Revue de Projet', day: 6, date: '6 Jan 2025', location: 'Amphi C' },
+  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Salle D' },
+  { id: 5, title: 'Audit Final', day: 12, date: '12 Jan 2025', location: 'Salle A' },
+  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B' },
+  { id: 7, title: 'Clôture de Session', day: 17, date: '17 Jan 2025', location: 'Salle C' },
 ];
 
 const JuryPlanning = () => {
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const { theme } = useApp();
+  const [activeView, setActiveView] = useState('Mois');
+  const [juries, setJuries] = useState(INITIAL_JURIES);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ title: '', day: 1, location: '' });
+
+  const days = [];
+  for (let i = 27; i <= 30; i++) days.push({ day: i, current: false });
+  for (let i = 1; i <= 31; i++) days.push({ day: i, current: true });
+  while (days.length < 35) days.push({ day: days.length - 31 - 4 + 1, current: false });
+
+  const handleAddJury = () => {
+    const newJury = {
+      ...formData,
+      id: juries.length + 1,
+      date: `${formData.day} Jan 2025`,
+    };
+    setJuries([...juries, newJury]);
+    setShowModal(false);
+    setFormData({ title: '', day: 1, location: '' });
+  };
 
   return (
-    <div className="jury-planning-content">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Jury Planning</h2>
-          <p className="text-white/50 text-sm mt-1">Schedule and coordinate jury sessions for all projects.</p>
+    <div className="jury-zen-layout p-4">
+      <Container>
+        {/* Header Section */}
+        <div className="d-flex justify-content-between align-items-center mb-5">
+          <h2 className="fw-bold text-dark mb-0">Jury Planning</h2>
+          <Button 
+            className="btn-classic-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 border-0 shadow-sm"
+            onClick={() => setShowModal(true)}
+          >
+            <Plus size={20} /> Nouveau jury
+          </Button>
         </div>
-        <button className="bg-primary text-white px-6 py-3 rounded-xl text-sm font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
-          <Plus size={18} />
-          New Jury Session
-        </button>
-      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-        {/* Calendar View */}
-        <div className="xl:col-span-3">
-          <div className="admin-card p-8 h-full bg-white/2">
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-2xl font-bold text-white">May 2026</h3>
-              <div className="flex gap-2">
-                <button className="p-2.5 hover:bg-white/10 rounded-xl text-white/40 hover:text-white border border-white/5 transition-all">
-                  <ChevronLeft size={20} />
-                </button>
-                <button className="p-2.5 hover:bg-white/10 rounded-xl text-white/40 hover:text-white border border-white/5 transition-all">
-                  <ChevronRight size={20} />
-                </button>
+        <Row className="g-4">
+          {/* Main Calendar Grid */}
+          <Col lg={8}>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div className="d-flex align-items-center gap-2">
+                <Button variant="link" className="p-1 text-dark border-0"><ChevronLeft size={24} /></Button>
+                <h4 className="fw-bold text-dark mb-0 mx-2">Janvier 2025</h4>
+                <Button variant="link" className="p-1 text-dark border-0"><ChevronRight size={24} /></Button>
               </div>
+              <ButtonGroup className="bg-light p-1 rounded-2 border">
+                {['Mois', 'Semaine'].map(view => (
+                  <Button 
+                    key={view}
+                    variant={activeView === view ? 'white' : 'transparent'}
+                    className={`px-3 py-1 extra-small rounded-2 border-0 fw-bold ${activeView === view ? 'shadow-sm text-dark bg-white' : 'text-muted'}`}
+                    onClick={() => setActiveView(view)}
+                  >
+                    {view}
+                  </Button>
+                ))}
+              </ButtonGroup>
             </div>
 
-            <div className="grid grid-cols-7 gap-[1px] bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-              {weekDays.map(day => (
-                <div key={day} className="bg-white/2 p-4 text-center text-[10px] font-bold text-white/30 uppercase tracking-widest">
-                  {day}
-                </div>
-              ))}
-              
-              {/* Previous month filler */}
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={`prev-${i}`} className="bg-black/10 h-36 p-4 text-white/10 text-xs font-bold">
-                  {27 + i}
-                </div>
-              ))}
-
-              {days.map(day => {
-                const hasJury = [12, 15, 20, 27, 28].includes(day);
-                const juryColor = day === 12 || day === 15 ? 'blue' : day === 20 ? 'purple' : day === 27 ? 'amber' : 'emerald';
-                
-                return (
-                  <div key={day} className="bg-white/2 h-36 p-4 border-t border-l border-white/5 hover:bg-white/5 transition-all cursor-pointer group">
-                    <span className={`text-xs font-bold ${hasJury ? `text-${juryColor}-500` : 'text-white/20'} group-hover:scale-110 transition-transform block`}>
-                      {day}
-                    </span>
-                    {hasJury && (
-                      <div className={`mt-3 p-2 rounded-xl bg-${juryColor}-600/20 border border-${juryColor}-500/30 animate-in fade-in slide-in-from-top-1 shadow-lg shadow-black/20`}>
-                        <p className={`text-[10px] font-bold text-${juryColor}-400 truncate uppercase tracking-wider`}>Jury Session</p>
-                        <p className="text-[9px] text-white/40 font-bold truncate mt-1">09:00 AM</p>
+            <Card className="border shadow-sm rounded-4 bg-white overflow-hidden">
+              <div className="calendar-header d-flex border-bottom bg-light text-center fw-bold extra-small text-muted py-2">
+                {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(d => (
+                  <div key={d} className="flex-grow-1">{d}</div>
+                ))}
+              </div>
+              <div className="calendar-body d-flex flex-wrap">
+                {days.map((item, idx) => {
+                  const dayJuries = juries.filter(j => j.day === item.day && item.current);
+                  return (
+                    <div key={idx} className={`day-cell border-end border-bottom ${!item.current ? 'bg-light opacity-50' : 'bg-white'}`}>
+                      <div className="text-end p-2 extra-small fw-bold text-muted">{item.day}</div>
+                      <div className="px-1 d-flex flex-column gap-1 pb-2">
+                        {dayJuries.map(j => (
+                          <div key={j.id} className="jury-bar p-1 px-2 rounded-1 extra-small fw-bold text-dark text-truncate border">
+                            {j.title}
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          </Col>
 
-        {/* Upcoming List */}
-        <div className="flex flex-col gap-5">
-          <h3 className="text-lg font-bold text-white mb-2">Upcoming Timeline</h3>
-          {JURIES_LIST.map((jury) => (
-            <motion.div 
-              key={jury.id}
-              whileHover={{ x: 5, backgroundColor: 'rgba(255,255,255,0.05)' }}
-              className={`admin-card border-l-4 border-l-${jury.color}-500 p-5 relative group bg-white/2`}
+          {/* Right Sidebar: Jurys à venir */}
+          <Col lg={4}>
+            <div className="ps-lg-3">
+              <h5 className="fw-bold text-dark mb-4">Jurys à venir</h5>
+              <div className="d-flex flex-column gap-3">
+                {juries.slice(0, 5).map(j => (
+                  <motion.div key={j.id} whileHover={{ x: 3 }}>
+                    <Card className="border shadow-sm rounded-3 p-3 bg-white">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h6 className="fw-bold small text-dark mb-0">{j.title}</h6>
+                        <Badge bg="light" className="text-muted extra-small">{j.date}</Badge>
+                      </div>
+                      <div className="d-flex align-items-center gap-3 mt-2 extra-small text-muted fw-medium">
+                        <div className="d-flex align-items-center gap-1"><MapPin size={12} /> {j.location}</div>
+                        <div className="d-flex align-items-center gap-1"><Clock size={12} /> 09:00</div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* MODAL AJOUT JURY */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold">Programmer un Jury</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Form className="d-flex flex-column gap-3">
+            <Form.Group>
+              <Form.Label className="small fw-bold text-muted">Titre de la session</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Ex: Soutenance PFE"
+                className="bg-light border-0 p-2 rounded-3 small"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+              />
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Jour (Janvier)</Form.Label>
+                  <Form.Control 
+                    type="number" min="1" max="31"
+                    className="bg-light border-0 p-2 rounded-3 small"
+                    value={formData.day}
+                    onChange={(e) => setFormData({...formData, day: parseInt(e.target.value)})}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Lieu / Salle</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    placeholder="Salle B2"
+                    className="bg-light border-0 p-2 rounded-3 small"
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Button 
+              className="btn-classic-primary w-100 py-2 mt-3 fw-bold border-0"
+              onClick={handleAddJury}
+              disabled={!formData.title || !formData.location}
             >
-              <div className="flex items-center justify-between mb-3">
-                <span className={`text-[10px] font-bold text-${jury.color}-400 uppercase tracking-widest`}>
-                  Jury #{jury.id}
-                </span>
-                <span className={`admin-badge ${jury.status === 'In Progress' ? 'badge-warning' : 'badge-brand'} text-[9px]`}>
-                  {jury.status}
-                </span>
-              </div>
-              <h4 className="font-bold text-white/90 mb-4">{jury.title}</h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-[11px] text-white/50 font-bold uppercase tracking-wider">
-                  <CalendarIcon size={14} className="text-white/20" />
-                  {jury.date}
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-white/50 font-bold uppercase tracking-wider">
-                  <Users size={14} className="text-white/20" />
-                  {jury.members} Reviewers
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-white/50 font-bold uppercase tracking-wider">
-                  <MapPin size={14} className="text-white/20" />
-                  {jury.location}
-                </div>
-              </div>
-              <button className="absolute right-3 bottom-3 p-2 opacity-0 group-hover:opacity-100 transition-opacity text-white/20 hover:text-white">
-                <MoreVertical size={18} />
-              </button>
-            </motion.div>
-          ))}
-          <button className="w-full py-4 border-2 border-dashed border-white/5 rounded-2xl text-white/20 text-sm font-bold hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
-            <Plus size={18} />
-            Quick Schedule
-          </button>
-        </div>
-      </div>
+              Créer la session
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <style>{`
+        .jury-zen-layout {
+          background-color: #fcfcfc;
+          min-height: calc(100vh - 80px);
+          font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .btn-classic-primary {
+          background-color: #1a1a1a !important;
+          color: white;
+          border-radius: 8px;
+        }
+        .day-cell {
+          width: calc(100% / 7);
+          min-height: 100px;
+        }
+        .jury-bar {
+          background-color: #f0f0f0;
+          border-color: #e0e0e0 !important;
+          font-size: 0.65rem;
+        }
+        .extra-small { font-size: 0.75rem; }
+        .calendar-body div:nth-child(7n) {
+          border-right: none !important;
+        }
+      `}</style>
     </div>
   );
 };
