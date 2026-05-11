@@ -1,151 +1,191 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Container, Row, Col, Card, Form, Button, Badge, InputGroup, Dropdown } from 'react-bootstrap';
 import { 
-  Search, Send, Paperclip, 
-  MoreVertical, Circle, Phone, 
-  Video, Info, Smile
+  Send, Search, Paperclip, Phone, Video, 
+  MessageSquare, User, Check, CheckCheck, MoreVertical
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const CHATS = [
-  { id: 1, name: 'Jean Martin', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff', lastMsg: 'Prêt pour le jury de demain ?', time: '14:30', online: true, unread: true },
-  { id: 2, name: 'Marie Dupont', avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3498db&color=fff', lastMsg: 'Les documents sont prêts ✅', time: 'Yesterday', online: true, unread: false },
-  { id: 3, name: 'Sophie Bernard', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff', lastMsg: 'Merci pour les retours !', time: 'Mon', online: false, unread: false },
-];
-
 const AdminMessages = () => {
+  const [inputText, setInputText] = useState('');
+  const scrollRef = useRef(null);
+  const fileRef = useRef(null);
+
+  const [conversations] = useState([
+    { id: 1, name: 'Dr. Sarah Smith', role: 'Superviseur de Projet', lastMsg: 'Excellent travail sur le rapport...', time: '2h', avatar: 'DS', color: '#3b82f6', online: true, unread: 2 },
+    { id: 2, name: 'Ahmed Ben Ali', role: 'Étudiant', lastMsg: 'Pouvons-nous nous voir demain ?', time: '5h', avatar: 'AA', color: '#10b981', online: true, unread: 0 },
+    { id: 3, name: 'Bureau Coordination PFE', role: 'Administration', lastMsg: 'Rappel : Planning des soutenances...', time: 'Hier', avatar: 'BC', color: '#f59e0b', online: false, unread: 1 },
+    { id: 4, name: 'Fatima Zahra', role: 'Étudiante', lastMsg: 'J\'ai terminé la documentation', time: '2j', avatar: 'FZ', color: '#6366f1', online: false, unread: 0 },
+  ]);
+
+  const [chatMessages] = useState([
+    { id: 1, text: 'Bonjour Professeur ! J\'ai terminé le rapport intérimaire.', time: '10:30', sender: 'me', status: 'read' },
+    { id: 2, text: 'Parfait ! Je vais le consulter et je reviens vers vous.', time: '10:35', sender: 'partner' },
+    { id: 3, text: 'J\'ai revu votre rapport. Globalement, c\'est un excellent travail !', time: '14:15', sender: 'partner' },
+    { id: 4, text: 'Cependant, les sections 3.2 et 4.1 méritent quelques précisions supplémentaires.', time: '14:16', sender: 'partner' },
+    { id: 5, text: 'Merci pour votre retour ! Je m\'en occupe immédiatement.', time: '14:45', sender: 'me', status: 'sent' }
+  ]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
   return (
-    <div className="messages-content">
-      <div className="mb-8">
-        <h2 className="text-3xl font-extrabold text-white tracking-tight">Direct Messages</h2>
-        <p className="text-white/50 text-sm mt-1">Direct communication with students, supervisors and jury members.</p>
-      </div>
-
-      <div className="admin-card p-0 overflow-hidden flex flex-col md:flex-row h-[750px] border-white/5 shadow-2xl bg-black/20">
-        {/* Chat List Sidebar */}
-        <div className="w-full md:w-80 border-r border-white/5 flex flex-col bg-white/2">
-          <div className="p-5 border-b border-white/5">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search chats..." 
-                className="w-full pl-10 pr-4 py-3 bg-black/20 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-              />
+    <div className="admin-messages-pro-layout">
+      <Container fluid className="h-100 p-0 overflow-hidden">
+        <Row className="g-0 h-100" style={{ height: 'calc(100vh - 64px)' }}>
+          {/* Sidebar */}
+          <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end bg-white shadow-sm">
+            <div className="p-4 border-bottom">
+              <h4 className="fw-bold text-dark mb-4">Messages</h4>
+              <InputGroup className="bg-light rounded-pill border-0 px-2 overflow-hidden">
+                <InputGroup.Text className="bg-transparent border-0 pe-1">
+                  <Search size={18} className="text-muted" />
+                </InputGroup.Text>
+                <Form.Control 
+                  placeholder="Rechercher..." 
+                  className="bg-transparent border-0 shadow-none small py-2"
+                />
+              </InputGroup>
             </div>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto">
-            {CHATS.map((chat) => (
-              <div 
-                key={chat.id}
-                className={`p-5 flex items-center gap-4 cursor-pointer transition-all border-l-4 ${
-                  chat.unread ? 'bg-primary/5 border-l-primary' : 'hover:bg-white/2 border-l-transparent'
-                }`}
-              >
-                <div className="relative flex-shrink-0">
-                  <img src={chat.avatar} className="w-12 h-12 rounded-full border-2 border-white/10 shadow-lg" alt="" />
-                  {chat.online && <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-black rounded-full"></div>}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className={`text-sm font-bold truncate ${chat.unread ? 'text-white' : 'text-white/60'}`}>
-                      {chat.name}
-                    </p>
-                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{chat.time}</span>
+
+            <div className="flex-grow-1 overflow-auto conversations-list">
+              {conversations.map((conv) => (
+                <div key={conv.id} className={`conv-item p-3 d-flex gap-3 align-items-center cursor-pointer border-bottom transition-all ${conv.id === 1 ? 'bg-primary bg-opacity-10 border-start border-primary border-4' : 'hover-bg-light'}`}>
+                  <div className="position-relative">
+                    <div className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style={{ backgroundColor: conv.color, width: '45px', height: '45px' }}>{conv.avatar}</div>
+                    {conv.online && <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '12px', height: '12px' }}></div>}
                   </div>
-                  <p className={`text-xs truncate ${chat.unread ? 'text-white/80 font-bold' : 'text-white/30 font-medium'}`}>
-                    {chat.lastMsg}
-                  </p>
+                  <div className="flex-grow-1 overflow-hidden">
+                    <div className="d-flex justify-content-between">
+                      <div className="fw-bold small text-dark text-truncate">{conv.name}</div>
+                      <div className="extra-small text-muted">{conv.time}</div>
+                    </div>
+                    <div className="extra-small text-muted mb-1 opacity-75">{conv.role}</div>
+                    <p className="extra-small text-muted mb-0 text-truncate">{conv.lastMsg}</p>
+                  </div>
+                  {conv.unread > 0 && (
+                    <Badge pill bg="primary" className="ms-auto">{conv.unread}</Badge>
+                  )}
                 </div>
-                {chat.unread && (
-                  <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 shadow-lg shadow-primary/50"></div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </Col>
 
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col bg-surface">
-          <div className="p-5 border-b border-white/5 flex items-center justify-between shadow-xl bg-white/1">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <img src={CHATS[0].avatar} className="w-11 h-11 rounded-full border-2 border-white/10 shadow-lg" alt="" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-black rounded-full"></div>
+          {/* Chat Area */}
+          <Col lg={8} xl={9} className="h-100 d-flex flex-column bg-light">
+            {/* Chat Header */}
+            <header className="p-3 px-4 d-flex justify-content-between align-items-center bg-white border-bottom shadow-sm">
+              <div className="d-flex align-items-center gap-3">
+                <div className="position-relative">
+                  <div className="avatar-circle sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '40px', height: '40px' }}>DS</div>
+                  <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '10px', height: '10px' }}></div>
+                </div>
+                <div>
+                  <h6 className="fw-bold mb-0 text-dark">Dr. Sarah Smith</h6>
+                  <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
+                    <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> En ligne • Superviseur
+                  </span>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold text-white tracking-wide">{CHATS[0].name}</p>
-                <p className="text-[9px] font-bold text-emerald-500 flex items-center gap-1 uppercase tracking-widest">
-                  Active Connection
-                </p>
+              <div className="d-flex gap-2">
+                <Button variant="link" className="text-muted p-1 hover-bg-light rounded-circle"><Phone size={20}/></Button>
+                <Button variant="link" className="text-muted p-1 hover-bg-light rounded-circle"><Video size={20}/></Button>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                    <MoreVertical size={20} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small">
+                    <Dropdown.Item>Voir le profil</Dropdown.Item>
+                    <Dropdown.Item>Muter les notifications</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item className="text-danger">Bloquer</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2.5 text-white/30 hover:text-primary hover:bg-white/5 rounded-xl transition-all">
-                <Phone size={18} />
-              </button>
-              <button className="p-2.5 text-white/30 hover:text-primary hover:bg-white/5 rounded-xl transition-all">
-                <Video size={18} />
-              </button>
-              <div className="h-4 w-px bg-white/5 mx-2"></div>
-              <button className="p-2.5 text-white/30 hover:text-primary hover:bg-white/5 rounded-xl transition-all">
-                <MoreVertical size={18} />
-              </button>
-            </div>
-          </div>
+            </header>
 
-          <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-black/10">
-            <div className="flex gap-4">
-              <img src={CHATS[0].avatar} className="w-9 h-9 rounded-full mt-1" alt="" />
-              <div className="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none px-5 py-4 shadow-xl max-w-md">
-                <p className="text-sm text-white/80 leading-relaxed font-medium">
-                  Bonjour ! Est-ce que tout est prêt pour le jury de demain ?
-                </p>
-                <span className="text-[9px] font-bold text-white/20 mt-3 block uppercase tracking-widest">14:25</span>
+            {/* Message Area */}
+            <div ref={scrollRef} className="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3">
+              <div className="text-center my-4">
+                <Badge bg="white" className="text-muted border fw-bold px-3 py-1 rounded-pill extra-small">Aujourd'hui</Badge>
               </div>
+              
+              {chatMessages.map((msg) => {
+                const isMe = msg.sender === 'me';
+                return (
+                  <motion.div 
+                    key={msg.id}
+                    initial={{ opacity: 0, x: isMe ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className={`d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}`}
+                  >
+                    <div className="max-w-75">
+                      <div className={`p-3 rounded-4 shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}`} style={{ borderRadius: isMe ? '20px 20px 0 20px' : '20px 20px 20px 0' }}>
+                        {msg.text}
+                      </div>
+                      <div className={`d-flex align-items-center gap-2 mt-1 px-1 ${isMe ? 'justify-content-end' : ''}`}>
+                        <span className="extra-small text-muted fw-bold">{msg.time}</span>
+                        {isMe && (
+                          msg.status === 'read' ? <CheckCheck size={14} className="text-primary" /> : <Check size={14} className="text-muted" />
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
-            <div className="flex gap-4 flex-row-reverse">
-              <img src="https://ui-avatars.com/api/?name=Admin+User&background=3498db&color=fff" className="w-9 h-9 rounded-full mt-1" alt="" />
-              <div className="bg-primary/20 text-white border border-primary/20 rounded-2xl rounded-tr-none px-5 py-4 shadow-2xl shadow-primary/10 max-w-md">
-                <p className="text-sm leading-relaxed font-medium text-white/90">
-                  Oui, tous les documents sont en place et les évaluations sont finalisées.
-                </p>
-                <span className="text-[9px] font-bold text-white/40 mt-3 block uppercase tracking-widest text-right">14:28</span>
+            {/* Input Footer */}
+            <footer className="p-4 bg-white border-top">
+              <input type="file" ref={fileRef} className="d-none" />
+              <div className="d-flex align-items-center gap-3 bg-light rounded-pill px-3 py-2 border shadow-sm">
+                <Button 
+                  variant="link" 
+                  className="text-primary p-0 border-0 shadow-none"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <Paperclip size={20}/>
+                </Button>
+                <Form.Control 
+                  placeholder="Écrivez votre message..." 
+                  className="border-0 bg-transparent shadow-none small fw-bold"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                />
+                <Button 
+                  className="bg-primary text-white border-0 rounded-circle d-flex align-items-center justify-content-center p-2 shadow-sm"
+                  onClick={() => setInputText('')}
+                >
+                  <Send size={18} />
+                </Button>
               </div>
-            </div>
+            </footer>
+          </Col>
+        </Row>
+      </Container>
 
-            <div className="flex gap-4">
-              <img src={CHATS[0].avatar} className="w-9 h-9 rounded-full mt-1" alt="" />
-              <div className="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none px-5 py-4 shadow-xl max-w-md">
-                <p className="text-sm text-white/80 leading-relaxed font-medium">
-                  Parfait ! Prêt pour le jury de demain ? 🎯
-                </p>
-                <span className="text-[9px] font-bold text-white/20 mt-3 block uppercase tracking-widest">14:30</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border-t border-white/5 bg-white/1">
-            <div className="flex items-center gap-4 bg-black/40 p-2.5 rounded-2xl border border-white/10 focus-within:bg-black/60 focus-within:border-primary/50 transition-all shadow-2xl">
-              <button className="p-2.5 text-white/30 hover:text-primary transition-colors">
-                <Paperclip size={22} />
-              </button>
-              <input 
-                type="text" 
-                placeholder="Compose a message..." 
-                className="flex-1 bg-transparent border-none text-sm font-medium text-white placeholder:text-white/20 focus:outline-none"
-              />
-              <button className="p-2.5 text-white/30 hover:text-primary transition-colors">
-                <Smile size={22} />
-              </button>
-              <button className="bg-primary text-white p-3 rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary/30">
-                <Send size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <style>{`
+        .admin-messages-pro-layout {
+          background-color: #f8fafc;
+          height: calc(100vh - 64px);
+          font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .hover-bg-light:hover { background-color: #f1f5f9; }
+        .extra-small { font-size: 0.75rem; }
+        .text-primary { color: #2563eb !important; }
+        .bg-primary { background-color: #2563eb !important; }
+        .max-w-75 { max-width: 75%; }
+        .no-caret::after { display: none; }
+        .conv-item.active {
+          background-color: rgba(37, 99, 235, 0.05);
+          border-left: 4px solid #2563eb !important;
+        }
+        .conversations-list::-webkit-scrollbar { width: 4px; }
+        .conversations-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      `}</style>
     </div>
   );
 };

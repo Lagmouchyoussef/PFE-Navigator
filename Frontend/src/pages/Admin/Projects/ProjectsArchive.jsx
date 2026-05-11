@@ -5,7 +5,7 @@ import {
   ChevronRight, BookOpen, Briefcase, 
   CheckCircle, XCircle
 } from 'lucide-react';
-import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Form, InputGroup, Modal } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 
 const ARCHIVE_DATA = [
@@ -19,6 +19,19 @@ const ARCHIVE_DATA = [
 
 const ProjectsArchive = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ARCHIVE_DATA));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "archives_projets.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
 
   const filteredProjects = ARCHIVE_DATA.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,10 +48,10 @@ const ProjectsArchive = () => {
             <p className="text-muted small mb-0">Consultez et gérez l'historique de tous les projets passés.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border">
+            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border" onClick={() => setShowFilterModal(true)}>
               <Filter size={16} /> Filtrer
             </Button>
-            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border">
+            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border" onClick={handleExport}>
               <Download size={16} /> Exporter
             </Button>
           </div>
@@ -96,7 +109,14 @@ const ProjectsArchive = () => {
                         <Calendar size={14} />
                         <span className="extra-small fw-medium">{project.date}</span>
                       </div>
-                      <Button variant="link" className="p-0 text-primary fw-bold extra-small text-decoration-none d-flex align-items-center gap-1">
+                      <Button 
+                        variant="link" 
+                        className="p-0 text-primary fw-bold extra-small text-decoration-none d-flex align-items-center gap-1"
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setShowDetailsModal(true);
+                        }}
+                      >
                         Détails <ChevronRight size={14} />
                       </Button>
                     </div>
@@ -114,6 +134,107 @@ const ProjectsArchive = () => {
           )}
         </Row>
       </Container>
+
+      {/* DETAILS MODAL */}
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered size="lg">
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title className="fw-bold">Détails du Projet</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {selectedProject && (
+            <Row className="g-4">
+              <Col md={12}>
+                <div className="p-3 bg-light rounded-3 mb-3 border-start border-4 border-primary">
+                  <h4 className="fw-bold text-dark mb-1">{selectedProject.name}</h4>
+                  <Badge className={selectedProject.status === 'Completed' ? 'badge-success-simple' : 'badge-danger-simple'}>
+                    {selectedProject.status}
+                  </Badge>
+                </div>
+              </Col>
+              <Col md={8}>
+                <h6 className="fw-bold text-dark">Description</h6>
+                <p className="text-muted small">{selectedProject.desc}</p>
+                
+                <h6 className="fw-bold text-dark mt-4 mb-3">Documents joints</h6>
+                <div className="d-flex flex-column gap-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="p-2 border rounded-2 d-flex justify-content-between align-items-center bg-white">
+                      <div className="d-flex align-items-center gap-2">
+                        <FileText size={18} className="text-primary" />
+                        <span className="small fw-medium">Document_Final_Partie_{i}.pdf</span>
+                      </div>
+                      <Button variant="light" size="sm"><Download size={14} /></Button>
+                    </div>
+                  ))}
+                </div>
+              </Col>
+              <Col md={4}>
+                <Card className="bg-light border-0 p-3">
+                  <h6 className="fw-bold extra-small text-muted text-uppercase mb-3">Informations Clés</h6>
+                  <div className="d-flex flex-column gap-3">
+                    <div className="d-flex align-items-center gap-2">
+                      <Calendar size={16} className="text-primary" />
+                      <div className="extra-small fw-bold">{selectedProject.date}</div>
+                    </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <BookOpen size={16} className="text-primary" />
+                      <div className="extra-small fw-bold">{selectedProject.type}</div>
+                    </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <FileText size={16} className="text-primary" />
+                      <div className="extra-small fw-bold">{selectedProject.files} Fichiers</div>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button variant="outline-secondary" className="extra-small fw-bold" onClick={() => setShowDetailsModal(false)}>Fermer</Button>
+          <Button className="btn-classic-primary px-4 py-2" onClick={handleExport}>Télécharger l'Archive</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* FILTER MODAL */}
+      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} centered>
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title className="fw-bold small">Filtrer les Archives</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted">Statut</Form.Label>
+              <Form.Select className="bg-light border-0 small py-2">
+                <option>Tous les statuts</option>
+                <option>Terminé</option>
+                <option>Annulé</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted">Thématique</Form.Label>
+              <Form.Select className="bg-light border-0 small py-2">
+                <option>Toutes les thématiques</option>
+                <option>Web</option>
+                <option>Mobile</option>
+                <option>IA</option>
+                <option>Système</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted">Année</Form.Label>
+              <Form.Select className="bg-light border-0 small py-2">
+                <option>2026</option>
+                <option>2025</option>
+                <option>2024</option>
+              </Form.Select>
+            </Form.Group>
+            <Button className="w-100 mt-3 fw-bold border-0" style={{ backgroundColor: '#2563eb' }} onClick={() => setShowFilterModal(false)}>
+              Appliquer les filtres
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
       <style>{`
         .projects-simple-layout {
