@@ -3,7 +3,7 @@ import {
   Settings, Monitor, Bell, Shield, 
   Puzzle, Globe, Clock, Moon, 
   Sun, Check, Save, Upload,
-  AlertTriangle, ChevronRight, Mail, Lock, Key, Server, Smartphone
+  AlertTriangle, ChevronRight, Mail, Lock, Key, Server, Smartphone, RefreshCcw, User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Card, Button, Form, InputGroup, Badge, Nav, Tab, Modal } from 'react-bootstrap';
@@ -19,6 +19,7 @@ const PortalSettings = () => {
   const tabs = [
     { id: 'general', label: 'Général', icon: <Globe size={18} /> },
     { id: 'appearance', label: 'Apparence', icon: <Monitor size={18} /> },
+    { id: 'profile', label: 'Mon Profil', icon: <User size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { id: 'security', label: 'Sécurité', icon: <Shield size={18} /> },
     { id: 'integrations', label: 'Intégrations', icon: <Puzzle size={18} /> },
@@ -225,73 +226,207 @@ const PortalSettings = () => {
                   </motion.div>
                 )}
 
+                {activeTab === 'profile' && (
+                  <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Informations Personnelles</h6>
+                    <div className="d-flex align-items-center gap-4 mb-5">
+                      <div className="position-relative">
+                        <div className="avatar-xl rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-primary border-opacity-25" style={{ width: '100px', height: '100px' }}>
+                          AS
+                        </div>
+                        <Button size="sm" variant="white" className="position-absolute bottom-0 end-0 p-1 rounded-circle shadow border"><Upload size={14}/></Button>
+                      </div>
+                      <div>
+                        <h5 className="fw-bold text-dark mb-1">Admin System</h5>
+                        <p className="extra-small text-muted mb-0">Rôle : Super Administrateur</p>
+                      </div>
+                    </div>
+
+                    <Row className="g-4 mb-5">
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Nom Complet</Form.Label>
+                        <Form.Control defaultValue="Admin System" className="bg-light border-0 small py-2 shadow-none fw-bold" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Adresse Email</Form.Label>
+                        <Form.Control defaultValue="admin@emsi.ma" className="bg-light border-0 small py-2 shadow-none fw-bold" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Poste / Titre</Form.Label>
+                        <Form.Control defaultValue="Responsable Portails Académiques" className="bg-light border-0 small py-2 shadow-none fw-bold" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Téléphone</Form.Label>
+                        <Form.Control defaultValue="+212 6 00 00 00 00" className="bg-light border-0 small py-2 shadow-none fw-bold" />
+                      </Col>
+                    </Row>
+
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Équipe Administrative</h6>
+                    <div className="d-flex flex-column gap-3">
+                      {[
+                        { name: 'Dr. Ahmed Mansouri', role: 'Administrateur Jury', status: 'En ligne' },
+                        { name: 'Mme. Sara Alami', role: 'Gestionnaire Projets', status: 'Hors ligne' },
+                        { name: 'Mr. Khalid Tazi', role: 'Support Technique', status: 'En ligne' }
+                      ].map((member, idx) => (
+                        <div key={idx} className="d-flex align-items-center justify-content-between p-3 rounded-4 border bg-white shadow-sm">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="avatar-sm bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '40px', height: '40px' }}>
+                              {member.name[0]}
+                            </div>
+                            <div>
+                              <div className="small fw-bold text-dark">{member.name}</div>
+                              <div className="extra-small text-muted">{member.role}</div>
+                            </div>
+                          </div>
+                          <Badge bg={member.status === 'En ligne' ? 'success' : 'light'} text={member.status === 'En ligne' ? 'white' : 'dark'} className="extra-small rounded-pill border">
+                            {member.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
                 {activeTab === 'notifications' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Canaux de Notification</h6>
-                    <div className="d-flex flex-column gap-4 mb-5">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="p-2 bg-light rounded-circle text-primary"><Mail size={18}/></div>
-                          <div>
-                            <div className="small fw-bold">Emails Transactionnels</div>
-                            <div className="extra-small text-muted">Envoi automatique des rappels de soutenance par email.</div>
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Préférences & Activités</h6>
+                    
+                    <div className="mb-5">
+                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Configuration des Alertes</Form.Label>
+                      <div className="d-flex flex-column gap-3">
+                        <div className="d-flex justify-content-between align-items-center p-3 bg-light bg-opacity-50 rounded-4 border">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="p-2 bg-white border rounded-circle text-primary"><Mail size={18}/></div>
+                            <div>
+                              <div className="small fw-bold">Rapports par Email</div>
+                              <div className="extra-small text-muted">Résumé hebdomadaire de l'activité du portail.</div>
+                            </div>
                           </div>
+                          <Form.Check type="switch" defaultChecked />
                         </div>
-                        <Form.Check type="switch" defaultChecked />
-                      </div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="p-2 bg-light rounded-circle text-primary"><Bell size={18}/></div>
-                          <div>
-                            <div className="small fw-bold">Notifications Push</div>
-                            <div className="extra-small text-muted">Alertes en temps réel sur le navigateur.</div>
+                        <div className="d-flex justify-content-between align-items-center p-3 bg-light bg-opacity-50 rounded-4 border">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="p-2 bg-white border rounded-circle text-primary"><Bell size={18}/></div>
+                            <div>
+                              <div className="small fw-bold">Alertes de Bureau</div>
+                              <div className="extra-small text-muted">Notifications instantanées lors de nouvelles soumissions.</div>
+                            </div>
                           </div>
+                          <Form.Check type="switch" defaultChecked />
                         </div>
-                        <Form.Check type="switch" defaultChecked />
                       </div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="p-2 bg-light rounded-circle text-primary"><Smartphone size={18}/></div>
-                          <div>
-                            <div className="small fw-bold">Alertes SMS</div>
-                            <div className="extra-small text-muted">Notifications critiques par SMS (Frais additionnels).</div>
+                    </div>
+
+                    <div>
+                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Notifications Récentes</Form.Label>
+                      <div className="d-flex flex-column gap-2">
+                        {[
+                          { title: '📅 Jury #15 assigné', time: '10 min', color: 'primary', icon: <Clock size={16}/>, desc: 'La session de jury pour le groupe Alpha a été programmée.' },
+                          { title: '✅ Rapport validé', time: '2h', color: 'success', icon: <Check size={16}/>, desc: 'Le rapport final de Youssef M. a été approuvé par le superviseur.' },
+                          { title: '⚠️ Alerte Système', time: '5h', color: 'danger', icon: <AlertTriangle size={16}/>, desc: 'Une tentative de connexion inhabituelle a été détectée.' }
+                        ].map((n, idx) => (
+                          <div key={idx} className="d-flex align-items-start gap-3 p-3 rounded-4 border bg-white hover-bg-light cursor-pointer transition-all">
+                            <div className={`p-2 rounded-circle bg-light text-${n.color}`}>
+                              {n.icon}
+                            </div>
+                            <div className="flex-grow-1">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <div className="small fw-bold text-dark">{n.title}</div>
+                                <div className="extra-small text-muted">{n.time}</div>
+                              </div>
+                              <div className="extra-small text-muted lh-sm">{n.desc}</div>
+                            </div>
                           </div>
-                        </div>
-                        <Form.Check type="switch" />
+                        ))}
                       </div>
+                      <Button variant="link" className="w-100 mt-3 extra-small fw-bold text-primary text-decoration-none">Voir toutes les notifications</Button>
                     </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'security' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Authentification & Accès</h6>
-                    <div className="d-flex flex-column gap-4 mb-5">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <div className="small fw-bold">Double Authentification (2FA)</div>
-                          <div className="extra-small text-muted">Exiger un code de vérification pour les admins et jurys.</div>
+                    {/* Gestion du Mot de Passe */}
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Gestion du Mot de Passe</h6>
+                    <Row className="g-4 mb-5">
+                      <Col md={12}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Mot de passe actuel</Form.Label>
+                        <Form.Control type="password" placeholder="••••••••••••" className="bg-light border-0 small py-2 shadow-none" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Nouveau mot de passe</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="bg-light border-0 small py-2 shadow-none" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted uppercase">Confirmer le mot de passe</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="bg-light border-0 small py-2 shadow-none" />
+                      </Col>
+                      <Col md={12}>
+                        <Button variant="outline-primary" className="fw-bold extra-small rounded-3">Mettre à jour le mot de passe</Button>
+                      </Col>
+                    </Row>
+
+                    {/* Double Authentification */}
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Double Authentification (2FA)</h6>
+                    <div className="p-4 bg-light bg-opacity-50 rounded-4 border mb-5">
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="p-2 bg-white border rounded-3 text-primary">
+                            <Smartphone size={24} />
+                          </div>
+                          <div>
+                            <div className="small fw-bold">Application d'authentification</div>
+                            <div className="extra-small text-muted">Utilisez Google Authenticator pour sécuriser votre accès.</div>
+                          </div>
                         </div>
-                        <Form.Check type="switch" />
+                        <Button variant="primary" size="sm" className="fw-bold extra-small px-4 rounded-pill border-0 shadow-sm" style={{ backgroundColor: '#2563eb' }}>Configurer</Button>
                       </div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <div className="small fw-bold">Politique de Mot de Passe Robuste</div>
-                          <div className="extra-small text-muted">Minimum 12 caractères, chiffres et symboles obligatoires.</div>
-                        </div>
-                        <Form.Check type="switch" defaultChecked />
-                      </div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <div className="small fw-bold">Expiration de Session</div>
-                          <div className="extra-small text-muted">Déconnexion automatique après 30 minutes d'inactivité.</div>
-                        </div>
-                        <Form.Select size="sm" className="w-auto border-0 bg-light extra-small fw-bold">
-                          <option>30 Minutes</option>
-                          <option>1 Heure</option>
-                          <option>24 Heures</option>
-                        </Form.Select>
-                      </div>
+                    </div>
+
+                    {/* Sessions Actives */}
+                    <h6 className="fw-bold text-dark mb-4 pb-2 border-bottom">Sessions Actives</h6>
+                    <div className="table-responsive">
+                      <table className="table table-borderless align-middle mb-0">
+                        <thead className="bg-light bg-opacity-50">
+                          <tr>
+                            <th className="extra-small fw-bold text-muted py-3 px-3 rounded-start-3">APPAREIL</th>
+                            <th className="extra-small fw-bold text-muted py-3 px-3">LOCALISATION</th>
+                            <th className="extra-small fw-bold text-muted py-3 px-3 rounded-end-3 text-end">ACTION</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="py-3 px-3">
+                              <div className="d-flex align-items-center gap-3">
+                                <Monitor size={18} className="text-muted" />
+                                <div>
+                                  <div className="small fw-bold">Windows 11 • Chrome</div>
+                                  <div className="extra-small text-primary fw-bold">Session actuelle</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 small text-muted">Casablanca, Maroc</td>
+                            <td className="py-3 px-3 text-end">
+                              <Badge bg="success" className="extra-small rounded-pill">Actif</Badge>
+                            </td>
+                          </tr>
+                          <tr className="border-top border-light">
+                            <td className="py-3 px-3">
+                              <div className="d-flex align-items-center gap-3">
+                                <Smartphone size={18} className="text-muted" />
+                                <div>
+                                  <div className="small fw-bold">iPhone 13 • App Mobile</div>
+                                  <div className="extra-small text-muted">Il y a 2 jours</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 small text-muted">Rabat, Maroc</td>
+                            <td className="py-3 px-3 text-end">
+                              <Button variant="link" className="p-0 text-danger extra-small fw-bold text-decoration-none">Déconnecter</Button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </motion.div>
                 )}
