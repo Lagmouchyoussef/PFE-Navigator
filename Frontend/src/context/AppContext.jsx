@@ -288,6 +288,10 @@ export const AppProvider = ({ children }) => {
     );
   }, []);
 
+  const deleteMessage = useCallback((id) => {
+    setMessages(prev => prev.filter(m => m.id !== id));
+  }, []);
+
   const unreadCountForRole = useCallback((role) => {
     return messages.filter(m =>
       m.sender !== role &&
@@ -344,7 +348,7 @@ export const AppProvider = ({ children }) => {
       documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
 
       // Messages
-      messages, sendMessage, markMessagesRead, unreadCountForRole,
+      messages, sendMessage, markMessagesRead, unreadCountForRole, deleteMessage,
 
       // Defenses / Calendar
       defenses, createDefense, updateDefense, deleteDefense,

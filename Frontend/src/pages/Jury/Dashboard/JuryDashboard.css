@@ -1,0 +1,298 @@
+/* Jury Dashboard - Analytical Premium Design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --jd-navy: #0f172a;
+  --jd-primary: #3b82f6;
+  --jd-primary-dark: #1d4ed8;
+  --jd-success: #10b981;
+  --jd-warning: #f59e0b;
+  --jd-danger: #ef4444;
+  --jd-bg: #f8fafc;
+  --jd-card: #ffffff;
+  --jd-border: #e2e8f0;
+  --jd-text: #000000;
+  --jd-text-muted: #000000; /* Absolute black for light mode */
+}
+
+[data-theme='dark'] {
+  --jd-bg: #020617;
+  --jd-card: #0f172a;
+  --jd-border: #1e293b;
+  --jd-text: #ffffff;
+  --jd-text-muted: #ffffff; /* Pure white for dark mode secondary text */
+}
+
+.jd-dashboard-layout {
+  background-color: var(--jd-bg);
+  min-height: calc(100vh - 80px);
+  color: var(--jd-text);
+  font-family: 'Inter', sans-serif;
+  padding: 2.5rem !important;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Header Styling */
+.jd-welcome-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--jd-text);
+}
+
+.jd-welcome-header p {
+  font-size: 0.95rem;
+  color: var(--jd-text-muted);
+}
+
+/* Stat Cards */
+.jd-stat-card {
+  background: var(--jd-card);
+  border: 1px solid var(--jd-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.jd-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.jd-trend-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.jd-trend-up { 
+  background: rgba(16, 185, 129, 0.15); 
+  color: #10b981; 
+}
+.jd-trend-down { 
+  background: rgba(239, 68, 68, 0.15); 
+  color: #ef4444; 
+}
+
+/* Section Titles */
+.jd-section-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--jd-text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Chart Cards */
+.jd-chart-card {
+  background: var(--jd-card);
+  border: 1px solid var(--jd-border);
+  border-radius: 24px;
+  padding: 1.5rem;
+  height: 100%;
+  overflow: visible !important;
+}
+
+.jd-chart-header {
+  margin-bottom: 1.5rem;
+}
+
+.jd-chart-header h6 {
+  font-weight: 900;
+  color: var(--jd-text) !important;
+  margin-bottom: 0.25rem;
+}
+
+.jd-chart-header p {
+  color: var(--jd-text-muted) !important;
+  font-weight: 600;
+}
+
+/* AI Insight Box */
+.jd-ai-insight {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px dashed var(--jd-primary);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+/* Activity List */
+.jd-activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--jd-border);
+}
+
+.jd-activity-item:last-child { border-bottom: none; }
+
+.jd-activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Projects Table */
+.jd-table-pro {
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  width: 100%;
+}
+
+.jd-table-pro thead th {
+  background: transparent !important;
+  border: none !important;
+  color: var(--jd-text-muted) !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem !important;
+}
+
+.jd-table-pro tbody tr {
+  background: var(--jd-card);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.jd-table-pro tbody tr:hover {
+  transform: scale(1.005);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.jd-table-pro td {
+  padding: 1.25rem 1rem !important;
+  border: none !important;
+  vertical-align: middle;
+}
+
+.jd-table-pro td:first-child { border-radius: 16px 0 0 16px; }
+.jd-table-pro td:last-child { border-radius: 0 16px 16px 0; }
+
+/* Evaluation Panel */
+.jd-eval-panel {
+  background: var(--jd-card);
+  border: 2px solid var(--jd-primary);
+  border-radius: 24px;
+  padding: 2rem;
+}
+
+.jd-scoring-table th {
+  background: var(--jd-bg) !important;
+  color: var(--jd-text-muted) !important;
+  font-size: 0.7rem !important;
+  padding: 0.75rem !important;
+}
+
+.jd-scoring-input {
+  background: var(--jd-bg) !important;
+  border: 1px solid var(--jd-border) !important;
+  border-radius: 8px !important;
+  color: var(--jd-text) !important;
+  text-align: center;
+  font-weight: 700;
+  width: 60px;
+}
+
+/* Mobile Card View */
+.jd-card-mobile {
+  background: var(--jd-card);
+  border: 1px solid var(--jd-border) !important;
+  transition: transform 0.2s;
+}
+
+[data-theme='dark'] .jd-card-mobile {
+  background: #0f172a;
+  border-color: #1e293b !important;
+}
+
+.jd-card-mobile:active {
+  transform: scale(0.98);
+}
+
+/* Success Card Styling */
+.jd-success-card-top {
+  background: var(--jd-card);
+  border: 1px solid var(--jd-success);
+  border-left: 5px solid var(--jd-success);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  z-index: 1000;
+}
+
+[data-theme='dark'] .jd-success-card-top {
+  background: #064e3b; /* Deep green for dark mode */
+  border-color: #10b981;
+  color: #ecfdf5;
+}
+
+[data-theme='dark'] .jd-success-card-top .text-muted {
+  color: #a7f3d0 !important;
+}
+
+.jd-select-match {
+  width: auto !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+  color: #0f172a !important;
+  padding-right: 2rem !important;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .jd-select-match {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .text-navy {
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .bg-light {
+  background-color: #1e293b !important;
+}
+
+/* Filter Buttons High Visibility */
+.jd-filter-btn-inactive {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.jd-filter-btn-inactive:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+[data-theme='dark'] .jd-filter-btn-inactive {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme='dark'] .jd-filter-btn-inactive:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

@@ -5,32 +5,47 @@ import {
   LayoutDashboard, FileUp, GraduationCap,
   Calendar, MessageSquare, Settings, Bell, Search,
   Sun, Moon, LogOut, Users, Briefcase, Activity, History, FileText,
-  ChevronRight, Menu
+  ChevronRight, Menu, X
 } from 'lucide-react';
 import { Container, Button, Dropdown, Form, Badge } from 'react-bootstrap';
 import { useApp } from './context/AppContext.jsx';
 import logo from './assets/logo.png';
 
-import LoginPage       from './pages/LoginPage';
-import StudentDashboard from './pages/StudentDashboard';
-import ReportsPage     from './pages/ReportsPage';
-import EvaluationPage  from './pages/EvaluationPage';
-import SchedulePage    from './pages/SchedulePage';
-import MessagesPage    from './pages/MessagesPage';
-import NotificationsPage from './pages/NotificationsPage';
-import SettingsPage    from './pages/SettingsPage';
-import ResourceHubPage from './pages/ResourceHubPage';
-import JuryDashboard   from './pages/JuryDashboard';
-import JuryProjectsPage from './pages/JuryProjectsPage';
-import JurySchedulePage from './pages/JurySchedulePage';
-import JuryEvaluationPage from './pages/JuryEvaluationPage';
-import JuryDocumentsPage from './pages/JuryDocumentsPage';
-import SupervisorDashboard from './pages/SupervisorDashboard';
-import MyStudentsPage from './pages/MyStudentsPage';
-import ReportValidationPage from './pages/ReportValidationPage';
-import SupervisorEvaluationPage from './pages/SupervisorEvaluationPage';
-import AdminDashboard from './pages/AdminDashboard';
-import AdministrativeNotesPage from './pages/AdministrativeNotesPage';
+import LoginPage       from './pages/Auth/Login/LoginPage';
+import StudentDashboard from './pages/Student/Dashboard/StudentDashboard';
+import ReportsPage     from './pages/Student/Reports/ReportsPage';
+import EvaluationPage  from './pages/Student/Evaluation/EvaluationPage';
+import SchedulePage    from './pages/Student/Schedule/SchedulePage';
+import MessagesPage    from './pages/Common/Messages/MessagesPage';
+import NotificationsPage from './pages/Common/Notifications/NotificationsPage';
+import SettingsPage    from './pages/Common/Settings/SettingsPage';
+import ResourceHubPage from './pages/Common/ResourceHub/ResourceHubPage';
+import JuryDashboard   from './pages/Jury/Dashboard/JuryDashboard';
+import JuryProjectsPage from './pages/Jury/Projects/JuryProjectsPage';
+import JurySchedulePage from './pages/Jury/Schedule/JurySchedulePage';
+import JuryEvaluationPage from './pages/Jury/Evaluation/JuryEvaluationPage';
+import JuryDocumentsPage from './pages/Jury/Documents/JuryDocumentsPage';
+import SupervisorDashboard from './pages/Supervisor/Dashboard/SupervisorDashboard';
+import StudentsList from './pages/Supervisor/StudentsList/StudentsList';
+import StudentDetail from './pages/Supervisor/StudentDetail/StudentDetail';
+import SupervisorPlanning from './pages/Supervisor/Planning/Planning';
+import SupervisorSubjects from './pages/Supervisor/Subjects/Subjects';
+import SupervisorEvaluations from './pages/Supervisor/Evaluations/Evaluations';
+import SupervisorMessages from './pages/Supervisor/Messages/Messages';
+import SupervisorSettings from './pages/Supervisor/Settings/Settings';
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminDashboard from './pages/Admin/Dashboard/Dashboard';
+import UserManagement from './pages/Admin/Users/UserManagement';
+import JuryPlanning from './pages/Admin/Jury/JuryPlanning';
+import ProjectsArchive from './pages/Admin/Projects/ProjectsArchive';
+import AnalyticsCenter from './pages/Admin/Analytics/AnalyticsCenter';
+import AdminNotes from './pages/Admin/Notes/AdminNotes';
+import PortalSettings from './pages/Admin/Settings/PortalSettings';
+import AdminNotifications from './pages/Admin/Notifications/AdminNotifications';
+import AdminMessages from './pages/Admin/Messages/AdminMessages';
+import ResourceHub from './pages/Admin/Resources/ResourceHub';
+
+import AdministrativeNotesPage from './pages/Common/AdministrativeNotes/AdministrativeNotesPage';
 import './App.css';
 
 const RequireAuth = ({ children, requiredRole }) => {
@@ -52,7 +67,7 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
   const { session, logout, notifications, markNotificationRead, markAllNotificationsRead,
-          unreadNotificationsCount, unreadCountForRole, messages, markMessagesRead } = useApp();
+          unreadNotificationsCount, unreadCountForRole, messages, markMessagesRead, deleteMessage } = useApp();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
@@ -89,6 +104,27 @@ function App() {
       session.role === 'supervisor' ? '/supervisor/dashboard' :
       '/student/dashboard';
     return <Navigate to={dashPath} replace />;
+  }
+
+  // C. Special Layout for Admin (Core Workspace Template)
+  if (session.role === 'admin') {
+    return (
+      <Routes>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users"     element={<UserManagement />} />
+          <Route path="/admin/jury"      element={<JuryPlanning />} />
+          <Route path="/admin/projects"  element={<ProjectsArchive />} />
+          <Route path="/admin/analytics" element={<AnalyticsCenter />} />
+          <Route path="/admin/resources" element={<ResourceHub />} />
+          <Route path="/admin/messages"  element={<AdminMessages />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
+          <Route path="/admin/notes"      element={<AdminNotes />} />
+          <Route path="/admin/settings"   element={<PortalSettings />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+        </Route>
+      </Routes>
+    );
   }
 
   // --- 3. UI Logic & Render ---
@@ -146,9 +182,9 @@ function App() {
               <>
                 <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/supervisor/students"  icon={<GraduationCap size={20} color="#6366f1" />}    label={!isSidebarCollapsed && "My Students"} />
-                <SidebarLink to="/supervisor/validation" icon={<FileUp size={20} color="#10b981" />}          label={!isSidebarCollapsed && "Report Validation"} />
-                <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} color="#f59e0b" />}   label={!isSidebarCollapsed && "Feedback & Evaluations"} />
-                <SidebarLink to="/supervisor/schedule"  icon={<Calendar size={20} color="#8b5cf6" />}         label={!isSidebarCollapsed && "Defense Calendar"} />
+                <SidebarLink to="/supervisor/subjects"  icon={<FileText size={20} color="#10b981" />}         label={!isSidebarCollapsed && "Subjects"} />
+                <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} color="#f59e0b" />}   label={!isSidebarCollapsed && "Evaluations"} />
+                <SidebarLink to="/supervisor/schedule"  icon={<Calendar size={20} color="#8b5cf6" />}         label={!isSidebarCollapsed && "Planning"} />
               </>
             ) : session.role === 'admin' ? (
               <>
@@ -248,6 +284,11 @@ function App() {
             )}
           </div>
           <div className="header-actions d-flex align-items-center gap-4">
+          <style>{`
+            .hover-text-danger:hover { color: #ef4444 !important; }
+            .dropdown-item:active, .dropdown-item:focus { background-color: transparent !important; color: inherit !important; }
+            .btn:focus, .btn:active { outline: none !important; box-shadow: none !important; }
+          `}</style>
             {/* Theme toggle */}
             <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setIsDarkMode(!isDarkMode)}>
               {isDarkMode ? <Sun size={22} className="text-warning" /> : <Moon size={22} />}
@@ -281,27 +322,40 @@ function App() {
                     <div className="px-3 py-4 text-center text-muted small">No new messages</div>
                   ) : (
                     unreadMessages.map(m => (
-                      <Dropdown.Item 
-                        key={m.id} 
-                        className="px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start"
-                        onClick={() => markMessagesRead(session.role)}
-                        as={Link}
-                        to={session.role === 'admin' ? '/admin/messages' : session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
-                      >
-                        <div className="p-2 rounded-circle bg-primary bg-opacity-10 text-primary mt-1 flex-shrink-0">
-                          <MessageSquare size={14} />
-                        </div>
-                        <div className="flex-grow-1 overflow-hidden">
-                          <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="extra-small fw-bold text-navy text-capitalize">{m.sender}</span>
-                            <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
-                              {new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                      <div key={m.id} className="dropdown-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative group">
+                        <Link 
+                          className="d-flex gap-3 align-items-start text-decoration-none flex-grow-1 overflow-hidden"
+                          onClick={() => markMessagesRead(session.role)}
+                          to={session.role === 'admin' ? '/admin/messages' : session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+                        >
+                          <div className="p-2 rounded-circle bg-primary bg-opacity-10 text-primary mt-1 flex-shrink-0">
+                            <MessageSquare size={14} />
                           </div>
-                          <div className="extra-small text-muted text-truncate">{m.text}</div>
-                        </div>
-                        <div className="ms-auto mt-2 bg-primary rounded-circle" style={{ width: '6px', height: '6px' }}></div>
-                      </Dropdown.Item>
+                          <div className="flex-grow-1 overflow-hidden">
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                              <span className="extra-small fw-bold text-navy text-capitalize">{m.sender}</span>
+                              <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
+                                {new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <div className="extra-small text-muted text-truncate">{m.text}</div>
+                          </div>
+                          {!m.readByStudent && !m.readByJury && (
+                            <div className="ms-auto mt-2 bg-primary rounded-circle" style={{ width: '6px', height: '6px' }}></div>
+                          )}
+                        </Link>
+                        <Button 
+                          variant="link" 
+                          className="p-1 text-muted hover-text-danger border-0 shadow-none align-self-start mt-n1 me-n1 transition-all" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            deleteMessage(m.id);
+                          }}
+                        >
+                          <X size={14} />
+                        </Button>
+                      </div>
                     ))
                   )}
                 </div>
@@ -408,6 +462,14 @@ function App() {
           </div>
         </header>
 
+        <style>{`
+          .hover-text-danger:hover { color: #ef4444 !important; }
+          .dropdown-item:active, .dropdown-item:focus { background-color: transparent !important; color: inherit !important; }
+          .btn:focus, .btn:active { outline: none !important; box-shadow: none !important; }
+          .border-bottom-dashed-light { border-bottom: 1px dashed rgba(255,255,255,0.05); }
+          [data-theme='light'] .border-bottom-dashed-light { border-bottom: 1px dashed rgba(0,0,0,0.05); }
+        `}</style>
+
         {/* Content Viewport */}
         <div className="content-area flex-grow-1" style={{ minHeight: 'calc(100vh - 80px)', position: 'relative' }}>
           <Routes>
@@ -439,14 +501,15 @@ function App() {
 
             {/* Supervisor Routes */}
             <Route path="/supervisor/dashboard"  element={<RequireAuth requiredRole="supervisor"><SupervisorDashboard /></RequireAuth>} />
-            <Route path="/supervisor/students"   element={<RequireAuth requiredRole="supervisor"><MyStudentsPage /></RequireAuth>} />
-            <Route path="/supervisor/validation" element={<RequireAuth requiredRole="supervisor"><ReportValidationPage /></RequireAuth>} />
-            <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluationPage /></RequireAuth>} />
-            <Route path="/supervisor/messages"   element={<RequireAuth requiredRole="supervisor"><MessagesPage /></RequireAuth>} />
-            <Route path="/supervisor/schedule"   element={<RequireAuth requiredRole="supervisor"><SchedulePage /></RequireAuth>} />
+            <Route path="/supervisor/students"   element={<RequireAuth requiredRole="supervisor"><StudentsList /></RequireAuth>} />
+            <Route path="/supervisor/student/:id" element={<RequireAuth requiredRole="supervisor"><StudentDetail /></RequireAuth>} />
+            <Route path="/supervisor/subjects"   element={<RequireAuth requiredRole="supervisor"><SupervisorSubjects /></RequireAuth>} />
+            <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluations /></RequireAuth>} />
+            <Route path="/supervisor/messages"   element={<RequireAuth requiredRole="supervisor"><SupervisorMessages /></RequireAuth>} />
+            <Route path="/supervisor/schedule"   element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
             <Route path="/supervisor/notifications" element={<RequireAuth requiredRole="supervisor"><NotificationsPage /></RequireAuth>} />
             <Route path="/supervisor/notes"      element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />
-            <Route path="/supervisor/settings"   element={<RequireAuth requiredRole="supervisor"><SettingsPage /></RequireAuth>} />
+            <Route path="/supervisor/settings"   element={<RequireAuth requiredRole="supervisor"><SupervisorSettings /></RequireAuth>} />
             <Route path="/supervisor/*"          element={<RequireAuth requiredRole="supervisor"><SupervisorDashboard /></RequireAuth>} />
 
             {/* Admin Routes */}
