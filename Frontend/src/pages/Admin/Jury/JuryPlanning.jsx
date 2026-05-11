@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Plus, ChevronLeft, ChevronRight, MapPin, Users, X, Clock
+  Plus, ChevronLeft, ChevronRight, MapPin, Users, X, Clock, Calendar
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Card, Button, Badge, ButtonGroup, Modal, Form } from 'react-bootstrap';
@@ -21,6 +21,8 @@ const JuryPlanning = () => {
   const [activeView, setActiveView] = useState('Mois');
   const [juries, setJuries] = useState(INITIAL_JURIES);
   const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedJury, setSelectedJury] = useState(null);
   const [formData, setFormData] = useState({ title: '', day: 1, location: '' });
 
   const days = [];
@@ -42,7 +44,7 @@ const JuryPlanning = () => {
   return (
     <div className="jury-zen-layout p-4">
       <Container>
-        {/* Header Section */}
+        {/* Simple Header */}
         <div className="d-flex justify-content-between align-items-center mb-5">
           <h2 className="fw-bold text-dark mb-0">Jury Planning</h2>
           <Button 
@@ -90,7 +92,15 @@ const JuryPlanning = () => {
                       <div className="text-end p-2 extra-small fw-bold text-muted">{item.day}</div>
                       <div className="px-1 d-flex flex-column gap-1 pb-2">
                         {dayJuries.map(j => (
-                          <div key={j.id} className="jury-bar p-1 px-2 rounded-1 extra-small fw-bold text-dark text-truncate border">
+                          <div 
+                            key={j.id} 
+                            className="jury-bar p-1 px-2 rounded-1 extra-small fw-bold text-dark text-truncate border cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedJury(j);
+                              setShowDetailsModal(true);
+                            }}
+                          >
                             {j.title}
                           </div>
                         ))}
@@ -108,15 +118,23 @@ const JuryPlanning = () => {
               <h5 className="fw-bold text-dark mb-4">Jurys à venir</h5>
               <div className="d-flex flex-column gap-3">
                 {juries.slice(0, 5).map(j => (
-                  <motion.div key={j.id} whileHover={{ x: 3 }}>
-                    <Card className="border shadow-sm rounded-3 p-3 bg-white">
+                  <motion.div 
+                    key={j.id} 
+                    whileHover={{ x: 3 }}
+                    onClick={() => {
+                      setSelectedJury(j);
+                      setShowDetailsModal(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Card className="upcoming-jury-card border shadow-sm rounded-3 p-3 bg-white">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h6 className="fw-bold small text-dark mb-0">{j.title}</h6>
-                        <Badge bg="light" className="text-muted extra-small">{j.date}</Badge>
+                        <Badge className="badge-simple-blue extra-small">{j.date}</Badge>
                       </div>
                       <div className="d-flex align-items-center gap-3 mt-2 extra-small text-muted fw-medium">
-                        <div className="d-flex align-items-center gap-1"><MapPin size={12} /> {j.location}</div>
-                        <div className="d-flex align-items-center gap-1"><Clock size={12} /> 09:00</div>
+                        <div className="d-flex align-items-center gap-1"><MapPin size={12} className="text-primary" /> {j.location}</div>
+                        <div className="d-flex align-items-center gap-1"><Clock size={12} className="text-primary" /> 09:00</div>
                       </div>
                     </Card>
                   </motion.div>
@@ -180,30 +198,121 @@ const JuryPlanning = () => {
         </Modal.Body>
       </Modal>
 
+      {/* MODAL DETAILS JURY */}
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered>
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold">Détails de la Session</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {selectedJury && (
+            <div className="d-flex flex-column gap-4">
+              <div>
+                <h4 className="fw-bold text-primary mb-1">{selectedJury.title}</h4>
+                <Badge className="badge-simple-blue">Confirmé</Badge>
+              </div>
+              
+              <div className="d-flex flex-column gap-3">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2 bg-light rounded-circle"><Calendar size={18} className="text-primary" /></div>
+                  <div>
+                    <div className="extra-small fw-bold text-muted text-uppercase">Date & Heure</div>
+                    <div className="small fw-bold">{selectedJury.date} à 09:00</div>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2 bg-light rounded-circle"><MapPin size={18} className="text-primary" /></div>
+                  <div>
+                    <div className="extra-small fw-bold text-muted text-uppercase">Localisation</div>
+                    <div className="small fw-bold">{selectedJury.location}</div>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2 bg-light rounded-circle"><Users size={18} className="text-primary" /></div>
+                  <div>
+                    <div className="extra-small fw-bold text-muted text-uppercase">Membres du Jury</div>
+                    <div className="small fw-bold text-muted">Dr. Ahmed L. (Président), Pr. Sara M., Dr. Karim B.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-light rounded-3 border-start border-4 border-primary">
+                <div className="extra-small fw-bold text-primary text-uppercase mb-1">Note administrative</div>
+                <div className="small text-muted italic">Cette session nécessite la présence de tous les membres 15 minutes avant le début.</div>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0 pt-0">
+          <Button variant="outline-danger" className="extra-small fw-bold border-0" onClick={() => {
+            setJuries(juries.filter(j => j.id !== selectedJury.id));
+            setShowDetailsModal(false);
+          }}>
+            Supprimer la session
+          </Button>
+          <Button className="btn-classic-primary px-4 py-2" onClick={() => setShowDetailsModal(false)}>
+            Fermer
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <style>{`
         .jury-zen-layout {
-          background-color: #fcfcfc;
+          background-color: #f8fafc;
           min-height: calc(100vh - 80px);
           font-family: 'Inter', -apple-system, sans-serif;
         }
         .btn-classic-primary {
-          background-color: #1a1a1a !important;
+          background-color: #2563eb !important;
           color: white;
           border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+        .btn-classic-primary:hover {
+          background-color: #1d4ed8 !important;
+          transform: translateY(-1px);
         }
         .day-cell {
           width: calc(100% / 7);
-          min-height: 100px;
+          min-height: 110px;
+          transition: background-color 0.2s ease;
+        }
+        .day-cell:hover {
+          background-color: #f1f5f9 !important;
         }
         .jury-bar {
-          background-color: #f0f0f0;
-          border-color: #e0e0e0 !important;
-          font-size: 0.65rem;
+          background-color: #eff6ff;
+          border: 1px solid #bfdbfe !important;
+          color: #1e40af !important;
+          font-size: 0.7rem;
+          padding: 4px 8px !important;
+          border-left: 3px solid #2563eb !important;
         }
         .extra-small { font-size: 0.75rem; }
         .calendar-body div:nth-child(7n) {
           border-right: none !important;
         }
+        .calendar-header {
+          background-color: #f1f5f9 !important;
+          color: #475569 !important;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .upcoming-jury-card {
+          border-left: 4px solid #2563eb !important;
+          transition: all 0.2s ease;
+        }
+        .upcoming-jury-card:hover {
+          background-color: #f8fafc !important;
+          transform: translateX(5px);
+        }
+        .badge-simple-blue {
+          background-color: #dbeafe !important;
+          color: #1e40af !important;
+          font-weight: 600;
+        }
+        .cursor-pointer { cursor: pointer; }
       `}</style>
     </div>
   );

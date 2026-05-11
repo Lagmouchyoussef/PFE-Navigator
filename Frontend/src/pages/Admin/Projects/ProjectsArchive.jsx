@@ -1,102 +1,168 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Archive, Search, Filter, Download, 
-  ChevronRight, FileText, Layout, 
-  Microscope, Lightbulb, ShieldCheck, Zap
+  FileText, MapPin, Calendar, Clock,
+  ChevronRight, BookOpen, Briefcase, 
+  CheckCircle, XCircle
 } from 'lucide-react';
+import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 
 const ARCHIVE_DATA = [
-  { id: 'A', name: 'Projet Alpha', desc: 'Mobile app for resource management development.', date: 'Apr 15, 2026', files: 12, status: 'Completed', icon: <Layout size={24} />, color: 'blue' },
-  { id: 'B', name: 'Projet Beta', desc: 'Real-time data visualization web interface.', date: 'Mar 28, 2026', files: 8, status: 'Completed', icon: <Zap size={24} />, color: 'purple' },
-  { id: 'G', name: 'Projet Gamma', desc: 'Automatic performance analysis system.', date: 'Mar 10, 2026', files: 15, status: 'Completed', icon: <Microscope size={24} />, color: 'emerald' },
-  { id: 'D', name: 'Projet Delta', desc: 'Interactive e-learning platform with AI.', date: 'Feb 22, 2026', files: 20, status: 'Completed', icon: <Lightbulb size={24} />, color: 'amber' },
-  { id: 'E', name: 'Projet Epsilon', desc: 'Enterprise cybersecurity solution.', date: 'Feb 05, 2026', files: 6, status: 'Cancelled', icon: <ShieldCheck size={24} />, color: 'red' },
-  { id: 'Z', name: 'Projet Zeta', desc: 'Smart building energy optimization.', date: 'Jan 18, 2026', files: 9, status: 'Completed', icon: <Zap size={24} />, color: 'cyan' },
+  { id: 'A', name: 'Projet Alpha', desc: 'Développement d\'une application mobile pour la gestion des ressources.', date: '15 Avr 2026', files: 12, status: 'Completed', type: 'Mobile' },
+  { id: 'B', name: 'Projet Beta', desc: 'Interface web de visualisation de données en temps réel.', date: '28 Mar 2026', files: 8, status: 'Completed', type: 'Web' },
+  { id: 'G', name: 'Projet Gamma', desc: 'Système automatique d\'analyse de performance.', date: '10 Mar 2026', files: 15, status: 'Completed', type: 'System' },
+  { id: 'D', name: 'Projet Delta', desc: 'Plateforme e-learning interactive avec IA.', date: '22 Fév 2026', files: 20, status: 'Completed', type: 'AI' },
+  { id: 'E', name: 'Projet Epsilon', desc: 'Solution de cybersécurité pour entreprise.', date: '05 Fév 2026', files: 6, status: 'Cancelled', type: 'Security' },
+  { id: 'Z', name: 'Projet Zeta', desc: 'Optimisation énergétique pour bâtiments intelligents.', date: '18 Jan 2026', files: 9, status: 'Completed', type: 'IoT' },
 ];
 
 const ProjectsArchive = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredProjects = ARCHIVE_DATA.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.desc.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="projects-archive-content">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Projects Archive</h2>
-          <p className="text-white/50 text-sm mt-1">Access and manage all historical projects and their final reports.</p>
-        </div>
-        <div className="flex gap-2">
-          <button className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/10 transition-all flex items-center gap-2">
-            <Filter size={18} />
-            Filter
-          </button>
-          <button className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/10 transition-all flex items-center gap-2">
-            <Download size={18} />
-            Export
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ARCHIVE_DATA.map((project, i) => (
-          <motion.div 
-            key={project.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.05 }}
-            whileHover={{ y: -8 }}
-            className="admin-card p-0 overflow-hidden group cursor-pointer bg-white/2"
-          >
-            <div className={`h-32 bg-gradient-to-br from-${project.color}-600 to-${project.color}-900 flex items-center justify-center relative overflow-hidden opacity-80 group-hover:opacity-100 transition-opacity`}>
-              <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute rotate-45 translate-x-1/2 translate-y-1/2 w-40 h-40 border-4 border-white rounded-full"></div>
-              </div>
-              <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10 group-hover:scale-110 transition-transform duration-300">
-                {React.cloneElement(project.icon, { className: 'text-white' })}
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-white group-hover:text-primary transition-colors">{project.name}</h4>
-                <span className={`admin-badge ${project.status === 'Completed' ? 'badge-success' : 'badge-danger'}`}>
-                  {project.status}
-                </span>
-              </div>
-              <p className="text-xs text-white/40 font-bold leading-relaxed mb-6 line-clamp-2 uppercase tracking-wide">
-                {project.desc}
-              </p>
-              <div className="pt-5 border-t border-white/5 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest">Archived on</span>
-                  <span className="text-xs text-white/60 font-bold mt-1">{project.date}</span>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-white/30 font-bold bg-white/5 px-3 py-1.5 rounded-lg uppercase tracking-widest">
-                  <FileText size={12} className="text-white/40" />
-                  {project.files} FILES
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="mt-12 admin-card bg-primary/20 border-primary/20 p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="max-w-xl text-center md:text-left">
-            <h3 className="text-2xl font-bold text-white mb-3">Looking for a specific report?</h3>
-            <p className="text-white/50 text-sm font-medium leading-relaxed">
-              Our advanced search indexes all project documents including final presentations, evaluations, and student contributions.
-            </p>
+    <div className="projects-simple-layout p-4">
+      <Container>
+        {/* Header Section */}
+        <div className="d-flex justify-content-between align-items-center mb-5">
+          <div>
+            <h2 className="fw-bold text-dark mb-1">Archives des Projets</h2>
+            <p className="text-muted small mb-0">Consultez et gérez l'historique de tous les projets passés.</p>
           </div>
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search in archives..." 
-              className="w-full pl-14 pr-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white placeholder:text-white/20 focus:bg-black/60 focus:border-primary/50 focus:outline-none transition-all shadow-2xl"
+          <div className="d-flex gap-2">
+            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border">
+              <Filter size={16} /> Filtrer
+            </Button>
+            <Button variant="outline-secondary" className="d-flex align-items-center gap-2 px-3 py-2 fw-bold small border">
+              <Download size={16} /> Exporter
+            </Button>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <Card className="border shadow-sm rounded-3 mb-5 p-3 bg-white">
+          <InputGroup className="bg-light rounded-2 overflow-hidden border-0">
+            <InputGroup.Text className="bg-transparent border-0 ps-3">
+              <Search size={18} className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control 
+              placeholder="Rechercher un projet, un rapport ou une thématique..."
+              className="bg-transparent border-0 py-2 small"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
-        </div>
-      </div>
+          </InputGroup>
+        </Card>
+
+        {/* Projects Grid */}
+        <Row className="g-4">
+          {filteredProjects.map((project, i) => (
+            <Col key={project.id} lg={4} md={6}>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Card className="project-simple-card border shadow-sm rounded-3 overflow-hidden h-100 bg-white">
+                  <div className="card-header-accent"></div>
+                  <Card.Body className="p-4">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div className="p-2 bg-light rounded-2 text-primary">
+                        <Briefcase size={20} />
+                      </div>
+                      <Badge className={project.status === 'Completed' ? 'badge-success-simple' : 'badge-danger-simple'}>
+                        {project.status === 'Completed' ? <CheckCircle size={12} className="me-1" /> : <XCircle size={12} className="me-1" />}
+                        {project.status}
+                      </Badge>
+                    </div>
+                    
+                    <h5 className="fw-bold text-dark mb-2">{project.name}</h5>
+                    <p className="text-muted small mb-4 line-clamp-2" style={{ minHeight: '40px' }}>
+                      {project.desc}
+                    </p>
+
+                    <div className="d-flex flex-wrap gap-2 mb-4">
+                      <Badge bg="light" className="text-muted border fw-normal">{project.type}</Badge>
+                      <Badge bg="light" className="text-muted border fw-normal">{project.files} Fichiers</Badge>
+                    </div>
+
+                    <div className="pt-3 border-top d-flex justify-content-between align-items-center">
+                      <div className="d-flex align-items-center gap-2 text-muted">
+                        <Calendar size={14} />
+                        <span className="extra-small fw-medium">{project.date}</span>
+                      </div>
+                      <Button variant="link" className="p-0 text-primary fw-bold extra-small text-decoration-none d-flex align-items-center gap-1">
+                        Détails <ChevronRight size={14} />
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </motion.div>
+            </Col>
+          ))}
+          {filteredProjects.length === 0 && (
+            <Col xs={12} className="text-center py-5">
+              <div className="text-muted mb-2"><Search size={40} className="opacity-20" /></div>
+              <h5 className="text-muted fw-bold">Aucun projet trouvé</h5>
+              <p className="text-muted small">Essayez de modifier vos critères de recherche.</p>
+            </Col>
+          )}
+        </Row>
+      </Container>
+
+      <style>{`
+        .projects-simple-layout {
+          background-color: #f8fafc;
+          min-height: calc(100vh - 80px);
+          font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .project-simple-card {
+          transition: all 0.2s ease;
+          position: relative;
+        }
+        .project-simple-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+          border-color: #2563eb !important;
+        }
+        .card-header-accent {
+          height: 4px;
+          background-color: #e2e8f0;
+          transition: background-color 0.2s ease;
+        }
+        .project-simple-card:hover .card-header-accent {
+          background-color: #2563eb;
+        }
+        .badge-success-simple {
+          background-color: #dcfce7 !important;
+          color: #166534 !important;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          padding: 5px 10px;
+        }
+        .badge-danger-simple {
+          background-color: #fee2e2 !important;
+          color: #991b1b !important;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          padding: 5px 10px;
+        }
+        .extra-small { font-size: 0.75rem; }
+        .text-primary { color: #2563eb !important; }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 };
