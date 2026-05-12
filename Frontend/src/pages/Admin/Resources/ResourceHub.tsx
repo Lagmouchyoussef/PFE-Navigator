@@ -74,7 +74,7 @@ const ResourceHub: React.FC = () => {
                 <Form.Control placeholder="Rechercher..." className="bg-transparent border-0 shadow-none extra-small text-navy" />
               </InputGroup>
               <Button variant="outline-secondary" size="sm" className="border rounded-pill px-3"><ListIcon size={16} /></Button>
-              <Button variant="primary" size="sm" style={{ backgroundColor: '#2563eb' }} className="border-0 rounded-pill px-3"><Grid size={16} /></Button>
+              <Button variant="primary" size="sm" className="btn-premium border-0 rounded-pill px-3"><Grid size={16} /></Button>
             </div>
           </div>
           

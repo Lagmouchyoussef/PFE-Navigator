@@ -15,7 +15,6 @@ import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 import PerformanceChart from '../../../components/features/supervisor/PerformanceChart';
 import StatusDistribution from '../../../components/features/supervisor/StatusDistribution';
-import '../SupervisorStyles.css';
 
 const WEEKLY_ACTIVITY = [
   { day: 'Mon', meetings: 4, feedback: 12 },
@@ -55,15 +54,15 @@ const SupervisorDashboard: React.FC = () => {
   const [showSuccessCard, setShowSuccessCard] = useState(true);
 
   return (
-    <div className="sv-dashboard-layout">
-      <Container fluid="xxl" className="px-0">
+    <div className="supervisor-dashboard-layout py-4">
+      <Container fluid className="px-4">
         
         {/* Success Notification Card */}
         {showSuccessCard && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sv-success-banner mb-4 d-flex align-items-center justify-content-between shadow-sm"
+            className="p-3 mb-4 d-flex align-items-center justify-content-between shadow-sm bg-success-soft text-success border border-success border-opacity-25 rounded-4"
           >
             <div className="d-flex align-items-center gap-3">
               <div className="p-2 rounded-circle bg-success bg-opacity-10 text-success">
@@ -71,26 +70,26 @@ const SupervisorDashboard: React.FC = () => {
               </div>
               <div>
                 <h6 className="mb-0 fw-bold small">Reports Validated Successfully</h6>
-                <p className="extra-small mb-0 opacity-75">3 new reports from your students have been automatically pre-validated by the system.</p>
+                <p className="extra-small mb-0 opacity-75 fw-bold">3 new reports from your students have been automatically pre-validated by the system.</p>
               </div>
             </div>
-            <Button variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Dismiss</Button>
+            <Button variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Dismiss</Button>
           </motion.div>
         )}
         
         {/* Welcome Header */}
-        <header className="sv-welcome-header mb-5 d-flex justify-content-between align-items-end">
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="mb-2">Supervisor Dashboard</h1>
-            <p className="sv-welcome-subtitle mb-0">
+            <h2 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">
               Academic Year 2025/2026 • Welcome back, Prof. {session?.name}
             </p>
           </motion.div>
-          <div className="d-flex gap-3">
-            <Button className="btn-pro-outline d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/schedule')}>
-              <Calendar size={18} className="text-primary" /> Defense Planning
+          <div className="d-flex gap-2">
+            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/schedule')}>
+              <Calendar size={18} /> Defense Planning
             </Button>
-            <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/subjects')}>
+            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => navigate('/supervisor/subjects')}>
               <Plus size={18} /> Propose Subject
             </Button>
           </div>
@@ -116,17 +115,17 @@ const SupervisorDashboard: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="sv-ai-insight-banner mb-5 d-flex align-items-center gap-4"
+          className="p-4 mb-5 d-flex align-items-center gap-4 bg-primary-soft border border-primary border-opacity-10 rounded-4 shadow-sm"
         >
-          <div className="sv-ai-icon p-3 rounded-4 bg-white shadow-sm">
-            <Activity size={32} className="text-primary" />
+          <div className="p-3 rounded-4 bg-white shadow-sm text-primary">
+            <Activity size={32} />
           </div>
           <div className="flex-grow-1">
             <div className="d-flex align-items-center gap-2 mb-1">
-              <Badge className="badge-soft-primary border-0 rounded-pill extra-small px-3">AI COPILOT</Badge>
-              <span className="extra-small text-muted fw-bold">PROJECTED SUCCESS RATE: 98.2%</span>
+              <Badge className="bg-primary text-white border-0 rounded-pill extra-small px-3 py-1 fw-bold">AI COPILOT</Badge>
+              <span className="extra-small text-primary fw-bold opacity-75">PROJECTED SUCCESS RATE: 98.2%</span>
             </div>
-            <p className="extra-small text-navy opacity-75 mb-0 fw-medium">
+            <p className="extra-small text-navy opacity-75 mb-0 fw-bold">
               Based on recent submissions, <strong>Ahmed Khalil</strong> and <strong>Fatima Zahra</strong> are ready for defense. 
               Consider scheduling a review session for <strong>Mohamed Alaoui</strong> who is slightly behind schedule.
             </p>
@@ -148,22 +147,22 @@ const SupervisorDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           {/* Weekly Activity Bar Chart */}
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 h-100">
-              <div className="sv-card-header">
+            <Card className="glass-card border p-4 h-100 shadow-sm">
+              <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                  <h5 className="sv-card-title">Weekly Activity</h5>
-                  <p className="extra-small text-muted mb-0">Meetings and feedback sessions</p>
+                  <h6 className="fw-bold text-navy mb-1">Weekly Activity</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold">Meetings and feedback sessions</p>
                 </div>
               </div>
               <div style={{ height: '250px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={WEEKLY_ACTIVITY}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 600}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 600}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                    <Bar dataKey="meetings" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Meetings" />
-                    <Bar dataKey="feedback" fill="var(--color-info)" radius={[4, 4, 0, 0]} name="Feedback" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 600 }} />
+                    <Bar dataKey="meetings" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Meetings" barSize={12} />
+                    <Bar dataKey="feedback" fill="var(--color-info)" radius={[4, 4, 0, 0]} name="Feedback" barSize={12} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -172,21 +171,21 @@ const SupervisorDashboard: React.FC = () => {
 
           {/* Skills Radar Chart */}
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 h-100">
-              <div className="sv-card-header">
+            <Card className="glass-card border p-4 h-100 shadow-sm">
+              <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                  <h5 className="sv-card-title">Skills Analysis</h5>
-                  <p className="extra-small text-muted mb-0">Cohort strengths vs target</p>
+                  <h6 className="fw-bold text-navy mb-1">Skills Analysis</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold">Cohort strengths vs target</p>
                 </div>
               </div>
               <div style={{ height: '250px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DISTRIBUTION}>
                     <PolarGrid strokeOpacity={0.1} />
-                    <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: '#64748b'}} />
+                    <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: 'var(--color-text-muted)'}} />
                     <Radar name="Current" dataKey="A" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.6} />
                     <Radar name="Target" dataKey="B" stroke="var(--color-success)" fill="var(--color-success)" fillOpacity={0.2} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontWeight: 600 }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
@@ -195,14 +194,14 @@ const SupervisorDashboard: React.FC = () => {
 
           {/* Deliverables Pie Chart */}
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 h-100">
-              <div className="sv-card-header">
+            <Card className="glass-card border p-4 h-100 shadow-sm">
+              <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                  <h5 className="sv-card-title">Deliverables</h5>
-                  <p className="extra-small text-muted mb-0">Submission status by phase</p>
+                  <h6 className="fw-bold text-navy mb-1">Deliverables</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold">Submission status by phase</p>
                 </div>
               </div>
-              <div style={{ height: '250px', width: '100%' }}>
+              <div style={{ height: '200px', width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -213,19 +212,20 @@ const SupervisorDashboard: React.FC = () => {
                       outerRadius={80}
                       paddingAngle={5}
                       dataKey="value"
+                      stroke="none"
                     >
                       {DELIVERABLE_STATUS.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontWeight: 600 }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 pb-3">
+              <div className="d-flex flex-wrap gap-2 justify-content-center mt-4">
                 {DELIVERABLE_STATUS.map((item, i) => (
-                  <div key={i} className="d-flex align-items-center gap-1 extra-small fw-bold px-2 py-1 rounded-pill bg-light">
-                    <div className="dot" style={{ backgroundColor: item.color, width: '6px', height: '6px', borderRadius: '50%' }}></div>
+                  <div key={i} className="d-flex align-items-center gap-1 extra-small fw-bold px-3 py-1 rounded-pill bg-surface-alt text-navy">
+                    <div style={{ backgroundColor: item.color, width: '8px', height: '8px', borderRadius: '50%' }}></div>
                     {item.name}
                   </div>
                 ))}
@@ -236,7 +236,7 @@ const SupervisorDashboard: React.FC = () => {
 
         <Row className="g-4">
           <Col lg={8}>
-            <div className="sv-table-container shadow-sm rounded-4 overflow-hidden">
+            <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
               <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
                 <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
                 <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
@@ -244,8 +244,8 @@ const SupervisorDashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="table-responsive">
-                <Table className="sv-table mb-0 align-middle">
-                  <thead className="bg-light">
+                <Table hover className="mb-0 align-middle">
+                  <thead className="bg-surface-alt">
                     <tr>
                       <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
                       <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
@@ -256,10 +256,12 @@ const SupervisorDashboard: React.FC = () => {
                   </thead>
                   <tbody>
                     {RECENT_STUDENTS.map((student) => (
-                      <tr key={student.id} className="border-bottom border-light">
+                      <tr key={student.id} className="border-bottom border-light border-opacity-10">
                         <td className="px-4 py-3">
                           <div className="d-flex align-items-center gap-3">
-                            <div className="sv-avatar shadow-sm fw-bold bg-light-soft">{student.name.charAt(0)}</div>
+                            <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
+                               {student.name.charAt(0)}
+                            </div>
                             <div>
                               <div className="fw-bold small text-navy">{student.name}</div>
                               <div className="extra-small text-muted opacity-75 fw-bold">PFE CANDIDATE</div>
@@ -273,7 +275,7 @@ const SupervisorDashboard: React.FC = () => {
                         </td>
                         <td>
                           <div className="d-flex align-items-center gap-3" style={{ width: '140px' }}>
-                            <div className="flex-grow-1 bg-light rounded-pill overflow-hidden" style={{ height: '8px' }}>
+                            <div className="flex-grow-1 bg-surface-alt rounded-pill overflow-hidden" style={{ height: '8px' }}>
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${student.progress}%` }}
@@ -285,28 +287,28 @@ const SupervisorDashboard: React.FC = () => {
                           </div>
                         </td>
                         <td>
-                          <Badge bg={student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'} className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
+                          <Badge className={`bg-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'}-soft text-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'} border-0 extra-small px-3 py-1 fw-bold`}>
                             {student.status}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-end">
                           <Dropdown align="end">
-                            <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-light rounded-circle no-caret shadow-none border-0">
+                            <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-surface rounded-circle no-caret shadow-none border-0">
                               <MoreHorizontal size={20} />
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
-                              <Dropdown.Item className="py-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
-                                <ChevronRight size={14} className="me-2 text-primary" /> View Details
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
+                                <ChevronRight size={14} className="text-primary" /> View Details
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2" onClick={() => navigate('/supervisor/messages')}>
-                                <MessageSquare size={14} className="me-2 text-info" /> Send Message
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/messages')}>
+                                <MessageSquare size={14} className="text-info" /> Send Message
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2">
-                                <FileText size={14} className="me-2 text-success" /> Evaluate Report
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2">
+                                <FileText size={14} className="text-success" /> Evaluate Report
                               </Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="py-2 text-danger">
-                                <Activity size={14} className="me-2" /> Edit Progress
+                              <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2">
+                                <Activity size={14} /> Edit Progress
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
@@ -322,44 +324,46 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={4}>
             <div className="d-flex flex-column gap-4">
               {/* Upcoming Deadlines */}
-              <Card className="sv-card-premium border-0 p-4 shadow-sm bg-navy text-white">
+              <Card className="glass-card border p-4 shadow-sm bg-navy text-white border-0">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h6 className="fw-bold mb-0 text-white">Upcoming Deadlines</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
-                <div className="deadline-item mb-4 pb-3 border-bottom border-white border-opacity-10">
+                <div className="mb-4 pb-3 border-bottom border-white border-opacity-10">
                   <div className="extra-small text-warning fw-bold mb-1">MAY 15, 2026</div>
                   <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small opacity-75">12 students remaining</div>
+                  <div className="extra-small opacity-75 fw-bold">12 students remaining</div>
                 </div>
                 <div className="deadline-item">
                   <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
                   <div className="small fw-bold mb-1">Defense Session A</div>
-                  <div className="extra-small opacity-75">Salle 304 - 09:00 AM</div>
+                  <div className="extra-small opacity-75 fw-bold">Salle 304 - 09:00 AM</div>
                 </div>
               </Card>
 
               {/* Message Preview */}
-              <Card className="sv-card-premium border-0 p-4">
+              <Card className="glass-card border p-4 shadow-sm">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h6 className="fw-bold mb-0 text-navy">Recent Messages</h6>
                   <MessageSquare size={18} className="text-primary" />
                 </div>
-                <div className="message-preview-list">
+                <div className="d-flex flex-column gap-3">
                   {[1, 2].map((i) => (
-                    <div key={i} className="d-flex gap-3 mb-3 pb-3 border-bottom-dashed">
-                      <div className="sv-avatar sm">{i === 1 ? 'AA' : 'SK'}</div>
-                      <div className="overflow-hidden">
-                        <div className="d-flex justify-content-between">
+                    <div key={i} className="d-flex gap-3 pb-3 border-bottom border-light border-opacity-10">
+                      <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
+                        {i === 1 ? 'AA' : 'SK'}
+                      </div>
+                      <div className="overflow-hidden flex-grow-1">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
                           <div className="extra-small fw-bold text-navy">{i === 1 ? 'Ahmed Ben Ali' : 'Sara Kamali'}</div>
-                          <div className="extra-small text-muted">2h ago</div>
+                          <div className="extra-small text-muted fw-bold">2h ago</div>
                         </div>
-                        <div className="extra-small text-muted text-truncate">I have updated the implementation part...</div>
+                        <div className="extra-small text-muted text-truncate fw-medium">I have updated the implementation part...</div>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Button variant="link" className="w-100 text-primary extra-small fw-bold text-decoration-none" onClick={() => navigate('/supervisor/messages')}>
+                <Button variant="link" className="w-100 text-primary extra-small fw-bold text-decoration-none mt-2" onClick={() => navigate('/supervisor/messages')}>
                   Go to Messages
                 </Button>
               </Card>

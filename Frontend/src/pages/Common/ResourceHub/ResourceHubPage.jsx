@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Container, Row, Col, Badge, 
-  Form, Button, Table, InputGroup, Dropdown
+  Form, Button, Table, InputGroup, Dropdown, Card
 } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -56,7 +56,7 @@ const ResourceHubPage = () => {
   };
 
   return (
-    <div className="resource-hub-modern py-4">
+    <div className="resource-hub-layout py-4">
       <Container fluid className="px-4">
         
         {/* Success Alert */}
@@ -66,53 +66,53 @@ const ResourceHubPage = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="rh-alert-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center"
+              className="glass-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center"
             >
               <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                <div className="p-2 rounded-circle bg-success-soft text-success">
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0">Opération Réussie</h6>
-                  <p className="extra-small text-muted mb-0">{successMsg}</p>
+                  <h6 className="fw-bold mb-0 text-navy">Operation Successful</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
                 </div>
               </div>
-              <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
+              <Button variant="link" className="p-0 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Header */}
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
-          <div>
-            <h2 className="fw-bold mb-1">Hub de Ressources</h2>
-            <p className="text-muted small mb-0">Accédez à tous les documents et ressources d'évaluation officiels.</p>
-          </div>
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Resource Hub</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Access official PFE documents and assessment resources.</p>
+          </motion.div>
           <div className="d-flex gap-2">
-            <InputGroup size="sm" className="bg-surface rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
-              <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16}/></InputGroup.Text>
+            <InputGroup className="bg-surface-alt rounded-pill border px-3" style={{ width: '300px' }}>
+              <InputGroup.Text className="bg-transparent border-0 text-muted ps-0 pe-1"><Search size={16}/></InputGroup.Text>
               <Form.Control 
-                placeholder="Rechercher un document..." 
-                className="bg-transparent border-0 shadow-none py-2 small fw-bold text-primary-custom"
+                placeholder="Search resources..." 
+                className="bg-transparent border-0 shadow-none py-2 small fw-bold text-navy"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </InputGroup>
           </div>
-        </div>
+        </header>
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {STATS.map((stat, i) => (
             <Col key={i} sm={6} lg={3}>
-              <div className={`rh-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
+              <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
                 <div className="d-flex align-items-center gap-3">
-                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                  <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
                     {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
                   <div>
-                    <h4 className="fw-bold mb-0">{stat.value}</h4>
-                    <span className="extra-small text-muted fw-bold text-uppercase">{stat.label}</span>
+                    <h4 className="fw-bold mb-0 text-navy">{stat.value}</h4>
+                    <span className="extra-small text-muted fw-bold text-uppercase opacity-50">{stat.label}</span>
                   </div>
                 </div>
               </div>
@@ -123,78 +123,78 @@ const ResourceHubPage = () => {
         <Row className="g-4 mb-5">
           {/* Categories Sidebar */}
           <Col lg={3}>
-            <div className="rh-glass-card rounded-4 overflow-hidden mb-4">
-              <div className="p-4 border-bottom bg-surface-alt">
-                <h6 className="fw-bold mb-0 d-flex align-items-center gap-2">
-                  <Filter size={18} className="text-primary" /> Catégories
+            <Card className="glass-card rounded-4 overflow-hidden mb-4 border-light border-opacity-10">
+              <Card.Header className="p-4 border-bottom bg-white d-flex align-items-center border-0">
+                <h6 className="fw-bold mb-0 text-navy d-flex align-items-center gap-2">
+                  <Filter size={18} className="text-primary" /> Categories
                 </h6>
-              </div>
+              </Card.Header>
               <div className="d-flex flex-column">
                 {CATEGORIES.map((cat, i) => (
                   <button 
                     key={i} 
-                    className={`rh-cat-btn p-3 d-flex align-items-center justify-content-between border-0 transition-all text-start ${activeCat === cat.label ? 'active-cat' : 'hover-bg-surface'}`}
+                    className={`p-3 d-flex align-items-center justify-content-between border-0 transition-all text-start bg-transparent ${activeCat === cat.label ? 'bg-primary-soft text-primary' : 'hover-bg-surface-alt text-muted fw-bold opacity-75'}`}
                     onClick={() => setActiveCat(cat.label)}
                   >
                     <div className="d-flex align-items-center gap-3">
-                      <div className={`${activeCat === cat.label ? 'text-primary' : 'text-muted'}`}>{cat.icon}</div>
-                      <span className={`small fw-bold ${activeCat === cat.label ? 'text-primary' : 'text-muted'}`}>{cat.label}</span>
+                      <div>{cat.icon}</div>
+                      <span className="small fw-bold">{cat.label}</span>
                     </div>
-                    <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">{cat.count}</Badge>
+                    <Badge className="bg-primary-soft text-primary border-0 extra-small fw-bold px-2 py-1 rounded-pill">{cat.count}</Badge>
                   </button>
                 ))}
               </div>
-            </div>
+            </Card>
           </Col>
 
           {/* Documents Table */}
           <Col lg={9}>
-            <div className="rh-glass-card rounded-4 overflow-hidden shadow-sm">
+            <Card className="glass-card rounded-4 overflow-hidden shadow-sm border-light border-opacity-10">
               <div className="table-responsive">
-                <Table borderless hover className="align-middle mb-0 rh-table">
-                  <thead>
-                    <tr className="border-bottom opacity-50 bg-surface-alt">
-                      <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Nom du Document</th>
-                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Catégorie</th>
-                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
+                <Table borderless hover className="align-middle mb-0">
+                  <thead className="bg-surface-alt">
+                    <tr className="border-bottom opacity-50">
+                      <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
                       <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {DOCUMENTS.map((doc, i) => (
-                      <tr key={i} className="border-bottom border-light border-opacity-10">
+                      <tr key={i} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
                         <td className="px-4 py-4">
                           <div className="d-flex align-items-center gap-3">
-                            <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary"><FileText size={20} /></div>
+                            <div className="p-3 rounded-4 bg-primary-soft text-primary"><FileText size={20} /></div>
                             <div>
-                              <div className="small fw-bold">{doc.name}</div>
-                              <div className="extra-small text-muted fw-bold opacity-75">Par {doc.author}</div>
+                              <div className="small fw-bold text-navy mb-1">{doc.name}</div>
+                              <div className="extra-small text-muted fw-bold opacity-50">By {doc.author}</div>
                             </div>
                           </div>
                         </td>
                         <td className="py-4">
-                          <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
+                          <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold">
                             {doc.category}
                           </Badge>
                         </td>
-                        <td className="py-4 small text-muted fw-bold">{doc.size}</td>
+                        <td className="py-4 small text-navy fw-bold opacity-75">{doc.size}</td>
                         <td className="px-4 py-4 text-end">
-                          <div className="d-flex justify-content-end gap-2">
-                            <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleDownload(doc.name)}><Download size={18}/></Button>
+                          <div className="d-flex justify-content-end gap-1">
+                            <Button variant="link" className="p-2 text-muted hover-bg-primary-soft rounded-circle transition-all border-0 shadow-none" onClick={() => handleDownload(doc.name)}><Download size={18}/></Button>
                             <Button 
                               variant="link" 
-                              className={`p-2 rounded-3 hover-bg-surface ${favorites.includes(doc.name) ? 'text-warning' : 'text-muted'}`}
+                              className={`p-2 rounded-circle transition-all border-0 shadow-none hover-bg-primary-soft ${favorites.includes(doc.name) ? 'text-warning' : 'text-muted'}`}
                               onClick={() => handleFavorite(doc.name)}
                             >
                               <Star size={18} fill={favorites.includes(doc.name) ? 'currentColor' : 'none'} />
                             </Button>
                             <Dropdown align="end">
-                              <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
-                              <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small bg-surface">
-                                <Dropdown.Item className="fw-bold">Partager</Dropdown.Item>
-                                <Dropdown.Item className="fw-bold">Renommer</Dropdown.Item>
+                              <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all"><MoreVertical size={18}/></Dropdown.Toggle>
+                              <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
+                                <Dropdown.Item className="py-2 fw-bold text-navy">Share</Dropdown.Item>
+                                <Dropdown.Item className="py-2 fw-bold text-navy">Rename</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item className="fw-bold text-danger">Supprimer</Dropdown.Item>
+                                <Dropdown.Item className="py-2 fw-bold text-danger">Delete</Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown>
                           </div>
@@ -204,57 +204,10 @@ const ResourceHubPage = () => {
                   </tbody>
                 </Table>
               </div>
-            </div>
+            </Card>
           </Col>
         </Row>
       </Container>
-
-      <style>{`
-        .resource-hub-modern {
-          color: var(--text-primary);
-        }
-        .rh-glass-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .bg-surface-alt {
-          background-color: var(--background) !important;
-        }
-        .rh-cat-btn {
-          background: transparent;
-          width: 100%;
-        }
-        .active-cat {
-          background-color: rgba(var(--primary-rgb), 0.1) !important;
-        }
-        .hover-bg-surface:hover {
-          background-color: rgba(var(--primary-rgb), 0.05) !important;
-        }
-        .rh-table tbody tr:hover {
-          background-color: rgba(var(--primary-rgb), 0.03) !important;
-        }
-        .border-start-4 {
-          border-left: 4px solid !important;
-        }
-        .border-primary { border-left-color: var(--primary) !important; }
-        .border-success { border-left-color: #10b981 !important; }
-        .border-warning { border-left-color: #f59e0b !important; }
-        .border-danger { border-left-color: #ef4444 !important; }
-        
-        h2, h4, h5, h6, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
-        }
-        .text-primary-custom {
-          color: var(--text-primary) !important;
-        }
-        .border-bottom {
-          border-color: var(--border) !important;
-        }
-      `}</style>
     </div>
   );
 };

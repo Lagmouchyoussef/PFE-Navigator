@@ -171,7 +171,7 @@ function App() {
           <nav className="nav flex-column px-3">
             {session.role === 'jury' ? (
               <>
-                <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} style={{ color: 'var(--color-primary)' }} />} label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/jury/projects"  icon={<FileUp size={20} color="#10b981" />}          label={!isSidebarCollapsed && "Assigned Projects"} />
                 <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} color="#f59e0b" />}  label={!isSidebarCollapsed && "Evaluation"} />
                 <SidebarLink to="/jury/schedule"  icon={<Calendar size={20} color="#6366f1" />}         label={!isSidebarCollapsed && "Calendar"} />

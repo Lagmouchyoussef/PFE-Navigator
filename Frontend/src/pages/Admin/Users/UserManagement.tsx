@@ -81,7 +81,7 @@ const UserManagement: React.FC = () => {
         <div className="glass-card p-4 mb-5">
           <Row className="g-3 align-items-center">
             <Col lg={4}>
-              <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
+              <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden" style={{ backgroundColor: 'var(--color-background)' }}>
                 <InputGroup.Text className="bg-transparent border-0 text-muted">
                   <Search size={18} />
                 </InputGroup.Text>

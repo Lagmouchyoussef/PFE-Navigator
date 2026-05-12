@@ -10,7 +10,6 @@ import {
   MoreVertical, CheckCircle, AlertCircle,
   Users, Info, Bell, Activity, X
 } from 'lucide-react';
-import './SchedulePage.css';
 
 const SchedulePage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -109,16 +108,16 @@ const SchedulePage = () => {
   };
 
   return (
-    <div className="schedule-page-layout p-4">
-      <Container fluid className="px-0">
+    <div className="schedule-page-layout py-4">
+      <Container fluid className="px-4">
         {/* Header */}
-        <header className="d-flex justify-content-between align-items-center mb-5">
+        <header className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="schedule-title mb-1">Schedule & Calendar</h1>
-            <p className="schedule-subtitle text-muted mb-0">Manage your deadlines, meetings, and milestones</p>
+            <h2 className="fw-bold mb-1 text-navy">Schedule & Calendar</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Manage your deadlines, meetings, and project milestones</p>
           </motion.div>
           <Button 
-            className="btn-add-event d-flex align-items-center gap-2 px-4 py-2"
+            className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm"
             onClick={() => setShowAddModal(true)}
           >
             <Plus size={18} /> Add Event
@@ -130,57 +129,57 @@ const SchedulePage = () => {
           show={showAddModal} 
           onHide={() => setShowAddModal(false)}
           centered
-          className="schedule-modal"
+          className="glass-modal"
         >
-          <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
-            <Modal.Title className="fw-black text-navy h5 mb-0">Create New Event</Modal.Title>
-            <Button variant="link" className="text-muted p-0 border-0" onClick={() => setShowAddModal(false)}>
+          <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center p-4">
+            <Modal.Title className="fw-bold text-navy h5 mb-0">Create New Event</Modal.Title>
+            <Button variant="link" className="text-muted p-0 border-0 shadow-none" onClick={() => setShowAddModal(false)}>
               <X size={24} />
             </Button>
           </Modal.Header>
           <Modal.Body className="p-4">
             <Form onSubmit={handleAddEvent}>
               <Form.Group className="mb-3">
-                <Form.Label className="small fw-bold text-navy">Event Title</Form.Label>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TITLE</Form.Label>
                 <Form.Control 
                   type="text" 
                   placeholder="e.g. Meeting with Supervisor" 
-                  className="rounded-3 border-light-soft bg-light py-2"
+                  className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                   required
                 />
               </Form.Group>
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-navy">Date</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-navy opacity-75">DATE</Form.Label>
                     <Form.Control 
                       type="date" 
-                      className="rounded-3 border-light-soft bg-light py-2"
+                      className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                       required
                     />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-navy">Time</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-navy opacity-75">TIME</Form.Label>
                     <Form.Control 
                       type="time" 
-                      className="rounded-3 border-light-soft bg-light py-2"
+                      className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                       required
                     />
                   </Form.Group>
                 </Col>
               </Row>
               <Form.Group className="mb-4">
-                <Form.Label className="small fw-bold text-navy">Event Type</Form.Label>
-                <Form.Select className="rounded-3 border-light-soft bg-light py-2 shadow-none">
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TYPE</Form.Label>
+                <Form.Select className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
                   <option>Meeting</option>
                   <option>Deadline</option>
                   <option>Code Review</option>
                   <option>Defense Prep</option>
                 </Form.Select>
               </Form.Group>
-              <Button type="submit" className="btn-add-event w-100 py-2 fw-bold rounded-3">
+              <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
                 Schedule Event
               </Button>
             </Form>
@@ -195,13 +194,13 @@ const SchedulePage = () => {
             { label: 'This Month', value: '5', icon: <CalendarIcon size={24} />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} lg={4}>
-              <Card className="schedule-stat-card border-0 shadow-sm h-100">
-                <Card.Body className="p-4 d-flex align-items-center gap-3">
-                  <div className={`schedule-icon-wrap bg-${stat.color}-soft text-${stat.color}`}>
+              <Card className="glass-card border-0 shadow-sm border p-3">
+                <Card.Body className="p-2 d-flex align-items-center gap-4">
+                  <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
                     {stat.icon}
                   </div>
                   <div>
-                    <div className="small text-muted fw-bold tracking-wider">{stat.label}</div>
+                    <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-75 tracking-wider">{stat.label}</div>
                     <h2 className="fw-bold mb-0 text-navy">{stat.value}</h2>
                   </div>
                 </Card.Body>
@@ -213,92 +212,94 @@ const SchedulePage = () => {
         <Row className="g-4">
           {/* Main Calendar Content */}
           <Col lg={8}>
-            <Card className="schedule-calendar-card border-0 shadow-sm mb-5">
+            <Card className="glass-card border shadow-sm border overflow-hidden mb-5">
               <Card.Body className="p-0">
-                <div className="p-4 d-flex justify-content-between align-items-center border-bottom">
+                <div className="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
                   <h5 className="fw-bold text-navy mb-0">May 2026</h5>
                   <div className="d-flex gap-2">
-                    <Button variant="light" size="sm" className="rounded-circle p-2" onClick={() => alert("Navigation vers le mois précédent (Simulé)")}><ChevronLeft size={16} /></Button>
-                    <Button variant="light" size="sm" className="rounded-circle p-2" onClick={() => alert("Navigation vers le mois suivant (Simulé)")}><ChevronRight size={16} /></Button>
+                    <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={() => alert("Navigation vers le mois précédent (Simulé)")}><ChevronLeft size={20} /></Button>
+                    <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={() => alert("Navigation vers le mois suivant (Simulé)")}><ChevronRight size={20} /></Button>
                   </div>
                 </div>
-                <div className="calendar-grid">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="calendar-day-header">{day}</div>
-                  ))}
-                  {days.map((day, i) => {
-                    const event = getEventForDay(day);
-                    return (
-                      <div key={i} className={`calendar-cell ${day ? '' : 'empty'} ${event ? `has-event event-${event.type}` : ''}`}>
-                        {day && <span className="day-number">{day}</span>}
-                        {event && (
-                          <motion.div 
-                            initial={{ scale: 0.8, opacity: 0 }} 
-                            animate={{ scale: 1, opacity: 1 }}
-                            className={`day-event-tag tag-${event.type}`}
-                          >
-                            <div className="tag-dot"></div>
-                            {event.name}
-                          </motion.div>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="p-4">
+                  <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden' }}>
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                      <div key={day} className="bg-surface-alt p-3 text-center extra-small fw-bold text-muted text-uppercase">{day}</div>
+                    ))}
+                    {days.map((day, i) => {
+                      const event = getEventForDay(day);
+                      return (
+                        <div key={i} className={`bg-white p-2 min-vh-10 d-flex flex-column gap-2 ${day ? '' : 'bg-surface-alt'}`} style={{ minHeight: '100px' }}>
+                          {day && <span className="extra-small fw-bold text-navy opacity-25">{day}</span>}
+                          {event && (
+                            <motion.div 
+                              initial={{ scale: 0.8, opacity: 0 }} 
+                              animate={{ scale: 1, opacity: 1 }}
+                              className={`p-2 rounded-3 extra-small fw-bold d-flex align-items-center gap-2 shadow-sm bg-${event.type === 'meeting' ? 'primary' : event.type === 'deadline' ? 'danger' : 'warning'}-soft text-${event.type === 'meeting' ? 'primary' : event.type === 'deadline' ? 'danger' : 'warning'}`}
+                              style={{ fontSize: '9px' }}
+                            >
+                              <div className="rounded-circle" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></div>
+                              {event.name}
+                            </motion.div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </Card.Body>
             </Card>
 
-            {/* All Events - Detailed Card List (Matched to Image Design) */}
-            <Card className="schedule-main-card border-0 shadow-sm mt-4">
+            {/* All Events - Detailed Card List */}
+            <Card className="glass-card border shadow-sm border overflow-hidden mt-4">
               <Card.Body className="p-0">
-                <div className="p-4 border-bottom">
-                  <h6 className="fw-bold text-navy mb-0">All Events</h6>
+                <div className="p-4 border-bottom bg-white">
+                  <h6 className="fw-bold text-navy mb-0">Upcoming Events Schedule</h6>
                 </div>
-                <div className="events-list-container">
+                <div className="events-list">
                   {allEvents.map((ev, i) => {
-                    // Categorize icons based on event type
-                    let icon = <Users size={20} />;
-                    let iconBg = 'bg-primary';
+                    let icon = <Users size={18} />;
+                    let iconColor = 'primary';
                     if (ev.title.toLowerCase().includes('report') || ev.title.toLowerCase().includes('deadline')) {
-                      icon = <AlertCircle size={20} />;
-                      iconBg = 'bg-danger';
+                      icon = <AlertCircle size={18} />;
+                      iconColor = 'danger';
                     } else if (ev.title.toLowerCase().includes('defense') || ev.title.toLowerCase().includes('presentation')) {
-                      icon = <CalendarIcon size={20} />;
-                      iconBg = 'bg-warning';
+                      icon = <CalendarIcon size={18} />;
+                      iconColor = 'warning';
                     }
 
                     return (
-                      <div key={i} className="event-item-row p-4 border-bottom">
+                      <div key={i} className="p-4 border-bottom border-light border-opacity-10 hover-bg-surface-alt transition-all">
                         <div className="d-flex gap-4">
-                          <div className={`event-type-icon ${iconBg} text-white flex-shrink-0 d-flex align-items-center justify-content-center`}>
+                          <div className={`p-3 rounded-4 bg-${iconColor}-soft text-${iconColor} flex-shrink-0 d-flex align-items-center justify-content-center shadow-sm`} style={{ width: '48px', height: '48px' }}>
                             {icon}
                           </div>
                           <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 mb-2">
+                            <div className="d-flex align-items-center justify-content-between mb-2">
                               <h6 className="fw-bold text-navy mb-0">{ev.title}</h6>
-                              <Badge className="badge-upcoming-blue">{ev.status}</Badge>
+                              <Badge className={`bg-${ev.status === 'Upcoming' ? 'primary' : 'success'}-soft text-${ev.status === 'Upcoming' ? 'primary' : 'success'} border-0 extra-small px-3 py-1 fw-bold`}>{ev.status}</Badge>
                             </div>
                             
                             <Row className="g-3 mb-3">
                               <Col md={6}>
-                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium mb-2">
-                                  <CalendarIcon size={16} /> {ev.date}
+                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold mb-2">
+                                  <CalendarIcon size={14} className="text-primary" /> {ev.date}
                                 </div>
-                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
-                                  <MapPin size={16} /> {ev.loc}
+                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
+                                  <MapPin size={14} className="text-primary" /> {ev.loc}
                                 </div>
                               </Col>
                               <Col md={6}>
-                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium mb-2">
-                                  <Clock size={16} /> {ev.time}
+                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold mb-2">
+                                  <Clock size={14} className="text-primary" /> {ev.time}
                                 </div>
-                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
-                                  <Users size={16} /> {ev.with}
+                                <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
+                                  <Users size={14} className="text-primary" /> {ev.with}
                                 </div>
                               </Col>
                             </Row>
                             
-                            <p className="small text-muted mb-0">{ev.desc}</p>
+                            <p className="extra-small text-muted mb-0 fw-bold opacity-75">{ev.desc}</p>
                           </div>
                         </div>
                       </div>
@@ -311,68 +312,65 @@ const SchedulePage = () => {
 
           {/* Sidebar Widgets */}
           <Col lg={4}>
-            <Card className="schedule-side-card border-0 shadow-sm mb-4">
-              <Card.Body className="p-4">
-                <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
-                  <Activity size={18} className="text-primary" /> Project Milestones
-                </h6>
-                <div className="milestones-list">
-                  {milestones.map((m, i) => (
-                    <div key={i} className="milestone-item d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom-dashed">
-                      <div>
-                        <div className="small fw-bold text-navy">{m.name}</div>
-                        <div className="extra-small text-muted">{m.date}</div>
-                      </div>
-                      {m.status === 'completed' ? (
-                        <CheckCircle size={18} className="text-success" />
-                      ) : (
-                        <Clock size={18} className="text-muted opacity-50" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card.Body>
-            </Card>
-
-            <Card className="schedule-side-card border-0 shadow-sm">
-              <Card.Body className="p-0">
-                <div className="p-4 border-bottom">
-                  <h6 className="fw-bold text-navy mb-0">Upcoming Events</h6>
-                </div>
-                <div className="upcoming-list-image-match">
-                  {upcomingEvents.map((ue, i) => {
-                    let icon = <Users size={18} />;
-                    let iconBg = 'bg-primary';
-                    if (ue.title.toLowerCase().includes('report') || ue.title.toLowerCase().includes('deadline')) {
-                      icon = <AlertCircle size={18} />;
-                      iconBg = 'bg-danger';
-                    } else if (ue.title.toLowerCase().includes('defense') || ue.title.toLowerCase().includes('presentation')) {
-                      icon = <CalendarIcon size={18} />;
-                      iconBg = 'bg-warning';
-                    }
-
-                    return (
-                      <div key={i} className="upcoming-item-row p-4 border-bottom">
-                        <div className="d-flex gap-3">
-                          <div className={`upcoming-icon-square ${iconBg} text-white flex-shrink-0 d-flex align-items-center justify-content-center`}>
-                            {icon}
+            <div className="d-flex flex-column gap-4">
+              <Card className="glass-card border shadow-sm border p-4">
+                <Card.Body className="p-0">
+                  <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+                    <Activity size={18} className="text-primary" /> Project Milestones
+                  </h6>
+                  <div className="d-flex flex-column gap-3">
+                    {milestones.map((m, i) => (
+                      <div key={i} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-surface-alt border-0 shadow-sm">
+                        <div>
+                          <div className="extra-small fw-bold text-navy">{m.name}</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">{m.date}</div>
+                        </div>
+                        {m.status === 'completed' ? (
+                          <div className="p-1 rounded-circle bg-success-soft text-success shadow-sm">
+                            <CheckCircle size={18} />
                           </div>
-                          <div className="flex-grow-1">
-                            <div className="small fw-bold text-navy mb-1">{ue.title}</div>
-                            <div className="extra-small text-muted d-flex align-items-center gap-2 mb-1">
-                              <Clock size={14} /> {ue.date} - {ue.time}
+                        ) : (
+                          <div className="p-1 rounded-circle bg-white text-muted opacity-25 shadow-sm">
+                            <Clock size={18} />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card.Body>
+              </Card>
+
+              <Card className="glass-card border shadow-sm border overflow-hidden">
+                <Card.Body className="p-0">
+                  <div className="p-4 border-bottom bg-white">
+                    <h6 className="fw-bold text-navy mb-0">Upcoming Focus</h6>
+                  </div>
+                  <div className="d-flex flex-column gap-1">
+                    {upcomingEvents.map((ue, i) => {
+                      let iconColor = 'primary';
+                      if (ue.title.toLowerCase().includes('report') || ue.title.toLowerCase().includes('deadline')) iconColor = 'danger';
+                      else if (ue.title.toLowerCase().includes('defense') || ue.title.toLowerCase().includes('presentation')) iconColor = 'warning';
+
+                      return (
+                        <div key={i} className="p-3 border-bottom border-light border-opacity-10 hover-bg-surface-alt transition-all">
+                          <div className="d-flex gap-3 align-items-center">
+                            <div className={`p-2 rounded-3 bg-${iconColor}-soft text-${iconColor} shadow-sm`} style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <CalendarIcon size={18} />
                             </div>
-                            <div className="extra-small text-muted d-flex align-items-center gap-2">
-                              <MapPin size={14} /> {ue.loc}
+                            <div className="flex-grow-1 overflow-hidden">
+                              <div className="extra-small fw-bold text-navy text-truncate mb-1">{ue.title}</div>
+                              <div className="extra-small text-muted fw-bold opacity-75 d-flex align-items-center gap-1">
+                                <Clock size={12} /> {ue.time}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card.Body>
-            </Card>
+                      );
+                    })}
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
           </Col>
         </Row>
       </Container>

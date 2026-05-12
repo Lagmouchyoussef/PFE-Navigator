@@ -5,10 +5,9 @@ import {
   Users, Search, Filter, MoreHorizontal, 
   MessageSquare, FileText, ChevronRight, 
   Mail, Phone, ExternalLink, Download,
-  UserPlus, UserCheck, Clock, CheckCircle
+  UserPlus, UserCheck, Clock, CheckCircle, TrendingUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../SupervisorStyles.css';
 
 const STUDENTS_DATA = [
   { 
@@ -92,38 +91,38 @@ const StudentsList = () => {
   });
 
   return (
-    <div className="sv-dashboard-layout">
-      <Container fluid="xxl" className="px-0">
+    <div className="supervisor-students-layout py-4">
+      <Container fluid className="px-4">
         
         {/* Header */}
-        <header className="sv-welcome-header mb-5 d-flex justify-content-between align-items-end">
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="mb-2">My Students</h1>
-            <p className="sv-welcome-subtitle mb-0">
+            <h2 className="fw-bold mb-1 text-navy">Supervised Students</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">
               Manage and track the progress of your supervised students
             </p>
           </motion.div>
-          <div className="d-flex gap-3">
-            <Button className="btn-pro-outline d-flex align-items-center gap-2">
+          <div className="d-flex gap-2">
+            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
               <Download size={18} /> Export List
             </Button>
-            <Button className="sv-btn-gradient d-flex align-items-center gap-2">
+            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm">
               <UserPlus size={18} /> Add Student
             </Button>
           </div>
         </header>
 
         {/* Filters & Search */}
-        <Card className="sv-card-premium border-0 mb-4 p-3">
+        <Card className="glass-card border-0 mb-4 p-3 border shadow-sm">
           <Row className="g-3 align-items-center">
             <Col md={6} lg={4}>
-              <InputGroup className="sv-search-group">
+              <InputGroup className="bg-surface-alt rounded-pill border px-3">
                 <InputGroup.Text className="bg-transparent border-0 pe-0">
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
                   placeholder="Search students or projects..." 
-                  className="sv-search-input border-0 shadow-none"
+                  className="bg-transparent border-0 py-2 extra-small shadow-none fw-bold"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -131,7 +130,7 @@ const StudentsList = () => {
             </Col>
             <Col md={3} lg={2}>
               <Form.Select 
-                className="sv-filter-select border-0 shadow-sm extra-small fw-bold"
+                className="bg-surface-alt border-0 shadow-none extra-small fw-bold py-2 rounded-pill border"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -143,8 +142,8 @@ const StudentsList = () => {
             </Col>
             <Col md={3} lg={6} className="text-md-end">
               <div className="d-flex justify-content-md-end gap-3 align-items-center">
-                <span className="extra-small text-muted fw-bold">
-                  Showing {filteredStudents.length} of {STUDENTS_DATA.length} students
+                <span className="extra-small text-muted fw-bold opacity-75">
+                  Showing <strong>{filteredStudents.length}</strong> of {STUDENTS_DATA.length} students
                 </span>
               </div>
             </Col>
@@ -152,17 +151,17 @@ const StudentsList = () => {
         </Card>
 
         {/* Students Table */}
-        <div className="sv-table-container">
+        <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
           <div className="table-responsive">
-            <Table className="sv-table mb-0 align-middle">
-              <thead>
+            <Table hover className="mb-0 align-middle">
+              <thead className="bg-surface-alt">
                 <tr>
-                  <th>Student Information</th>
-                  <th>Project Details</th>
-                  <th>Department</th>
-                  <th>Progress</th>
-                  <th>Status</th>
-                  <th className="text-end">Actions</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student Information</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Details</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Department</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progress</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -174,40 +173,41 @@ const StudentsList = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
+                      className="border-bottom border-light border-opacity-10"
                     >
-                      <td>
+                      <td className="px-4 py-3">
                         <div className="d-flex align-items-center gap-3">
-                          <div className="sv-avatar shadow-sm fw-black" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-                            {student.name.charAt(0)}
+                          <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
+                             {student.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="fw-black small text-navy">{student.name}</div>
-                            <div className="extra-small text-muted d-flex align-items-center gap-1">
-                              <Mail size={12} /> {student.email}
+                            <div className="fw-bold small text-navy">{student.name}</div>
+                            <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-75">
+                              <Mail size={12} className="text-primary" /> {student.email}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div className="extra-small fw-black text-navy opacity-75 text-wrap mb-1" style={{ maxWidth: '250px', lineHeight: '1.4' }}>
+                        <div className="extra-small fw-bold text-navy opacity-75 text-wrap mb-1" style={{ maxWidth: '250px', lineHeight: '1.4' }}>
                           {student.project}
                         </div>
-                        <Badge bg="light" className="text-muted extra-small border fw-bold rounded-pill">
+                        <Badge className="bg-surface-alt text-muted border-0 extra-small fw-bold rounded-pill px-3 py-1">
                           {student.type}
                         </Badge>
                       </td>
                       <td>
-                        <div className="extra-small fw-bold text-muted">
+                        <div className="extra-small fw-bold text-muted text-uppercase">
                           {student.department}
                         </div>
                       </td>
                       <td>
                         <div className="d-flex flex-column gap-1" style={{ width: '120px' }}>
-                          <div className="d-flex justify-content-between align-items-center">
-                            <span className="extra-small fw-black text-navy">{student.progress}%</span>
-                            <span className="extra-small text-muted" style={{ fontSize: '10px' }}>{student.lastActivity}</span>
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="extra-small fw-bold text-navy">{student.progress}%</span>
+                            <span className="extra-small text-muted fw-bold opacity-50" style={{ fontSize: '9px' }}>{student.lastActivity}</span>
                           </div>
-                          <div className="bg-light rounded-pill overflow-hidden" style={{ height: '6px' }}>
+                          <div className="bg-surface-alt rounded-pill overflow-hidden" style={{ height: '6px' }}>
                             <motion.div 
                               initial={{ width: 0 }}
                               animate={{ width: `${student.progress}%` }}
@@ -217,38 +217,38 @@ const StudentsList = () => {
                         </div>
                       </td>
                       <td>
-                        <span className={`sv-status-badge shadow-none sv-badge-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'}`}>
+                        <Badge className={`bg-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'}-soft text-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'} border-0 extra-small px-3 py-1 fw-bold d-inline-flex align-items-center gap-1`}>
                           {student.status === 'Validated' ? <CheckCircle size={12} /> : student.status === 'In Progress' ? <Clock size={12} /> : <Clock size={12} />}
                           {student.status}
-                        </span>
+                        </Badge>
                       </td>
-                      <td className="text-end">
+                      <td className="px-4 py-3 text-end">
                         <div className="d-flex justify-content-end gap-2">
                           <Button 
-                            variant="light" 
-                            className="p-2 rounded-circle border-0 shadow-sm text-primary"
+                            variant="link" 
+                            className="p-2 rounded-circle border-0 text-primary hover-bg-surface-alt"
                             onClick={() => navigate(`/supervisor/messages`)}
                             title="Message Student"
                           >
                             <MessageSquare size={18} />
                           </Button>
                           <Dropdown align="end">
-                            <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-light rounded-circle no-caret shadow-none border-0">
+                            <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-surface-alt rounded-circle no-caret shadow-none border-0">
                               <MoreHorizontal size={20} />
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
-                              <Dropdown.Item className="py-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
-                                <ChevronRight size={14} className="me-2 text-primary" /> View Full Profile
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
+                                <ChevronRight size={14} className="text-primary" /> View Full Profile
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2">
-                                <FileText size={14} className="me-2 text-success" /> View Deliverables
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2">
+                                <FileText size={14} className="text-success" /> View Deliverables
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2">
-                                <UserCheck size={14} className="me-2 text-info" /> Validate Phase
+                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2">
+                                <UserCheck size={14} className="text-info" /> Validate Phase
                               </Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="py-2 text-danger">
-                                <ExternalLink size={14} className="me-2" /> Request Report Update
+                              <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2">
+                                <ExternalLink size={14} /> Request Update
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
@@ -263,51 +263,53 @@ const StudentsList = () => {
         </div>
 
         {/* Summary Stats */}
-        <Row className="mt-4 g-4">
+        <Row className="mt-5 g-4">
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 p-4 shadow-sm h-100">
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-3 rounded-4 bg-primary bg-opacity-10 text-primary">
+            <Card className="glass-card border-0 p-4 shadow-sm border h-100">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="p-3 rounded-4 bg-primary-soft text-primary">
                   <Users size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-black text-navy">Supervision Load</h6>
-                  <p className="extra-small text-muted mb-0">Current academic year</p>
+                  <h6 className="mb-0 fw-bold text-navy">Supervision Load</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">Current academic year</p>
                 </div>
               </div>
-              <div className="h3 fw-black text-navy mb-1">6/8 Students</div>
-              <ProgressBar now={75} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-2" />
+              <div className="h3 fw-bold text-navy mb-2">6/8 Students</div>
+              <ProgressBar now={75} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
               <div className="extra-small text-muted fw-bold">75% Capacity Utilized</div>
             </Card>
           </Col>
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 p-4 shadow-sm h-100">
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-3 rounded-4 bg-success bg-opacity-10 text-success">
+            <Card className="glass-card border-0 p-4 shadow-sm border h-100">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="p-3 rounded-4 bg-success-soft text-success">
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-black text-navy">Success Rate</h6>
-                  <p className="extra-small text-muted mb-0">Validated milestones</p>
+                  <h6 className="mb-0 fw-bold text-navy">Success Rate</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">Validated milestones</p>
                 </div>
               </div>
-              <div className="h3 fw-black text-navy mb-1">92.4%</div>
-              <div className="extra-small text-success fw-bold">+4.2% from last semester</div>
+              <div className="h3 fw-bold text-navy mb-2">92.4%</div>
+              <div className="extra-small text-success fw-bold d-flex align-items-center gap-1">
+                <TrendingUp size={14} /> +4.2% from last semester
+              </div>
             </Card>
           </Col>
           <Col lg={4}>
-            <Card className="sv-card-premium border-0 p-4 shadow-sm h-100">
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-3 rounded-4 bg-warning bg-opacity-10 text-warning">
+            <Card className="glass-card border-0 p-4 shadow-sm border h-100">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="p-3 rounded-4 bg-warning-soft text-warning">
                   <Clock size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-black text-navy">Pending Actions</h6>
-                  <p className="extra-small text-muted mb-0">Needs your attention</p>
+                  <h6 className="mb-0 fw-bold text-navy">Pending Actions</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">Needs your attention</p>
                 </div>
               </div>
-              <div className="h3 fw-black text-navy mb-1">12 Tasks</div>
-              <div className="extra-small text-muted fw-bold">3 Urgent report reviews</div>
+              <div className="h3 fw-bold text-navy mb-2">12 Tasks</div>
+              <div className="extra-small text-muted fw-bold text-danger">3 Urgent report reviews</div>
             </Card>
           </Col>
         </Row>

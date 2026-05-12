@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Dropdown } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext.jsx';
-import './ReportsPage.css';
 
 const ReportsPage = () => {
   const { documents = [], deleteDocument, uploadDocument } = useApp();
@@ -67,8 +66,8 @@ const ReportsPage = () => {
   });
 
   return (
-    <div className="doc-page-layout p-4">
-      <Container fluid className="px-0">
+    <div className="reports-page-layout py-4">
+      <Container fluid className="px-4">
         
         {/* Success Notification Card */}
         <AnimatePresence>
@@ -77,26 +76,19 @@ const ReportsPage = () => {
               initial={{ opacity: 0, y: -50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="doc-success-card mb-4 d-flex align-items-center justify-content-between shadow-lg"
-              style={{
-                background: 'white',
-                border: '1px solid #10b981',
-                borderLeft: '5px solid #10b981',
-                borderRadius: '16px',
-                padding: '1.25rem 1.5rem',
-                zIndex: 1000
-              }}
+              className="p-3 mb-4 d-flex align-items-center justify-content-between shadow-lg bg-success-soft text-success border border-success border-opacity-25 rounded-4"
+              style={{ zIndex: 1000 }}
             >
               <div className="d-flex align-items-center gap-3">
-                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                  <CheckCircle size={24} color="#ffffff" />
+                <div className="p-2 rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <CheckCircle size={24} />
                 </div>
                 <div>
                   <h6 className="mb-0 fw-bold">Document Prêt</h6>
-                  <p className="extra-small mb-0 opacity-75">{successMsg}</p>
+                  <p className="extra-small mb-0 opacity-75 fw-bold">{successMsg}</p>
                 </div>
               </div>
-              <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              <Button size="sm" variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -111,16 +103,16 @@ const ReportsPage = () => {
         />
 
         {/* Header Section */}
-        <header className="d-flex justify-content-between align-items-center mb-5">
+        <header className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <h1 className="doc-title mb-1">Documents</h1>
-            <p className="doc-subtitle text-muted mb-0">Manage all your PFE project documents</p>
+            <h2 className="fw-bold mb-1 text-navy">Documents Repository</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Manage all your PFE project documents and submissions</p>
           </motion.div>
           <Button 
-            className="btn-upload d-flex align-items-center gap-2 px-4 py-2"
+            className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm"
             onClick={handleUploadClick}
           >
             <Upload size={18} /> Upload Document
@@ -136,14 +128,14 @@ const ReportsPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card className="doc-stat-card border-0 shadow-sm">
-                  <Card.Body className="p-4 d-flex justify-content-between align-items-center">
+                <Card className="glass-card border-0 shadow-sm border p-3">
+                  <Card.Body className="p-2 d-flex justify-content-between align-items-center">
                     <div>
-                      <div className="small text-muted fw-medium mb-1">{cat.name}</div>
-                      <h2 className="fw-bold mb-0">{cat.count}</h2>
+                      <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-75 tracking-wider">{cat.name}</div>
+                      <h3 className="fw-bold mb-0 text-navy">{cat.count}</h3>
                     </div>
-                    <div className="doc-folder-icon">
-                      <Folder size={24} className="text-primary" />
+                    <div className="p-3 bg-primary-soft text-primary rounded-4">
+                      <Folder size={24} />
                     </div>
                   </Card.Body>
                 </Card>
@@ -160,94 +152,98 @@ const ReportsPage = () => {
           className="mb-5"
           onClick={handleUploadClick}
         >
-          <div className="doc-dropzone p-5 text-center">
-            <div className="doc-dropzone-icon mb-3">
-              <Upload size={32} className="text-primary" />
+          <div className="p-5 text-center bg-surface-alt border-dashed-primary rounded-4 cursor-pointer hover-bg-white transition-all shadow-sm">
+            <div className="p-3 bg-primary-soft text-primary rounded-circle d-inline-block mb-3">
+              <Upload size={32} />
             </div>
-            <h5 className="fw-bold mb-1">Drag and drop files here or click to browse</h5>
-            <p className="extra-small text-muted mb-0">Supported: PDF, DOCX, PPTX (Max 10MB)</p>
+            <h5 className="fw-bold mb-1 text-navy">Drag and drop files here or click to browse</h5>
+            <p className="extra-small text-muted mb-0 fw-bold">Supported: PDF, DOCX, PPTX (Max 10MB)</p>
           </div>
         </motion.div>
 
         {/* Filters & Table Card */}
-        <Card className="doc-main-card border-0 shadow-sm">
+        <Card className="glass-card border-0 shadow-sm border overflow-hidden">
           <Card.Body className="p-0">
             {/* Table Header / Filters */}
-            <div className="p-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-              <div className="doc-search-wrapper w-100" style={{ maxWidth: '400px' }}>
-                <InputGroup className="bg-light rounded-pill border px-2">
+            <div className="p-4 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 bg-white">
+              <div className="w-100" style={{ maxWidth: '400px' }}>
+                <InputGroup className="bg-surface-alt rounded-pill border px-3">
                   <InputGroup.Text className="bg-transparent border-0 pe-0">
                     <Search size={18} className="text-muted" />
                   </InputGroup.Text>
                   <Form.Control 
                     placeholder="Search documents..." 
-                    className="bg-transparent border-0 py-2 extra-small shadow-none"
+                    className="bg-transparent border-0 py-2 extra-small shadow-none fw-bold"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </InputGroup>
               </div>
-              <div className="d-flex align-items-center gap-2">
-                <Filter size={18} className="text-muted" />
-                <Form.Select 
-                  className="extra-small py-2 border rounded-pill bg-light"
-                  style={{ width: '150px' }}
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                >
-                  <option>All</option>
-                  <option>Proposal</option>
-                  <option>Reports</option>
-                  <option>Documentation</option>
-                </Form.Select>
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Filter size={18} className="text-muted" />
+                  <Form.Select 
+                    className="extra-small py-2 border rounded-pill bg-surface-alt fw-bold"
+                    style={{ width: '150px' }}
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                  >
+                    <option>All</option>
+                    <option>Proposal</option>
+                    <option>Reports</option>
+                    <option>Documentation</option>
+                  </Form.Select>
+                </div>
               </div>
             </div>
 
             {/* Document Table */}
             <div className="table-responsive">
-              <Table hover className="mb-0 doc-table">
-                <thead>
+              <Table hover className="mb-0 align-middle">
+                <thead className="bg-surface-alt">
                   <tr>
-                    <th className="ps-4">DOCUMENT NAME</th>
-                    <th>CATEGORY</th>
-                    <th>UPLOAD DATE</th>
-                    <th>SIZE</th>
-                    <th>VERSION</th>
-                    <th>STATUS</th>
-                    <th className="text-end pe-4">ACTIONS</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Upload Date</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Version</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredDocs.length > 0 ? (
                     filteredDocs.map((doc, i) => (
-                      <tr key={doc.id || i} className="align-middle">
-                        <td className="ps-4 py-3">
+                      <tr key={doc.id || i} className="border-bottom border-light border-opacity-10">
+                        <td className="px-4 py-3">
                           <div className="d-flex align-items-center gap-3">
-                            <FileText size={20} className="text-danger" />
-                            <div className="fw-bold small">{doc.title}</div>
+                            <div className="avatar-sm bg-danger-soft text-danger rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+                               <FileText size={18} />
+                            </div>
+                            <div className="fw-bold small text-navy">{doc.title}</div>
                           </div>
                         </td>
-                        <td><span className="small text-muted">Proposal</span></td>
-                        <td><span className="small text-muted">{new Date(doc.date).toISOString().split('T')[0]}</span></td>
-                        <td><span className="small text-muted">{doc.size || '1.8 MB'}</span></td>
-                        <td><span className="small text-muted">v{doc.version || '1.0'}</span></td>
+                        <td><span className="extra-small fw-bold text-muted text-uppercase">Proposal</span></td>
+                        <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toISOString().split('T')[0]}</span></td>
+                        <td><span className="extra-small fw-bold text-muted">{doc.size || '1.8 MB'}</span></td>
+                        <td><span className="extra-small fw-bold text-muted">v{doc.version || '1.0'}</span></td>
                         <td>
-                          <Badge className="badge-approved px-3 py-1 fw-bold">Approved</Badge>
+                          <Badge className="bg-success-soft text-success border-0 px-3 py-1 extra-small fw-bold">Approved</Badge>
                         </td>
-                        <td className="pe-4 text-end">
+                        <td className="px-4 py-3 text-end">
                           <Dropdown align="end">
                             <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
                               <MoreVertical size={18} />
                             </Dropdown.Toggle>
-                            <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
-                              <Dropdown.Item onClick={() => handleView(doc)}><Eye size={14} className="me-2" /> Voir</Dropdown.Item>
-                              <Dropdown.Item onClick={() => handleDownload(doc)}><Download size={14} className="me-2" /> Télécharger</Dropdown.Item>
+                            <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                              <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
+                              <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="text-danger" onClick={() => {
+                              <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => {
                                 if(window.confirm(`Are you sure you want to delete ${doc.title}?`)) {
                                   deleteDocument(doc.id);
                                 }
-                              }}><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
+                              }}><Trash2 size={14} /> Supprimer</Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
                         </td>
@@ -255,7 +251,7 @@ const ReportsPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="text-center py-5 text-muted small">
+                      <td colSpan="7" className="text-center py-5 text-muted extra-small fw-bold">
                         No documents found
                       </td>
                     </tr>

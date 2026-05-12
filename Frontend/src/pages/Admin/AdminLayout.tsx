@@ -90,7 +90,7 @@ const AdminLayout: React.FC = () => {
               <Menu size={20} />
             </Button>
             
-            <div className="header-search flex-grow-1 maxWidth-700 glass-card px-3 d-flex align-items-center" style={{ height: '42px', backgroundColor: 'var(--color-bg)' }}>
+            <div className="header-search flex-grow-1 maxWidth-700 glass-card px-3 d-flex align-items-center" style={{ height: '42px', backgroundColor: 'var(--color-background)' }}>
               <Search size={18} className="text-muted" />
               <Form.Control
                 type="text"

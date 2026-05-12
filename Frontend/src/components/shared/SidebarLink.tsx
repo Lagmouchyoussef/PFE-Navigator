@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink, useMatch } from 'react-router-dom';
 
 interface SidebarLinkProps {
   to: string;
@@ -9,13 +9,14 @@ interface SidebarLinkProps {
 }
 
 const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, badge }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
+  const isActive = Boolean(useMatch({ path: to, end: true }));
+
   return (
-    <Link
+    <NavLink
       to={to}
-      className={`nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center gap-3 text-decoration-none`}
+      end
+      title={typeof label === 'string' ? label : undefined}
+      className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center gap-3 text-decoration-none`}
     >
       <div className={`d-flex align-items-center justify-content-center ${isActive ? 'text-navy' : 'text-inherit'}`}>
         {icon}
@@ -26,7 +27,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, badge }) => 
           {badge}
         </span>
       )}
-    </Link>
+    </NavLink>
   );
 };
 

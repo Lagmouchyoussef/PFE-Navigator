@@ -51,7 +51,7 @@ const LoginPage: React.FC = () => {
   ];
 
   return (
-    <div className="login-page-modern min-vh-100 d-flex align-items-center py-5" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div className="login-page-modern min-vh-100 d-flex align-items-center py-5" style={{ backgroundColor: 'var(--color-background)' }}>
       <Container>
         <div className="text-center mb-5">
           <motion.div

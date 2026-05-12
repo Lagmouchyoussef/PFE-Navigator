@@ -21,32 +21,32 @@ const JurySchedulePage = () => {
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
   return (
-    <div className="schedule-modern-layout py-4">
+    <div className="jury-schedule-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
-          <div>
-            <h2 className="fw-bold mb-1">Calendrier des Soutenances</h2>
-            <p className="text-muted small mb-0">Planifiez et gérez les soutenances de projets académiques.</p>
-          </div>
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Defense Calendar</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Schedule and manage academic project defenses.</p>
+          </motion.div>
           <div className="d-flex gap-2">
             <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Exporter Planning
+              <Download size={18} /> Export Planning
             </Button>
           </div>
-        </div>
+        </header>
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Soutenances à venir', value: '8', color: 'primary' },
-            { label: 'Ce mois-ci', value: '15', color: 'success' },
-            { label: 'Temps moyen', value: '5.5h', color: 'warning' },
+            { label: 'Upcoming Defenses', value: '8', color: 'primary' },
+            { label: 'This Month', value: '15', color: 'success' },
+            { label: 'Avg Time', value: '5.5h', color: 'warning' },
           ].map((stat, i) => (
             <Col lg={4} key={i}>
-              <div className={`schedule-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
-                <h4 className="fw-bold mb-1">{stat.value}</h4>
-                <div className="extra-small text-muted fw-bold text-uppercase">{stat.label}</div>
+              <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
+                <div className="h3 fw-bold text-navy mb-1">{stat.value}</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-75">{stat.label}</div>
               </div>
             </Col>
           ))}
@@ -54,138 +54,78 @@ const JurySchedulePage = () => {
 
         <Row className="g-4">
           <Col lg={7}>
-            <div className="schedule-glass-card p-4 rounded-4 shadow-sm h-100">
-              <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h5 className="fw-bold mb-0">Mai 2026</h5>
+            <Card className="glass-card p-4 rounded-4 shadow-sm h-100 border border-light border-opacity-10">
+              <div className="d-flex justify-content-between align-items-center mb-4 border-bottom border-light border-opacity-10 pb-3">
+                <h5 className="fw-bold text-navy mb-0">May 2026</h5>
                 <div className="d-flex gap-2">
-                  <Button variant="link" className="p-1 text-muted hover-bg-surface rounded-circle"><ChevronLeft size={20} /></Button>
-                  <Button variant="link" className="p-1 text-muted hover-bg-surface rounded-circle"><ChevronRight size={20} /></Button>
+                  <Button variant="link" className="p-1 text-muted hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"><ChevronLeft size={20} /></Button>
+                  <Button variant="link" className="p-1 text-muted hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"><ChevronRight size={20} /></Button>
                 </div>
               </div>
 
-              <div className="calendar-grid">
-                {weekDays.map(d => <div key={d} className="calendar-day-label">{d}</div>)}
+              <div className="calendar-grid d-grid gap-2" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
+                {weekDays.map(d => <div key={d} className="text-center extra-small fw-bold text-muted text-uppercase opacity-50 mb-2">{d}</div>)}
                 <div /><div /><div /><div />
                 {days.map(d => (
                   <div 
                     key={d} 
-                    className={`calendar-day-cell ${selectedDay === d ? 'active' : ''} ${[5, 6, 7].includes(d) ? 'has-event' : ''}`}
+                    className={`d-flex align-items-center justify-content-center rounded-4 small fw-bold cursor-pointer transition-all border ${selectedDay === d ? 'bg-primary text-white border-primary shadow-sm' : 'text-navy hover-bg-surface-alt border-transparent'} ${[5, 6, 7].includes(d) ? 'bg-primary-soft text-primary' : ''}`}
+                    style={{ aspectRatio: '1' }}
                     onClick={() => setSelectedDay(d)}
                   >
                     {d}
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           </Col>
 
           <Col lg={5}>
             <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-              <h5 className="fw-bold mb-0">Prochaines Soutenances</h5>
-              <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small fw-bold px-3">4 Prévues</Badge>
+              <h5 className="fw-bold text-navy mb-0">Upcoming Schedule</h5>
+              <Badge className="bg-primary-soft text-primary border-0 extra-small fw-bold px-3 py-2 rounded-pill">4 Planned</Badge>
             </div>
 
             <div className="d-flex flex-column gap-3">
               {SCHEDULE_LIST.map((item, i) => (
-                <div key={i} className="schedule-glass-card p-3 rounded-4 shadow-sm hover-bg-surface transition-all border">
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="glass-card p-3 rounded-4 shadow-sm border border-light border-opacity-10 hover-bg-surface-alt transition-all cursor-pointer group"
+                >
                   <div className="d-flex gap-3 align-items-center">
-                    <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-3 text-center" style={{ minWidth: '50px' }}>
-                      <div className="fw-bold h5 mb-0">{item.day}</div>
-                      <div className="extra-small opacity-75">MAI</div>
+                    <div className="p-3 bg-primary-soft text-primary rounded-4 text-center" style={{ minWidth: '65px' }}>
+                      <div className="fw-bold h4 mb-0">{item.day}</div>
+                      <div className="extra-small fw-bold opacity-75 uppercase">MAY</div>
                     </div>
                     <div className="flex-grow-1 overflow-hidden">
-                      <div className="small fw-bold text-truncate">{item.student}</div>
-                      <p className="extra-small text-muted text-truncate mb-2">{item.title}</p>
-                      <div className="d-flex gap-3 extra-small text-muted fw-bold">
+                      <div className="small fw-bold text-navy text-truncate mb-1">{item.student}</div>
+                      <p className="extra-small text-muted fw-bold opacity-75 text-truncate mb-2">{item.title}</p>
+                      <div className="d-flex gap-3 extra-small text-muted fw-bold opacity-50">
                         <span className="d-flex align-items-center gap-1"><Clock size={12} className="text-primary"/> {item.time}</span>
-                        <span className="d-flex align-items-center gap-1"><MapPin size={12} className="text-primary"/> {item.room}</span>
+                        <span className="d-flex align-items-center gap-1"><MapPin size={12} className="text-danger"/> {item.room}</span>
                       </div>
                     </div>
                     <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
-                      <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                        <Dropdown.Item className="extra-small fw-bold">Détails</Dropdown.Item>
-                        <Dropdown.Item className="extra-small fw-bold">Contacter</Dropdown.Item>
+                      <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all">
+                        <MoreVertical size={18}/>
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
+                        <Dropdown.Item className="py-2 fw-bold text-navy">View Details</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-navy">Contact Student</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item className="extra-small fw-bold text-danger">Annuler</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-danger">Cancel Defense</Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </Col>
         </Row>
       </Container>
-
-      <style>{`
-        .schedule-modern-layout {
-          color: var(--text-primary);
-        }
-        .schedule-glass-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .bg-surface-alt {
-          background-color: var(--background) !important;
-        }
-        .hover-bg-surface:hover {
-          background-color: rgba(var(--primary-rgb), 0.05) !important;
-        }
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 8px;
-        }
-        .calendar-day-label {
-          text-align: center;
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: var(--text-secondary);
-          padding-bottom: 12px;
-          text-transform: uppercase;
-        }
-        .calendar-day-cell {
-          aspect-ratio: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 12px;
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: 1px solid transparent;
-        }
-        .calendar-day-cell:hover {
-          background-color: var(--background);
-          border-color: var(--border);
-        }
-        .calendar-day-cell.active {
-          background-color: var(--primary) !important;
-          color: white !important;
-          box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
-        }
-        .calendar-day-cell.has-event {
-          color: var(--primary);
-          background-color: rgba(var(--primary-rgb), 0.1);
-          font-weight: 800;
-        }
-        .border-start-4 {
-          border-left: 4px solid !important;
-        }
-        .border-primary { border-left-color: var(--primary) !important; }
-        .border-success { border-left-color: #10b981 !important; }
-        .border-warning { border-left-color: #f59e0b !important; }
-        
-        h2, h4, h5, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
-        }
-      `}</style>
     </div>
   );
 };

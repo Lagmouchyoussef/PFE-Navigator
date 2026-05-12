@@ -36,19 +36,47 @@ body {
 
 /* --- Global Utility Classes --- */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-lg);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
+
+.bg-transparent-light { background-color: rgba(255, 255, 255, 0.8) !important; }
+.bg-transparent-dark { background-color: rgba(0, 0, 0, 0.05) !important; }
+
+.bg-surface-alt { background-color: var(--color-surface-alt) !important; }
+.bg-primary-soft { background-color: var(--color-primary-soft) !important; }
+.bg-success-soft { background-color: var(--color-success-soft) !important; }
+.bg-warning-soft { background-color: var(--color-warning-soft) !important; }
+.bg-danger-soft { background-color: var(--color-danger-soft) !important; }
+.bg-info-soft { background-color: var(--color-info-soft) !important; }
+
+.text-primary { color: var(--color-primary) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-info { color: var(--color-info) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+
+.icon-primary { color: var(--color-primary) !important; }
+.icon-success { color: var(--color-success) !important; }
+.icon-warning { color: var(--color-warning) !important; }
+.icon-danger { color: var(--color-danger) !important; }
+.icon-info { color: var(--color-info) !important; }
+.icon-secondary { color: var(--color-secondary) !important; }
+
+.extra-small { font-size: 0.75rem; }
+.hover-bg-surface-alt:hover { background-color: var(--color-surface-alt) !important; }
+.hover-bg-primary-soft:hover { background-color: var(--color-primary-soft) !important; }
 
 .text-gradient {
   background: linear-gradient(135deg, var(--color-primary), var(--color-info));

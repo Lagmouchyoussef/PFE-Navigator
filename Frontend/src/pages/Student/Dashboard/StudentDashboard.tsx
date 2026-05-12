@@ -17,7 +17,6 @@ import StatCard from '../../../components/shared/StatCard';
 import ProjectStepper, { Step } from '../../../components/features/student/ProjectStepper';
 import AnalyticsView from '../../../components/features/student/AnalyticsView';
 import DocumentsList from '../../../components/features/student/DocumentsList';
-import './StudentDashboard.css';
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -52,21 +51,21 @@ const StudentDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="sd-dashboard-layout">
-      <Container fluid="xxl" className="px-0">
-        <header className="sd-welcome-header mb-4">
-          <div className="d-flex justify-content-between align-items-end">
+    <div className="student-dashboard-layout py-4">
+      <Container fluid className="px-4">
+        <header className="mb-5">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="sd-welcome-title mb-1">Welcome, {session?.name}</h1>
-              <p className="sd-welcome-subtitle fw-bold mb-0">
+              <h2 className="fw-bold mb-1 text-navy">Welcome back, {session?.name}</h2>
+              <p className="text-muted small mb-0 fw-bold opacity-75">
                 PFE Management System • 2026 PFE Candidate
               </p>
             </motion.div>
-            <div className="d-flex gap-3">
+            <div className="d-flex gap-2">
               <Button 
                 className="btn-premium d-flex align-items-center gap-2 shadow-sm"
                 onClick={handleNewSubmission}
@@ -83,17 +82,17 @@ const StudentDashboard: React.FC = () => {
             <StatCard label="Upcoming Events" value="05" color="primary" icon={<Calendar />} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pending Deadlines" value="02" color="warning" icon={<Clock />} />
+            <StatCard label="Pending Deadlines" value="02" color="warning" icon={<Clock />} trend="2 weeks" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Tasks This Month" value="05" color="success" icon={<CheckCircle />} />
+            <StatCard label="Tasks Completed" value="05" color="success" icon={<CheckCircle />} trend="+2" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Average Score" value="18.5" color="info" icon={<GraduationCap />} />
           </Col>
         </Row>
 
-        <Row className="g-5">
+        <Row className="g-4">
           <Col lg={8}>
             <ProjectStepper steps={steps} />
             <AnalyticsView />
@@ -110,33 +109,33 @@ const StudentDashboard: React.FC = () => {
           <Col lg={4}>
             <div className="d-flex flex-column gap-4">
               {/* Overall Progress */}
-              <Card className="sd-card-professional border-0 p-4 shadow-sm">
-                <div className="sd-widget-title">
-                  <span>Global Progress</span>
-                  <Activity size={16} className="text-primary" />
+              <Card className="glass-card border p-4 shadow-sm">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h6 className="fw-bold mb-0 text-navy">Global Progress</h6>
+                  <Activity size={18} className="text-primary" />
                 </div>
-                <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '140px' }}>
+                <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '160px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={progressData} innerRadius={45} outerRadius={60} paddingAngle={4} dataKey="value" stroke="none">
+                      <Pie data={progressData} innerRadius={55} outerRadius={75} paddingAngle={4} dataKey="value" stroke="none">
                         {progressData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="position-absolute text-center">
-                    <div className="h4 fw-bold mb-0 text-navy">75%</div>
+                    <div className="h3 fw-bold mb-0 text-navy">75%</div>
                     <div className="extra-small text-muted fw-bold">COMPLETED</div>
                   </div>
                 </div>
               </Card>
 
               {/* Upcoming Defense Widget */}
-              <Card className="sd-card-professional border-0 p-4 shadow-sm bg-primary text-white">
+              <Card className="glass-card border p-4 shadow-sm bg-primary text-white border-0">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="fw-bold mb-0 text-white">Upcoming Defense</h6>
                   <Calendar size={18} className="opacity-75" />
                 </div>
-                <div className="mb-3">
+                <div className="mb-4">
                   <div className="fw-bold fs-6 mb-1">Final Defense Presentation</div>
                   <div className="small opacity-75">May 20, 2026</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
@@ -146,7 +145,7 @@ const StudentDashboard: React.FC = () => {
                 <Button 
                   variant="light" 
                   size="sm" 
-                  className="w-100 fw-bold rounded-pill text-primary"
+                  className="w-100 fw-bold rounded-pill text-primary py-2 border-0"
                   onClick={() => alert("Détails de convocation...")}
                 >
                   Convocation Details
@@ -154,12 +153,12 @@ const StudentDashboard: React.FC = () => {
               </Card>
 
               {/* Recent Feedback Widget */}
-              <Card className="sd-card-professional border-0 p-4 shadow-sm">
-                <div className="sd-widget-title mb-3">
-                  <span>Recent Feedback</span>
-                  <MessageSquare size={16} className="text-primary" />
+              <Card className="glass-card border p-4 shadow-sm">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h6 className="fw-bold mb-0 text-navy">Recent Feedback</h6>
+                  <MessageSquare size={18} className="text-primary" />
                 </div>
-                <div className="p-3 bg-light rounded-lg border-start border-primary border-4">
+                <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4">
                   <div className="fw-bold small mb-1 text-navy">Interim Report Revision</div>
                   <p className="extra-small text-muted mb-2">
                     "Please revise sections 3.2 and 4.1. Good progress overall!"
@@ -172,17 +171,19 @@ const StudentDashboard: React.FC = () => {
               </Card>
 
               {/* Supervisor Card */}
-              <Card className="sd-card-professional border-0 p-4 shadow-sm">
-                <div className="sd-widget-title">Academic Supervisor</div>
+              <Card className="glass-card border p-4 shadow-sm">
+                <h6 className="fw-bold mb-4 text-navy">Academic Supervisor</h6>
                 <div className="d-flex align-items-center gap-3 mb-4">
-                  <div className="sd-avatar-pro">SS</div>
+                  <div className="avatar-md bg-primary text-white rounded-4 d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '48px', height: '48px' }}>
+                    SS
+                  </div>
                   <div>
-                    <h6 className="fw-bold mb-0">Dr. Sarah Smith</h6>
-                    <div className="extra-small text-muted">AI Systems Lab</div>
+                    <h6 className="fw-bold mb-0 text-navy">Dr. Sarah Smith</h6>
+                    <div className="extra-small text-muted fw-bold">AI Systems Lab</div>
                   </div>
                 </div>
                 <Button 
-                  className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2"
+                  className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2 border-2"
                   onClick={() => navigate('/student/messages')}
                 >
                   <Mail size={16} /> Send Message

@@ -14,7 +14,6 @@ import {
   CartesianGrid, Tooltip, Radar, RadarChart, 
   PolarGrid, PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
-import './EvaluationPage.css';
 
 const EvaluationPage = () => {
   const performanceData = [
@@ -76,16 +75,16 @@ const EvaluationPage = () => {
   ];
 
   return (
-    <div className="eval-page-layout p-4">
-      <Container fluid className="px-0">
+    <div className="evaluation-page-layout py-4">
+      <Container fluid className="px-4">
         {/* Header */}
-        <header className="d-flex justify-content-between align-items-center mb-5">
+        <header className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="eval-title mb-1">Evaluation & Grading</h1>
-            <p className="eval-subtitle text-muted mb-0">Track your project assessments and academic performance</p>
+            <h2 className="fw-bold mb-1 text-navy">Evaluation & Performance</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Track your project assessments and academic performance</p>
           </motion.div>
           <Button 
-            className="btn-export d-flex align-items-center gap-2 px-4 py-2"
+            className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm"
             onClick={() => alert("Génération du rapport de notes PDF...")}
           >
             <Download size={18} /> Export Results
@@ -102,18 +101,18 @@ const EvaluationPage = () => {
           ].map((stat, i) => (
             <Col key={i} lg={3} md={6}>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                <Card className="eval-stat-card border-0 shadow-sm h-100">
-                  <Card.Body className="p-4">
-                    <div className="d-flex justify-content-between mb-3">
-                      <div className={`eval-icon-wrap bg-${stat.color}-soft text-${stat.color}`}>
+                <Card className="glass-card border-0 shadow-sm border p-3">
+                  <Card.Body className="p-2">
+                    <div className="d-flex justify-content-between mb-4">
+                      <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
                         {stat.icon}
                       </div>
-                      <div className="text-muted extra-small fw-bold">LIVE DATA</div>
+                      <div className="extra-small text-muted fw-bold opacity-50">LIVE</div>
                     </div>
-                    <div className="small text-muted fw-medium mb-1">{stat.label}</div>
+                    <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-75">{stat.label}</div>
                     <div className="d-flex align-items-baseline gap-2">
-                      <h2 className="fw-bold mb-0 text-navy">{stat.value}</h2>
-                      <span className="extra-small text-muted">{stat.sub}</span>
+                      <h3 className="fw-bold mb-0 text-navy">{stat.value}</h3>
+                      <span className="extra-small text-muted fw-bold opacity-50">{stat.sub}</span>
                     </div>
                   </Card.Body>
                 </Card>
@@ -125,21 +124,21 @@ const EvaluationPage = () => {
         <Row className="g-4 mb-5">
           {/* Charts Section */}
           <Col lg={7}>
-            <Card className="eval-main-card border-0 shadow-sm h-100">
-              <Card.Body className="p-4">
+            <Card className="glass-card border shadow-sm border p-4 h-100">
+              <Card.Body className="p-2">
                 <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
                   <Activity size={18} className="text-primary" /> Performance Overview
                 </h6>
                 <div style={{ height: '300px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={performanceData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
                       <Tooltip 
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 600 }}
                       />
-                      <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={50} />
+                      <Bar dataKey="score" fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={50} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -147,18 +146,18 @@ const EvaluationPage = () => {
             </Card>
           </Col>
           <Col lg={5}>
-            <Card className="eval-main-card border-0 shadow-sm h-100">
-              <Card.Body className="p-4">
+            <Card className="glass-card border shadow-sm border p-4 h-100">
+              <Card.Body className="p-2">
                 <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
                   <Star size={18} className="text-warning" /> Criteria Assessment
                 </h6>
                 <div style={{ height: '300px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={criteriaData}>
-                      <PolarGrid stroke="#e2e8f0" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <PolarGrid stroke="var(--color-border)" opacity={0.5} />
+                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700 }} />
                       <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                      <Radar name="Student" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+                      <Radar name="Student" dataKey="A" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.6} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -168,46 +167,46 @@ const EvaluationPage = () => {
         </Row>
 
         {/* Grade Breakdown Table */}
-        <Card className="eval-main-card border-0 shadow-sm mb-5">
+        <Card className="glass-card border shadow-sm border overflow-hidden mb-5">
           <Card.Body className="p-0">
-            <div className="p-4 border-bottom">
+            <div className="p-4 border-bottom bg-white">
               <h6 className="fw-bold text-navy mb-0">Grade Breakdown</h6>
             </div>
             <div className="table-responsive">
-              <Table hover className="mb-0 eval-table">
-                <thead>
+              <Table hover className="mb-0 align-middle">
+                <thead className="bg-surface-alt">
                   <tr>
-                    <th className="ps-4">COMPONENT</th>
-                    <th>WEIGHT</th>
-                    <th>SCORE</th>
-                    <th>POINTS EARNED</th>
-                    <th className="pe-4">PROGRESS</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Component</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Weight</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Score</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Points Earned</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Progress</th>
                   </tr>
                 </thead>
                 <tbody>
                   {breakdownData.map((row, i) => (
-                    <tr key={i} className="align-middle">
-                      <td className="ps-4 py-3">
+                    <tr key={i} className="border-bottom border-light border-opacity-10">
+                      <td className="px-4 py-3">
                         <div className="fw-bold small text-navy">{row.component}</div>
                       </td>
-                      <td><span className="small text-muted">{row.weight}</span></td>
+                      <td><span className="extra-small fw-bold text-muted">{row.weight}</span></td>
                       <td>
-                        <Badge className={`px-3 py-1 fw-bold ${row.score === 'Pending' ? 'bg-light text-muted' : 'badge-score'}`}>
+                        <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${row.score === 'Pending' ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
                           {row.score}
                         </Badge>
                       </td>
                       <td><span className="fw-bold text-navy small">{row.points}</span></td>
-                      <td className="pe-4" style={{ width: '200px' }}>
-                        <ProgressBar now={row.progress} variant="primary" style={{ height: '6px' }} className="rounded-pill bg-light" />
+                      <td className="px-4 py-3 text-end" style={{ width: '200px' }}>
+                        <ProgressBar now={row.progress} variant="primary" style={{ height: '6px' }} className="rounded-pill bg-surface-alt border-0" />
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-light-soft align-middle">
-                    <td colSpan="3" className="ps-4 py-4 fw-bold text-navy">Total Points Calculated</td>
-                    <td colSpan="2" className="pe-4 py-4">
-                      <div className="d-flex align-items-baseline gap-2">
-                        <h4 className="fw-bold text-primary mb-0">30.35</h4>
-                        <span className="text-muted small">/ 100</span>
+                  <tr className="bg-surface-alt align-middle">
+                    <td colSpan="3" className="px-4 py-4 fw-bold text-navy">Total Points Calculated</td>
+                    <td colSpan="2" className="px-4 py-4 text-end">
+                      <div className="d-flex align-items-baseline justify-content-end gap-2">
+                        <h3 className="fw-bold text-primary mb-0">30.35</h3>
+                        <span className="text-muted extra-small fw-bold">/ 100</span>
                       </div>
                     </td>
                   </tr>
@@ -218,25 +217,25 @@ const EvaluationPage = () => {
         </Card>
 
         {/* Evaluation History Section */}
-        <h5 className="fw-bold text-navy mb-4">Evaluation History</h5>
-        <div className="eval-history-grid">
+        <h4 className="fw-bold text-navy mb-4">Evaluation History</h4>
+        <div className="eval-history-grid d-flex flex-column gap-4">
           {history.map((item, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
-              <Card className="eval-history-card border-0 shadow-sm mb-4">
-                <Card.Body className="p-4">
+              <Card className="glass-card border shadow-sm border p-4">
+                <Card.Body className="p-0">
                   <Row className="align-items-center">
                     <Col md={8}>
-                      <div className="d-flex align-items-center gap-3 mb-3">
+                      <div className="d-flex align-items-center gap-3 mb-4">
                         <h5 className="fw-bold text-navy mb-0">{item.title}</h5>
-                        <Badge className={`px-3 py-1 fw-bold ${item.status === 'Completed' ? 'badge-completed' : 'badge-pending'}`}>
+                        <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${item.status === 'Completed' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
                           {item.status}
                         </Badge>
                       </div>
                       <div className="d-flex flex-wrap gap-4 mb-4">
-                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
+                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
                           <Users size={14} className="text-primary" /> {item.evaluator}
                         </div>
-                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-medium">
+                        <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
                           <Calendar size={14} className="text-primary" /> {item.date}
                         </div>
                         {item.status === 'Completed' && (
@@ -245,21 +244,21 @@ const EvaluationPage = () => {
                           </div>
                         )}
                       </div>
-                      <div className="p-3 bg-light-soft rounded-lg border-start border-4 border-primary">
-                        <div className="extra-small fw-bold text-muted text-uppercase mb-2">Comments:</div>
-                        <p className="small text-navy mb-0 italic">"{item.comments}"</p>
+                      <div className="p-3 bg-surface-alt rounded-4 border-start border-4 border-primary shadow-sm">
+                        <div className="extra-small fw-bold text-muted text-uppercase mb-2 opacity-75">Supervisor Comments:</div>
+                        <p className="small text-navy mb-0 fw-bold italic opacity-75">"{item.comments}"</p>
                       </div>
                     </Col>
                     <Col md={4} className="text-center mt-4 mt-md-0">
                       {item.status === 'Completed' ? (
-                        <div className="eval-score-circle mx-auto">
-                          <div className="eval-score-value">{item.score}</div>
-                          <div className="eval-score-label">out of 100</div>
+                        <div className="p-4 rounded-circle border border-primary border-4 d-flex flex-column align-items-center justify-content-center mx-auto shadow-sm" style={{ width: '120px', height: '120px' }}>
+                          <div className="h2 fw-bold text-primary mb-0">{item.score}</div>
+                          <div className="extra-small text-muted fw-bold">/ 100</div>
                         </div>
                       ) : (
-                        <div className="eval-pending-box mx-auto d-flex flex-column align-items-center justify-content-center">
+                        <div className="p-4 rounded-4 bg-surface-alt border d-flex flex-column align-items-center justify-content-center mx-auto shadow-sm" style={{ width: '120px', height: '120px' }}>
                           <Clock size={32} className="text-muted opacity-25 mb-2" />
-                          <div className="extra-small text-muted fw-bold">AWAITING EVALUATION</div>
+                          <div className="extra-small text-muted fw-bold text-center">PENDING</div>
                         </div>
                       )}
                     </Col>

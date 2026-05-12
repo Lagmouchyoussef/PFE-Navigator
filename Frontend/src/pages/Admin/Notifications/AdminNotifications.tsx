@@ -111,7 +111,7 @@ const AdminNotifications: React.FC = () => {
 
         {/* Feed Actions */}
         <div className="d-flex gap-2 mb-4">
-          <Button variant="primary" className="fw-bold small rounded-pill px-4 shadow-sm border-0" style={{ backgroundColor: '#2563eb' }}>Toutes</Button>
+          <Button variant="primary" className="fw-bold small rounded-pill px-4 shadow-sm border-0 btn-premium">Toutes</Button>
           <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Non lues</Button>
           <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Archives</Button>
           <Button variant="link" className="ms-auto text-muted text-decoration-none extra-small fw-bold border-0 bg-transparent">Tout marquer comme lu</Button>

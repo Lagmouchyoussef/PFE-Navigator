@@ -7,7 +7,6 @@ import {
   MoreVertical, Edit3, Trash2, 
   ChevronRight, Users, Target, Layout
 } from 'lucide-react';
-import '../SupervisorStyles.css';
 
 const SUBJECTS_DATA = [
   {
@@ -71,18 +70,18 @@ const Subjects = () => {
   };
 
   return (
-    <div className="sv-dashboard-layout">
-      <Container fluid="xxl" className="px-0">
+    <div className="supervisor-subjects-layout py-4">
+      <Container fluid className="px-4">
         
         {/* Header */}
-        <header className="sv-welcome-header mb-5 d-flex justify-content-between align-items-end">
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="mb-2">Thesis Subjects</h1>
-            <p className="sv-welcome-subtitle mb-0">
+            <h2 className="fw-bold mb-1 text-navy">Thesis Subjects</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">
               Propose and manage research topics for the current academic session
             </p>
           </motion.div>
-          <Button className="sv-btn-gradient d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
+          <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => setShowAddModal(true)}>
             <Plus size={18} /> Propose New Subject
           </Button>
         </header>
@@ -93,56 +92,56 @@ const Subjects = () => {
             { label: 'Total Subjects', value: '12', icon: <BookOpen />, color: 'primary' },
             { label: 'Approved', value: '8', icon: <CheckCircle />, color: 'success' },
             { label: 'Pending Review', value: '3', icon: <Clock />, color: 'warning' },
-            { label: 'Taken By Students', value: '5', icon: <Users />, color: 'purple' },
+            { label: 'Taken By Students', value: '5', icon: <Users />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} sm={6} lg={3}>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="sv-stat-card border-0 shadow-sm"
+                className="glass-card border-0 shadow-sm border p-3"
               >
-                <div className={`sv-stat-icon-wrapper bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color} mb-3 d-inline-block shadow-sm`}>
                   {stat.icon}
                 </div>
-                <div className="sv-stat-value h4 mb-0 fw-black text-navy">{stat.value}</div>
-                <div className="sv-stat-label extra-small text-muted fw-bold uppercase">{stat.label}</div>
+                <div className="h3 mb-0 fw-bold text-navy">{stat.value}</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-75">{stat.label}</div>
               </motion.div>
             </Col>
           ))}
         </Row>
 
         {/* Content Section */}
-        <Card className="sv-card-premium border-0 shadow-sm overflow-hidden">
-          <div className="p-4 border-bottom bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <h5 className="mb-0 fw-black text-navy d-flex align-items-center gap-2">
+        <Card className="glass-card border shadow-sm border overflow-hidden">
+          <Card.Header className="p-4 bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-0">
+            <h5 className="mb-0 fw-bold text-navy d-flex align-items-center gap-2">
               <Layout size={20} className="text-primary" />
               Active Proposals
             </h5>
             <div className="d-flex gap-2">
-              <InputGroup className="sv-search-group" style={{ width: '250px' }}>
+              <InputGroup className="bg-surface-alt rounded-pill border px-3" style={{ width: '250px' }}>
                 <InputGroup.Text className="bg-transparent border-0 pe-0">
                   <Search size={16} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
                   placeholder="Filter subjects..." 
-                  className="sv-search-input border-0 shadow-none extra-small"
+                  className="bg-transparent border-0 py-2 extra-small shadow-none fw-bold"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </InputGroup>
             </div>
-          </div>
+          </Card.Header>
 
           <div className="table-responsive">
-            <Table className="sv-table mb-0 align-middle">
-              <thead>
+            <Table hover className="mb-0 align-middle">
+              <thead className="bg-surface-alt">
                 <tr>
-                  <th>Subject Title & Description</th>
-                  <th>Category</th>
-                  <th>Students</th>
-                  <th>Status</th>
-                  <th className="text-end">Actions</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Subject Title & Description</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Students</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,39 +152,40 @@ const Subjects = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: index * 0.05 }}
+                      className="border-bottom border-light border-opacity-10"
                     >
-                      <td style={{ maxWidth: '400px' }}>
-                        <div className="fw-black text-navy small mb-1">{subject.title}</div>
-                        <div className="extra-small text-muted text-truncate-2" style={{ lineHeight: '1.4' }}>
+                      <td className="px-4 py-3" style={{ maxWidth: '400px' }}>
+                        <div className="fw-bold text-navy small mb-1">{subject.title}</div>
+                        <div className="extra-small text-muted fw-bold opacity-75 text-truncate-2" style={{ lineHeight: '1.4' }}>
                           {subject.description}
                         </div>
                       </td>
                       <td>
                         <div className="d-flex flex-column gap-1">
                           <span className="extra-small fw-bold text-navy">{subject.category}</span>
-                          <span className="extra-small text-muted" style={{ fontSize: '10px' }}>{subject.difficulty}</span>
+                          <span className="extra-small text-muted fw-bold opacity-50" style={{ fontSize: '10px' }}>{subject.difficulty}</span>
                         </div>
                       </td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <div className="sv-avatar sm shadow-none" style={{ width: '24px', height: '24px', fontSize: '10px' }}>
+                          <div className="avatar-xs bg-surface-alt text-navy rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '28px', height: '28px', fontSize: '10px' }}>
                             {subject.students}
                           </div>
-                          <span className="extra-small text-muted fw-bold">Enrolled</span>
+                          <span className="extra-small text-muted fw-bold opacity-75">Enrolled</span>
                         </div>
                       </td>
                       <td>
-                        <Badge bg={getStatusStyle(subject.status)} className="bg-opacity-10 text-capitalize px-3 py-2 rounded-pill fw-bold" style={{ color: `var(--bs-${getStatusStyle(subject.status)})`, fontSize: '10px' }}>
+                        <Badge className={`bg-${getStatusStyle(subject.status)}-soft text-${getStatusStyle(subject.status)} border-0 px-3 py-1 extra-small fw-bold d-inline-flex align-items-center gap-1`}>
                           {subject.status}
                         </Badge>
                       </td>
-                      <td className="text-end">
+                      <td className="px-4 py-3 text-end">
                         <div className="d-flex justify-content-end gap-1">
-                          <Button variant="link" className="p-2 text-primary hover-bg-light rounded-3 border-0">
-                            <Edit3 size={16} />
+                          <Button variant="link" className="p-2 text-primary hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none">
+                            <Edit3 size={18} />
                           </Button>
-                          <Button variant="link" className="p-2 text-danger hover-bg-light rounded-3 border-0">
-                            <Trash2 size={16} />
+                          <Button variant="link" className="p-2 text-danger hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none">
+                            <Trash2 size={18} />
                           </Button>
                         </div>
                       </td>
@@ -203,40 +203,40 @@ const Subjects = () => {
         show={showAddModal} 
         onHide={() => setShowAddModal(false)}
         centered
-        contentClassName="border-0 shadow-lg rounded-4"
+        className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-black text-navy">Propose New Subject</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Propose New Subject</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted uppercase">Subject Title</Form.Label>
-              <Form.Control placeholder="e.g. Machine Learning in Healthcare" className="sv-form-control py-2 extra-small" />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Subject Title</Form.Label>
+              <Form.Control placeholder="e.g. Machine Learning in Healthcare" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted uppercase">Category / Technology</Form.Label>
-              <Form.Control placeholder="e.g. Python, TensorFlow, React" className="sv-form-control py-2 extra-small" />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Category / Technology</Form.Label>
+              <Form.Control placeholder="e.g. Python, TensorFlow, React" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted uppercase">Description & Objectives</Form.Label>
-              <Form.Control as="textarea" rows={4} placeholder="Describe the project scope and expected outcomes..." className="sv-form-control extra-small" />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Description & Objectives</Form.Label>
+              <Form.Control as="textarea" rows={4} placeholder="Describe the project scope and expected outcomes..." className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
             </Form.Group>
             <Row className="mb-4">
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted uppercase">Difficulty</Form.Label>
-                <Form.Select className="sv-form-control extra-small">
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulty</Form.Label>
+                <Form.Select className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
                   <option>Beginner</option>
                   <option>Intermediate</option>
                   <option>Advanced</option>
                 </Form.Select>
               </Col>
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted uppercase">Max Students</Form.Label>
-                <Form.Control type="number" defaultValue={1} className="sv-form-control extra-small" />
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Max Students</Form.Label>
+                <Form.Control type="number" defaultValue={1} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
               </Col>
             </Row>
-            <Button className="sv-btn-gradient w-100 py-2 fw-bold" onClick={() => setShowAddModal(false)}>
+            <Button className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm" onClick={() => setShowAddModal(false)}>
               Submit Proposal
             </Button>
           </Form>

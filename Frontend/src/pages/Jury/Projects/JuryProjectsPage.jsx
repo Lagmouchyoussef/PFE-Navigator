@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Form, Button, Table, ProgressBar, Dropdown, Modal
+  Form, Button, Table, ProgressBar, Dropdown, Modal, InputGroup
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-  Search, Eye, MoreVertical, Download, Settings, ChevronDown, Edit, FileText,
-  Trash2, Mail, Archive, ExternalLink, Calendar, User, Briefcase, X
+  Download, Search, Calendar, MoreVertical, 
+  Edit, Eye, X, ChevronRight, Activity, Clock
 } from 'lucide-react';
 
 const PROJECTS_DATA = [
@@ -25,47 +25,47 @@ const JuryProjectsPage = () => {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="jury-projects-modern py-4">
+    <div className="jury-projects-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
-          <div>
-            <h2 className="fw-bold mb-1">Projets Assignés</h2>
-            <p className="text-muted small mb-0">Gérez et évaluez les projets qui vous sont assignés.</p>
-          </div>
+        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Assigned Projects</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Manage and evaluate the projects assigned to you.</p>
+          </motion.div>
           <div className="d-flex gap-2">
             <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Exporter la liste
+              <Download size={18} /> Export List
             </Button>
           </div>
-        </div>
+        </header>
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Total Projets', value: '45', color: 'primary' },
-            { label: 'En attente', value: '12', color: 'warning' },
-            { label: 'Complétés', value: '28', color: 'success' },
-            { label: 'Priorité', value: '5', color: 'danger' }
+            { label: 'Total Projects', value: '45', color: 'primary' },
+            { label: 'Pending', value: '12', color: 'warning' },
+            { label: 'Completed', value: '28', color: 'success' },
+            { label: 'Priority', value: '5', color: 'danger' }
           ].map((stat, i) => (
             <Col lg={3} md={6} key={i}>
-              <div className={`projects-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
-                <h4 className="fw-bold mb-1">{stat.value}</h4>
-                <div className="extra-small text-muted fw-bold text-uppercase">{stat.label}</div>
+              <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
+                <div className="h3 fw-bold text-navy mb-1">{stat.value}</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{stat.label}</div>
               </div>
             </Col>
           ))}
         </Row>
 
         {/* Search Bar */}
-        <div className="projects-glass-card p-4 rounded-4 mb-5 shadow-sm">
-          <InputGroup className="bg-surface-alt rounded-pill border px-2">
-            <InputGroup.Text className="bg-transparent border-0 text-muted">
+        <div className="glass-card p-4 rounded-4 mb-5 shadow-sm border border-light border-opacity-10">
+          <InputGroup className="bg-surface-alt rounded-pill border px-3">
+            <InputGroup.Text className="bg-transparent border-0 text-muted pe-1">
               <Search size={18} />
             </InputGroup.Text>
             <Form.Control 
-              placeholder="Rechercher par étudiant ou projet..." 
-              className="bg-transparent border-0 shadow-none small py-2 text-primary-custom"
+              placeholder="Search by student or project..." 
+              className="bg-transparent border-0 shadow-none small py-2 text-navy fw-bold"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -73,64 +73,64 @@ const JuryProjectsPage = () => {
         </div>
 
         {/* Projects Table */}
-        <div className="projects-glass-card rounded-4 overflow-hidden shadow-sm mb-5">
+        <Card className="glass-card rounded-4 overflow-hidden shadow-sm mb-5 border-light border-opacity-10">
           <div className="table-responsive">
-            <Table borderless hover className="align-middle mb-0 jury-projects-table">
-              <thead>
-                <tr className="border-bottom opacity-50 bg-surface-alt">
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Titre du Projet</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Encadrant</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progression</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+            <Table borderless hover className="align-middle mb-0">
+              <thead className="bg-surface-alt">
+                <tr className="border-bottom opacity-50">
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Supervisor</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progress</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {PROJECTS_DATA.filter(p => 
-                  p.student.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                  p.title.toLowerCase().includes(searchTerm.toLowerCase())
+                   p.student.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                   p.title.toLowerCase().includes(searchTerm.toLowerCase())
                 ).map((proj, idx) => (
-                  <tr key={idx} className="border-bottom border-light border-opacity-10 transition-all">
+                  <tr key={idx} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
                     <td className="px-4 py-3">
                       <div className="d-flex align-items-center gap-3">
-                        <div className={`avatar-sm bg-${proj.color} bg-opacity-10 text-${proj.color} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
+                        <div className={`avatar-sm bg-${proj.color}-soft text-${proj.color} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
                           {proj.avatar}
                         </div>
                         <div>
-                          <div className="small fw-bold">{proj.student}</div>
-                          <div className="extra-small text-muted">{proj.id}</div>
+                          <div className="small fw-bold text-navy">{proj.student}</div>
+                          <div className="extra-small text-muted fw-bold opacity-50">{proj.id}</div>
                         </div>
                       </div>
                     </td>
                     <td className="py-3">
-                      <div className="small fw-bold text-truncate" style={{maxWidth: '250px'}} title={proj.title}>{proj.title}</div>
-                      <div className="extra-small text-muted d-flex align-items-center gap-1 mt-1">
-                        <Calendar size={12} className="opacity-50" /> Soutenance: {proj.defenseDate}
+                      <div className="small fw-bold text-navy text-truncate mb-1" style={{maxWidth: '250px'}} title={proj.title}>{proj.title}</div>
+                      <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-50">
+                        <Calendar size={12} className="text-primary" /> Defense: {proj.defenseDate}
                       </div>
                     </td>
                     <td className="py-3">
-                      <span className="small fw-bold opacity-75">{proj.supervisor}</span>
+                      <span className="small fw-bold text-navy opacity-75">{proj.supervisor}</span>
                     </td>
                     <td className="py-3">
                       <div className="d-flex align-items-center gap-2" style={{ width: '120px' }}>
-                        <ProgressBar now={proj.progress} className="flex-grow-1" style={{ height: '6px', backgroundColor: 'var(--background)' }} />
-                        <span className="extra-small text-muted fw-bold">{proj.progress}%</span>
+                        <ProgressBar now={proj.progress} className="flex-grow-1" style={{ height: '6px' }} />
+                        <span className="extra-small text-muted fw-bold opacity-75">{proj.progress}%</span>
                       </div>
                     </td>
                     <td className="py-3">
-                      <Badge bg={proj.status === 'Evaluated' ? 'success' : 'warning'} className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small">
+                      <Badge className={`bg-${proj.status === 'Evaluated' ? 'success' : 'warning'}-soft text-${proj.status === 'Evaluated' ? 'success' : 'warning'} border-0 extra-small fw-bold px-3 py-1`}>
                         {proj.status}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-end">
                       <Dropdown align="end">
-                        <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
-                        <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => navigate('/jury/evaluation', { state: { project: proj } })}><Edit size={14} className="me-2"/> Évaluer</Dropdown.Item>
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => { setSelectedProject(proj); setShowModal(true); }}><Eye size={14} className="me-2"/> Détails</Dropdown.Item>
+                        <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all"><MoreVertical size={18}/></Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
+                          <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => navigate('/jury/evaluation', { state: { project: proj } })}><Edit size={14} className="me-2 text-primary"/> Evaluate</Dropdown.Item>
+                          <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => { setSelectedProject(proj); setShowModal(true); }}><Eye size={14} className="me-2 text-info"/> Details</Dropdown.Item>
                           <Dropdown.Divider />
-                          <Dropdown.Item className="extra-small fw-bold text-danger">Signaler</Dropdown.Item>
+                          <Dropdown.Item className="py-2 fw-bold text-danger"><X size={14} className="me-2"/> Report Issue</Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
                     </td>
@@ -139,86 +139,51 @@ const JuryProjectsPage = () => {
               </tbody>
             </Table>
           </div>
-        </div>
+        </Card>
       </Container>
 
       {/* Details Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered className="jury-modern-modal">
-        <div className="projects-glass-card rounded-4 overflow-hidden border-0">
+        <div className="glass-card rounded-4 overflow-hidden border-0 shadow-lg">
           <div className="p-4 border-bottom bg-surface-alt d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold mb-0">Détails du Projet</h5>
-            <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setShowModal(false)}><X size={20}/></Button>
+            <h5 className="fw-bold text-navy mb-0">Project Details</h5>
+            <Button variant="link" className="p-2 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowModal(false)}><X size={20}/></Button>
           </div>
           <div className="p-4">
             {selectedProject && (
               <div className="space-y-4">
                 <div className="d-flex align-items-center gap-3 mb-4">
-                  <div className={`p-4 rounded-circle bg-${selectedProject.color} bg-opacity-10 text-${selectedProject.color} fw-bold h4 mb-0`}>
+                  <div className={`p-4 rounded-circle bg-${selectedProject.color}-soft text-${selectedProject.color} fw-bold h4 mb-0 d-flex align-items-center justify-content-center`} style={{ width: '64px', height: '64px' }}>
                     {selectedProject.avatar}
                   </div>
                   <div>
-                    <h5 className="fw-bold mb-0">{selectedProject.student}</h5>
-                    <div className="extra-small text-muted fw-bold">ID: {selectedProject.id}</div>
+                    <h5 className="fw-bold text-navy mb-0">{selectedProject.student}</h5>
+                    <div className="extra-small text-muted fw-bold opacity-75">ID: {selectedProject.id}</div>
                   </div>
                 </div>
                 <div className="mb-4">
-                  <div className="extra-small text-muted fw-bold text-uppercase mb-1">Titre du Projet</div>
-                  <div className="small fw-bold lh-base">{selectedProject.title}</div>
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Project Title</div>
+                  <div className="small fw-bold text-navy lh-base">{selectedProject.title}</div>
                 </div>
                 <Row className="g-4">
                   <Col xs={6}>
-                    <div className="extra-small text-muted fw-bold text-uppercase mb-1">Encadrant</div>
-                    <div className="small fw-bold">{selectedProject.supervisor}</div>
+                    <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Supervisor</div>
+                    <div className="small fw-bold text-navy">{selectedProject.supervisor}</div>
                   </Col>
                   <Col xs={6}>
-                    <div className="extra-small text-muted fw-bold text-uppercase mb-1">Soutenance</div>
-                    <div className="small fw-bold">{selectedProject.defenseDate}</div>
+                    <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Defense Date</div>
+                    <div className="small fw-bold text-navy">{selectedProject.defenseDate}</div>
                   </Col>
                 </Row>
               </div>
             )}
           </div>
           <div className="p-4 border-top bg-surface-alt d-flex gap-2">
-            <Button variant="outline-secondary" className="flex-grow-1 rounded-pill fw-bold extra-small" onClick={() => setShowModal(false)}>Fermer</Button>
-            <Button variant="primary" className="flex-grow-1 rounded-pill fw-bold extra-small" style={{ backgroundColor: '#2563eb' }} onClick={() => navigate('/jury/evaluation', { state: { project: selectedProject } })}>Évaluer</Button>
+            <Button variant="outline-secondary" className="flex-grow-1 rounded-pill fw-bold extra-small border-2" onClick={() => setShowModal(false)}>Close</Button>
+            <Button className="btn-premium flex-grow-1 rounded-pill fw-bold extra-small border-0 shadow-sm" onClick={() => navigate('/jury/evaluation', { state: { project: selectedProject } })}>Evaluate</Button>
           </div>
         </div>
       </Modal>
-
-      <style>{`
-        .jury-projects-modern {
-          color: var(--text-primary);
-        }
-        .projects-glass-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .bg-surface-alt {
-          background-color: var(--background) !important;
-        }
-        .jury-projects-table tbody tr:hover {
-          background-color: rgba(var(--primary-rgb), 0.03) !important;
-        }
-        .border-start-4 {
-          border-left: 4px solid !important;
-        }
-        .border-primary { border-left-color: var(--primary) !important; }
-        .border-success { border-left-color: #10b981 !important; }
-        .border-warning { border-left-color: #f59e0b !important; }
-        .border-danger { border-left-color: #ef4444 !important; }
-        .border-info { border-left-color: #0ea5e9 !important; }
-        
-        h2, h4, h5, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
-        }
-        .text-primary-custom {
-          color: var(--text-primary) !important;
-        }
-      `}</style>
     </div>
   );
 };
