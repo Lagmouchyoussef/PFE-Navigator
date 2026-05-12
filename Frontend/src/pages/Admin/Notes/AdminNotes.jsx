@@ -70,29 +70,26 @@ const AdminNotes = () => {
     }
   ];
 
-  const pinnedNotes = notes.filter(n => n.pinned);
-  const otherNotes = notes.filter(n => !n.pinned);
-
   const getPriorityBadge = (priority) => {
     switch (priority) {
-      case 'HIGH': return <Badge bg="danger" className="extra-small fw-bold">HAUTE</Badge>;
-      case 'MEDIUM': return <Badge bg="warning" className="extra-small fw-bold text-dark">MOYENNE</Badge>;
-      case 'LOW': return <Badge bg="success" className="extra-small fw-bold">BASSE</Badge>;
+      case 'HIGH': return <Badge bg="danger" className="bg-opacity-10 text-danger border border-danger border-opacity-25 extra-small fw-bold">HAUTE</Badge>;
+      case 'MEDIUM': return <Badge bg="warning" className="bg-opacity-10 text-warning border border-warning border-opacity-25 extra-small fw-bold">MOYENNE</Badge>;
+      case 'LOW': return <Badge bg="success" className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small fw-bold">BASSE</Badge>;
       default: return null;
     }
   };
 
   return (
-    <div className="admin-notes-pro-layout py-4">
+    <div className="admin-notes-modern-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
           <div>
-            <h2 className="fw-bold text-dark mb-1">Notes & Annonces Administratives</h2>
+            <h2 className="fw-bold mb-1">Notes & Annonces</h2>
             <p className="text-muted small mb-0">Suivi des mises à jour et communications importantes.</p>
           </div>
           <Button 
-            className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2" 
+            className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2 rounded-pill" 
             style={{ backgroundColor: '#2563eb' }}
             onClick={() => setShowAddModal(true)}
           >
@@ -103,200 +100,126 @@ const AdminNotes = () => {
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           {stats.map((s, i) => (
-            <Col lg={3} md={6} key={i}>
-              <Card className="border shadow-sm rounded-4 p-3 h-100 bg-white">
+            <Col key={i} lg={3} md={6}>
+              <div className={`notes-glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 border-${s.color}`}>
                 <div className="d-flex align-items-center gap-3">
-                  <div className={`p-3 rounded-circle bg-light text-${s.color}`}>
-                    {React.cloneElement(s.icon, { size: 24 })}
+                  <div className={`p-3 rounded-3 bg-${s.color} bg-opacity-10 text-${s.color}`}>
+                    {s.icon}
                   </div>
                   <div>
-                    <div className="extra-small text-muted fw-bold text-uppercase">{s.label}</div>
-                    <h3 className="fw-bold text-dark mb-0">{s.count}</h3>
+                    <h4 className="fw-bold mb-0">{s.count}</h4>
+                    <span className="extra-small text-muted fw-bold text-uppercase">{s.label}</span>
                   </div>
                 </div>
-              </Card>
+              </div>
             </Col>
           ))}
         </Row>
 
-        {/* Filters */}
-        <div className="d-flex flex-wrap gap-3 align-items-center mb-5">
-          <InputGroup className="bg-white rounded-3 shadow-sm border overflow-hidden" style={{ maxWidth: '400px' }}>
-            <InputGroup.Text className="bg-transparent border-0">
-              <Search size={18} className="text-muted" />
-            </InputGroup.Text>
-            <Form.Control 
-              placeholder="Rechercher une note..." 
-              className="border-0 shadow-none small fw-bold"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </InputGroup>
-          <div className="d-flex bg-white rounded-3 shadow-sm border p-1">
-            <Button 
-              variant={filter === 'all' ? 'primary' : 'white'} 
-              size="sm" 
-              className={`rounded-2 px-4 fw-bold border-0 ${filter === 'all' ? '' : 'text-muted'}`}
-              onClick={() => setFilter('all')}
-              style={filter === 'all' ? { backgroundColor: '#2563eb' } : {}}
-            >
-              Toutes
-            </Button>
-            <Button 
-              variant={filter === 'unread' ? 'primary' : 'white'} 
-              size="sm" 
-              className={`rounded-2 px-4 fw-bold border-0 ms-1 ${filter === 'unread' ? '' : 'text-muted'}`}
-              onClick={() => setFilter('unread')}
-              style={filter === 'unread' ? { backgroundColor: '#2563eb' } : {}}
-            >
-              Non lues
-            </Button>
-          </div>
-        </div>
-
-        {/* Pinned Notes Section */}
-        <div className="mb-5">
-          <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-            <Pin size={18} className="text-warning" /> Notes Épinglées
-          </h5>
-          <Row className="g-4">
-            {pinnedNotes.map((note) => (
-              <Col lg={4} md={6} key={note.id}>
-                <NoteCard note={note} getPriorityBadge={getPriorityBadge} />
-              </Col>
-            ))}
+        {/* Search & Filter */}
+        <div className="notes-glass-card p-4 rounded-4 mb-5">
+          <Row className="g-3 align-items-center">
+            <Col lg={4}>
+              <InputGroup className="bg-surface-alt rounded-pill border px-2">
+                <InputGroup.Text className="bg-transparent border-0 text-muted">
+                  <Search size={18} />
+                </InputGroup.Text>
+                <Form.Control 
+                  placeholder="Rechercher une note..." 
+                  className="bg-transparent border-0 shadow-none small py-2 text-primary-custom"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </InputGroup>
+            </Col>
+            <Col lg={8}>
+              <div className="d-flex gap-2 justify-content-lg-end">
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Toutes</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Épinglées</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Priorité Haute</Button>
+              </div>
+            </Col>
           </Row>
         </div>
 
-        {/* All Notes Section */}
-        <div>
-          <h5 className="fw-bold text-dark mb-4">Autres Notes</h5>
+        {/* Notes Feed */}
+        <div className="notes-feed">
           <Row className="g-4">
-            {otherNotes.map((note) => (
-              <Col lg={4} md={6} key={note.id}>
-                <NoteCard note={note} getPriorityBadge={getPriorityBadge} />
+            {notes.map((note) => (
+              <Col key={note.id} lg={6}>
+                <div className={`notes-glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 ${note.pinned ? 'border-warning' : 'border-primary'}`}>
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div className="d-flex align-items-center gap-2">
+                      {getPriorityBadge(note.priority)}
+                      <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small fw-bold">{note.category}</Badge>
+                      {note.pinned && <Pin size={14} className="text-warning fill-warning" />}
+                    </div>
+                    <Dropdown align="end">
+                      <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
+                      <Dropdown.Menu className="border-0 shadow-lg rounded-3">
+                        <Dropdown.Item className="extra-small fw-bold">Modifier</Dropdown.Item>
+                        <Dropdown.Item className="extra-small fw-bold">Épingler</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item className="extra-small fw-bold text-danger">Supprimer</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </div>
+                  
+                  <h5 className="fw-bold mb-3">{note.title}</h5>
+                  <p className="small text-muted mb-4 lh-base">{note.content}</p>
+                  
+                  <div className="p-3 bg-surface-alt rounded-4 border d-flex justify-content-between align-items-center">
+                    <div className="d-flex align-items-center gap-2">
+                      <div className="avatar-xs bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
+                        {note.author.charAt(0)}
+                      </div>
+                      <span className="extra-small fw-bold opacity-75">{note.author}</span>
+                    </div>
+                    <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
+                      <Clock size={14} /> {note.date}
+                    </div>
+                  </div>
+                </div>
               </Col>
             ))}
           </Row>
         </div>
       </Container>
 
-      {/* MODAL AJOUT NOTE */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered>
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold">Nouvelle Note Administrative</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          <Form className="d-flex flex-column gap-3">
-            <Form.Group>
-              <Form.Label className="small fw-bold text-muted">Titre</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Ex: Réunion de coordination"
-                className="bg-light border-0 p-2 rounded-3 small"
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label className="small fw-bold text-muted">Contenu</Form.Label>
-              <Form.Control 
-                as="textarea" rows={4}
-                placeholder="Détails de l'annonce..."
-                className="bg-light border-0 p-2 rounded-3 small"
-              />
-            </Form.Group>
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-bold text-muted">Catégorie</Form.Label>
-                  <Form.Select className="bg-light border-0 p-2 rounded-3 small">
-                    <option>Soutenance</option>
-                    <option>Délais</option>
-                    <option>Ateliers</option>
-                    <option>Évaluation</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-bold text-muted">Priorité</Form.Label>
-                  <Form.Select className="bg-light border-0 p-2 rounded-3 small">
-                    <option>HIGH</option>
-                    <option>MEDIUM</option>
-                    <option>LOW</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-            <Button 
-              className="w-100 py-2 mt-3 fw-bold border-0 shadow-sm"
-              style={{ backgroundColor: '#2563eb' }}
-              onClick={() => setShowAddModal(false)}
-            >
-              Publier la note
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
       <style>{`
-        .admin-notes-pro-layout {
-          background-color: #f8fafc;
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+        .admin-notes-modern-layout {
+          color: var(--text-primary);
         }
-        .note-card {
-          transition: all 0.2s ease;
+        .notes-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
         }
-        .note-card:hover {
-          transform: translateY(-5px);
-          border-color: #2563eb !important;
+        .bg-surface-alt {
+          background-color: var(--background) !important;
         }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
-        .no-caret::after { display: none; }
+        .border-start-4 {
+          border-left: 4px solid !important;
+        }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-danger { border-left-color: #ef4444 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        
+        h2, h4, h5, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .text-primary-custom {
+          color: var(--text-primary) !important;
+        }
+        .fill-warning {
+          fill: #f59e0b;
+        }
       `}</style>
     </div>
   );
 };
-
-const NoteCard = ({ note, getPriorityBadge }) => (
-  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-    <Card className={`note-card border shadow-sm rounded-4 h-100 bg-white ${note.unread ? 'border-primary border-opacity-25' : ''}`}>
-      <Card.Body className="p-4 d-flex flex-column">
-        <div className="d-flex justify-content-between align-items-start mb-3">
-          <div className="d-flex flex-wrap align-items-center gap-2">
-            {note.isNew && <Badge bg="primary" className="extra-small fw-bold">NOUVEAU</Badge>}
-            {getPriorityBadge(note.priority)}
-            <Badge bg="light" text="dark" className="extra-small fw-bold border">{note.category}</Badge>
-          </div>
-          <Dropdown align="end">
-            <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-              <MoreVertical size={18} />
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small">
-              <Dropdown.Item className="fw-bold">Marquer comme lu</Dropdown.Item>
-              <Dropdown.Item>Désépingler</Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item className="text-danger">Supprimer</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-        
-        <h6 className="fw-bold text-dark mb-3">{note.title}</h6>
-        <p className="small text-muted mb-4 lh-base flex-grow-1">{note.content}</p>
-        
-        <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
-          <div className="d-flex align-items-center gap-2">
-            <div className="avatar-xs bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '24px', height: '24px', fontSize: '10px' }}>{note.author[0]}</div>
-            <div className="extra-small fw-bold text-dark">{note.author}</div>
-          </div>
-          <div className="extra-small text-muted d-flex align-items-center gap-2 fw-bold">
-            <Clock size={12} /> {note.date}
-          </div>
-        </div>
-      </Card.Body>
-    </Card>
-  </motion.div>
-);
 
 export default AdminNotes;

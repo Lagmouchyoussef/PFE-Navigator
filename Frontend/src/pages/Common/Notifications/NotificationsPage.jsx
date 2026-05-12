@@ -1,200 +1,148 @@
 import React from 'react';
-import { Container, Row, Col, Badge, Card, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Badge, Card, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
   Bell, CheckCircle, Mail, AlertCircle, Calendar, 
-  Settings, Clock, MessageSquare, Activity, Shield, RefreshCcw, Search, MoreVertical
+  Settings, Clock, MessageSquare, Activity, Shield, RefreshCcw, Search, MoreVertical, X
 } from 'lucide-react';
-import { Dropdown } from 'react-bootstrap';
-import './NotificationsPage.css';
 
 const STATS = [
-  { label: 'Non lues', value: '2', color: '#0046ad', icon: <Bell size={24} /> },
-  { label: 'Total notifications', value: '7', color: '#475569', icon: <Activity size={24} /> },
-  { label: 'Cette semaine', value: '24', color: '#10b981', icon: <RefreshCcw size={24} /> },
-  { label: 'Importantes', value: '3', color: '#ef4444', icon: <AlertCircle size={24} /> }
+  { label: 'Non lues', value: '2', color: 'primary', icon: <Bell size={24} /> },
+  { label: 'Total', value: '7', color: 'info', icon: <Activity size={24} /> },
+  { label: 'Semaine', value: '24', color: 'success', icon: <RefreshCcw size={24} /> },
+  { label: 'Urgentes', value: '3', color: 'danger', icon: <AlertCircle size={24} /> }
 ];
 
 const NOTIFICATIONS_DATA = [
-  {
-    id: 1,
-    title: 'Nouvelle évaluation assignée',
-    time: 'Il y a 2 heures',
-    desc: 'Le projet de Sara Kamali "Blockchain Certificate Verification" nécessite votre évaluation',
-    type: 'eval',
-    unread: true,
-    icon: <Activity size={20} />
-  },
-  {
-    id: 2,
-    title: 'Soutenance programmée',
-    time: 'Il y a 5 heures',
-    desc: 'Soutenance d\'Ahmed Benali prévue le 5 Mai à 09:00 en salle A-204',
-    type: 'sched',
-    unread: true,
-    icon: <Calendar size={20} />
-  },
-  {
-    id: 3,
-    title: 'Nouveau message',
-    time: 'Hier',
-    desc: 'Prof. Martin vous a envoyé un message concernant la grille d\'évaluation',
-    type: 'msg',
-    unread: false,
-    icon: <MessageSquare size={20} />
-  },
-  {
-    id: 4,
-    title: 'Mise à jour du système',
-    time: 'Il y a 2 jours',
-    desc: 'Nouvelles fonctionnalités d\'analyse prédictive disponibles dans le tableau de bord',
-    type: 'system',
-    unread: false,
-    icon: <RefreshCcw size={20} />
-  },
-  {
-    id: 5,
-    title: 'Évaluation complétée',
-    time: 'Il y a 3 jours',
-    desc: 'Votre évaluation pour Mohamed Alaoui a été soumise avec succès',
-    type: 'eval',
-    unread: false,
-    icon: <CheckCircle size={20} />
-  },
-  {
-    id: 6,
-    title: 'Date limite proche',
-    time: 'Il y a 3 jours',
-    desc: 'L\'évaluation de Fatima Zahra doit être complétée avant le 7 Mai',
-    type: 'urgent',
-    unread: false,
-    icon: <AlertCircle size={20} />
-  },
-  {
-    id: 7,
-    title: 'Paramètres modifiés',
-    time: 'Il y a 1 semaine',
-    desc: 'Vos préférences de notification ont été mises à jour',
-    type: 'system',
-    unread: false,
-    icon: <Settings size={20} />
-  }
+  { id: 1, title: 'Nouvelle évaluation assignée', time: 'Il y a 2 heures', desc: 'Le projet "Blockchain Certificate Verification" nécessite votre évaluation', type: 'eval', unread: true, icon: <Activity size={20} />, color: 'primary' },
+  { id: 2, title: 'Soutenance programmée', time: 'Il y a 5 heures', desc: 'Soutenance prévue le 5 Mai à 09:00 en salle A-204', type: 'sched', unread: true, icon: <Calendar size={20} />, color: 'info' },
+  { id: 3, title: 'Nouveau message', time: 'Hier', desc: 'Prof. Martin vous a envoyé un message concernant la grille d\'évaluation', type: 'msg', unread: false, icon: <MessageSquare size={20} />, color: 'success' },
+  { id: 4, title: 'Mise à jour du système', time: 'Il y a 2 jours', desc: 'Nouvelles fonctionnalités d\'analyse prédictive disponibles', type: 'system', unread: false, icon: <RefreshCcw size={20} />, color: 'warning' },
+  { id: 5, title: 'Évaluation complétée', time: 'Il y a 3 jours', desc: 'Votre évaluation pour Mohamed Alaoui a été soumise avec succès', type: 'eval', unread: false, icon: <CheckCircle size={20} />, color: 'success' },
+  { id: 6, title: 'Date limite proche', time: 'Il y a 3 jours', desc: 'L\'évaluation de Fatima Zahra doit être complétée avant le 7 Mai', type: 'urgent', unread: false, icon: <AlertCircle size={20} />, color: 'danger' },
 ];
 
 const NotificationsPage = () => {
   return (
-    <div className="nt-page-layout">
-      <Container fluid className="px-0">
+    <div className="notifications-modern-layout py-4">
+      <Container fluid className="px-4">
         
         {/* Header */}
-        <header className="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-4">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="mb-1 text-navy fw-black">Notifications</h1>
-            <p className="fw-medium text-muted">Restez informé de toutes les activités importantes de votre plateforme PFE</p>
-          </motion.div>
-          
-          <div className="nt-search-bar d-flex align-items-center px-3 py-2 bg-white border rounded-pill shadow-sm" style={{ minWidth: '300px' }}>
-            <Search size={18} className="text-muted me-2" />
-            <Form.Control 
-              type="text" 
-              placeholder="Rechercher une notification..." 
-              className="border-0 bg-transparent shadow-none extra-small fw-bold p-0"
-            />
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+          <div>
+            <h2 className="fw-bold mb-1">Centre de Notifications</h2>
+            <p className="text-muted small mb-0">Restez informé de toutes les activités importantes de votre plateforme.</p>
           </div>
-        </header>
+          <div className="d-flex gap-2">
+            <InputGroup size="sm" className="bg-surface rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
+              <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16}/></InputGroup.Text>
+              <Form.Control 
+                placeholder="Rechercher une notification..." 
+                className="bg-transparent border-0 shadow-none py-2 small fw-bold text-primary-custom"
+              />
+            </InputGroup>
+            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+              <Settings size={18} /> Gérer
+            </Button>
+          </div>
+        </div>
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
-          {STATS.map((s, i) => (
-            <Col key={i} lg={3} md={6}>
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ delay: i * 0.1 }}
-                className="nt-stat-card shadow-sm"
-              >
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <div className="nt-stat-val" style={{ color: s.color }}>{s.value}</div>
-                    <div className="nt-stat-label">{s.label}</div>
+          {STATS.map((stat, i) => (
+            <Col key={i} sm={6} lg={3}>
+              <div className={`notif-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
+                <div className="d-flex align-items-center gap-3">
+                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                    {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
-                  <div className="nt-stat-icon-wrap p-3 rounded-4 bg-light" style={{ color: s.color }}>
-                    {s.icon}
+                  <div>
+                    <h4 className="fw-bold mb-0">{stat.value}</h4>
+                    <span className="extra-small text-muted fw-bold text-uppercase">{stat.label}</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </Col>
           ))}
         </Row>
 
         {/* Notifications List */}
-        <Row className="justify-content-center">
-          <Col lg={10}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h5 className="fw-bold text-navy mb-0">Dernières Activités</h5>
-              <Button 
-                variant="link" 
-                className="text-primary fw-bold text-decoration-none small"
-                onClick={() => alert("Toutes les notifications ont été marquées comme lues.")}
-              >
-                Tout marquer comme lu
-              </Button>
-            </div>
- 
-            <div className="nt-feed">
-              {NOTIFICATIONS_DATA.map((n, i) => (
-                <motion.div 
-                  key={n.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`nt-card shadow-sm ${n.unread ? 'unread' : ''}`}
-                >
-                  <div className={`nt-icon-box bg-${n.type}`}>
-                    {n.icon}
+        <div className="notif-glass-card rounded-4 overflow-hidden shadow-sm mb-5">
+          <div className="p-4 border-bottom bg-surface-alt d-flex justify-content-between align-items-center">
+            <h5 className="fw-bold mb-0">Récentes</h5>
+            <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none">Tout marquer comme lu</Button>
+          </div>
+          <div className="d-flex flex-column">
+            {NOTIFICATIONS_DATA.map((notif) => (
+              <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${notif.unread ? 'bg-primary bg-opacity-5' : 'hover-bg-surface'}`}>
+                <div className={`p-3 rounded-4 bg-${notif.color} bg-opacity-10 text-${notif.color} flex-shrink-0`} style={{ height: 'fit-content' }}>
+                  {notif.icon}
+                </div>
+                <div className="flex-grow-1 overflow-hidden">
+                  <div className="d-flex justify-content-between align-items-start mb-1">
+                    <h6 className={`mb-0 small ${notif.unread ? 'fw-bold' : 'fw-semibold opacity-75'}`}>{notif.title}</h6>
+                    <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>{notif.time}</span>
                   </div>
-                  <div className="nt-content pe-5">
-                    <div className="nt-title">{n.title}</div>
-                    <div className="nt-time d-flex align-items-center gap-1">
-                      <Clock size={12} /> {n.time}
-                    </div>
-                    <div className="nt-desc">{n.desc}</div>
-                  </div>
-                  
-                  <div className="nt-options-menu">
-                    <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                        <MoreVertical size={18} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
-                        <Dropdown.Item className="fw-bold">Voir les détails</Dropdown.Item>
-                        <Dropdown.Item>Marquer comme lu</Dropdown.Item>
-                        <Dropdown.Item>Archiver</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item className="text-danger">Supprimer</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
-                  
-                  {n.unread && <div className="nt-unread-dot"></div>}
-                </motion.div>
-              ))}
-            </div>
- 
-            <Button 
-              variant="outline-primary" 
-              className="w-100 mt-4 py-3 fw-bold rounded-4 border-2"
-              onClick={() => alert("Chargement des notifications archivées...")}
-            >
-              Voir les notifications archivées
-            </Button>
-          </Col>
-        </Row>
-
+                  <p className="extra-small text-muted mb-0 lh-base">{notif.desc}</p>
+                </div>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
+                  <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small bg-surface">
+                    <Dropdown.Item className="fw-bold">Marquer comme lu</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold text-danger">Supprimer</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            ))}
+          </div>
+          <div className="p-3 text-center bg-surface-alt">
+            <Button variant="link" className="extra-small fw-bold text-primary text-decoration-none">Afficher plus de notifications</Button>
+          </div>
+        </div>
       </Container>
+
+      <style>{`
+        .notifications-modern-layout {
+          color: var(--text-primary);
+        }
+        .notif-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
+        }
+        .bg-surface {
+          background-color: var(--surface) !important;
+        }
+        .bg-surface-alt {
+          background-color: var(--background) !important;
+        }
+        .hover-bg-surface:hover {
+          background-color: rgba(var(--primary-rgb), 0.05) !important;
+        }
+        .border-start-4 {
+          border-left: 4px solid !important;
+        }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-success { border-left-color: #10b981 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        .border-danger { border-left-color: #ef4444 !important; }
+        .border-info { border-left-color: #0ea5e9 !important; }
+        
+        h2, h4, h5, h6, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .text-primary-custom {
+          color: var(--text-primary) !important;
+        }
+        .border-bottom {
+          border-color: var(--border) !important;
+        }
+      `}</style>
     </div>
   );
 };
 
 export default NotificationsPage;
-

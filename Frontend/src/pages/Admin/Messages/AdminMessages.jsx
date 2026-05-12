@@ -35,39 +35,39 @@ const AdminMessages = () => {
   return (
     <div className="admin-messages-pro-layout">
       <Container fluid className="h-100 p-0 overflow-hidden">
-        <Row className="g-0 h-100" style={{ height: 'calc(100vh - 64px)' }}>
+        <Row className="g-0 h-100" style={{ height: 'calc(100vh - 80px)' }}>
           {/* Sidebar */}
-          <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end bg-white shadow-sm">
+          <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end shadow-sm">
             <div className="p-4 border-bottom">
-              <h4 className="fw-bold text-dark mb-4">Messages</h4>
-              <InputGroup className="bg-light rounded-pill border-0 px-2 overflow-hidden">
+              <h4 className="fw-bold mb-4">Messages</h4>
+              <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
                 <InputGroup.Text className="bg-transparent border-0 pe-1">
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
                   placeholder="Rechercher..." 
-                  className="bg-transparent border-0 shadow-none small py-2"
+                  className="bg-transparent border-0 shadow-none small py-2 text-primary-custom"
                 />
               </InputGroup>
             </div>
 
             <div className="flex-grow-1 overflow-auto conversations-list">
               {conversations.map((conv) => (
-                <div key={conv.id} className={`conv-item p-3 d-flex gap-3 align-items-center cursor-pointer border-bottom transition-all ${conv.id === 1 ? 'bg-primary bg-opacity-10 border-start border-primary border-4' : 'hover-bg-light'}`}>
+                <div key={conv.id} className={`conv-item p-4 d-flex gap-3 align-items-center cursor-pointer border-bottom transition-all ${conv.id === 1 ? 'active-conv' : 'hover-bg-surface'}`}>
                   <div className="position-relative">
-                    <div className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style={{ backgroundColor: conv.color, width: '45px', height: '45px' }}>{conv.avatar}</div>
+                    <div className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style={{ backgroundColor: conv.color, width: '48px', height: '48px' }}>{conv.avatar}</div>
                     {conv.online && <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '12px', height: '12px' }}></div>}
                   </div>
                   <div className="flex-grow-1 overflow-hidden">
-                    <div className="d-flex justify-content-between">
-                      <div className="fw-bold small text-dark text-truncate">{conv.name}</div>
+                    <div className="d-flex justify-content-between mb-1">
+                      <div className="fw-bold small text-truncate">{conv.name}</div>
                       <div className="extra-small text-muted">{conv.time}</div>
                     </div>
                     <div className="extra-small text-muted mb-1 opacity-75">{conv.role}</div>
                     <p className="extra-small text-muted mb-0 text-truncate">{conv.lastMsg}</p>
                   </div>
                   {conv.unread > 0 && (
-                    <Badge pill bg="primary" className="ms-auto">{conv.unread}</Badge>
+                    <Badge pill bg="primary" className="ms-auto" style={{ fontSize: '0.65rem' }}>{conv.unread}</Badge>
                   )}
                 </div>
               ))}
@@ -75,116 +75,121 @@ const AdminMessages = () => {
           </Col>
 
           {/* Chat Area */}
-          <Col lg={8} xl={9} className="h-100 d-flex flex-column bg-light">
+          <Col lg={8} xl={9} className="h-100 d-flex flex-column bg-surface-alt">
             {/* Chat Header */}
-            <header className="p-3 px-4 d-flex justify-content-between align-items-center bg-white border-bottom shadow-sm">
+            <header className="p-3 px-4 d-flex justify-content-between align-items-center bg-surface border-bottom shadow-sm">
               <div className="d-flex align-items-center gap-3">
                 <div className="position-relative">
                   <div className="avatar-circle sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '40px', height: '40px' }}>DS</div>
                   <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '10px', height: '10px' }}></div>
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-dark">Dr. Sarah Smith</h6>
+                  <h6 className="fw-bold mb-0">Dr. Sarah Smith</h6>
                   <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
                     <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> En ligne • Superviseur
                   </span>
                 </div>
               </div>
               <div className="d-flex gap-2">
-                <Button variant="link" className="text-muted p-1 hover-bg-light rounded-circle"><Phone size={20}/></Button>
-                <Button variant="link" className="text-muted p-1 hover-bg-light rounded-circle"><Video size={20}/></Button>
+                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Phone size={20}/></Button>
+                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Video size={20}/></Button>
                 <Dropdown align="end">
-                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                  <Dropdown.Toggle variant="link" className="p-1 text-muted shadow-none border-0 no-caret">
                     <MoreVertical size={20} />
                   </Dropdown.Toggle>
-                  <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small">
-                    <Dropdown.Item>Voir le profil</Dropdown.Item>
-                    <Dropdown.Item>Muter les notifications</Dropdown.Item>
+                  <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small bg-surface">
+                    <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> Voir profil</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold"><Search size={14} className="me-2"/> Rechercher</Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item className="text-danger">Bloquer</Dropdown.Item>
+                    <Dropdown.Item className="text-danger fw-bold">Bloquer</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
             </header>
 
-            {/* Message Area */}
-            <div ref={scrollRef} className="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3">
-              <div className="text-center my-4">
-                <Badge bg="white" className="text-muted border fw-bold px-3 py-1 rounded-pill extra-small">Aujourd'hui</Badge>
-              </div>
-              
-              {chatMessages.map((msg) => {
-                const isMe = msg.sender === 'me';
-                return (
-                  <motion.div 
-                    key={msg.id}
-                    initial={{ opacity: 0, x: isMe ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}`}
-                  >
-                    <div className="max-w-75">
-                      <div className={`p-3 rounded-4 shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}`} style={{ borderRadius: isMe ? '20px 20px 0 20px' : '20px 20px 20px 0' }}>
-                        {msg.text}
-                      </div>
-                      <div className={`d-flex align-items-center gap-2 mt-1 px-1 ${isMe ? 'justify-content-end' : ''}`}>
-                        <span className="extra-small text-muted fw-bold">{msg.time}</span>
-                        {isMe && (
-                          msg.status === 'read' ? <CheckCheck size={14} className="text-primary" /> : <Check size={14} className="text-muted" />
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+            {/* Messages Feed */}
+            <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-4" ref={scrollRef}>
+              {chatMessages.map((msg) => (
+                <div key={msg.id} className={`d-flex flex-column ${msg.sender === 'me' ? 'align-items-end' : 'align-items-start'}`}>
+                  <div className={`message-bubble p-3 rounded-4 shadow-sm max-w-75 ${msg.sender === 'me' ? 'bg-primary text-white' : 'bg-surface border'}`}>
+                    <p className="mb-0 small">{msg.text}</p>
+                  </div>
+                  <div className="d-flex align-items-center gap-2 mt-1 px-2 extra-small text-muted">
+                    {msg.time}
+                    {msg.sender === 'me' && (
+                      msg.status === 'read' ? <CheckCheck size={14} className="text-primary"/> : <Check size={14}/>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Input Footer */}
-            <footer className="p-4 bg-white border-top">
-              <input type="file" ref={fileRef} className="d-none" />
-              <div className="d-flex align-items-center gap-3 bg-light rounded-pill px-3 py-2 border shadow-sm">
-                <Button 
-                  variant="link" 
-                  className="text-primary p-0 border-0 shadow-none"
-                  onClick={() => fileRef.current?.click()}
-                >
+            {/* Chat Input */}
+            <div className="p-3 px-4 border-top bg-surface">
+              <div className="d-flex align-items-center gap-3">
+                <Button variant="link" className="p-2 text-muted rounded-circle hover-bg-surface" onClick={() => fileRef.current?.click()}>
                   <Paperclip size={20}/>
+                  <input type="file" ref={fileRef} className="d-none" />
                 </Button>
-                <Form.Control 
-                  placeholder="Écrivez votre message..." 
-                  className="border-0 bg-transparent shadow-none small fw-bold"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                />
-                <Button 
-                  className="bg-primary text-white border-0 rounded-circle d-flex align-items-center justify-content-center p-2 shadow-sm"
-                  onClick={() => setInputText('')}
-                >
-                  <Send size={18} />
+                <div className="flex-grow-1 position-relative">
+                  <Form.Control 
+                    placeholder="Tapez votre message..." 
+                    className="rounded-pill border shadow-none px-4 py-2 bg-surface-alt text-primary-custom"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                  />
+                </div>
+                <Button variant="primary" className="rounded-circle d-flex align-items-center justify-content-center border-0 p-2" style={{ width: '42px', height: '42px', backgroundColor: '#2563eb' }}>
+                  <Send size={18}/>
                 </Button>
               </div>
-            </footer>
+            </div>
           </Col>
         </Row>
       </Container>
 
       <style>{`
         .admin-messages-pro-layout {
-          background-color: #f8fafc;
-          height: calc(100vh - 64px);
-          font-family: 'Inter', -apple-system, sans-serif;
+          height: calc(100vh - 80px);
+          color: var(--text-primary);
         }
-        .hover-bg-light:hover { background-color: #f1f5f9; }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
-        .bg-primary { background-color: #2563eb !important; }
+        .messages-sidebar {
+          background-color: var(--surface);
+          border-color: var(--border) !important;
+        }
+        .bg-surface {
+          background-color: var(--surface) !important;
+        }
+        .bg-surface-alt {
+          background-color: var(--background) !important;
+        }
+        .active-conv {
+          background-color: rgba(var(--primary-rgb), 0.1) !important;
+          border-left: 4px solid var(--primary) !important;
+        }
+        .conv-item {
+          border-color: var(--border) !important;
+        }
+        .hover-bg-surface:hover {
+          background-color: rgba(var(--primary-rgb), 0.05) !important;
+        }
+        .message-bubble {
+          max-width: 80%;
+          line-height: 1.5;
+        }
         .max-w-75 { max-width: 75%; }
-        .no-caret::after { display: none; }
-        .conv-item.active {
-          background-color: rgba(37, 99, 235, 0.05);
-          border-left: 4px solid #2563eb !important;
+        h4, h6, .fw-bold {
+          color: var(--text-primary) !important;
         }
-        .conversations-list::-webkit-scrollbar { width: 4px; }
-        .conversations-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .text-primary-custom {
+          color: var(--text-primary) !important;
+        }
+        .border-end, .border-bottom, .border-top, .border {
+          border-color: var(--border) !important;
+        }
       `}</style>
     </div>
   );

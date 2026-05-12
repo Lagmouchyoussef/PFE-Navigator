@@ -6,7 +6,7 @@ import {
   Grid, List as ListIcon, FileCheck, BookOpen, HardDrive, Award
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Container, Row, Col, Card, Table, Button, InputGroup, Form, Badge, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Button, InputGroup, Form, Badge, Modal, Dropdown } from 'react-bootstrap';
 
 const FILES = [
   { name: 'Rapport_jury_2026.pdf', type: 'PDF', size: '2.4 MB', date: '10 Mai 2026', color: 'primary' },
@@ -18,29 +18,25 @@ const FILES = [
 const ResourceHub = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const handleExport = (fileName) => {
-    alert(`Téléchargement de ${fileName} en cours...`);
-  };
-
   return (
-    <div className="resources-simple-layout py-4">
+    <div className="resources-modern-layout py-4">
       <Container fluid className="px-4">
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold text-dark mb-1">Centre de Ressources</h2>
+            <h2 className="fw-bold mb-1">Centre de Ressources</h2>
             <p className="text-muted small mb-0">Gestion centralisée des documents et supports de travail.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-secondary" className="bg-white text-dark fw-bold small px-3 border shadow-sm">
-              <Download size={16} className="me-2" /> Tout Télécharger
+            <Button variant="outline-primary" className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+              <Download size={18} /> Tout Télécharger
             </Button>
             <Button 
-              className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2"
+              className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2 rounded-pill"
               style={{ backgroundColor: '#2563eb' }}
               onClick={() => setShowUploadModal(true)}
             >
-              <Plus size={18} /> Téléverser un fichier
+              <Plus size={18} /> Téléverser
             </Button>
           </div>
         </div>
@@ -48,130 +44,125 @@ const ResourceHub = () => {
         {/* Categories Grid */}
         <Row className="g-4 mb-5">
           {[
-            { value: '18', label: 'Documents PDF', sub: 'Fichiers récents', color: 'blue-custom', icon: <FileText /> },
-            { value: '1.2 GB', label: 'Espace Utilisé', sub: 'Sur 10 GB', color: 'purple-custom', icon: <HardDrive /> },
-            { value: '4', label: 'Nouveautés', sub: 'Cette semaine', color: 'emerald-custom', icon: <Plus /> },
-            { value: '6', label: 'Favoris', sub: 'Accès rapide', color: 'amber-custom', icon: <Award /> },
+            { value: '18', label: 'Documents PDF', sub: 'Fichiers récents', color: 'primary', icon: <FileText /> },
+            { value: '1.2 GB', label: 'Espace Utilisé', sub: 'Sur 10 GB', color: 'info', icon: <HardDrive /> },
+            { value: '4', label: 'Nouveautés', sub: 'Cette semaine', color: 'success', icon: <Plus /> },
+            { value: '6', label: 'Favoris', sub: 'Accès rapide', color: 'warning', icon: <Award /> },
           ].map((stat, i) => (
             <Col key={i} lg={3} md={6}>
-              <Card className={`border shadow-sm rounded-3 p-4 bg-white hover-translate transition-all cursor-pointer h-100 resources-stat-card border-${stat.color}`}>
+              <div className={`resources-glass-card p-4 rounded-4 shadow-sm hover-translate transition-all cursor-pointer h-100 border-start-4 border-${stat.color}`}>
                 <div className="d-flex justify-content-between align-items-start mb-2">
-                  <h2 className="fw-bold text-dark mb-0">{stat.value}</h2>
-                  <div className={`p-2 rounded-circle bg-light text-${stat.color}`}>
-                    {React.cloneElement(stat.icon, { size: 20 })}
+                  <h2 className="fw-bold mb-0">{stat.value}</h2>
+                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                    {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
                 </div>
                 <h6 className="fw-bold text-muted small mb-1">{stat.label}</h6>
                 <p className="extra-small text-muted opacity-75 mb-0">{stat.sub}</p>
-              </Card>
+              </div>
             </Col>
           ))}
         </Row>
 
         {/* Repository Table */}
-        <Card className="border shadow-sm rounded-3 overflow-hidden bg-white mb-5 resources-main-card">
-          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
-            <h5 className="fw-bold text-dark mb-0">Fichiers récents</h5>
+        <div className="resources-glass-card rounded-4 overflow-hidden shadow-sm mb-5">
+          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+            <h5 className="fw-bold mb-0">Fichiers récents</h5>
             <div className="d-flex gap-2">
-              <InputGroup className="bg-light rounded-pill border-0 px-2 overflow-hidden d-none d-md-flex">
+              <InputGroup className="bg-surface rounded-pill border px-2 overflow-hidden d-none d-md-flex">
                 <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted"/></InputGroup.Text>
-                <Form.Control placeholder="Rechercher un fichier..." className="bg-transparent border-0 shadow-none extra-small" />
+                <Form.Control placeholder="Rechercher..." className="bg-transparent border-0 shadow-none extra-small text-primary-custom" />
               </InputGroup>
-              <Button variant="light" size="sm" className="border rounded-2"><ListIcon size={16} /></Button>
-              <Button variant="primary" size="sm" style={{ backgroundColor: '#2563eb' }} className="border-0 rounded-2"><Grid size={16} /></Button>
+              <Button variant="outline-secondary" size="sm" className="border rounded-pill px-3"><ListIcon size={16} /></Button>
+              <Button variant="primary" size="sm" style={{ backgroundColor: '#2563eb' }} className="border-0 rounded-pill px-3"><Grid size={16} /></Button>
             </div>
           </div>
           
           <div className="table-responsive">
-            <Table hover className="mb-0">
-              <thead className="bg-light">
-                <tr>
-                  <th className="ps-4 py-3 extra-small text-muted text-uppercase fw-bold border-0">Nom du fichier</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Type</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Taille</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Modifié le</th>
-                  <th className="py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold border-0">Actions</th>
+            <Table borderless hover className="align-middle mb-0 resources-table">
+              <thead>
+                <tr className="border-bottom opacity-50">
+                  <th className="ps-4 py-3 extra-small text-muted text-uppercase fw-bold">Nom du fichier</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Type</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Taille</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Modifié le</th>
+                  <th className="py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {FILES.map((file, i) => (
-                  <tr key={i} className="align-middle border-bottom">
+                  <tr key={i} className="border-bottom border-light border-opacity-10 transition-all">
                     <td className="ps-4 py-3">
                       <div className="d-flex align-items-center gap-3">
-                        <div className={`p-2 rounded-2 bg-light text-primary`}>
+                        <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
                           <FileText size={18} />
                         </div>
-                        <span className="small fw-bold text-dark">{file.name}</span>
+                        <span className="small fw-bold">{file.name}</span>
                       </div>
                     </td>
-                    <td><Badge bg="light" className="text-muted border extra-small px-2 py-1">{file.type}</Badge></td>
-                    <td className="extra-small text-muted fw-bold">{file.size}</td>
-                    <td className="extra-small text-muted fw-bold">{file.date}</td>
-                    <td className="text-end pe-4">
-                      <div className="d-flex justify-content-end gap-2">
-                        <Button variant="light" size="sm" className="rounded-2" onClick={() => handleExport(file.name)} title="Télécharger"><Download size={14} /></Button>
-                        <Button variant="light" size="sm" className="rounded-2" title="Partager"><Share2 size={14} /></Button>
-                        <Button variant="light" size="sm" className="rounded-2" title="Plus"><MoreHorizontal size={14} /></Button>
-                      </div>
+                    <td className="py-3">
+                      <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
+                        {file.type}
+                      </Badge>
+                    </td>
+                    <td className="py-3 small text-muted">{file.size}</td>
+                    <td className="py-3 small text-muted">{file.date}</td>
+                    <td className="pe-4 py-3 text-end">
+                      <Dropdown align="end">
+                        <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
+                          <MoreHorizontal size={18} />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-3">
+                          <Dropdown.Item className="extra-small fw-bold"><Download size={14} className="me-2" /> Télécharger</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold"><Share2 size={14} className="me-2" /> Partager</Dropdown.Item>
+                          <Dropdown.Divider />
+                          <Dropdown.Item className="extra-small fw-bold text-danger">Supprimer</Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           </div>
-        </Card>
+        </div>
       </Container>
 
-      {/* UPLOAD MODAL */}
-      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Téléverser des Ressources</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4 text-center">
-          <div className="p-5 border border-2 border-dashed rounded-3 bg-light mb-3">
-            <Plus size={40} className="text-muted opacity-50 mb-2" />
-            <div className="small fw-bold text-muted">Glissez-déposez vos fichiers ici</div>
-            <div className="extra-small text-muted mt-1">ou cliquez pour parcourir</div>
-          </div>
-          <Button className="w-100 fw-bold border-0" style={{ backgroundColor: '#2563eb' }} onClick={() => setShowUploadModal(false)}>
-            Confirmer le Téléchargement
-          </Button>
-        </Modal.Body>
-      </Modal>
-
       <style>{`
-        .resources-simple-layout {
-          background-color: #f8fafc;
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+        .resources-modern-layout {
+          color: var(--text-primary);
         }
-        .resources-stat-card {
-          border-left: 4px solid #2563eb !important;
-          transition: transform 0.2s ease;
+        .resources-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
         }
-        .border-blue-custom { border-left-color: #3b82f6 !important; }
-        .border-purple-custom { border-left-color: #8b5cf6 !important; }
-        .border-emerald-custom { border-left-color: #10b981 !important; }
-        .border-amber-custom { border-left-color: #f59e0b !important; }
-
-        .text-blue-custom { color: #3b82f6 !important; }
-        .text-purple-custom { color: #8b5cf6 !important; }
-        .text-emerald-custom { color: #10b981 !important; }
-        .text-amber-custom { color: #f59e0b !important; }
-
-        .resources-stat-card:hover {
-          transform: translateY(-5px);
+        .bg-surface-alt {
+          background-color: var(--background) !important;
         }
-        .resources-main-card {
-          border-top: 4px solid #2563eb !important;
+        .bg-surface {
+          background-color: var(--surface) !important;
         }
-        .hover-translate:hover {
-          transform: translateY(-5px);
-          border-color: #2563eb !important;
+        .resources-table tbody tr:hover {
+          background-color: rgba(var(--primary-rgb), 0.03) !important;
         }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
-        .transition-all { transition: all 0.2s ease; }
+        .border-start-4 {
+          border-left: 4px solid !important;
+        }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-info { border-left-color: #0ea5e9 !important; }
+        .border-success { border-left-color: #10b981 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        
+        h2, h5, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .text-primary-custom {
+          color: var(--text-primary) !important;
+        }
       `}</style>
     </div>
   );

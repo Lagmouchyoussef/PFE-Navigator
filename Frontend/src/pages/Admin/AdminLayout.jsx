@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, Calendar, Archive, BarChart3, 
+  LayoutDashboard, Users, Calendar, Archive, BarChart as BarChartIcon, 
   Package, MessageSquare, Bell, FileEdit, Settings, 
   LogOut, Search, Menu, X, ChevronRight, User, Briefcase, Activity,
   Sun, Moon
@@ -60,7 +60,7 @@ const AdminLayout = () => {
 
         <div className="sidebar-group px-3 mt-4 mb-2">
           {!isSidebarCollapsed && (
-            <div className="sidebar-group-title extra-small text-white opacity-50 fw-bold text-uppercase tracking-widest px-2 mb-2">
+            <div className="sidebar-group-title extra-small text-white opacity-75 fw-bold text-uppercase tracking-widest px-2 mb-2">
               Principal
             </div>
           )}
@@ -69,7 +69,7 @@ const AdminLayout = () => {
             <SidebarLink to="/admin/users" icon={<Users size={20} color="#8b5cf6" />} label="User Management" isCollapsed={isSidebarCollapsed} />
             <SidebarLink to="/admin/jury" icon={<Calendar size={20} color="#6366f1" />} label="Jury Planning" isCollapsed={isSidebarCollapsed} />
             <SidebarLink to="/admin/projects" icon={<Briefcase size={20} color="#06b6d4" />} label="Projects Archive" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/analytics" icon={<Activity size={20} color="#f43f5e" />} label="Analytics Center" isCollapsed={isSidebarCollapsed} />
+            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} color="#f43f5e" />} label="Analytics Center" isCollapsed={isSidebarCollapsed} />
           </nav>
         </div>
 
@@ -108,16 +108,16 @@ const AdminLayout = () => {
           <div className="header-search-container d-flex align-items-center gap-3">
             <Button 
               variant="link" 
-              className="p-1 text-navy shadow-none border-0 hover-bg-light transition-all" 
+              className="p-1 shadow-none border-0 hover-bg-light transition-all" 
               onClick={toggleSidebar}
             >
-              <div className="p-2 rounded-circle bg-light d-flex align-items-center justify-content-center overflow-hidden">
+              <div className="p-2 rounded-circle bg-surface-alt d-flex align-items-center justify-content-center overflow-hidden border">
                 <motion.div
                   animate={{ rotate: isSidebarCollapsed ? 0 : 90 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                   className="d-flex align-items-center justify-content-center"
                 >
-                  <Menu size={20} className="text-navy" />
+                  <Menu size={20} className="text-primary" />
                 </motion.div>
               </div>
             </Button>
@@ -128,6 +128,7 @@ const AdminLayout = () => {
                 type="text"
                 placeholder="Search resources, documents..."
                 className="border-0 shadow-none bg-transparent"
+                style={{ color: 'var(--text-primary)' }}
               />
             </div>
 
@@ -187,7 +188,7 @@ const AdminLayout = () => {
                         </div>
                         <div className="overflow-hidden">
                           <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="fw-bold extra-small text-dark-custom">{msg.sender === 'student' ? 'Student' : 'Jury'}</span>
+                            <span className="fw-bold extra-small text-primary">{msg.sender === 'student' ? 'Student' : 'Jury'}</span>
                             <span className="extra-small text-muted">{new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           <p className="extra-small text-muted text-truncate mb-0">{msg.text}</p>
@@ -255,7 +256,7 @@ const AdminLayout = () => {
                   whileHover={{ x: -5 }}
                 >
                   <div className="d-flex flex-column text-end d-none d-md-flex">
-                    <span className="fw-bold text-dark-custom" style={{ fontSize: '0.9rem' }}>
+                    <span className="fw-bold text-primary-custom" style={{ fontSize: '0.9rem' }}>
                       {session?.name || 'Admin'}
                     </span>
                     <span className="text-muted extra-small">Administrator</span>

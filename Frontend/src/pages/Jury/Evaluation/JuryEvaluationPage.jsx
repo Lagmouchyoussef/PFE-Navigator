@@ -3,17 +3,15 @@ import {
   Container, Row, Col, Card, Badge, 
   Button, Table, Form, Dropdown, ProgressBar 
 } from 'react-bootstrap';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X
 } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
 import { useApp } from '../../../context/AppContext.jsx';
-import './JuryEvaluationPage.css';
 
 const CHART_DATA = [
   { name: 'Jan', completed: 5, pending: 15 },
@@ -33,14 +31,14 @@ const PROJECTS_LIST = [
 
 const CRITERIA = [
   { id: 'innovation', label: 'Innovation' },
-  { id: 'methodology', label: 'Methodology' },
-  { id: 'quality', label: 'Technical Quality' },
-  { id: 'presentation', label: 'Presentation' },
+  { id: 'methodology', label: 'Méthodologie' },
+  { id: 'quality', label: 'Qualité Technique' },
+  { id: 'presentation', label: 'Présentation' },
   { id: 'docs', label: 'Documentation' },
 ];
 
 const JuryEvaluationPage = () => {
-  const { session } = useApp();
+  const { theme } = useApp();
   const evaluationRef = useRef(null);
   const [activeStudent, setActiveStudent] = useState(PROJECTS_LIST[0]);
   const [scores, setScores] = useState({
@@ -68,231 +66,212 @@ const JuryEvaluationPage = () => {
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="ev-page-layout">
-      <Container fluid className="px-0">
-        
-        {/* Success Notification Card */}
+    <div className="evaluation-modern-layout py-4">
+      <Container fluid className="px-4">
+        {/* Success Alert */}
         <AnimatePresence>
           {showSuccessCard && (
             <motion.div 
-              initial={{ opacity: 0, y: -50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="ev-success-card mb-4 d-flex align-items-center justify-content-between shadow-lg"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="eval-alert-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center"
             >
               <div className="d-flex align-items-center gap-3">
-                <div className="icon-box bg-success p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                  <CheckCircle size={24} color="#ffffff" />
+                <div className="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                  <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-bold" style={{ color: 'var(--jd-text)' }}>Évaluation Enregistrée</h6>
-                  <p className="extra-small mb-0 opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{successMsg}</p>
+                  <h6 className="fw-bold mb-0">Évaluation Soumise</h6>
+                  <p className="extra-small text-muted mb-0">{successMsg}</p>
                 </div>
               </div>
-              <div className="d-flex align-items-center gap-2">
-                <Dropdown align="end">
-                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                    <MoreVertical size={16} />
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="shadow border-0 rounded-3">
-                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Supprimer</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Archiver</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setShowSuccessCard(false)}>Mettre en favori</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-                <Button size="sm" variant="link" className="text-muted p-0" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
-              </div>
+              <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Header */}
-        <header className="ev-header-section mb-5">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="mb-1 text-navy">Centre d'Évaluation</h1>
-            <p className="fw-medium text-muted">Gérez toutes vos évaluations de projets et suivis académiques</p>
-          </motion.div>
-        </header>
-
-        {/* Stats Grid */}
-        <Row className="g-4 mb-5">
-          <Col lg={3} md={6}>
-            <StatCard label="En attente" value="12" icon={<Clock size={24} className="text-warning" />} />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard label="Complétées" value="28" icon={<CheckCircle size={24} className="text-success" />} />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard label="En cours" value="5" icon={<Activity size={24} className="text-primary" />} />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard label="Urgentes" value="3" icon={<AlertCircle size={24} className="text-danger" />} />
-          </Col>
-        </Row>
-
-        {/* Chart Section */}
-        <Row className="g-4 mb-5">
-          <Col lg={12}>
-            <Card className="ev-chart-card shadow-sm border-0">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                  <div className="d-flex align-items-center gap-2 mb-2">
-                    <Clock size={18} className="text-warning" />
-                    <span className="fw-bold extra-small text-navy">Heures de Session</span>
-                  </div>
-                  <p className="extra-small text-muted mb-0">Comparaison mensuelle des projets complétés vs en attente</p>
-                </div>
-                <Badge bg="light" text="dark" className="border px-3 py-2 rounded-pill">Année 2025/2026</Badge>
-              </div>
-              <div style={{ height: '300px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={CHART_DATA}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.1} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                    <Legend iconType="circle" />
-                    <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} name="Complétées" />
-                    <Line type="monotone" dataKey="pending" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} name="En attente" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Projects List Table */}
-        <div className="ev-table-card shadow-sm border-0 mb-5">
-          <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold text-navy mb-0">Projets à Évaluer</h5>
-            <Button variant="light" className="extra-small fw-bold border shadow-none">Voir tout <ChevronRight size={14} className="text-primary" /></Button>
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+          <div>
+            <h2 className="fw-bold mb-1">Centre d'Évaluation</h2>
+            <p className="text-muted small mb-0">Gérez toutes vos évaluations de projets et suivis académiques.</p>
           </div>
-          <Table className="ev-table mb-0">
-            <thead>
-              <tr>
-                <th style={{ width: '25%' }} className="ps-4">Student Name</th>
-                <th style={{ width: '35%' }}>Project Title</th>
-                <th style={{ width: '20%' }}>Supervisor</th>
-                <th style={{ width: '20%' }} className="text-end pe-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PROJECTS_LIST.map((p, i) => (
-                <tr key={i} className={`align-middle ${activeStudent?.id === p.id ? 'bg-primary bg-opacity-5' : ''}`}>
-                  <td className="fw-bold text-navy px-4 text-truncate">{p.name}</td>
-                  <td className="small text-muted text-truncate">{p.title}</td>
-                  <td className="small fw-medium text-truncate">{p.sup}</td>
-                  <td className="text-end px-4">
-                    <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                        <MoreVertical size={18} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="shadow-sm border-0 rounded-3 extra-small">
-                        <Dropdown.Item onClick={() => handleOpenEvaluation(p)}>Ouvrir l'évaluation</Dropdown.Item>
-                        <Dropdown.Item>Détails du projet</Dropdown.Item>
-                        <Dropdown.Item>Télécharger le rapport</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
         </div>
 
-        {/* Active Evaluation Panel */}
-        <section ref={evaluationRef} className="animate-slide-up">
-          <div className="ev-active-panel">
-            <Row className="align-items-start mb-5">
-              <Col md={8}>
-                <Badge bg="primary" className="mb-3 px-3 py-2 rounded-pill bg-opacity-10 text-primary">Évaluation en Cours</Badge>
-                <h2 className="fw-black mb-1" style={{ color: 'var(--jd-text)' }}>{activeStudent?.name}</h2>
-                <p className="fw-medium fs-5 opacity-75" style={{ color: 'var(--jd-text-muted)' }}>{activeStudent?.title}</p>
-              </Col>
-              <Col md={4} className="text-end">
-                <div className="ev-total-box d-inline-block text-center shadow-sm">
-                  <div className="extra-small text-muted fw-bold mb-1">TOTAL SCORE</div>
-                  <div className="h2 fw-black text-primary mb-0">{totalScore}<small className="h6 text-muted">/100</small></div>
+        {/* Stats Row */}
+        <Row className="g-4 mb-5">
+          {[
+            { label: 'En attente', value: '12', icon: <Clock />, color: 'warning' },
+            { label: 'Complétées', value: '28', icon: <CheckCircle />, color: 'success' },
+            { label: 'En cours', value: '5', icon: <Activity />, color: 'primary' },
+            { label: 'Urgentes', value: '3', icon: <AlertCircle />, color: 'danger' },
+          ].map((stat, i) => (
+            <Col key={i} lg={3} md={6}>
+              <div className={`eval-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h4 className="fw-bold mb-0">{stat.value}</h4>
+                    <span className="extra-small text-muted fw-bold text-uppercase">{stat.label}</span>
+                  </div>
+                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                    {React.cloneElement(stat.icon, { size: 24 })}
+                  </div>
                 </div>
-              </Col>
-            </Row>
+              </div>
+            </Col>
+          ))}
+        </Row>
 
-            <h6 className="fw-bold mb-4 d-flex align-items-center gap-2" style={{ color: 'var(--jd-text)' }}>
-              <Target size={20} className="text-primary" /> Scoring Rubric
-            </h6>
-            
-            <Table responsive borderless className="ev-scoring-table mb-5">
+        {/* Projects Table */}
+        <div className="eval-glass-card rounded-4 overflow-hidden shadow-sm mb-5">
+          <div className="p-4 border-bottom bg-surface-alt d-flex justify-content-between align-items-center">
+            <h5 className="fw-bold mb-0">Liste des Projets</h5>
+          </div>
+          <div className="table-responsive">
+            <Table borderless hover className="align-middle mb-0 eval-table">
               <thead>
-                <tr>
-                  <th style={{ width: '40%', color: 'var(--jd-text)' }}>CRITERIA</th>
-                  <th className="text-center" style={{ color: 'var(--jd-text)' }}>SCORE (0-20)</th>
-                  <th style={{ color: 'var(--jd-text)' }}>RATING</th>
+                <tr className="border-bottom opacity-50 bg-surface-alt">
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Titre du Projet</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Encadrant</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {CRITERIA.map(item => (
-                  <tr key={item.id} className="align-middle border-bottom-dashed">
-                    <td className="py-3">
-                      <div className="fw-bold small" style={{ color: 'var(--jd-text)' }}>{item.label}</div>
-                      <div className="extra-small opacity-75" style={{ color: 'var(--jd-text-muted)' }}>Detailed assessment of the {item.label.toLowerCase()}</div>
-                    </td>
-                    <td className="text-center">
-                      <Form.Control 
-                        type="number" 
-                        className="ev-score-input mx-auto" 
-                        value={scores[item.id]}
-                        onChange={(e) => handleScoreChange(item.id, e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <Badge bg="transparent" className="border px-3 py-2 extra-small fw-bold" style={{ color: 'var(--jd-text)' }}>
-                        {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Good' : 'Pending'}
-                      </Badge>
+                {PROJECTS_LIST.map((p, i) => (
+                  <tr key={i} className="border-bottom border-light border-opacity-10 transition-all">
+                    <td className="px-4 py-3 fw-bold small">{p.name}</td>
+                    <td className="py-3 small text-muted text-truncate" style={{maxWidth: '300px'}}>{p.title}</td>
+                    <td className="py-3 small opacity-75">{p.sup}</td>
+                    <td className="px-4 py-3 text-end">
+                      <Button 
+                        variant="link" 
+                        className="p-0 text-primary extra-small fw-bold text-decoration-none"
+                        onClick={() => handleOpenEvaluation(p)}
+                      >
+                        Évaluer <ChevronRight size={14} className="ms-1" />
+                      </Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
+          </div>
+        </div>
+
+        {/* Evaluation Panel */}
+        <section ref={evaluationRef} className="animate-fade-in">
+          <div className="eval-glass-card p-5 rounded-4 shadow-sm">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start mb-5 gap-4">
+              <div>
+                <Badge bg="primary" className="mb-2 px-3 py-1 rounded-pill bg-opacity-10 text-primary extra-small fw-bold">Session d'Évaluation</Badge>
+                <h3 className="fw-bold mb-1">{activeStudent?.name}</h3>
+                <p className="text-muted small mb-0">{activeStudent?.title}</p>
+              </div>
+              <div className="p-4 rounded-4 bg-surface-alt border text-center shadow-sm" style={{ minWidth: '160px' }}>
+                <div className="extra-small text-muted fw-bold text-uppercase mb-1">Score Total</div>
+                <div className="h2 fw-bold mb-0 text-primary">{totalScore}<small className="h6 text-muted ms-1">/100</small></div>
+              </div>
+            </div>
+
+            <h6 className="fw-bold mb-4 d-flex align-items-center gap-2 border-bottom pb-2">
+              <Target size={18} className="text-primary" /> Rubrique de Notation
+            </h6>
+
+            <div className="table-responsive mb-5">
+              <Table borderless className="align-middle eval-scoring-table">
+                <thead>
+                  <tr className="border-bottom opacity-50">
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Critère</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note (0-20)</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-end">Observation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CRITERIA.map(item => (
+                    <tr key={item.id} className="border-bottom border-light border-opacity-10">
+                      <td className="py-4">
+                        <div className="fw-bold small">{item.label}</div>
+                        <div className="extra-small text-muted">Évaluation de la pertinence et de la rigueur du critère.</div>
+                      </td>
+                      <td className="py-4">
+                        <Form.Control 
+                          type="number" 
+                          className="bg-surface-alt border-0 rounded-3 text-center fw-bold mx-auto text-primary-custom" 
+                          style={{ width: '80px', height: '45px' }}
+                          value={scores[item.id]}
+                          onChange={(e) => handleScoreChange(item.id, e.target.value)}
+                        />
+                      </td>
+                      <td className="py-4 text-end">
+                        <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
+                          {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Bien' : 'En attente'}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
 
             <Form.Group className="mb-5">
-              <Form.Label className="fw-bold small d-flex align-items-center gap-2" style={{ color: 'var(--jd-text)' }}>
-                <FileText size={18} className="text-primary" /> Evaluation Comments
+              <Form.Label className="fw-bold small d-flex align-items-center gap-2 text-muted mb-3">
+                <FileText size={18} className="text-primary" /> Commentaires de l'Évaluateur
               </Form.Label>
               <Form.Control 
                 as="textarea" 
                 rows={5} 
-                className="rounded-4 border-0 p-4 small shadow-none"
-                placeholder="Provide detailed feedback on the project strengths, weaknesses, and recommendations..."
+                className="bg-surface-alt border-0 rounded-4 p-4 small text-primary-custom shadow-none"
+                placeholder="Détaillez ici les points forts, les axes d'amélioration et vos recommandations pour l'étudiant..."
               />
             </Form.Group>
 
-            <div className="d-flex justify-content-end gap-3 border-top pt-5">
-              <Button variant="light" className="px-4 py-2 fw-bold rounded-3">Enregistrer Brouillon</Button>
-              <Button className="ev-submit-btn px-5 py-3 d-flex align-items-center gap-2" onClick={handleSubmit}>
-                <Send size={18} className="text-info" /> Soumettre l'Évaluation
+            <div className="d-flex justify-content-end gap-3 pt-4 border-top">
+              <Button variant="outline-secondary" className="px-4 py-2 fw-bold extra-small rounded-pill border-2">Brouillon</Button>
+              <Button className="px-5 py-3 d-flex align-items-center gap-2 fw-bold rounded-pill border-0 shadow-sm" style={{ backgroundColor: '#2563eb' }} onClick={handleSubmit}>
+                <Send size={18} /> Soumettre l'Évaluation
               </Button>
             </div>
           </div>
         </section>
-
       </Container>
+
+      <style>{`
+        .evaluation-modern-layout {
+          color: var(--text-primary);
+        }
+        .eval-glass-card, .eval-alert-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
+        }
+        .bg-surface-alt {
+          background-color: var(--background) !important;
+        }
+        .eval-table tbody tr:hover {
+          background-color: rgba(var(--primary-rgb), 0.03) !important;
+        }
+        .border-start-4 {
+          border-left: 4px solid !important;
+        }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-success { border-left-color: #10b981 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        .border-danger { border-left-color: #ef4444 !important; }
+        
+        h2, h3, h4, h5, h6, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .text-primary-custom {
+          color: var(--text-primary) !important;
+        }
+      `}</style>
     </div>
   );
 };
 
-const StatCard = ({ label, value, icon }) => (
-  <Card className="ev-stat-card shadow-sm border-0">
-    <div className="d-flex justify-content-between align-items-start">
-      <div>
-        <div className="ev-stat-val">{value}</div>
-        <div className="ev-stat-label">{label}</div>
-      </div>
-      <div className="p-3 rounded-4 bg-light">
-        {icon}
-      </div>
-    </div>
-  </Card>
-);
-
 export default JuryEvaluationPage;
-

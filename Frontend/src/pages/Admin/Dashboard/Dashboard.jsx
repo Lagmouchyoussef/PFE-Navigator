@@ -41,35 +41,31 @@ const StatCard = ({ label, value, trend, trendValue, color, icon, delay }) => (
     transition={{ duration: 0.4, delay }}
     className="h-100"
   >
-    <Card className={`border-0 shadow-sm rounded-3 h-100 dashboard-simple-card border-${color}`}>
-      <Card.Body className="p-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className={`p-3 rounded-2 bg-light text-${color}`}>
-            {React.cloneElement(icon, { size: 24 })}
-          </div>
-          <Badge bg="light" className={`text-${trend === 'up' ? 'success' : 'danger'} fw-bold border extra-small px-2 py-1`}>
-            {trend === 'up' ? <ArrowUpRight size={14} className="me-1" /> : <ArrowDownRight size={14} className="me-1" />}
-            {trendValue}
-          </Badge>
+    <div className={`dashboard-glass-card p-4 rounded-4 h-100 border-start-4 border-${color}`}>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className={`p-3 rounded-3 bg-${color} bg-opacity-10 text-${color}`}>
+          {React.cloneElement(icon, { size: 24 })}
         </div>
-        <h3 className="fw-bold text-dark mb-1">{value}</h3>
-        <p className="text-muted small fw-bold text-uppercase tracking-wider mb-0">{label}</p>
-      </Card.Body>
-    </Card>
+        <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 fw-bold extra-small px-2 py-1">
+          {trend === 'up' ? <ArrowUpRight size={14} className="me-1" /> : <ArrowDownRight size={14} className="me-1" />}
+          {trendValue}
+        </Badge>
+      </div>
+      <h3 className="fw-bold mb-1">{value}</h3>
+      <p className="text-muted small fw-bold text-uppercase tracking-wider mb-0">{label}</p>
+    </div>
   </motion.div>
 );
 
 const ManagementAction = ({ title, desc, icon, color, onClick }) => (
   <Col md={6} xl={3}>
-    <Card className="border shadow-sm rounded-3 h-100 bg-white hover-translate transition-all cursor-pointer" onClick={onClick}>
-      <Card.Body className="p-4">
-        <div className={`p-2 rounded-2 bg-light text-${color} d-inline-block mb-3`}>
-          {React.cloneElement(icon, { size: 20 })}
-        </div>
-        <h6 className="fw-bold text-dark mb-1">{title}</h6>
-        <p className="extra-small text-muted mb-0">{desc}</p>
-      </Card.Body>
-    </Card>
+    <div className="dashboard-glass-card p-4 rounded-4 h-100 hover-translate transition-all cursor-pointer" onClick={onClick}>
+      <div className={`p-2 rounded-2 bg-${color} bg-opacity-10 text-${color} d-inline-block mb-3`}>
+        {React.cloneElement(icon, { size: 20 })}
+      </div>
+      <h6 className="fw-bold mb-1">{title}</h6>
+      <p className="extra-small text-muted mb-0">{desc}</p>
+    </div>
   </Col>
 );
 
@@ -88,260 +84,216 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-simple-layout py-4">
+    <div className="dashboard-modern-layout py-4">
       <Container fluid className="px-4">
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold text-dark mb-1">Panneau de Contrôle</h2>
+            <h2 className="fw-bold mb-1">Panneau de Contrôle</h2>
             <p className="text-muted small mb-0">Vue d'ensemble de l'activité académique et système.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-secondary" className="bg-white text-dark fw-bold small px-3 border shadow-sm" onClick={handleExport}>
-              <Download size={16} className="me-2" /> Exporter Rapport
+            <Button variant="outline-primary" className="fw-bold small px-3 rounded-pill" onClick={handleExport}>
+              <Download size={16} className="me-2" /> Export
             </Button>
             <Button 
               variant="primary" 
-              className="fw-bold small px-3 border-0 shadow-sm d-flex align-items-center" 
-              style={{ backgroundColor: '#2563eb' }}
+              className="fw-bold small px-4 rounded-pill shadow-sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
-              <RefreshCw size={16} className={`me-2 ${isRefreshing ? 'spin-anim' : ''}`} /> 
-              {isRefreshing ? 'Chargement...' : 'Actualiser'}
+              <RefreshCw size={16} className={`me-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Actualisation...' : 'Rafraîchir'}
             </Button>
           </div>
         </div>
 
-        {/* Statistics Grid */}
+        {/* Top Stats */}
         <Row className="g-4 mb-5">
           <Col xl={3} md={6}>
-            <StatCard label="Étudiants Actifs" value="1,248" trend="up" trendValue="+12%" color="blue-custom" icon={<Users />} delay={0.1} />
+            <StatCard label="Étudiants Actifs" value="1,284" trend="up" trendValue="+12%" color="primary" icon={<Users />} delay={0.1} />
           </Col>
           <Col xl={3} md={6}>
-            <StatCard label="Projets Déposés" value="342" trend="up" trendValue="+8%" color="purple-custom" icon={<FileText />} delay={0.2} />
+            <StatCard label="Projets PFE" value="456" trend="up" trendValue="+5%" color="success" icon={<Briefcase />} delay={0.2} />
           </Col>
           <Col xl={3} md={6}>
-            <StatCard label="Soutenances Validées" value="156" trend="up" trendValue="+24" color="indigo-custom" icon={<Award />} delay={0.3} />
+            <StatCard label="Sessions Jury" value="82" trend="down" trendValue="-2%" color="warning" icon={<Calendar />} delay={0.3} />
           </Col>
           <Col xl={3} md={6}>
-            <StatCard label="Engagement" value="8.4/10" trend="down" trendValue="-0.2" color="rose-custom" icon={<Activity />} delay={0.4} />
+            <StatCard label="Taux de Réussite" value="94.2%" trend="up" trendValue="+1.5%" color="info" icon={<TrendingUp />} delay={0.4} />
+          </Col>
+        </Row>
+
+        {/* Activity & Distribution Charts */}
+        <Row className="g-4 mb-5">
+          <Col lg={8}>
+            <div className="dashboard-glass-card p-4 rounded-4 h-100">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="fw-bold mb-0">Activité Hebdomadaire</h5>
+                <Form.Select className="w-auto extra-small fw-bold border-0 bg-light-soft">
+                  <option>7 derniers jours</option>
+                  <option>30 derniers jours</option>
+                </Form.Select>
+              </div>
+              <div style={{ height: '350px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={ACTIVITY_DATA}>
+                    <defs>
+                      <linearGradient id="colorLogins" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px' }}
+                      itemStyle={{ color: 'var(--text-primary)' }}
+                    />
+                    <Area type="monotone" dataKey="logins" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorLogins)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </Col>
+          <Col lg={4}>
+            <div className="dashboard-glass-card p-4 rounded-4 h-100 text-center">
+              <h5 className="fw-bold mb-4 text-start">États des Projets</h5>
+              <div style={{ height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={STATUS_DISTRIBUTION}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={8}
+                      dataKey="value"
+                    >
+                      {STATUS_DISTRIBUTION.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                       contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-3">
+                {STATUS_DISTRIBUTION.map((item, idx) => (
+                  <div key={idx} className="d-flex align-items-center justify-content-between mb-2">
+                    <div className="d-flex align-items-center gap-2">
+                      <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: item.color }}></div>
+                      <span className="extra-small fw-bold text-muted">{item.name}</span>
+                    </div>
+                    <span className="small fw-bold">{item.value}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </Col>
         </Row>
 
         {/* Quick Actions */}
-        <div className="mb-5">
-          <h5 className="fw-bold text-dark mb-4">Gestion Rapide</h5>
-          <Row className="g-4">
-            <ManagementAction title="Utilisateurs" desc="Gérer les comptes étudiants" icon={<UserPlus />} color="primary" onClick={() => {}} />
-            <ManagementAction title="Calendrier" desc="Dates et échéances PFE" icon={<Clock />} color="primary" onClick={() => {}} />
-            <ManagementAction title="Logistique" desc="Jurys et salles" icon={<Layers />} color="primary" onClick={() => {}} />
-            <ManagementAction title="Archives" desc="Historique des projets" icon={<BookOpen />} color="primary" onClick={() => {}} />
-          </Row>
-        </div>
-
-        {/* Charts Row */}
+        <h5 className="fw-bold mb-4">Actions de Gestion</h5>
         <Row className="g-4 mb-5">
-          <Col lg={8}>
-            <Card className="border shadow-sm rounded-3 p-4 bg-white">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="fw-bold text-dark mb-0">Activité des Utilisateurs</h5>
-                <Badge className="badge-simple-blue">7 derniers jours</Badge>
-              </div>
-              <div style={{ height: '300px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={ACTIVITY_DATA}>
-                    <defs>
-                      <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                    <Area type="monotone" dataKey="logins" stroke="#2563eb" strokeWidth={3} fill="url(#colorBlue)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </Col>
-          <Col lg={4}>
-            <Card className="border shadow-sm rounded-3 p-4 bg-white">
-              <h5 className="fw-bold text-dark mb-4">Statuts Projets</h5>
-              <div style={{ height: '220px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={STATUS_DISTRIBUTION} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                      {STATUS_DISTRIBUTION.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4 pt-3 border-top">
-                <div className="d-flex justify-content-between extra-small mb-2 fw-bold">
-                  <span className="text-muted">Progression Globale</span>
-                  <span className="text-primary">82%</span>
-                </div>
-                <ProgressBar now={82} variant="primary" style={{ height: '6px' }} className="rounded-pill shadow-none bg-light" />
-              </div>
-            </Card>
-          </Col>
+          <ManagementAction title="Nouvel Utilisateur" desc="Ajouter un étudiant ou professeur" icon={<UserPlus />} color="primary" />
+          <ManagementAction title="Assigner Jury" desc="Planifier une nouvelle session" icon={<Award />} color="success" />
+          <ManagementAction title="Archive Archive" desc="Exporter des projets archivés" icon={<HardDrive />} color="warning" />
+          <ManagementAction title="Sécurité" desc="Gérer les accès et logs" icon={<Shield />} color="danger" />
         </Row>
 
-        {/* Recent Activity Table */}
-        <Card className="border shadow-sm rounded-3 overflow-hidden bg-white mb-5">
-          <div className="p-4 border-bottom d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold text-dark mb-0">Sessions Récentes</h5>
-            <Button variant="link" className="text-primary fw-bold small text-decoration-none p-0">Voir tout</Button>
+        {/* Recent Submissions Table */}
+        <div className="dashboard-glass-card p-0 rounded-4 overflow-hidden mb-5">
+          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+            <h5 className="fw-bold mb-0">Soumissions Récentes</h5>
+            <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none">Voir tout</Button>
           </div>
           <div className="table-responsive">
-            <Table hover className="mb-0">
-              <thead className="bg-light">
-                <tr>
-                  <th className="border-0 py-3 ps-4 extra-small text-muted text-uppercase fw-bold">ID</th>
-                  <th className="border-0 py-3 extra-small text-muted text-uppercase fw-bold">Étudiant</th>
-                  <th className="border-0 py-3 extra-small text-muted text-uppercase fw-bold">Jury</th>
-                  <th className="border-0 py-3 extra-small text-muted text-uppercase fw-bold">Date & Lieu</th>
-                  <th className="border-0 py-3 extra-small text-muted text-uppercase fw-bold">État</th>
-                  <th className="border-0 py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold">Action</th>
+            <Table borderless hover className="mb-0 align-middle dashboard-table">
+              <thead>
+                <tr className="opacity-50">
+                  <th className="extra-small fw-bold py-3 px-4">ÉTUDIANT</th>
+                  <th className="extra-small fw-bold py-3">PROJET</th>
+                  <th className="extra-small fw-bold py-3">DATE</th>
+                  <th className="extra-small fw-bold py-3">STATUT</th>
+                  <th className="extra-small fw-bold py-3 px-4 text-end">ACTION</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { id: 'JR-1024', student: 'Ahmed Benali', jury: 'Dr. Wilson, Dr. Smith', date: '15 Mai, 09:00', room: 'A-202', status: 'Confirmé', color: 'success' },
-                  { id: 'JR-1025', student: 'Sara Kamali', jury: 'Prof. Miller, Dr. Chen', date: '16 Mai, 14:00', room: 'B-105', status: 'En attente', color: 'warning' },
-                  { id: 'JR-1026', student: 'Mohamed Alaoui', jury: 'Dr. Thompson, Prof. Vales', date: '20 Mai, 11:00', room: 'A-304', status: 'Planifié', color: 'primary' },
-                ].map((item, i) => (
-                  <tr key={i} className="align-middle">
-                    <td className="ps-4 py-3 small fw-bold text-primary">{item.id}</td>
-                    <td className="small fw-bold">{item.student}</td>
-                    <td className="extra-small text-muted">{item.jury}</td>
-                    <td className="extra-small">
-                      <div className="fw-bold">{item.date}</div>
-                      <div className="text-muted">Salle {item.room}</div>
+                  { name: 'Youssef Lagmouchy', project: 'MediSync AI Dashboard', date: 'Aujourd\'hui', status: 'Approuvé' },
+                  { name: 'Amin Mansouri', project: 'EcoTrack Blockchain', date: 'Hier', status: 'En attente' },
+                  { name: 'Sara Bennani', project: 'Smart City API', date: 'Il y a 2j', status: 'En révision' },
+                  { name: 'Khalid Tazi', project: 'CyberSafe VPN', date: 'Il y a 3j', status: 'Approuvé' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="border-bottom border-light border-opacity-10">
+                    <td className="py-3 px-4">
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>
+                          {row.name.charAt(0)}
+                        </div>
+                        <span className="small fw-bold">{row.name}</span>
+                      </div>
                     </td>
-                    <td>
-                      <Badge className={`badge-${item.color}-simple`}>{item.status}</Badge>
+                    <td className="py-3 small">{row.project}</td>
+                    <td className="py-3 small text-muted">{row.date}</td>
+                    <td className="py-3">
+                      <Badge bg={row.status === 'Approuvé' ? 'success' : (row.status === 'En attente' ? 'warning' : 'info')} className="extra-small rounded-pill">
+                        {row.status}
+                      </Badge>
                     </td>
-                    <td className="text-end pe-4">
-                      <Button 
-                        variant="light" 
-                        size="sm" 
-                        className="rounded-2"
-                        onClick={() => {
-                          setSelectedSession(item);
-                          setShowSessionModal(true);
-                        }}
-                      >
-                        <MoreHorizontal size={14} />
-                      </Button>
+                    <td className="py-3 px-4 text-end">
+                      <Button variant="link" className="p-0 text-muted"><MoreHorizontal size={18} /></Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           </div>
-        </Card>
+        </div>
       </Container>
 
-      {/* SESSION DETAILS MODAL */}
-      <Modal show={showSessionModal} onHide={() => setShowSessionModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Détails de la Session</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          {selectedSession && (
-            <div className="d-flex flex-column gap-3">
-              <div className="p-3 bg-light rounded-3 border-start border-4 border-primary">
-                <div className="extra-small text-muted fw-bold mb-1">{selectedSession.id}</div>
-                <h5 className="fw-bold text-dark mb-0">{selectedSession.student}</h5>
-              </div>
-              
-              <div className="row g-3">
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Jury</div>
-                  <div className="small fw-bold">{selectedSession.jury}</div>
-                </div>
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Statut</div>
-                  <Badge className={`badge-${selectedSession.color}-simple`}>{selectedSession.status}</Badge>
-                </div>
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Date</div>
-                  <div className="small fw-bold">{selectedSession.date}</div>
-                </div>
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Salle</div>
-                  <div className="small fw-bold">{selectedSession.room}</div>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-top">
-                <Button className="w-100 fw-bold border-0" style={{ backgroundColor: '#2563eb' }}>
-                  Ouvrir le Dossier Complet
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-      </Modal>
-
       <style>{`
-        .dashboard-simple-layout {
-          background-color: #f8fafc;
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+        .dashboard-modern-layout {
+          color: var(--text-primary);
         }
-        .dashboard-simple-card {
-          border-left: 4px solid #2563eb !important;
-          transition: transform 0.2s ease;
+        .dashboard-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
+          transition: all 0.3s ease;
         }
-        .border-blue-custom { border-left-color: #3b82f6 !important; }
-        .border-purple-custom { border-left-color: #8b5cf6 !important; }
-        .border-indigo-custom { border-left-color: #6366f1 !important; }
-        .border-rose-custom { border-left-color: #f43f5e !important; }
-
-        .text-blue-custom { color: #3b82f6 !important; }
-        .text-purple-custom { color: #8b5cf6 !important; }
-        .text-indigo-custom { color: #6366f1 !important; }
-        .text-rose-custom { color: #f43f5e !important; }
-
-        .dashboard-simple-card:hover {
-          transform: translateY(-5px);
+        .bg-surface-alt {
+          background-color: var(--background) !important;
+        }
+        .bg-light-soft {
+          background-color: var(--background) !important;
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary) !important;
         }
         .hover-translate:hover {
           transform: translateY(-5px);
-          border-color: #2563eb !important;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
-        .badge-simple-blue {
-          background-color: #dbeafe !important;
-          color: #1e40af !important;
-          font-weight: 600;
-          padding: 5px 10px;
+        .dashboard-table thead th {
+          color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
-        .badge-success-simple {
-          background-color: #dcfce7 !important;
-          color: #166534 !important;
-          font-weight: 600;
+        .dashboard-table tbody tr:hover {
+          background-color: rgba(var(--primary-rgb), 0.03) !important;
         }
-        .badge-warning-simple {
-          background-color: #fef9c3 !important;
-          color: #854d0e !important;
-          font-weight: 600;
+        h2, h3, h5, h6, .fw-bold {
+          color: var(--text-primary) !important;
         }
-        .badge-primary-simple {
-          background-color: #dbeafe !important;
-          color: #1e40af !important;
-          font-weight: 600;
+        .text-muted {
+          color: var(--text-secondary) !important;
         }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
-        .bg-primary { background-color: #2563eb !important; }
-        .transition-all { transition: all 0.2s ease; }
-        .spin-anim {
+        .animate-spin {
           animation: spin 1s linear infinite;
         }
         @keyframes spin {

@@ -74,11 +74,11 @@ const AdminNotifications = () => {
         {/* Header */}
         <header className="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold text-dark mb-1">Centre de Notifications</h2>
+            <h2 className="fw-bold mb-1">Centre de Notifications</h2>
             <p className="text-muted small mb-0">Restez informé de toutes les activités administratives importantes.</p>
           </motion.div>
           
-          <div className="d-flex align-items-center px-3 py-2 bg-white border rounded-pill shadow-sm" style={{ minWidth: '300px' }}>
+          <div className="d-flex align-items-center px-4 py-2 rounded-pill shadow-sm nt-search-box">
             <Search size={18} className="text-muted me-2" />
             <Form.Control 
               type="text" 
@@ -96,15 +96,15 @@ const AdminNotifications = () => {
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 transition={{ delay: i * 0.1 }}
-                className="nt-stat-card bg-white p-4 rounded-4 shadow-sm border"
+                className="nt-stat-card p-4 rounded-4 shadow-sm border"
               >
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <div className="h3 fw-bold mb-1" style={{ color: s.color }}>{s.value}</div>
-                    <div className="extra-small fw-bold text-muted text-uppercase tracking-wider">{s.label}</div>
-                  </div>
-                  <div className="p-3 rounded-4 bg-light" style={{ color: s.color }}>
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-3 rounded-3 bg-primary bg-opacity-10 text-primary">
                     {s.icon}
+                  </div>
+                  <div>
+                    <h4 className="fw-bold mb-0">{s.value}</h4>
+                    <span className="extra-small text-muted fw-bold text-uppercase">{s.label}</span>
                   </div>
                 </div>
               </motion.div>
@@ -112,98 +112,104 @@ const AdminNotifications = () => {
           ))}
         </Row>
 
-        {/* Notifications List */}
-        <Row className="justify-content-center">
-          <Col lg={12}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h5 className="fw-bold text-dark mb-0">Activités Récentes</h5>
-              <Button 
-                variant="link" 
-                className="text-primary fw-bold text-decoration-none small"
-                onClick={() => alert("Toutes les notifications ont été marquées comme lues.")}
-              >
-                Tout marquer comme lu
-              </Button>
-            </div>
- 
-            <div className="nt-feed d-flex flex-column gap-3">
-              {NOTIFICATIONS.map((n, i) => (
-                <motion.div 
-                  key={n.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`nt-card bg-white p-4 rounded-4 shadow-sm border position-relative d-flex align-items-center gap-4 ${n.unread ? 'border-primary border-opacity-25' : 'opacity-75'}`}
-                >
-                  <div className={`nt-icon-box p-3 rounded-circle bg-light text-${n.color}`}>
-                    {React.cloneElement(n.icon, { size: 24 })}
-                  </div>
-                  <div className="nt-content flex-grow-1 pe-5">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <div className="fw-bold text-dark">{n.title}</div>
-                      <div className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
-                        <Clock size={12} /> {n.time}
-                      </div>
-                    </div>
-                    <div className="small text-muted lh-base">{n.desc}</div>
-                  </div>
-                  
-                  <div className="nt-options-menu position-absolute top-50 end-0 translate-middle-y me-3">
-                    <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                        <MoreVertical size={20} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small">
-                        <Dropdown.Item className="fw-bold">Voir les détails</Dropdown.Item>
-                        <Dropdown.Item>Marquer comme lu</Dropdown.Item>
-                        <Dropdown.Item>Archiver</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item className="text-danger">Supprimer</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
-                  
-                  {n.unread && <div className="nt-unread-dot position-absolute start-0 top-50 translate-middle-y ms-2 bg-primary rounded-circle" style={{ width: '8px', height: '8px' }}></div>}
-                </motion.div>
-              ))}
-            </div>
- 
-            <Button 
-              variant="outline-primary" 
-              className="w-100 mt-4 py-3 fw-bold rounded-4 border-2 shadow-sm bg-white"
-              onClick={() => alert("Chargement des notifications archivées...")}
+        {/* Feed Actions */}
+        <div className="d-flex gap-2 mb-4">
+          <Button variant="primary" className="fw-bold small rounded-pill px-4 shadow-sm border-0" style={{ backgroundColor: '#2563eb' }}>Toutes</Button>
+          <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Non lues</Button>
+          <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Archives</Button>
+          <Button variant="link" className="ms-auto text-muted text-decoration-none extra-small fw-bold border-0 bg-transparent">Tout marquer comme lu</Button>
+        </div>
+
+        {/* Main Feed */}
+        <div className="nt-feed-container shadow-sm border rounded-4 overflow-hidden">
+          {NOTIFICATIONS.map((n, idx) => (
+            <motion.div 
+              key={n.id}
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ delay: idx * 0.05 }}
+              className={`nt-item p-4 d-flex gap-4 align-items-start transition-all cursor-pointer ${n.unread ? 'nt-unread' : ''}`}
             >
-              Voir les notifications archivées
-            </Button>
-          </Col>
-        </Row>
+              <div className={`p-3 rounded-circle flex-shrink-0 bg-${n.color} bg-opacity-10 text-${n.color}`}>
+                {React.cloneElement(n.icon, { size: 22 })}
+              </div>
+              
+              <div className="flex-grow-1">
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 className="fw-bold mb-1 d-flex align-items-center gap-2">
+                      {n.title}
+                      {n.unread && <Badge bg="primary" className="p-1 rounded-circle border border-2 border-white"><span className="visually-hidden">New</span></Badge>}
+                    </h6>
+                    <p className="small text-muted mb-0 lh-base">{n.desc}</p>
+                  </div>
+                  <span className="extra-small text-muted fw-bold whitespace-nowrap">{n.time}</span>
+                </div>
+                
+                <div className="d-flex gap-2 mt-3">
+                  <Button variant="link" className="p-0 extra-small fw-bold text-primary text-decoration-none">Voir les détails</Button>
+                  <Button variant="link" className="p-0 extra-small fw-bold text-muted text-decoration-none">Ignorer</Button>
+                </div>
+              </div>
+              
+              <Dropdown align="end">
+                <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
+                <Dropdown.Menu className="border-0 shadow-lg rounded-3">
+                  <Dropdown.Item className="small fw-bold"><CheckCircle2 size={14} className="me-2"/> Marquer comme lu</Dropdown.Item>
+                  <Dropdown.Item className="small fw-bold"><Archive size={14} className="me-2"/> Archiver</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item className="small fw-bold text-danger"><Trash2 size={14} className="me-2"/> Supprimer</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </motion.div>
+          ))}
+        </div>
+        
+        <div className="text-center mt-5">
+          <Button variant="outline-primary" className="fw-bold px-5 py-2 rounded-pill border-2">Charger plus de notifications</Button>
+        </div>
       </Container>
 
       <style>{`
         .admin-notifications-pro-layout {
-          background-color: #f8fafc;
           min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+          color: var(--text-primary);
+        }
+        .nt-search-box {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          min-width: 300px;
+        }
+        .nt-search-box input {
+          color: var(--text-primary) !important;
         }
         .nt-stat-card {
-          transition: transform 0.2s ease;
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
         }
-        .nt-stat-card:hover {
-          transform: translateY(-5px);
+        .nt-feed-container {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
         }
-        .nt-card {
-          transition: all 0.2s ease;
+        .nt-item {
+          border-bottom: 1px solid var(--border);
         }
-        .nt-card:hover {
-          transform: translateX(5px);
-          border-color: #2563eb !important;
+        .nt-item:last-child {
+          border-bottom: none;
         }
-        .nt-card.unread {
-          background-color: #ffffff !important;
+        .nt-item:hover {
+          background-color: rgba(var(--primary-rgb), 0.03);
         }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
-        .no-caret::after { display: none; }
+        .nt-unread {
+          background-color: rgba(var(--primary-rgb), 0.05) !important;
+        }
+        h2, h4, h6, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
       `}</style>
     </div>
   );

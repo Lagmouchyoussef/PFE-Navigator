@@ -34,7 +34,7 @@ import SupervisorEvaluations from './pages/Supervisor/Evaluations/Evaluations';
 import SupervisorMessages from './pages/Supervisor/Messages/Messages';
 import SupervisorSettings from './pages/Supervisor/Settings/Settings';
 import AdminLayout from './pages/Admin/AdminLayout';
-import AdminDashboard from './pages/Admin/Dashboard/Dashboard';
+import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard'; // Updated path
 import UserManagement from './pages/Admin/Users/UserManagement';
 import JuryPlanning from './pages/Admin/Jury/JuryPlanning';
 import ProjectsArchive from './pages/Admin/Projects/ProjectsArchive';
@@ -64,19 +64,18 @@ const RequireAuth = ({ children, requiredRole }) => {
 
 function App() {
   // --- 1. Hook Declarations (Must be at the TOP) ---
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
   const { session, logout, notifications, markNotificationRead, markAllNotificationsRead,
-          unreadNotificationsCount, unreadCountForRole, messages, markMessagesRead, deleteMessage } = useApp();
+          unreadNotificationsCount, unreadCountForRole, messages, markMessagesRead, deleteMessage,
+          theme, setTheme } = useApp();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
   const [expandedGroups, setExpandedGroups] = useState({ core: true, resources: true });
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
+  // Sync theme with document but let AppContext handle the state
+  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const toggleSidebar = () => {
     const newState = !isSidebarCollapsed;
@@ -154,7 +153,7 @@ function App() {
         <div className="sidebar-group px-3 mt-4 mb-2">
           {!isSidebarCollapsed && (
             <div 
-              className="sidebar-group-title d-flex align-items-center justify-content-between extra-small text-white opacity-50 fw-bold text-uppercase tracking-widest px-2 mb-2"
+              className="sidebar-group-title d-flex align-items-center justify-content-between extra-small text-white opacity-75 fw-bold text-uppercase tracking-widest px-2 mb-2"
               onClick={() => toggleGroup('core')}
             >
               <span>Core Workspace</span>
@@ -272,7 +271,7 @@ function App() {
               <Form.Control
                 type="text"
                 placeholder="Search resources, documents..."
-                className="border-0 shadow-none bg-transparent"
+                className="border-0 shadow-none bg-transparent text-primary-custom"
               />
             </div>
             {session && (
@@ -290,7 +289,7 @@ function App() {
             .btn:focus, .btn:active { outline: none !important; box-shadow: none !important; }
           `}</style>
             {/* Theme toggle */}
-            <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setIsDarkMode(!isDarkMode)}>
+            <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}>
               {isDarkMode ? <Sun size={22} className="text-warning" /> : <Moon size={22} />}
             </Button>
 
@@ -433,7 +432,7 @@ function App() {
                   whileHover={{ x: -5 }}
                 >
                   <div className="d-flex flex-column text-end d-none d-md-flex">
-                    <span className="fw-bold text-dark-custom" style={{ fontSize: '0.9rem' }}>
+                    <span className="fw-bold text-primary-custom" style={{ fontSize: '0.9rem' }}>
                       {session.name}
                     </span>
                     <span className="text-muted extra-small">

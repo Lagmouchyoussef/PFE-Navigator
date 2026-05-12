@@ -26,16 +26,6 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-
-  const handleExport = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(users));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "utilisateurs.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  };
   const [userToDelete, setUserToDelete] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ 
@@ -57,258 +47,242 @@ const UserManagement = () => {
   const closeModal = () => setShowAddModal(false);
 
   return (
-    <div className="users-simple-layout py-4">
+    <div className="users-modern-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold text-dark mb-1">Gestion des Utilisateurs</h2>
+            <h2 className="fw-bold mb-1">Gestion des Utilisateurs</h2>
             <p className="text-muted small mb-0">Contrôlez les accès et les rôles de tous les membres du portail.</p>
           </div>
-          <Button 
-            className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2"
-            style={{ backgroundColor: '#2563eb' }}
-            onClick={openAddModal}
-          >
-            <UserPlus size={18} /> Ajouter un utilisateur
-          </Button>
+          <div className="d-flex gap-2">
+            <Button variant="outline-primary" className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+              <Users size={18} /> Exporter
+            </Button>
+            <Button 
+              className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2 rounded-pill"
+              style={{ backgroundColor: '#2563eb' }}
+              onClick={openAddModal}
+            >
+              <UserPlus size={18} /> Ajouter un utilisateur
+            </Button>
+          </div>
         </div>
 
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Utilisateurs', count: users.length, icon: <Users />, color: 'blue-custom' },
-            { label: 'Actifs', count: users.filter(u => u.status === 'Active').length, icon: <UserCheck />, color: 'purple-custom' },
-            { label: 'En attente', count: users.filter(u => u.status === 'Pending').length, icon: <Clock />, color: 'indigo-custom' },
-            { label: 'Désactivés', count: users.filter(u => u.status === 'Inactive').length, icon: <XCircle />, color: 'rose-custom' },
+            { label: 'Utilisateurs', count: users.length, icon: <Users />, color: 'primary' },
+            { label: 'Actifs', count: users.filter(u => u.status === 'Active').length, icon: <UserCheck />, color: 'success' },
+            { label: 'En attente', count: users.filter(u => u.status === 'Pending').length, icon: <Clock />, color: 'warning' },
+            { label: 'Désactivés', count: users.filter(u => u.status === 'Inactive').length, icon: <XCircle />, color: 'danger' },
           ].map((stat, i) => (
             <Col key={i} md={3}>
-              <Card className={`border shadow-sm rounded-3 p-3 bg-white border-start-4 border-${stat.color}`}>
+              <div className={`users-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
                 <div className="d-flex align-items-center gap-3">
-                  <div className={`p-2 rounded-2 bg-light text-${stat.color}`}>
+                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
                     {React.cloneElement(stat.icon, { size: 20 })}
                   </div>
                   <div>
                     <div className="extra-small fw-bold text-muted text-uppercase">{stat.label}</div>
-                    <h5 className="fw-bold mb-0 text-dark">{stat.count}</h5>
+                    <h4 className="fw-bold mb-0">{stat.count}</h4>
                   </div>
                 </div>
-              </Card>
+              </div>
             </Col>
           ))}
         </Row>
 
-        {/* Table Card */}
-        <Card className="border shadow-sm rounded-3 overflow-hidden bg-white mb-5">
-          <div className="p-4 border-bottom bg-white">
-            <Row className="g-3">
-              <Col md={6}>
-                <InputGroup className="bg-light rounded-2 border-0 overflow-hidden">
-                  <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted"/></InputGroup.Text>
-                  <Form.Control 
-                    placeholder="Rechercher un utilisateur..." 
-                    className="bg-transparent border-0 shadow-none extra-small"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-              </Col>
-              <Col md={6} className="text-md-end">
-                <Button variant="outline-secondary" className="extra-small fw-bold px-3 py-2 bg-white border me-2" onClick={handleExport}>
-                  <Download size={14} className="me-2" /> Exporter
-                </Button>
-                <Button variant="outline-secondary" className="extra-small fw-bold px-3 py-2 bg-white border" onClick={() => setShowFilterModal(true)}>
-                  <Filter size={14} className="me-2" /> Filtrer
-                </Button>
-              </Col>
-            </Row>
-          </div>
+        {/* Search & Filters */}
+        <div className="users-glass-card p-4 rounded-4 mb-5">
+          <Row className="g-3 align-items-center">
+            <Col lg={4}>
+              <InputGroup className="bg-surface-alt rounded-pill border px-2">
+                <InputGroup.Text className="bg-transparent border-0 text-muted">
+                  <Search size={18} />
+                </InputGroup.Text>
+                <Form.Control 
+                  placeholder="Rechercher un nom, email..." 
+                  className="bg-transparent border-0 shadow-none py-2 text-primary-custom"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </InputGroup>
+            </Col>
+            <Col lg={8}>
+              <div className="d-flex gap-2 justify-content-lg-end">
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Tous les rôles</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Statut: Actif</Button>
+                <Button variant="link" className="text-muted extra-small fw-bold text-decoration-none">Réinitialiser</Button>
+              </div>
+            </Col>
+          </Row>
+        </div>
 
+        {/* Users Table */}
+        <div className="users-glass-card rounded-4 overflow-hidden shadow-sm">
           <div className="table-responsive">
-            <Table hover className="mb-0">
-              <thead className="bg-light">
-                <tr>
-                  <th className="ps-4 py-3 extra-small text-muted text-uppercase fw-bold border-0">Utilisateur</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Rôle</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Statut</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold border-0">Dernière activité</th>
-                  <th className="py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold border-0">Actions</th>
+            <Table borderless hover className="align-middle mb-0 users-table">
+              <thead>
+                <tr className="border-bottom opacity-50">
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Utilisateur</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Rôle</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Dernière Connexion</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="align-middle border-bottom">
-                    <td className="ps-4 py-3">
+                  <tr key={user.id} className="border-bottom border-light border-opacity-10 transition-all">
+                    <td className="px-4 py-3">
                       <div className="d-flex align-items-center gap-3">
-                        <img src={user.avatar} className="rounded-circle" style={{ width: '36px', height: '36px' }} alt={user.name} />
+                        <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
                         <div>
-                          <div className="fw-bold small text-dark">{user.name}</div>
+                          <div className="small fw-bold">{user.name}</div>
                           <div className="extra-small text-muted">{user.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <Badge bg="light" className="text-muted border fw-bold extra-small text-uppercase px-2 py-1">{user.role}</Badge>
+                    <td className="py-3">
+                      <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
+                        {user.role}
+                      </Badge>
                     </td>
-                    <td>
-                      <Badge className={`badge-${user.status.toLowerCase()}-simple extra-small px-2 py-1`}>{user.status}</Badge>
+                    <td className="py-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <div className={`dot ${user.status === 'Active' ? 'bg-success' : 'bg-warning'}`} style={{ width: '8px', height: '8px', borderRadius: '50%' }}></div>
+                        <span className="extra-small fw-bold">{user.status}</span>
+                      </div>
                     </td>
-                    <td className="extra-small text-muted">{user.lastLogin}</td>
-                    <td className="text-end pe-4">
-                      <Button 
-                        variant="light" 
-                        size="sm" 
-                        className="rounded-2"
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowDetailsModal(true);
-                        }}
-                      >
-                        <MoreHorizontal size={14} />
-                      </Button>
+                    <td className="py-3 small text-muted">{user.lastLogin}</td>
+                    <td className="px-4 py-3 text-end">
+                      <Dropdown align="end">
+                        <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
+                          <MoreHorizontal size={18} />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-3">
+                          <Dropdown.Item className="extra-small fw-bold"><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold"><Mail size={14} className="me-2" /> Envoyer un message</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold"><Shield size={14} className="me-2" /> Gérer les accès</Dropdown.Item>
+                          <Dropdown.Divider />
+                          <Dropdown.Item className="extra-small fw-bold text-danger"><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           </div>
-        </Card>
+          <div className="p-4 border-top d-flex justify-content-between align-items-center bg-surface-alt">
+            <span className="extra-small text-muted fw-bold">Affichage de {filteredUsers.length} sur {users.length} utilisateurs</span>
+            <div className="d-flex gap-2">
+              <Button size="sm" variant="outline-secondary" className="rounded-circle border p-0 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>1</Button>
+              <Button size="sm" variant="outline-secondary" className="rounded-circle border p-0 d-flex align-items-center justify-content-center opacity-50" style={{ width: '32px', height: '32px' }}>2</Button>
+            </div>
+          </div>
+        </div>
       </Container>
 
-      {/* Modal is kept simple but with the same theme */}
-      <Modal show={showAddModal} onHide={closeModal} centered>
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold">Nouvel Utilisateur</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          <Form className="d-flex flex-column gap-3">
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted">Prénom</Form.Label>
-                  <Form.Control className="bg-light border-0 small py-2" placeholder="Ex: Ahmed" />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted">Nom</Form.Label>
-                  <Form.Control className="bg-light border-0 small py-2" placeholder="Ex: Benali" />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Form.Group>
-              <Form.Label className="extra-small fw-bold text-muted">Email</Form.Label>
-              <Form.Control className="bg-light border-0 small py-2" placeholder="email@emsi.ma" />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label className="extra-small fw-bold text-muted">Rôle</Form.Label>
-              <Form.Select className="bg-light border-0 small py-2">
-                <option>Student</option>
-                <option>Supervisor</option>
-                <option>Jury Member</option>
-                <option>Admin</option>
-              </Form.Select>
-            </Form.Group>
-            <Button className="fw-bold py-2 mt-3 border-0" style={{ backgroundColor: '#2563eb' }}>
-              Créer le compte
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      {/* USER DETAILS MODAL */}
-      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Fiche Utilisateur</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          {selectedUser && (
-            <div className="text-center">
-              <img src={selectedUser.avatar} className="rounded-circle mb-3 border border-3 border-primary" style={{ width: '80px', height: '80px' }} alt="" />
-              <h5 className="fw-bold text-dark mb-1">{selectedUser.name}</h5>
-              <p className="text-muted small mb-3">{selectedUser.email}</p>
-              
-              <div className="row g-3 text-start mt-2">
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Rôle</div>
-                  <Badge bg="light" className="text-primary border fw-bold small">{selectedUser.role}</Badge>
-                </div>
-                <div className="col-6">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Statut</div>
-                  <Badge className={`badge-${selectedUser.status.toLowerCase()}-simple small`}>{selectedUser.status}</Badge>
-                </div>
-                <div className="col-12">
-                  <div className="extra-small text-muted fw-bold text-uppercase">Dernière Connexion</div>
-                  <div className="small fw-bold">{selectedUser.lastLogin}</div>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-top d-flex gap-2">
-                <Button variant="outline-primary" className="flex-grow-1 fw-bold extra-small">Contacter</Button>
-                <Button className="flex-grow-1 fw-bold extra-small border-0" style={{ backgroundColor: '#2563eb' }}>Modifier le profil</Button>
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-      </Modal>
-
-      {/* FILTER MODAL */}
-      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold small">Filtrer les Utilisateurs</Modal.Title>
+      {/* Add User Modal */}
+      <Modal show={showAddModal} onHide={closeModal} centered className="users-modal">
+        <Modal.Header closeButton className="border-bottom px-4 py-3">
+          <Modal.Title className="fw-bold fs-5">Ajouter un utilisateur</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted">Rôle</Form.Label>
-              <Form.Select className="bg-light border-0 small py-2">
-                <option>Tous les rôles</option>
-                <option>Student</option>
-                <option>Supervisor</option>
-                <option>Jury Member</option>
-                <option>Admin</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted">Statut</Form.Label>
-              <Form.Select className="bg-light border-0 small py-2">
-                <option>Tous les statuts</option>
-                <option>Active</option>
-                <option>Pending</option>
-                <option>Inactive</option>
-              </Form.Select>
-            </Form.Group>
-            <Button className="w-100 mt-3 fw-bold border-0" style={{ backgroundColor: '#2563eb' }} onClick={() => setShowFilterModal(false)}>
-              Appliquer les filtres
-            </Button>
+            <Row className="g-3">
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted uppercase">Prénom</Form.Label>
+                <Form.Control placeholder="Ex: Jean" className="settings-input" />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted uppercase">Nom</Form.Label>
+                <Form.Control placeholder="Ex: Dupont" className="settings-input" />
+              </Col>
+              <Col md={12}>
+                <Form.Label className="extra-small fw-bold text-muted uppercase">Email</Form.Label>
+                <Form.Control type="email" placeholder="jean.dupont@email.com" className="settings-input" />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted uppercase">Rôle</Form.Label>
+                <Form.Select className="settings-input">
+                  <option>Student</option>
+                  <option>Jury Member</option>
+                  <option>Supervisor</option>
+                  <option>Admin</option>
+                </Form.Select>
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted uppercase">Statut Initial</Form.Label>
+                <Form.Select className="settings-input">
+                  <option>Active</option>
+                  <option>Pending</option>
+                  <option>Inactive</option>
+                </Form.Select>
+              </Col>
+            </Row>
           </Form>
         </Modal.Body>
+        <Modal.Footer className="border-top p-4">
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={closeModal}>Annuler</Button>
+          <Button variant="primary" className="fw-bold px-4 rounded-pill border-0 shadow-sm" style={{ backgroundColor: '#2563eb' }}>Créer l'utilisateur</Button>
+        </Modal.Footer>
       </Modal>
 
       <style>{`
-        .users-simple-layout {
-          background-color: #f8fafc;
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+        .users-modern-layout {
+          color: var(--text-primary);
+        }
+        .users-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
+        }
+        .bg-surface-alt {
+          background-color: var(--background) !important;
+        }
+        .settings-input {
+          background-color: var(--background) !important;
+          color: var(--text-primary) !important;
+          border: 1px solid var(--border) !important;
+          border-radius: 10px;
+          padding: 0.6rem 1rem;
+          font-size: 0.875rem;
+        }
+        .users-table thead th {
+          color: var(--text-secondary);
+        }
+        .users-table tbody tr:hover {
+          background-color: rgba(var(--primary-rgb), 0.03) !important;
         }
         .border-start-4 {
-          border-left: 4px solid #dee2e6 !important;
+          border-left: 4px solid !important;
         }
-        .border-blue-custom { border-left-color: #3b82f6 !important; }
-        .border-purple-custom { border-left-color: #8b5cf6 !important; }
-        .border-indigo-custom { border-left-color: #6366f1 !important; }
-        .border-rose-custom { border-left-color: #f43f5e !important; }
-
-        .text-blue-custom { color: #3b82f6 !important; }
-        .text-purple-custom { color: #8b5cf6 !important; }
-        .text-indigo-custom { color: #6366f1 !important; }
-        .text-rose-custom { color: #f43f5e !important; }
-
-        .badge-active-simple { background-color: #dcfce7 !important; color: #166534 !important; }
-        .badge-pending-simple { background-color: #fef9c3 !important; color: #854d0e !important; }
-        .badge-inactive-simple { background-color: #fee2e2 !important; color: #991b1b !important; }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-success { border-left-color: #10b981 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        .border-danger { border-left-color: #ef4444 !important; }
+        
+        h2, h4, h5, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
+        .users-modal .modal-content {
+          background-color: var(--surface);
+          color: var(--text-primary);
+          border: 1px solid var(--border);
+          border-radius: 1rem;
+        }
+        .users-modal .modal-header, .users-modal .modal-footer {
+          border-color: var(--border) !important;
+        }
+        .users-modal .btn-close {
+          filter: var(--theme-filter, invert(1));
+        }
       `}</style>
     </div>
   );

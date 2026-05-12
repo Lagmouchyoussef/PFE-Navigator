@@ -1,176 +1,166 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
 :root {
-  /* Institutional SaaS Palette */
-  --pfe-navy: #2c3e50;
-  --pfe-blue: #3498db;
-  --pfe-success: #27ae60;
-  --pfe-warning: #f39c12;
-  --pfe-danger: #e74c3c;
-  --pfe-white: #ffffff;
-  --pfe-gray-100: #f8f9fa;
-  --pfe-gray-200: #ecf0f1;
-  --pfe-gray-600: #95a5a6;
-  --pfe-gray-800: #2c3e50;
-
-  /* Global Variables Mapping (Unified Dark Mode) */
-  --primary: var(--pfe-blue);
-  --primary-rgb: 52, 152, 219;
+  /* Common Brand Tokens */
+  --primary: #2563eb;
+  --primary-rgb: 37, 99, 235;
   --secondary: #6366f1;
   --accent: #10b981;
-  --background: #020617; /* Same as Student Dashboard */
-  --surface: #0f172a;    /* Same as Student Dashboard Cards */
-  --glass-bg: rgba(15, 23, 42, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --jd-text: #f8fafc;
-  --border: #1e293b;     /* Same as Student Dashboard Borders */
-  --sidebar-bg: #020617;
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+
+  /* Light Mode Defaults */
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --sidebar-bg: #1e293b;
+  --theme-filter: none;
 }
 
-[data-theme='light'] {
-  --primary: var(--pfe-blue);
-  --primary-rgb: 52, 152, 219;
-  --secondary: var(--pfe-navy);
-  --background: #ffffff;
-  --surface: #f8f9fa;
-  --glass-bg: #ffffff;
-  --glass-border: #dee2e6;
-  --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --text-primary: #000000;
-  --text-secondary: #000000; /* Absolute black for contrast */
-  --border: #dee2e6;
-  --sidebar-bg: #1c1c1c; /* Gris Noir for sidebar even in light mode */
+[data-theme='dark'] {
+  /* Dark Mode - Professional Simple & Normal (Charcoal Palette) */
+  --background: #121212;
+  --surface: #1e1e1e;
+  --surface-alt: #262626;
+  --border: #333333;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --glass-bg: rgba(30, 30, 30, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  --sidebar-bg: #0f172a;
+  --theme-filter: invert(1);
+}
+
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  margin: 0;
+  font-family: 'Inter', 'Outfit', sans-serif;
   background-color: var(--background);
   color: var(--text-primary);
-  min-height: 100vh;
-  margin: 0;
-  transition: background-color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Professional Cards */
-.glass-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow);
-  transition: all 0.3s ease;
+/* Global Utility Classes */
+.extra-small { font-size: 0.75rem; }
+.uppercase { text-transform: uppercase; letter-spacing: 0.05em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.cursor-pointer { cursor: pointer; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.glass-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
-/* Typography & Effects */
-.text-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-.badge-premium {
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15), rgba(168, 85, 247, 0.15));
-  border: 1px solid rgba(var(--primary-rgb), 0.2);
-  color: var(--primary);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.7rem;
-}
-
-.bg-gradient-primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
-}
-
-.shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-/* Sidebar Restoration */
+/* Sidebar Custom Styling */
 .sidebar-nav {
-  width: 280px;
   background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
+  width: 280px;
   height: 100vh;
-  padding: 2rem 1.5rem;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.sidebar-nav.collapsed {
+  width: 80px;
 }
 
 .nav-link-custom {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.75rem 1rem;
+  margin: 0 0.75rem;
   border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
   transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .nav-link-custom:hover {
-  background: rgba(var(--primary-rgb), 0.05);
-  color: var(--primary);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-link-custom.active {
+  color: #fff;
   background: var(--primary);
-  color: white;
-  box-shadow: 0 10px 15px -3px rgba(var(--primary-rgb), 0.4);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
 }
 
-/* Utility Classes */
-.fw-black { font-weight: 900; }
-.tracking-tighter { letter-spacing: -0.05em; }
-.extra-small { font-size: 0.75rem; }
-.rounded-xl { border-radius: 1.25rem; }
-.avatar-circle {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+/* Glassmorphism Classes */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
 }
 
-/* Global Dropdown Caret Removal */
-.dropdown-toggle::after {
-  display: none !important;
+/* Table Enhancements */
+.custom-table {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
 }
 
-.dropdown-menu {
-  z-index: 1050 !important; /* Ensure it stays above other elements */
+.custom-table th {
+  background: var(--surface-alt);
+  padding: 1rem 1.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+.custom-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+/* Inputs & Forms */
+.form-control-custom {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
 }
 
-.glow-primary {
-  box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.3);
+.form-control-custom:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
 }
 
-.bg-surface-light {
-  background: rgba(255, 255, 255, 0.02);
+/* Badges */
+.badge-pill-custom {
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
 }

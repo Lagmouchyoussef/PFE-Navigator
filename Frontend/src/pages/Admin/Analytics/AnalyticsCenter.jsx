@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   TrendingUp, TrendingDown, Target, Clock, 
   Award, PieChart as PieChartIcon, ArrowUpRight,
-  Download, Filter, ChevronRight, BarChart3, Activity
+  Download, Filter, ChevronRight, BarChart as BarChartIcon, Activity
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -35,25 +35,26 @@ const MONTHLY_SUBMISSIONS = [
 const AnalyticsCenter = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  const handleExport = () => {
-    alert("Exportation des données analytiques en cours...");
-  };
-
   return (
-    <div className="analytics-simple-layout py-4">
+    <div className="analytics-modern-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold text-dark mb-1">Centre d'Analyses</h2>
+            <h2 className="fw-bold mb-1">Centre d'Analyses</h2>
             <p className="text-muted small mb-0">Statistiques détaillées et indicateurs de performance académique.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-secondary" className="bg-white text-dark fw-bold small px-3 border shadow-sm" onClick={handleExport}>
-              <Download size={16} className="me-2" /> Exporter les données
+            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+              <Download size={18} /> Exporter
             </Button>
-            <Button variant="primary" className="fw-bold small px-3 border-0 shadow-sm" style={{ backgroundColor: '#2563eb' }} onClick={() => setShowFilterModal(true)}>
-              <Filter size={16} className="me-2" /> Filtrer par période
+            <Button 
+              variant="primary" 
+              className="fw-bold small px-4 py-2 border-0 shadow-sm rounded-pill d-flex align-items-center gap-2" 
+              style={{ backgroundColor: '#2563eb' }} 
+              onClick={() => setShowFilterModal(true)}
+            >
+              <Filter size={18} /> Filtrer par période
             </Button>
           </div>
         </div>
@@ -61,26 +62,24 @@ const AnalyticsCenter = () => {
         {/* Top Stats Row */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Taux de Réussite', value: '87.5%', icon: <Target />, color: 'blue-custom', trend: '+2.4%' },
-            { label: 'Temps d\'Éval.', value: '4.2j', icon: <Clock />, color: 'purple-custom', trend: '-12%' },
-            { label: 'Moyenne Générale', value: '14.8/20', icon: <Award />, color: 'indigo-custom', trend: '+3%' },
-            { label: 'Participation', value: '92.1%', icon: <Activity />, color: 'rose-custom', trend: '+5%' },
+            { label: 'Taux de Réussite', value: '87.5%', icon: <Target />, color: 'primary', trend: '+2.4%' },
+            { label: 'Temps d\'Éval.', value: '4.2j', icon: <Clock />, color: 'info', trend: '-12%' },
+            { label: 'Moyenne Générale', value: '14.8/20', icon: <Award />, color: 'warning', trend: '+3%' },
+            { label: 'Participation', value: '92.1%', icon: <Activity />, color: 'danger', trend: '+5%' },
           ].map((stat, i) => (
             <Col key={i} lg={3} md={6}>
-              <Card className={`border shadow-sm rounded-3 p-3 bg-white h-100 analytics-stat-card border-${stat.color}`}>
-                <Card.Body className="p-0">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <div className={`p-2 rounded-2 bg-light text-${stat.color}`}>
-                      {React.cloneElement(stat.icon, { size: 20 })}
-                    </div>
-                    <Badge bg="light" className={`text-${stat.trend.startsWith('+') ? 'success' : 'primary'} extra-small border`}>
-                      {stat.trend}
-                    </Badge>
+              <div className={`analytics-glass-card p-4 rounded-4 shadow-sm border-start-4 border-${stat.color}`}>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className={`p-3 rounded-3 bg-${stat.color} bg-opacity-10 text-${stat.color}`}>
+                    {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
-                  <div className="extra-small fw-bold text-muted text-uppercase mb-1">{stat.label}</div>
-                  <h3 className="fw-bold text-dark mb-0">{stat.value}</h3>
-                </Card.Body>
-              </Card>
+                  <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 fw-bold extra-small">
+                    {stat.trend}
+                  </Badge>
+                </div>
+                <div className="extra-small fw-bold text-muted text-uppercase mb-1">{stat.label}</div>
+                <h3 className="fw-bold mb-0">{stat.value}</h3>
+              </div>
             </Col>
           ))}
         </Row>
@@ -88,135 +87,81 @@ const AnalyticsCenter = () => {
         {/* Charts Section 1 */}
         <Row className="g-4 mb-5">
           <Col lg={6}>
-            <Card className="border shadow-sm rounded-3 p-4 bg-white h-100">
-              <h5 className="fw-bold text-dark mb-4">Distribution des Notes</h5>
+            <div className="analytics-glass-card p-4 rounded-4 shadow-sm h-100">
+              <h5 className="fw-bold mb-4 border-bottom pb-2">Distribution des Notes</h5>
               <div className="space-y-4">
                 {SCORE_DISTRIBUTION.map((item, i) => (
                   <div key={i} className="mb-4">
                     <div className="d-flex justify-content-between extra-small mb-2 fw-bold">
                       <span className="text-muted">Plage {item.range}</span>
-                      <span className="text-dark">{item.count}% des étudiants</span>
+                      <span className="opacity-75">{item.count}% des étudiants</span>
                     </div>
-                    <ProgressBar now={item.count} style={{ height: '8px', backgroundColor: '#f1f5f9' }} className="rounded-pill">
-                      <ProgressBar now={item.count} style={{ backgroundColor: item.color }} />
+                    <ProgressBar now={item.count} style={{ height: '8px', backgroundColor: 'var(--background)' }} className="rounded-pill">
+                      <ProgressBar now={item.count} style={{ backgroundColor: item.color }} className="rounded-pill" />
                     </ProgressBar>
                   </div>
                 ))}
               </div>
-            </Card>
+              <div className="mt-5 p-3 rounded-4 bg-surface-alt border text-center">
+                <div className="extra-small text-muted fw-bold text-uppercase mb-1">Observation Globale</div>
+                <div className="small fw-bold">Performance supérieure de 12% par rapport à l'année dernière.</div>
+              </div>
+            </div>
           </Col>
           <Col lg={6}>
-            <Card className="border shadow-sm rounded-3 p-4 bg-white h-100">
-              <h5 className="fw-bold text-dark mb-4">Projets par Thématique</h5>
-              <div className="d-flex flex-column flex-md-row align-items-center gap-4">
-                <div style={{ height: '240px', width: '240px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={CATEGORY_DATA} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                        {CATEGORY_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex-grow-1 w-100">
-                  {CATEGORY_DATA.map((item, i) => (
-                    <div key={i} className="d-flex align-items-center justify-content-between p-2 mb-2 rounded-2 bg-light border">
-                      <div className="d-flex align-items-center gap-2">
-                        <div className="rounded-circle" style={{ width: '10px', height: '10px', backgroundColor: item.color }}></div>
-                        <span className="extra-small fw-bold text-muted">{item.name}</span>
-                      </div>
-                      <span className="small fw-bold text-dark">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="analytics-glass-card p-4 rounded-4 shadow-sm h-100">
+              <h5 className="fw-bold mb-4 border-bottom pb-2">Evolution des Soumissions</h5>
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={MONTHLY_SUBMISSIONS}>
+                    <defs>
+                      <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px' }}
+                      itemStyle={{ color: 'var(--text-primary)' }}
+                    />
+                    <Area type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-            </Card>
+            </div>
           </Col>
         </Row>
-
-        {/* Monthly Submissions Area Chart */}
-        <Card className="border shadow-sm rounded-3 p-4 bg-white mb-5">
-          <div className="d-flex justify-content-between align-items-center mb-5">
-            <div>
-              <h5 className="fw-bold text-dark mb-1">Évolution des Dépôts</h5>
-              <p className="extra-small text-muted mb-0">Volume de soumissions par mois sur l'année académique.</p>
-            </div>
-            <Badge className="badge-simple-blue">Année 2026</Badge>
-          </div>
-          <div style={{ height: '350px', width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MONTHLY_SUBMISSIONS}>
-                <defs>
-                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                <Area type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorCount)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
       </Container>
 
-      {/* FILTER MODAL */}
-      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Filtrer les Analyses</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted">Période</Form.Label>
-              <Form.Select className="bg-light border-0 small py-2">
-                <option>Année Académique 2026</option>
-                <option>Semestre 1</option>
-                <option>Semestre 2</option>
-              </Form.Select>
-            </Form.Group>
-            <Button className="w-100 mt-3 fw-bold border-0" style={{ backgroundColor: '#2563eb' }} onClick={() => setShowFilterModal(false)}>
-              Appliquer
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
       <style>{`
-        .analytics-simple-layout {
-          background-color: #f8fafc;
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
+        .analytics-modern-layout {
+          color: var(--text-primary);
         }
-        .analytics-stat-card {
-          border-left: 4px solid #2563eb !important;
-          transition: transform 0.2s ease;
+        .analytics-glass-card {
+          background-color: var(--surface);
+          border: 1px solid var(--border) !important;
+          color: var(--text-primary);
         }
-        .border-blue-custom { border-left-color: #3b82f6 !important; }
-        .border-purple-custom { border-left-color: #8b5cf6 !important; }
-        .border-emerald-custom { border-left-color: #10b981 !important; }
-        .border-amber-custom { border-left-color: #f59e0b !important; }
-
-        .text-blue-custom { color: #3b82f6 !important; }
-        .text-purple-custom { color: #8b5cf6 !important; }
-        .text-emerald-custom { color: #10b981 !important; }
-        .text-amber-custom { color: #f59e0b !important; }
-
-        .analytics-stat-card:hover {
-          transform: translateY(-5px);
+        .bg-surface-alt {
+          background-color: var(--background) !important;
         }
-        .badge-simple-blue {
-          background-color: #dbeafe !important;
-          color: #1e40af !important;
-          font-weight: 600;
-          padding: 5px 10px;
+        .border-start-4 {
+          border-left: 4px solid !important;
         }
-        .extra-small { font-size: 0.75rem; }
-        .text-primary { color: #2563eb !important; }
+        .border-primary { border-left-color: var(--primary) !important; }
+        .border-info { border-left-color: #0ea5e9 !important; }
+        .border-warning { border-left-color: #f59e0b !important; }
+        .border-danger { border-left-color: #ef4444 !important; }
+        
+        h2, h3, h5, .fw-bold {
+          color: var(--text-primary) !important;
+        }
+        .text-muted {
+          color: var(--text-secondary) !important;
+        }
       `}</style>
     </div>
   );
