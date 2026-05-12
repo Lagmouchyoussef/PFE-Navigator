@@ -47,25 +47,20 @@ graph TB
     
     subgraph "APPLICATION SERVER"
         Django[Django REST Framework<br/>Business Logic]
-        Celery[Celery Workers<br/>Background Tasks]
     end
     
     subgraph "DATA LAYER"
         PG[(PostgreSQL<br/>Primary DB)]
-        REDIS[(Redis<br/>Cache + Broker)]
         STORAGE[Cloud Storage<br/>PDF Documents]
     end
     
     UI <-- HTTPS --> NGINX
     NGINX <-- REST API --> Django
-    Django <-- Async --> Celery
     Django <-- ORM --> PG
-    Django <-- Cache --> REDIS
     Django <-- Files --> STORAGE
-    Celery <-- Queue --> REDIS
 ```
 
-### Architecture des Microservices Internes
+### Architecture des Modules Django
 
 ```mermaid
 graph LR
@@ -114,9 +109,6 @@ graph LR
 | **Django REST Framework** | 3.15+ | API REST |
 | **Simple JWT** | 5.3+ | Authentification token |
 | **PostgreSQL** | 15+ | Base de données |
-| **Redis** | 7+ | Cache & message broker |
-| **Celery** | 5.4+ | Tâches asynchrones |
-| **Docker** | - | Conteneurisation |
 
 ---
 
@@ -145,8 +137,6 @@ graph LR
 │   │   ├── context/          # AppContext state management
 │   │   └── assets/
 │   └── package.json
-│
-└── docker-compose.yml          # Multi-container setup
 ```
 
 ---
@@ -341,7 +331,6 @@ sequenceDiagram
     participant F as Frontend React
     participant A as Django API
     participant D as PostgreSQL
-    participant C as Celery
     
     S->>F: Upload rapport.pdf
     F->>A: POST /api/submissions/<br/>file + JWT
@@ -352,10 +341,7 @@ sequenceDiagram
     F-->>S: Succès : "Rapport en attente"
     
     rect rgb(240, 248, 255)
-        Note over A,C: Background Task
-        A->>C: Send notification email
-        C->>D: UPDATE notifications
-        C->>A: Confirm sent
+        Note over A: Notification email<br/>envoyée à l'encadrant
     end
     
     S->>F: Voir notification
@@ -423,42 +409,6 @@ stateDiagram-v2
         Notification email envoyée
         au jury et à l'admin
     end note
-```
-
-### Diagramme de Déploiement
-
-```mermaid
-graph TD
-    Client((Utilisateur))
-    
-    subgraph "Zone DMZ"
-        LB[Nginx Load Balancer<br/>SSL/TLS Termination]
-    end
-    
-    subgraph "Cluster Docker"
-        FE[Container : React SPA<br/>Port 3000]
-        BE[Container : Django API<br/>Port 8000]
-        WORKER[Container : Celery<br/>Background Tasks]
-        WEB[Container : Nginx<br/>Static Files]
-    end
-    
-    subgraph "Services Externes"
-        PG[(PostgreSQL<br/>Volume: pg_data)]
-        RED[Redis Server<br/>Cache + Broker]
-        S3[Cloud Storage<br/>Documents PDF]
-        SMTP[SMTP Server<br/>Email Queue]
-    end
-    
-    Client <-- HTTPS --> LB
-    LB --> FE
-    LB --> BE
-    BE --> PG
-    BE --> RED
-    BE --> S3
-    WORKER --> RED
-    WORKER --> PG
-    WORKER --> SMTP
-    WEB --> FE
 ```
 
 ---
@@ -603,8 +553,6 @@ erDiagram
 - Python 3.11+
 - Node.js 18+
 - PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose (recommandé)
 
 ### Installation Backend (Django)
 
@@ -624,17 +572,6 @@ python manage.py runserver
 cd Frontend
 npm install
 npm run dev
-```
-
-### Docker Compose (Production)
-
-```bash
-docker-compose up -d
-# Services démarrés:
-# - frontend: http://localhost:3000
-# - backend: http://localhost:8000
-# - postgres: localhost:5432
-# - redis: localhost:6379
 ```
 
 ---
