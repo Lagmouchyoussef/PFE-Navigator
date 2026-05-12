@@ -1,27 +1,32 @@
 import React from 'react';
 import { 
-  Bell, CheckCircle2, Clock, 
-  Archive, UserPlus, Info, 
-  ShieldAlert, MoreVertical, Trash2, Search, Activity, RefreshCcw, AlertCircle, Calendar
+  Bell, CheckCircle2, 
+  Archive, UserPlus, 
+  ShieldAlert, MoreVertical, Trash2, Search, Activity, RefreshCcw, AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Container, Row, Col, Card, Button, Badge, Form, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge, Form, Dropdown } from 'react-bootstrap';
+import StatCard from '../../../components/shared/StatCard';
 
-const STATS = [
-  { label: 'Non lues', value: '2', color: '#2563eb', icon: <Bell size={24} /> },
-  { label: 'Total notifications', value: '7', color: '#475569', icon: <Activity size={24} /> },
-  { label: 'Cette semaine', value: '24', color: '#10b981', icon: <RefreshCcw size={24} /> },
-  { label: 'Importantes', value: '3', color: '#ef4444', icon: <AlertCircle size={24} /> }
-];
+interface NotificationItem {
+  id: number;
+  title: string;
+  desc: string;
+  time: string;
+  type: string;
+  icon: React.ReactElement;
+  color: string;
+  unread: boolean;
+}
 
-const NOTIFICATIONS = [
+const NOTIFICATIONS: NotificationItem[] = [
   { 
     id: 1, 
     title: 'Rappel Jury #15', 
     desc: 'Le jury Innovation Tech commence demain à 9h00. Veuillez préparer vos évaluations.', 
     time: 'Il y a 30 min', 
     type: 'reminder', 
-    icon: <Clock />,
+    icon: <RefreshCcw />,
     color: 'warning',
     unread: true
   },
@@ -67,49 +72,41 @@ const NOTIFICATIONS = [
   }
 ];
 
-const AdminNotifications = () => {
+const AdminNotifications: React.FC = () => {
   return (
     <div className="admin-notifications-pro-layout py-4">
       <Container fluid className="px-4">
         {/* Header */}
         <header className="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1">Centre de Notifications</h2>
+            <h2 className="fw-bold mb-1 text-gradient">Centre de Notifications</h2>
             <p className="text-muted small mb-0">Restez informé de toutes les activités administratives importantes.</p>
           </motion.div>
           
-          <div className="d-flex align-items-center px-4 py-2 rounded-pill shadow-sm nt-search-box">
+          <div className="d-flex align-items-center px-4 py-2 rounded-pill shadow-sm glass-card" style={{ minWidth: '300px' }}>
             <Search size={18} className="text-muted me-2" />
             <Form.Control 
               type="text" 
               placeholder="Rechercher une notification..." 
-              className="border-0 bg-transparent shadow-none extra-small fw-bold p-0"
+              className="border-0 bg-transparent shadow-none extra-small fw-bold p-0 text-navy"
             />
           </div>
         </header>
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
-          {STATS.map((s, i) => (
-            <Col key={i} lg={3} md={6}>
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ delay: i * 0.1 }}
-                className="nt-stat-card p-4 rounded-4 shadow-sm border"
-              >
-                <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded-3 bg-primary bg-opacity-10 text-primary">
-                    {s.icon}
-                  </div>
-                  <div>
-                    <h4 className="fw-bold mb-0">{s.value}</h4>
-                    <span className="extra-small text-muted fw-bold text-uppercase">{s.label}</span>
-                  </div>
-                </div>
-              </motion.div>
-            </Col>
-          ))}
+          <Col lg={3} md={6}>
+            <StatCard label="Non lues" value="02" icon={<Bell />} color="primary" trend="Alert" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Total" value="07" icon={<Activity />} color="info" trend="Stats" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Cette semaine" value="24" icon={<RefreshCcw />} color="success" trend="Active" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Importantes" value="03" icon={<AlertCircle />} color="danger" trend="Urgent" />
+          </Col>
         </Row>
 
         {/* Feed Actions */}
@@ -121,7 +118,7 @@ const AdminNotifications = () => {
         </div>
 
         {/* Main Feed */}
-        <div className="nt-feed-container shadow-sm border rounded-4 overflow-hidden">
+        <div className="glass-card shadow-sm border rounded-4 overflow-hidden">
           {NOTIFICATIONS.map((n, idx) => (
             <motion.div 
               key={n.id}
@@ -131,17 +128,17 @@ const AdminNotifications = () => {
               className={`nt-item p-4 d-flex gap-4 align-items-start transition-all cursor-pointer ${n.unread ? 'nt-unread' : ''}`}
             >
               <div className={`p-3 rounded-circle flex-shrink-0 bg-${n.color} bg-opacity-10 text-${n.color}`}>
-                {React.cloneElement(n.icon, { size: 22 })}
+                {React.cloneElement(n.icon as React.ReactElement<{ size?: number }>, { size: 22 })}
               </div>
               
               <div className="flex-grow-1">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <div>
-                    <h6 className="fw-bold mb-1 d-flex align-items-center gap-2">
+                    <h6 className="fw-bold mb-1 d-flex align-items-center gap-2 text-navy">
                       {n.title}
                       {n.unread && <Badge bg="primary" className="p-1 rounded-circle border border-2 border-white"><span className="visually-hidden">New</span></Badge>}
                     </h6>
-                    <p className="small text-muted mb-0 lh-base">{n.desc}</p>
+                    <p className="small text-muted mb-0 lh-base fw-bold opacity-75">{n.desc}</p>
                   </div>
                   <span className="extra-small text-muted fw-bold whitespace-nowrap">{n.time}</span>
                 </div>
@@ -169,46 +166,18 @@ const AdminNotifications = () => {
           <Button variant="outline-primary" className="fw-bold px-5 py-2 rounded-pill border-2">Charger plus de notifications</Button>
         </div>
       </Container>
-
       <style>{`
-        .admin-notifications-pro-layout {
-          min-height: calc(100vh - 80px);
-          color: var(--text-primary);
-        }
-        .nt-search-box {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          min-width: 300px;
-        }
-        .nt-search-box input {
-          color: var(--text-primary) !important;
-        }
-        .nt-stat-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .nt-feed-container {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-        }
         .nt-item {
-          border-bottom: 1px solid var(--border);
+          border-bottom: 1px solid var(--color-border);
         }
         .nt-item:last-child {
           border-bottom: none;
         }
         .nt-item:hover {
-          background-color: rgba(var(--primary-rgb), 0.03);
+          background-color: var(--color-surface-alt);
         }
         .nt-unread {
-          background-color: rgba(var(--primary-rgb), 0.05) !important;
-        }
-        h2, h4, h6, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
+          background-color: rgba(var(--color-primary-rgb), 0.05) !important;
         }
       `}</style>
     </div>

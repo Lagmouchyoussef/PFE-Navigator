@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Form, InputGroup, Button, Dropdown, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Badge, Form, InputGroup, Button, Dropdown } from 'react-bootstrap';
 import { 
   Search, Pin, AlertCircle, FileText, 
-  Calendar, Users, Bell, Bookmark, ChevronRight,
-  MoreVertical, Filter, Clock, Plus
+  Bell, MoreVertical, Clock, Plus
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useApp } from '../../../context/AppContext';
+import StatCard from '../../../components/shared/StatCard';
 
-const AdminNotes = () => {
+interface Note {
+  id: number;
+  title: string;
+  isNew: boolean;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: string;
+  content: string;
+  author: string;
+  date: string;
+  pinned: boolean;
+  unread: boolean;
+}
+
+const AdminNotes: React.FC = () => {
+  const { theme } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const stats = [
-    { label: 'Total Notes', count: 8, icon: <FileText size={20} />, color: 'primary' },
-    { label: 'Non lues', count: 3, icon: <Bell size={20} />, color: 'danger' },
-    { label: 'Épinglées', count: 3, icon: <Pin size={20} />, color: 'warning' },
-    { label: 'Priorité Haute', count: 4, icon: <AlertCircle size={20} />, color: 'danger' }
-  ];
-
-  const notes = [
+  const notes: Note[] = [
     {
       id: 1,
       title: 'Publication du Planning des Soutenances',
@@ -70,7 +76,7 @@ const AdminNotes = () => {
     }
   ];
 
-  const getPriorityBadge = (priority) => {
+  const getPriorityBadge = (priority: Note['priority']) => {
     switch (priority) {
       case 'HIGH': return <Badge bg="danger" className="bg-opacity-10 text-danger border border-danger border-opacity-25 extra-small fw-bold">HAUTE</Badge>;
       case 'MEDIUM': return <Badge bg="warning" className="bg-opacity-10 text-warning border border-warning border-opacity-25 extra-small fw-bold">MOYENNE</Badge>;
@@ -85,12 +91,11 @@ const AdminNotes = () => {
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
           <div>
-            <h2 className="fw-bold mb-1">Notes & Annonces</h2>
+            <h2 className="fw-bold mb-1 text-gradient">Notes & Annonces</h2>
             <p className="text-muted small mb-0">Suivi des mises à jour et communications importantes.</p>
           </div>
           <Button 
-            className="fw-bold px-4 py-2 border-0 shadow-sm d-flex align-items-center gap-2 rounded-pill" 
-            style={{ backgroundColor: '#2563eb' }}
+            className="btn-premium d-flex align-items-center gap-2" 
             onClick={() => setShowAddModal(true)}
           >
             <Plus size={18} /> Nouvelle Note
@@ -99,25 +104,22 @@ const AdminNotes = () => {
 
         {/* Stats Row */}
         <Row className="g-4 mb-5">
-          {stats.map((s, i) => (
-            <Col key={i} lg={3} md={6}>
-              <div className={`notes-glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 border-${s.color}`}>
-                <div className="d-flex align-items-center gap-3">
-                  <div className={`p-3 rounded-3 bg-${s.color} bg-opacity-10 text-${s.color}`}>
-                    {s.icon}
-                  </div>
-                  <div>
-                    <h4 className="fw-bold mb-0">{s.count}</h4>
-                    <span className="extra-small text-muted fw-bold text-uppercase">{s.label}</span>
-                  </div>
-                </div>
-              </div>
-            </Col>
-          ))}
+          <Col lg={3} md={6}>
+            <StatCard label="Total Notes" value="08" icon={<FileText />} color="primary" trend="Overall" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Non lues" value="03" icon={<Bell />} color="danger" trend="Action" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Épinglées" value="03" icon={<Pin />} color="warning" trend="Fav" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Priorité Haute" value="04" icon={<AlertCircle />} color="danger" trend="Urgent" />
+          </Col>
         </Row>
 
         {/* Search & Filter */}
-        <div className="notes-glass-card p-4 rounded-4 mb-5">
+        <div className="glass-card p-4 rounded-4 mb-5">
           <Row className="g-3 align-items-center">
             <Col lg={4}>
               <InputGroup className="bg-surface-alt rounded-pill border px-2">
@@ -147,7 +149,7 @@ const AdminNotes = () => {
           <Row className="g-4">
             {notes.map((note) => (
               <Col key={note.id} lg={6}>
-                <div className={`notes-glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 ${note.pinned ? 'border-warning' : 'border-primary'}`}>
+                <div className={`glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 ${note.pinned ? 'border-warning' : 'border-primary'}`}>
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div className="d-flex align-items-center gap-2">
                       {getPriorityBadge(note.priority)}
@@ -165,18 +167,18 @@ const AdminNotes = () => {
                     </Dropdown>
                   </div>
                   
-                  <h5 className="fw-bold mb-3">{note.title}</h5>
-                  <p className="small text-muted mb-4 lh-base">{note.content}</p>
+                  <h5 className="fw-bold mb-3 text-navy">{note.title}</h5>
+                  <p className="small text-muted mb-4 lh-base fw-bold opacity-75">{note.content}</p>
                   
                   <div className="p-3 bg-surface-alt rounded-4 border d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-center gap-2">
                       <div className="avatar-xs bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
                         {note.author.charAt(0)}
                       </div>
-                      <span className="extra-small fw-bold opacity-75">{note.author}</span>
+                      <span className="extra-small fw-bold text-navy opacity-75">{note.author}</span>
                     </div>
                     <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                      <Clock size={14} /> {note.date}
+                      <Clock size={14} className="text-primary" /> {note.date}
                     </div>
                   </div>
                 </div>
@@ -185,38 +187,14 @@ const AdminNotes = () => {
           </Row>
         </div>
       </Container>
-
       <style>{`
-        .admin-notes-modern-layout {
-          color: var(--text-primary);
-        }
-        .notes-glass-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .bg-surface-alt {
-          background-color: var(--background) !important;
-        }
         .border-start-4 {
           border-left: 4px solid !important;
         }
-        .border-primary { border-left-color: var(--primary) !important; }
-        .border-danger { border-left-color: #ef4444 !important; }
-        .border-warning { border-left-color: #f59e0b !important; }
-        
-        h2, h4, h5, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
-        }
-        .text-primary-custom {
-          color: var(--text-primary) !important;
-        }
-        .fill-warning {
-          fill: #f59e0b;
-        }
+        .border-primary { border-left-color: var(--color-primary) !important; }
+        .border-danger { border-left-color: var(--color-danger) !important; }
+        .border-warning { border-left-color: var(--color-warning) !important; }
+        .fill-warning { fill: var(--color-warning); }
       `}</style>
     </div>
   );

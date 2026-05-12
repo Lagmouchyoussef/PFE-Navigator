@@ -1,21 +1,23 @@
 import React, { useState, useRef } from 'react';
 import { 
-  Settings, Monitor, Bell, Shield, 
+  Monitor, Bell, Shield, 
   Puzzle, Globe, Clock, Moon, 
   Sun, Check, Save, Upload,
-  AlertTriangle, ChevronRight, Mail, Lock, Key, Server, Smartphone, RefreshCcw, User
+  AlertTriangle, ChevronRight, Mail, Server, Smartphone, User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Button, Form, Badge, Nav } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext';
 
-const PortalSettings = () => {
-  const { theme, setTheme } = useApp();
-  const [activeTab, setActiveTab] = useState('general');
-  const [selectedColor, setSelectedColor] = useState('#2563eb');
-  const fileInputRef = useRef(null);
+type SettingsTab = 'general' | 'appearance' | 'profile' | 'notifications' | 'security' | 'integrations';
 
-  const tabs = [
+const PortalSettings: React.FC = () => {
+  const { theme, setTheme } = useApp();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const [selectedColor, setSelectedColor] = useState('#2563eb');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const tabs: { id: SettingsTab; label: string; icon: React.ReactElement }[] = [
     { id: 'general', label: 'Général', icon: <Globe size={18} /> },
     { id: 'appearance', label: 'Apparence', icon: <Monitor size={18} /> },
     { id: 'profile', label: 'Mon Profil', icon: <User size={18} /> },
@@ -29,14 +31,14 @@ const PortalSettings = () => {
       <Container fluid className="px-4">
         {/* Header Section */}
         <div className="mb-5">
-          <h2 className="fw-bold mb-1">Paramètres du Portail</h2>
-          <p className="text-muted small mb-0">Gestion avancée de la plateforme MediSync et de ses services.</p>
+          <h2 className="fw-bold mb-1 text-gradient">Paramètres du Portail</h2>
+          <p className="text-muted small mb-0">Gestion avancée de la plateforme et de ses services.</p>
         </div>
 
         <Row className="g-4">
           {/* Navigation Sidebar */}
           <Col lg={3}>
-            <div className="settings-glass-card shadow-sm rounded-4 overflow-hidden mb-4">
+            <div className="glass-card shadow-sm rounded-4 overflow-hidden mb-4">
               <div className="p-3 border-bottom opacity-50">
                 <span className="extra-small fw-bold text-muted text-uppercase tracking-wider">Menu Configuration</span>
               </div>
@@ -59,12 +61,12 @@ const PortalSettings = () => {
               </Nav>
             </div>
 
-            <div className="settings-glass-card p-4 rounded-4 border-primary border-opacity-10 bg-primary bg-opacity-5">
+            <div className="glass-card p-4 rounded-4 border-primary border-opacity-10 bg-primary bg-opacity-5">
               <div className="d-flex align-items-center gap-3 mb-3">
                 <div className="p-2 bg-primary bg-opacity-10 rounded-circle text-primary">
                   <Server size={20} />
                 </div>
-                <h6 className="fw-bold mb-0">État Système</h6>
+                <h6 className="fw-bold mb-0 text-navy">État Système</h6>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <span className="extra-small text-muted fw-bold">Version</span>
@@ -79,9 +81,9 @@ const PortalSettings = () => {
 
           {/* Settings Content */}
           <Col lg={9}>
-            <div className="settings-glass-card shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column">
+            <div className="glass-card shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column">
               <div className="border-bottom p-4">
-                <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
+                <h5 className="fw-bold mb-0 d-flex align-items-center gap-2 text-navy">
                   {tabs.find(t => t.id === activeTab)?.icon}
                   {tabs.find(t => t.id === activeTab)?.label}
                 </h5>
@@ -90,19 +92,19 @@ const PortalSettings = () => {
               <div className="p-4 p-md-5 flex-grow-1">
                 {activeTab === 'general' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Informations de base</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations de base</h6>
                     <Row className="g-4 mb-5">
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Nom de l'Institution</Form.Label>
-                        <Form.Control defaultValue="Université EMSI - Portails PFE" className="settings-input" />
+                        <Form.Control defaultValue="Université EMSI - Portails PFE" className="form-control-premium" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Email Administrateur</Form.Label>
-                        <Form.Control defaultValue="admin@emsi.ma" className="settings-input" />
+                        <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Langue d'Interface</Form.Label>
-                        <Form.Select className="settings-input">
+                        <Form.Select className="form-control-premium">
                           <option>Français (FR)</option>
                           <option>English (US)</option>
                           <option>Arabe (MA)</option>
@@ -110,7 +112,7 @@ const PortalSettings = () => {
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Format de Date</Form.Label>
-                        <Form.Select className="settings-input">
+                        <Form.Select className="form-control-premium">
                           <option>DD/MM/YYYY</option>
                           <option>MM/DD/YYYY</option>
                           <option>YYYY-MM-DD</option>
@@ -118,19 +120,19 @@ const PortalSettings = () => {
                       </Col>
                     </Row>
 
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Contrôles Globaux</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Contrôles Globaux</h6>
                     <div className="d-flex flex-column gap-4">
                       <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt">
                         <div>
-                          <div className="small fw-bold">Maintenance Système</div>
-                          <div className="extra-small text-muted">Affiche une page de maintenance pour tous les utilisateurs.</div>
+                          <div className="small fw-bold text-navy">Maintenance Système</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Affiche une page de maintenance pour tous les utilisateurs.</div>
                         </div>
                         <Form.Check type="switch" id="maintenance-switch" />
                       </div>
                       <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt">
                         <div>
-                          <div className="small fw-bold">Inscriptions Ouvertes</div>
-                          <div className="extra-small text-muted">Permettre aux nouveaux étudiants de créer un compte.</div>
+                          <div className="small fw-bold text-navy">Inscriptions Ouvertes</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Permettre aux nouveaux étudiants de créer un compte.</div>
                         </div>
                         <Form.Check type="switch" id="register-switch" defaultChecked />
                       </div>
@@ -140,7 +142,7 @@ const PortalSettings = () => {
 
                 {activeTab === 'appearance' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Thème & Identité Visuelle</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Thème & Identité Visuelle</h6>
                     
                     <div className="mb-5">
                       <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Mode d'affichage</Form.Label>
@@ -187,7 +189,7 @@ const PortalSettings = () => {
                               backgroundColor: color, 
                               width: '32px', 
                               height: '32px',
-                              border: selectedColor === color ? '3px solid var(--primary)' : 'none',
+                              border: selectedColor === color ? '3px solid var(--color-primary)' : 'none',
                               transform: selectedColor === color ? 'scale(1.2)' : 'scale(1)'
                             }}
                           ></div>
@@ -202,7 +204,6 @@ const PortalSettings = () => {
                         ref={fileInputRef} 
                         className="d-none" 
                         accept="image/*"
-                        onChange={() => alert("Nouveau logo sélectionné !")} 
                       />
                       <div className="d-flex align-items-center gap-4 p-4 rounded-4 border border-dashed bg-surface-alt">
                         <div className="p-4 bg-white rounded-3 shadow-sm border">
@@ -211,13 +212,12 @@ const PortalSettings = () => {
                         <div>
                           <Button 
                             size="sm" 
-                            variant="outline-primary" 
-                            className="fw-bold mb-2 rounded-pill"
+                            className="btn-premium mb-2"
                             onClick={() => fileInputRef.current?.click()}
                           >
                             Changer le logo
                           </Button>
-                          <div className="extra-small text-muted">Recommandé : PNG ou SVG, min 512x512px.</div>
+                          <div className="extra-small text-muted fw-bold">Recommandé : PNG ou SVG, min 512x512px.</div>
                         </div>
                       </div>
                     </div>
@@ -226,7 +226,7 @@ const PortalSettings = () => {
 
                 {activeTab === 'profile' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Informations Personnelles</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations Personnelles</h6>
                     <div className="d-flex align-items-center gap-4 mb-5">
                       <div className="position-relative">
                         <div className="avatar-preview rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-primary border-opacity-25" style={{ width: '100px', height: '100px' }}>
@@ -235,63 +235,31 @@ const PortalSettings = () => {
                         <Button size="sm" variant="light" className="position-absolute bottom-0 end-0 p-1 rounded-circle shadow border"><Upload size={14}/></Button>
                       </div>
                       <div>
-                        <h5 className="fw-bold mb-1">Admin System</h5>
-                        <p className="extra-small text-muted mb-0">Rôle : Super Administrateur</p>
+                        <h5 className="fw-bold mb-1 text-navy">Admin System</h5>
+                        <p className="extra-small text-muted mb-0 fw-bold">Rôle : Super Administrateur</p>
                       </div>
                     </div>
 
                     <Row className="g-4 mb-5">
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Prénom</Form.Label>
-                        <Form.Control defaultValue="Admin" className="settings-input" />
+                        <Form.Control defaultValue="Admin" className="form-control-premium" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Nom</Form.Label>
-                        <Form.Control defaultValue="System" className="settings-input" />
+                        <Form.Control defaultValue="System" className="form-control-premium" />
                       </Col>
                       <Col md={12}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Poste Administratif</Form.Label>
-                        <Form.Control defaultValue="Responsable Portails Académiques" className="settings-input" />
-                      </Col>
-                      <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Adresse Email</Form.Label>
-                        <Form.Control defaultValue="admin@emsi.ma" className="settings-input" />
-                      </Col>
-                      <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Téléphone</Form.Label>
-                        <Form.Control defaultValue="+212 6 00 00 00 00" className="settings-input" />
+                        <Form.Control defaultValue="Responsable Portails Académiques" className="form-control-premium" />
                       </Col>
                     </Row>
-
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Équipe Administrative</h6>
-                    <div className="d-flex flex-column gap-3">
-                      {[
-                        { name: 'Dr. Ahmed Mansouri', role: 'Administrateur Jury', status: 'En ligne' },
-                        { name: 'Mme. Sara Alami', role: 'Gestionnaire Projets', status: 'Hors ligne' },
-                        { name: 'Mr. Khalid Tazi', role: 'Support Technique', status: 'En ligne' }
-                      ].map((member, idx) => (
-                        <div key={idx} className="d-flex align-items-center justify-content-between p-3 rounded-4 border bg-surface-alt shadow-sm transition-all hover-bg-surface">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '40px', height: '40px' }}>
-                              {member.name[0]}
-                            </div>
-                            <div>
-                              <div className="small fw-bold">{member.name}</div>
-                              <div className="extra-small text-muted">{member.role}</div>
-                            </div>
-                          </div>
-                          <Badge bg={member.status === 'En ligne' ? 'success' : 'secondary'} className="extra-small rounded-pill">
-                            {member.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'notifications' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Préférences & Activités</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Préférences & Activités</h6>
                     
                     <div className="mb-5">
                       <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Configuration des Alertes</Form.Label>
@@ -300,8 +268,8 @@ const PortalSettings = () => {
                           <div className="d-flex align-items-center gap-3">
                             <div className="p-2 bg-primary bg-opacity-10 border rounded-circle text-primary"><Mail size={18}/></div>
                             <div>
-                              <div className="small fw-bold">Rapports par Email</div>
-                              <div className="extra-small text-muted">Résumé hebdomadaire de l'activité du portail.</div>
+                              <div className="small fw-bold text-navy">Rapports par Email</div>
+                              <div className="extra-small text-muted fw-bold opacity-75">Résumé hebdomadaire de l'activité du portail.</div>
                             </div>
                           </div>
                           <Form.Check type="switch" defaultChecked />
@@ -310,66 +278,36 @@ const PortalSettings = () => {
                           <div className="d-flex align-items-center gap-3">
                             <div className="p-2 bg-primary bg-opacity-10 border rounded-circle text-primary"><Bell size={18}/></div>
                             <div>
-                              <div className="small fw-bold">Alertes de Bureau</div>
-                              <div className="extra-small text-muted">Notifications instantanées lors de nouvelles soumissions.</div>
+                              <div className="small fw-bold text-navy">Alertes de Bureau</div>
+                              <div className="extra-small text-muted fw-bold opacity-75">Notifications instantanées lors de nouvelles soumissions.</div>
                             </div>
                           </div>
                           <Form.Check type="switch" defaultChecked />
                         </div>
                       </div>
                     </div>
-
-                    <div>
-                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Notifications Récentes</Form.Label>
-                      <div className="d-flex flex-column gap-2">
-                        {[
-                          { title: '📅 Jury #15 assigné', time: '10 min', color: 'primary', icon: <Clock size={16}/>, desc: 'La session de jury pour le groupe Alpha a été programmée.' },
-                          { title: '✅ Rapport validé', time: '2h', color: 'success', icon: <Check size={16}/>, desc: 'Le rapport final de Youssef M. a été approuvé par le superviseur.' },
-                          { title: '⚠️ Alerte Système', time: '5h', color: 'danger', icon: <AlertTriangle size={16}/>, desc: 'Une tentative de connexion inhabituelle a été détectée.' }
-                        ].map((n, idx) => (
-                          <div key={idx} className="d-flex align-items-start gap-3 p-3 rounded-4 border transition-all hover-bg-surface bg-surface-alt">
-                            <div className={`p-2 rounded-circle bg-light text-${n.color}`}>
-                              {n.icon}
-                            </div>
-                            <div className="flex-grow-1">
-                              <div className="d-flex justify-content-between align-items-center mb-1">
-                                <div className="small fw-bold">{n.title}</div>
-                                <div className="extra-small text-muted">{n.time}</div>
-                              </div>
-                              <div className="extra-small text-muted lh-sm">{n.desc}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <Button variant="link" className="w-100 mt-3 extra-small fw-bold text-primary text-decoration-none">Voir toutes les notifications</Button>
-                    </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'security' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    {/* Gestion du Mot de Passe */}
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Gestion du Mot de Passe</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Gestion du Mot de Passe</h6>
                     <Row className="g-4 mb-5">
                       <Col md={12}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Mot de passe actuel</Form.Label>
-                        <Form.Control type="password" placeholder="••••••••••••" className="settings-input" />
+                        <Form.Control type="password" placeholder="••••••••••••" className="form-control-premium" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Nouveau mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="settings-input" />
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted uppercase">Confirmer le mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="settings-input" />
-                      </Col>
-                      <Col md={12}>
-                        <Button variant="outline-primary" className="fw-bold extra-small rounded-pill">Mettre à jour le mot de passe</Button>
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium" />
                       </Col>
                     </Row>
 
-                    {/* Double Authentification */}
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Double Authentification (2FA)</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Double Authentification (2FA)</h6>
                     <div className="p-4 rounded-4 border mb-5 shadow-sm bg-surface-alt">
                       <div className="d-flex justify-content-between align-items-center mb-3">
                         <div className="d-flex align-items-center gap-3">
@@ -377,65 +315,19 @@ const PortalSettings = () => {
                             <Smartphone size={24} />
                           </div>
                           <div>
-                            <div className="small fw-bold">Application d'authentification</div>
-                            <div className="extra-small text-muted">Utilisez Google Authenticator pour sécuriser votre accès.</div>
+                            <div className="small fw-bold text-navy">Application d'authentification</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Utilisez Google Authenticator pour sécuriser votre accès.</div>
                           </div>
                         </div>
-                        <Button variant="primary" size="sm" className="fw-bold extra-small px-4 rounded-pill border-0 shadow-sm" style={{ backgroundColor: '#2563eb' }}>Configurer</Button>
+                        <Button className="btn-premium px-4">Configurer</Button>
                       </div>
-                    </div>
-
-                    {/* Sessions Actives */}
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom">Sessions Actives</h6>
-                    <div className="table-responsive">
-                      <table className="table table-borderless align-middle mb-0">
-                        <thead className="opacity-50">
-                          <tr>
-                            <th className="extra-small fw-bold text-muted py-3 px-3">APPAREIL</th>
-                            <th className="extra-small fw-bold text-muted py-3 px-3">LOCALISATION</th>
-                            <th className="extra-small fw-bold text-muted py-3 px-3 text-end">ACTION</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-bottom border-light border-opacity-10">
-                            <td className="py-3 px-3">
-                              <div className="d-flex align-items-center gap-3">
-                                <Monitor size={18} className="text-muted" />
-                                <div>
-                                  <div className="small fw-bold">Windows 11 • Chrome</div>
-                                  <div className="extra-small text-primary fw-bold">Session actuelle</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 small text-muted">Casablanca, Maroc</td>
-                            <td className="py-3 px-3 text-end">
-                              <Badge bg="success" className="extra-small rounded-pill">Actif</Badge>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-3 px-3">
-                              <div className="d-flex align-items-center gap-3">
-                                <Smartphone size={18} className="text-muted" />
-                                <div>
-                                  <div className="small fw-bold">iPhone 13 • App Mobile</div>
-                                  <div className="extra-small text-muted">Il y a 2 jours</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 small text-muted">Rabat, Maroc</td>
-                            <td className="py-3 px-3 text-end">
-                              <Button variant="link" className="p-0 text-danger extra-small fw-bold text-decoration-none">Déconnecter</Button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
                     </div>
                   </motion.div>
                 )}
               </div>
               
               <div className="p-4 border-top text-end bg-surface-alt">
-                <Button variant="primary" className="fw-bold px-4 py-2 rounded-3 shadow-sm border-0" style={{ backgroundColor: '#2563eb' }}>
+                <Button className="btn-premium">
                   <Save size={18} className="me-2" />
                   Enregistrer les modifications
                 </Button>
@@ -444,56 +336,6 @@ const PortalSettings = () => {
           </Col>
         </Row>
       </Container>
-
-      <style>{`
-        .settings-modern-layout {
-          min-height: calc(100vh - 80px);
-          font-family: 'Inter', -apple-system, sans-serif;
-          color: var(--text-primary);
-        }
-        .settings-glass-card {
-          background-color: var(--surface);
-          border: 1px solid var(--border) !important;
-          color: var(--text-primary);
-        }
-        .bg-surface-alt {
-          background-color: var(--background) !important;
-        }
-        .settings-input {
-          background-color: var(--background) !important;
-          color: var(--text-primary) !important;
-          border: 1px solid var(--border) !important;
-          font-size: 0.875rem;
-          padding: 0.6rem 1rem;
-          border-radius: 10px;
-        }
-        .settings-input:focus {
-          border-color: var(--primary) !important;
-          box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1) !important;
-        }
-        .hover-bg-surface:hover {
-          background-color: rgba(var(--primary-rgb), 0.05) !important;
-        }
-        .text-muted {
-          color: var(--text-secondary) !important;
-        }
-        .border-bottom {
-          border-bottom: 1px solid var(--border) !important;
-        }
-        .border {
-          border: 1px solid var(--border) !important;
-        }
-        /* Global Typography Overrides for Dark Mode Visibility */
-        h2, h5, h6, .fw-bold {
-          color: var(--text-primary) !important;
-        }
-        .nav-link.text-muted:not(.active) {
-          color: var(--text-secondary) !important;
-        }
-        .nav-link.active {
-          color: #ffffff !important;
-        }
-      `}</style>
     </div>
   );
 };
