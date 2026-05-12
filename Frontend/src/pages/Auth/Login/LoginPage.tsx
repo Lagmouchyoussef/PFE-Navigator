@@ -1,16 +1,25 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 import { 
   GraduationCap, UserCog, Users, Shield, 
   ArrowRight, Key, Layout
 } from 'lucide-react';
+import { UserRole } from '../../../types';
 
-const LoginPage = () => {
+interface RoleOption {
+  id: UserRole;
+  title: string;
+  desc: string;
+  icon: React.ReactElement;
+  color: string;
+}
+
+const LoginPage: React.FC = () => {
   const { login } = useApp();
 
-  const roles = [
+  const roles: RoleOption[] = [
     { 
       id: 'student', 
       title: 'Student Portal', 
@@ -52,7 +61,7 @@ const LoginPage = () => {
           >
             <Layout className="text-primary" size={40} />
           </motion.div>
-          <h1 className="fw-black text-navy tracking-tighter mb-2">PFE Sync Platform</h1>
+          <h1 className="fw-black text-navy tracking-tighter mb-2">PFE Navigator</h1>
           <p className="text-muted mx-auto" style={{ maxWidth: '500px' }}>
             Welcome to the academic project management system. Select your profile below to enter your dedicated workspace.
           </p>
@@ -75,7 +84,7 @@ const LoginPage = () => {
                     className="position-absolute top-0 end-0 p-3 opacity-10" 
                     style={{ transform: 'translate(20%, -20%)' }}
                   >
-                    {React.cloneElement(role.icon, { size: 100 })}
+                    {React.cloneElement(role.icon as React.ReactElement<{ size?: number }>, { size: 100 })}
                   </div>
                   
                   <div 
@@ -104,20 +113,8 @@ const LoginPage = () => {
           <div className="fw-bold small text-navy opacity-50">EMSI Academic Group © 2026</div>
         </div>
       </Container>
-
-      <style>{`
-        .login-page-modern { background-color: #f8fafc !important; }
-        .fw-black { font-weight: 900; }
-        .tracking-tighter { letter-spacing: -0.05em; }
-        .text-navy { color: #2c3e50 !important; }
-        .cursor-pointer { cursor: pointer; }
-        .login-role-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent !important; }
-        .login-role-card:hover { border-color: var(--bs-primary) !important; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important; }
-        .extra-small { font-size: 0.75rem; }
-      `}</style>
     </div>
   );
 };
 
 export default LoginPage;
-

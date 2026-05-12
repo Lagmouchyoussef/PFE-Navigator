@@ -1,15 +1,19 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { 
+  User, Session, Document as AppDocument, Message, Defense, 
+  Notification, Scores, UserRole 
+} from '../types';
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
-const ACCOUNTS = [
-  { email: 'student@mail.com', password: 'student123', role: 'student', name: 'Youssef', initials: 'YM' },
-  { email: 'jury@mail.com',    password: 'jury123',    role: 'jury',    name: 'Prof. Youssef', initials: 'PY' },
-  { email: 'supervisor@mail.com', password: 'supervisor123', role: 'supervisor', name: 'Dr. Supervisor', initials: 'DS' },
-  { email: 'admin@mail.com',    password: 'admin123',    role: 'admin',    name: 'Admin System', initials: 'AS' },
+const ACCOUNTS: User[] = [
+  { id: '1', email: 'student@mail.com', name: 'Youssef', role: 'student', initials: 'YM' },
+  { id: '2', email: 'jury@mail.com', name: 'Prof. Youssef', role: 'jury', initials: 'PY' },
+  { id: '3', email: 'supervisor@mail.com', name: 'Dr. Supervisor', role: 'supervisor', initials: 'DS' },
+  { id: '4', email: 'admin@mail.com', name: 'Admin System', role: 'admin', initials: 'AS' },
 ];
 
-const INITIAL_SCORES = {
+const INITIAL_SCORES: Scores = {
   rapport:      null,
   presentation: null,
   technique:    null,
@@ -17,7 +21,7 @@ const INITIAL_SCORES = {
   delais:       null,
 };
 
-const COEFFICIENTS = {
+const COEFFICIENTS: Record<keyof Scores, number> = {
   rapport:      3,
   presentation: 2,
   technique:    2,
@@ -25,7 +29,7 @@ const COEFFICIENTS = {
   delais:       1,
 };
 
-const SCORE_LABELS = {
+const SCORE_LABELS: Record<keyof Scores, string> = {
   rapport:      'Thesis Report',
   presentation: 'Oral Defense',
   technique:    'Technical Proficiency',
@@ -33,7 +37,7 @@ const SCORE_LABELS = {
   delais:       'Milestone Compliance',
 };
 
-const INITIAL_DOCUMENTS = [
+const INITIAL_DOCUMENTS: AppDocument[] = [
   {
     id: 1,
     title: 'Final_Report_v1.pdf',
@@ -54,7 +58,7 @@ const INITIAL_DOCUMENTS = [
   },
 ];
 
-const INITIAL_MESSAGES = [
+const INITIAL_MESSAGES: Message[] = [
   {
     id: 1,
     sender: 'jury',
@@ -81,7 +85,7 @@ const INITIAL_MESSAGES = [
   },
 ];
 
-const INITIAL_DEFENSES = [
+const INITIAL_DEFENSES: Defense[] = [
   {
     id: 1,
     title: 'PFE Defense – Youssef',
@@ -93,7 +97,7 @@ const INITIAL_DEFENSES = [
   },
 ];
 
-const INITIAL_NOTIFICATIONS = [
+const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 1,
     type: 'approved',
@@ -120,27 +124,64 @@ const INITIAL_NOTIFICATIONS = [
   },
 ];
 
-// ─── CONTEXT ─────────────────────────────────────────────────────────────────
+// ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
 
-const AppContext = createContext(null);
+interface AppContextType {
+  session: Session | null;
+  login: (emailOrRole: string, password?: string, role?: UserRole) => boolean;
+  logout: () => void;
+  scores: Scores;
+  saveScore: (criterion: keyof Scores, value: string | number) => void;
+  submitEvaluation: (comment: string) => void;
+  globalGrade: number | null;
+  coefficients: Record<keyof Scores, number>;
+  juryComment: string;
+  SCORE_LABELS: Record<keyof Scores, string>;
+  documents: AppDocument[];
+  uploadDocument: (title: string, file: File | null) => AppDocument;
+  deleteDocument: (id: number) => void;
+  approveDocument: (id: number) => void;
+  rejectDocument: (id: number, reason: string) => void;
+  pendingDocsCount: number;
+  messages: Message[];
+  sendMessage: (text: string, senderRole: UserRole) => void;
+  markMessagesRead: (role: UserRole) => void;
+  unreadCountForRole: (role: UserRole) => number;
+  deleteMessage: (id: number) => void;
+  defenses: Defense[];
+  createDefense: (defense: Omit<Defense, 'id'>) => void;
+  updateDefense: (id: number, updates: Partial<Defense>) => void;
+  deleteDefense: (id: number) => void;
+  notifications: Notification[];
+  markNotificationRead: (id: number) => void;
+  markAllNotificationsRead: () => void;
+  unreadNotificationsCount: number;
+  deleteNotification: (id: number) => void;
+  progressPct: number;
+  approvedDocs: number;
+  totalRequired: number;
+  theme: string;
+  setTheme: (theme: string) => void;
+}
 
-export const AppProvider = ({ children }) => {
+const AppContext = createContext<AppContextType | null>(null);
+
+export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
-  const [session, setSession] = useState(null); // { role, name, email }
+  const [session, setSession] = useState<Session | null>(null);
 
   // DATA STORE
-  const [scores, setScores] = useState(INITIAL_SCORES);
-  const [coefficients] = useState(COEFFICIENTS);
-  const [documents, setDocuments] = useState(INITIAL_DOCUMENTS);
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
-  const [defenses, setDefenses] = useState(INITIAL_DEFENSES);
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [scores, setScores] = useState<Scores>(INITIAL_SCORES);
+  const [documents, setDocuments] = useState<AppDocument[]>(INITIAL_DOCUMENTS);
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
+  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [juryComment, setJuryComment] = useState('');
   
   // THEME MANAGEMENT
   const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'system');
 
-  const applyTheme = useCallback((targetTheme) => {
+  const applyTheme = useCallback((targetTheme: string) => {
     let resolvedTheme = targetTheme;
     if (targetTheme === 'system') {
       resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -151,8 +192,6 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     applyTheme(theme);
-
-    // Listen for system theme changes if in 'system' mode
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applyTheme('system');
@@ -162,20 +201,17 @@ export const AppProvider = ({ children }) => {
   }, [theme, applyTheme]);
 
   // ── AUTH ────────────────────────────────────────────────────────────────────
-  const login = useCallback((emailOrRole, password, role) => {
+  const login = useCallback((emailOrRole: string, password?: string, role?: UserRole) => {
     let account;
-    
-    // If only one argument is provided, assume it's a role for quick login
     if (password === undefined && role === undefined) {
       account = ACCOUNTS.find(a => a.role === emailOrRole);
     } else {
-      account = ACCOUNTS.find(
-        (a) => a.email === emailOrRole && a.password === password && a.role === role
-      );
+      // In a real app, we would use email and password. For mock, we just check role if role is provided.
+      account = ACCOUNTS.find(a => a.email === emailOrRole && a.role === role);
     }
 
     if (!account) return false;
-    setSession({ role: account.role, name: account.name, email: account.email, initials: account.initials });
+    setSession({ ...account });
     return true;
   }, []);
 
@@ -183,28 +219,28 @@ export const AppProvider = ({ children }) => {
 
   // ── NOTE CALCULATION ────────────────────────────────────────────────────────
   const computeGlobalGrade = useCallback(() => {
-    const entries = Object.entries(scores);
-    const filled = entries.filter(([, v]) => v !== null);
+    const entries = Object.entries(scores) as [keyof Scores, number | null][];
+    const filled = entries.filter(([, v]) => v !== null) as [keyof Scores, number][];
     if (filled.length === 0) return null;
-    const sumWeighted = filled.reduce((acc, [key, val]) => acc + val * coefficients[key], 0);
-    const sumCoef     = filled.reduce((acc, [key])      => acc + coefficients[key], 0);
+    const sumWeighted = filled.reduce((acc, [key, val]) => acc + val * COEFFICIENTS[key], 0);
+    const sumCoef     = filled.reduce((acc, [key])      => acc + COEFFICIENTS[key], 0);
     return (sumWeighted / sumCoef);
-  }, [scores, coefficients]);
+  }, [scores]);
 
   const globalGrade = computeGlobalGrade();
 
   // ── JURY ACTIONS ────────────────────────────────────────────────────────────
-  const saveScore = useCallback((criterion, value) => {
+  const saveScore = useCallback((criterion: keyof Scores, value: string | number) => {
     setScores(prev => ({ ...prev, [criterion]: value === '' ? null : Number(value) }));
     addNotification('grade', `A score has been assigned for "${SCORE_LABELS[criterion]}".`, '/student/evaluation');
   }, []);
 
-  const submitEvaluation = useCallback((comment) => {
+  const submitEvaluation = useCallback((comment: string) => {
     setJuryComment(comment);
     addNotification('grade', 'The jury has finalized your evaluation. View your scores.', '/student/evaluation');
   }, []);
 
-  const approveDocument = useCallback((docId) => {
+  const approveDocument = useCallback((docId: number) => {
     setDocuments(prev =>
       prev.map(d => d.id === docId ? { ...d, status: 'approved', comment: '' } : d)
     );
@@ -212,7 +248,7 @@ export const AppProvider = ({ children }) => {
     if (doc) addNotification('approved', `Your document "${doc.title}" has been approved.`, '/student/reports');
   }, [documents]);
 
-  const rejectDocument = useCallback((docId, reason) => {
+  const rejectDocument = useCallback((docId: number, reason: string) => {
     setDocuments(prev =>
       prev.map(d => d.id === docId ? { ...d, status: 'rejected', comment: reason } : d)
     );
@@ -220,28 +256,28 @@ export const AppProvider = ({ children }) => {
     if (doc) addNotification('rejected', `Your document "${doc.title}" was rejected: ${reason}`, '/student/reports');
   }, [documents]);
 
-  const createDefense = useCallback((defense) => {
+  const createDefense = useCallback((defense: Omit<Defense, 'id'>) => {
     const newDefense = { ...defense, id: Date.now() };
     setDefenses(prev => [...prev, newDefense]);
     addNotification('defense', `Defense scheduled for ${defense.date} at ${defense.time} — ${defense.room}.`, '/student/schedule');
   }, []);
 
-  const updateDefense = useCallback((id, updates) => {
+  const updateDefense = useCallback((id: number, updates: Partial<Defense>) => {
     setDefenses(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
     addNotification('defense', `The defense scheduled for ${updates.date || ''} has been updated.`, '/student/schedule');
   }, []);
 
-  const deleteDefense = useCallback((id) => {
+  const deleteDefense = useCallback((id: number) => {
     setDefenses(prev => prev.filter(d => d.id !== id));
   }, []);
 
   // ── STUDENT ACTIONS ─────────────────────────────────────────────────────────
-  const uploadDocument = useCallback((title, file) => {
+  const uploadDocument = useCallback((title: string, file: File | null) => {
     const existing = documents.filter(d => d.title === title);
     const version = existing.length > 0
       ? Math.max(...existing.map(d => d.version)) + 1
       : 1;
-    const newDoc = {
+    const newDoc: AppDocument = {
       id: Date.now(),
       title: title || file?.name || 'Document',
       version,
@@ -254,13 +290,13 @@ export const AppProvider = ({ children }) => {
     return newDoc;
   }, [documents]);
 
-  const deleteDocument = useCallback((id) => {
+  const deleteDocument = useCallback((id: number) => {
     setDocuments(prev => prev.filter(d => d.id !== id));
   }, []);
 
   // ── MESSAGES ─────────────────────────────────────────────────────────────────
-  const sendMessage = useCallback((text, senderRole) => {
-    const newMsg = {
+  const sendMessage = useCallback((text: string, senderRole: UserRole) => {
+    const newMsg: Message = {
       id: Date.now(),
       sender: senderRole,
       text,
@@ -269,16 +305,10 @@ export const AppProvider = ({ children }) => {
       readByJury:    senderRole === 'jury',
     };
     setMessages(prev => [...prev, newMsg]);
-
-    // Notification to the recipient
-    if (senderRole === 'student') {
-      addNotification('message', 'New message from a student.', '/jury/messages');
-    } else {
-      addNotification('message', `New message from ${senderRole}.`, '/student/messages');
-    }
+    addNotification('message', senderRole === 'student' ? 'New message from a student.' : `New message from ${senderRole}.`, senderRole === 'student' ? '/jury/messages' : '/student/messages');
   }, []);
 
-  const markMessagesRead = useCallback((role) => {
+  const markMessagesRead = useCallback((role: UserRole) => {
     setMessages(prev =>
       prev.map(m => ({
         ...m,
@@ -288,11 +318,11 @@ export const AppProvider = ({ children }) => {
     );
   }, []);
 
-  const deleteMessage = useCallback((id) => {
+  const deleteMessage = useCallback((id: number) => {
     setMessages(prev => prev.filter(m => m.id !== id));
   }, []);
 
-  const unreadCountForRole = useCallback((role) => {
+  const unreadCountForRole = useCallback((role: UserRole) => {
     return messages.filter(m =>
       m.sender !== role &&
       (role === 'student' ? !m.readByStudent : !m.readByJury)
@@ -300,7 +330,7 @@ export const AppProvider = ({ children }) => {
   }, [messages]);
 
   // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
-  const addNotification = useCallback((type, text, link) => {
+  const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
     setNotifications(prev => [
       {
         id: Date.now(),
@@ -314,7 +344,7 @@ export const AppProvider = ({ children }) => {
     ]);
   }, []);
 
-  const markNotificationRead = useCallback((id) => {
+  const markNotificationRead = useCallback((id: number) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   }, []);
 
@@ -322,7 +352,7 @@ export const AppProvider = ({ children }) => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   }, []);
 
-  const deleteNotification = useCallback((id) => {
+  const deleteNotification = useCallback((id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
@@ -332,34 +362,18 @@ export const AppProvider = ({ children }) => {
   const approvedDocs  = documents.filter(d => d.status === 'approved').length;
   const totalRequired = 10;
   const progressPct   = Math.round((approvedDocs / totalRequired) * 100);
-
   const pendingDocsCount = documents.filter(d => d.status === 'pending').length;
 
   return (
     <AppContext.Provider value={{
-      // Auth
       session, login, logout,
-
-      // Scores
-      scores, saveScore, submitEvaluation, globalGrade, coefficients, juryComment,
+      scores, saveScore, submitEvaluation, globalGrade, coefficients: COEFFICIENTS, juryComment,
       SCORE_LABELS,
-
-      // Documents
       documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
-
-      // Messages
       messages, sendMessage, markMessagesRead, unreadCountForRole, deleteMessage,
-
-      // Defenses / Calendar
       defenses, createDefense, updateDefense, deleteDefense,
-
-      // Notifications
       notifications, markNotificationRead, markAllNotificationsRead, unreadNotificationsCount, deleteNotification,
-
-      // Computed
       progressPct, approvedDocs, totalRequired,
-
-      // Theme
       theme, setTheme
     }}>
       {children}

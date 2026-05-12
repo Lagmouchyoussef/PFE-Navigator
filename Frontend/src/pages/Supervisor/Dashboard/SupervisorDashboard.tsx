@@ -1,33 +1,21 @@
-import React from 'react';
-import { Container, Row, Col, Card, Badge, Button, Table, ProgressBar, Dropdown } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Container, Row, Col, Card, Badge, Button, Table, Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
   Users, Calendar, CheckCircle, Clock, 
   TrendingUp, FileText, MessageSquare, Plus,
-  ChevronRight, MoreHorizontal, LayoutDashboard,
-  Target, Activity, Star
+  ChevronRight, MoreHorizontal, Activity, Star
 } from 'lucide-react';
 import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, BarChart, Bar, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../../context/AppContext';
+import StatCard from '../../../components/shared/StatCard';
+import PerformanceChart from '../../../components/features/supervisor/PerformanceChart';
+import StatusDistribution from '../../../components/features/supervisor/StatusDistribution';
 import '../SupervisorStyles.css';
-
-const MONTHLY_PERFORMANCE = [
-  { name: 'Jan', average: 14.5, completion: 65 },
-  { name: 'Feb', average: 15.2, completion: 72 },
-  { name: 'Mar', average: 14.8, completion: 78 },
-  { name: 'Apr', average: 16.1, completion: 85 },
-  { name: 'May', average: 16.5, completion: 92 },
-];
-
-const STATUS_DISTRIBUTION = [
-  { name: 'Validated', value: 45, color: '#10B981' },
-  { name: 'In Progress', value: 35, color: '#3B82F6' },
-  { name: 'Rejected', value: 10, color: '#EF4444' },
-  { name: 'Pending', value: 10, color: '#F59E0B' },
-];
 
 const WEEKLY_ACTIVITY = [
   { day: 'Mon', meetings: 4, feedback: 12 },
@@ -39,10 +27,10 @@ const WEEKLY_ACTIVITY = [
 ];
 
 const DELIVERABLE_STATUS = [
-  { name: 'Abstract', value: 90, color: '#10B981' },
-  { name: 'Interim', value: 65, color: '#3B82F6' },
-  { name: 'Final', value: 20, color: '#F59E0B' },
-  { name: 'Slides', value: 10, color: '#6366F1' },
+  { name: 'Abstract', value: 90, color: 'var(--color-success)' },
+  { name: 'Interim', value: 65, color: 'var(--color-primary)' },
+  { name: 'Final', value: 20, color: 'var(--color-warning)' },
+  { name: 'Slides', value: 10, color: 'var(--color-info)' },
 ];
 
 const SKILLS_DISTRIBUTION = [
@@ -61,25 +49,10 @@ const RECENT_STUDENTS = [
   { id: 4, name: 'Fatima Zahra', project: 'Cybersecurity Audit Tool', progress: 95, status: 'Validated', date: '2026-05-12' },
 ];
 
-const StatCard = ({ label, value, sub, color, icon, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
-    className="sv-stat-card"
-  >
-    <div className={`sv-stat-icon-wrapper bg-${color} bg-opacity-10 text-${color}`}>
-      {React.cloneElement(icon, { size: 28 })}
-    </div>
-    <div className="sv-stat-value">{value}</div>
-    <div className="sv-stat-label">{label}</div>
-    {sub && <div className="extra-small text-muted mt-2 fw-bold">{sub}</div>}
-  </motion.div>
-);
-
-const SupervisorDashboard = () => {
+const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSuccessCard, setShowSuccessCard] = React.useState(true);
+  const { session } = useApp();
+  const [showSuccessCard, setShowSuccessCard] = useState(true);
 
   return (
     <div className="sv-dashboard-layout">
@@ -110,26 +83,34 @@ const SupervisorDashboard = () => {
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h1 className="mb-2">Supervisor Dashboard</h1>
             <p className="sv-welcome-subtitle mb-0">
-              Academic Year 2025/2026 • Welcome back, Professor
+              Academic Year 2025/2026 • Welcome back, Prof. {session?.name}
             </p>
           </motion.div>
           <div className="d-flex gap-3">
             <Button className="btn-pro-outline d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/schedule')}>
-              <Calendar size={18} className="text-purple" /> Defense Planning
+              <Calendar size={18} className="text-primary" /> Defense Planning
             </Button>
-            <Button className="sv-btn-gradient d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/subjects')}>
+            <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/subjects')}>
               <Plus size={18} /> Propose Subject
             </Button>
           </div>
         </header>
 
         {/* Global Statistics Grid */}
-        <div className="sv-grid sv-grid-stats mb-5">
-          <StatCard label="Total Students" value="24" sub="+3 since last month" color="primary" icon={<Users />} delay={0.1} />
-          <StatCard label="Avg Progress" value="72%" sub="+12% this week" color="success" icon={<TrendingUp />} delay={0.2} />
-          <StatCard label="Meeting Hours" value="142h" sub="Total this semester" color="purple" icon={<Clock />} delay={0.3} />
-          <StatCard label="Active Projects" value="18" sub="4 nearing completion" color="warning" icon={<Activity />} delay={0.4} />
-        </div>
+        <Row className="g-4 mb-5">
+          <Col lg={3} md={6}>
+            <StatCard label="Total Students" value="24" color="primary" icon={<Users />} trend="+3 month" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Avg Progress" value="72%" color="success" icon={<TrendingUp />} trend="+12% week" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Meeting Hours" value="142h" color="info" icon={<Clock />} trend="Semester" />
+          </Col>
+          <Col lg={3} md={6}>
+            <StatCard label="Active Projects" value="18" color="warning" icon={<Activity />} trend="4 Ending" />
+          </Col>
+        </Row>
 
         {/* AI Insight Section */}
         <motion.div 
@@ -142,7 +123,7 @@ const SupervisorDashboard = () => {
           </div>
           <div className="flex-grow-1">
             <div className="d-flex align-items-center gap-2 mb-1">
-              <Badge className="bg-primary bg-opacity-10 text-primary border-0 rounded-pill extra-small px-3">AI COPILOT</Badge>
+              <Badge className="badge-soft-primary border-0 rounded-pill extra-small px-3">AI COPILOT</Badge>
               <span className="extra-small text-muted fw-bold">PROJECTED SUCCESS RATE: 98.2%</span>
             </div>
             <p className="extra-small text-navy opacity-75 mb-0 fw-medium">
@@ -156,101 +137,11 @@ const SupervisorDashboard = () => {
         </motion.div>
 
         <Row className="g-4 mb-5">
-          {/* Performance Chart */}
           <Col lg={8}>
-            <Card className="sv-card-premium border-0">
-              <div className="sv-card-header">
-                <div>
-                  <h5 className="sv-card-title">Performance Evolution</h5>
-                  <p className="extra-small text-muted mb-0">Average grades and project completion rates per month</p>
-                </div>
-                <div className="d-flex gap-2">
-                  <Badge bg="primary" className="bg-opacity-10 text-primary border-0 px-3 py-2 rounded-pill">Monthly View</Badge>
-                </div>
-              </div>
-              <div style={{ height: '350px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={MONTHLY_PERFORMANCE}>
-                    <defs>
-                      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="compGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8', fontWeight: 600}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8', fontWeight: 600}} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="average" 
-                      stroke="#3B82F6" 
-                      strokeWidth={4} 
-                      dot={{ r: 6, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }}
-                      activeDot={{ r: 8, strokeWidth: 0 }}
-                      name="Avg Grade"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="completion" 
-                      stroke="#10B981" 
-                      strokeWidth={4} 
-                      strokeDasharray="8 5"
-                      dot={false}
-                      name="Completion %"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+            <PerformanceChart />
           </Col>
-
-          {/* Status Distribution */}
           <Col lg={4}>
-            <Card className="sv-card-premium border-0">
-              <div className="sv-card-header">
-                <h5 className="sv-card-title">Project Status</h5>
-              </div>
-              <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '250px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie 
-                      data={STATUS_DISTRIBUTION} 
-                      innerRadius={70} 
-                      outerRadius={90} 
-                      paddingAngle={5} 
-                      dataKey="value"
-                    >
-                      {STATUS_DISTRIBUTION.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="position-absolute text-center">
-                  <div className="h3 fw-black mb-0 text-navy">24</div>
-                  <div className="extra-small text-muted fw-bold uppercase">Projects</div>
-                </div>
-              </div>
-              <div className="mt-4">
-                {STATUS_DISTRIBUTION.map((item, i) => (
-                  <div key={i} className="d-flex justify-content-between align-items-center mb-2">
-                    <div className="d-flex align-items-center gap-2 extra-small fw-bold">
-                      <div className="dot" style={{ backgroundColor: item.color, width: '10px', height: '10px', borderRadius: '50%' }}></div>
-                      {item.name}
-                    </div>
-                    <span className="extra-small text-muted fw-black">{item.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <StatusDistribution />
           </Col>
         </Row>
 
@@ -271,8 +162,8 @@ const SupervisorDashboard = () => {
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 600}} />
                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 600}} />
                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                    <Bar dataKey="meetings" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Meetings" />
-                    <Bar dataKey="feedback" fill="#8B5CF6" radius={[4, 4, 0, 0]} name="Feedback" />
+                    <Bar dataKey="meetings" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Meetings" />
+                    <Bar dataKey="feedback" fill="var(--color-info)" radius={[4, 4, 0, 0]} name="Feedback" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -293,8 +184,8 @@ const SupervisorDashboard = () => {
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DISTRIBUTION}>
                     <PolarGrid strokeOpacity={0.1} />
                     <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: '#64748b'}} />
-                    <Radar name="Current" dataKey="A" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.6} />
-                    <Radar name="Target" dataKey="B" stroke="#10B981" fill="#10B981" fillOpacity={0.2} />
+                    <Radar name="Current" dataKey="A" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.6} />
+                    <Radar name="Target" dataKey="B" stroke="var(--color-success)" fill="var(--color-success)" fillOpacity={0.2} />
                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -345,38 +236,38 @@ const SupervisorDashboard = () => {
 
         <Row className="g-4">
           <Col lg={8}>
-            <div className="sv-table-container">
+            <div className="sv-table-container shadow-sm rounded-4 overflow-hidden">
               <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
-                <h5 className="mb-0 fw-black text-navy">Supervised Students</h5>
+                <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
                 <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
                   View Full List <ChevronRight size={14} />
                 </Button>
               </div>
               <div className="table-responsive">
-                <Table className="sv-table mb-0">
-                  <thead>
+                <Table className="sv-table mb-0 align-middle">
+                  <thead className="bg-light">
                     <tr>
-                      <th>Student</th>
-                      <th>Project Title</th>
-                      <th>Progression</th>
-                      <th>Status</th>
-                      <th className="text-end">Actions</th>
+                      <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progression</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                      <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {RECENT_STUDENTS.map((student) => (
-                      <tr key={student.id}>
-                        <td>
+                      <tr key={student.id} className="border-bottom border-light">
+                        <td className="px-4 py-3">
                           <div className="d-flex align-items-center gap-3">
-                            <div className="sv-avatar shadow-sm fw-black" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>{student.name.charAt(0)}</div>
+                            <div className="sv-avatar shadow-sm fw-bold bg-light-soft">{student.name.charAt(0)}</div>
                             <div>
-                              <div className="fw-black small text-navy">{student.name}</div>
+                              <div className="fw-bold small text-navy">{student.name}</div>
                               <div className="extra-small text-muted opacity-75 fw-bold">PFE CANDIDATE</div>
                             </div>
                           </div>
                         </td>
                         <td>
-                          <div className="extra-small fw-black text-navy opacity-75 text-wrap" style={{ maxWidth: '220px', lineHeight: '1.4' }}>
+                          <div className="extra-small fw-bold text-navy opacity-75 text-wrap" style={{ maxWidth: '220px', lineHeight: '1.4' }}>
                             {student.project}
                           </div>
                         </td>
@@ -390,16 +281,15 @@ const SupervisorDashboard = () => {
                                 className={`h-100 rounded-pill bg-${student.progress > 80 ? 'success' : 'primary'}`}
                               />
                             </div>
-                            <span className="extra-small fw-black text-navy">{student.progress}%</span>
+                            <span className="extra-small fw-bold text-navy">{student.progress}%</span>
                           </div>
                         </td>
                         <td>
-                          <span className={`sv-status-badge shadow-none sv-badge-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'}`}>
-                            {student.status === 'Validated' ? <CheckCircle size={12} /> : <Clock size={12} />}
+                          <Badge bg={student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'} className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
                             {student.status}
-                          </span>
+                          </Badge>
                         </td>
-                        <td className="text-end">
+                        <td className="px-4 py-3 text-end">
                           <Dropdown align="end">
                             <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-light rounded-circle no-caret shadow-none border-0">
                               <MoreHorizontal size={20} />
@@ -434,7 +324,7 @@ const SupervisorDashboard = () => {
               {/* Upcoming Deadlines */}
               <Card className="sv-card-premium border-0 p-4 shadow-sm bg-navy text-white">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0">Upcoming Deadlines</h6>
+                  <h6 className="fw-bold mb-0 text-white">Upcoming Deadlines</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
                 <div className="deadline-item mb-4 pb-3 border-bottom border-white border-opacity-10">
@@ -482,4 +372,3 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
-

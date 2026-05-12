@@ -1,42 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
+import { useLocation, Outlet, Link } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, Calendar, Archive, BarChart as BarChartIcon, 
-  Package, MessageSquare, Bell, FileEdit, Settings, 
-  LogOut, Search, Menu, X, ChevronRight, User, Briefcase, Activity,
+  LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
+  MessageSquare, Bell, FileEdit, Settings, 
+  LogOut, Search, Menu, X, ChevronRight, Briefcase, 
   Sun, Moon
 } from 'lucide-react';
-import { Container, Button, Dropdown, Form, Badge } from 'react-bootstrap';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Button, Dropdown, Form } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
+import SidebarLink from '../../components/shared/SidebarLink';
 import './AdminLayout.css';
 
-// Reusing the SidebarLink style from the main App
-const SidebarLink = ({ to, icon, label, badge, isCollapsed }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  return (
-    <Link
-      to={to}
-      className={`nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center gap-3 mb-2 text-decoration-none position-relative`}
-    >
-      {icon}
-      {!isCollapsed && <span className="flex-grow-1">{label}</span>}
-      {badge && !isCollapsed && (
-        <span
-          className="badge rounded-pill bg-danger"
-          style={{ fontSize: '0.65rem', padding: '3px 6px' }}
-        >
-          {badge}
-        </span>
-      )}
-    </Link>
-  );
-};
-
-const AdminLayout = () => {
+const AdminLayout: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   const { session, logout, theme, setTheme, unreadCountForRole, messages, deleteMessage } = useApp();
 
@@ -46,9 +23,10 @@ const AdminLayout = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  const adminUnreadMsgCount = unreadCountForRole ? unreadCountForRole('admin') : 0;
+
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      {/* Sidebar - Matching the original design */}
       <aside className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className={`sidebar-header d-flex align-items-center justify-content-center px-4 py-3`} style={{ minHeight: '80px', position: 'relative' }}>
           {!isSidebarCollapsed && (
@@ -65,11 +43,11 @@ const AdminLayout = () => {
             </div>
           )}
           <nav className="nav flex-column">
-            <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label="Dashboard" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/users" icon={<Users size={20} color="#8b5cf6" />} label="User Management" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/jury" icon={<Calendar size={20} color="#6366f1" />} label="Jury Planning" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/projects" icon={<Briefcase size={20} color="#06b6d4" />} label="Projects Archive" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} color="#f43f5e" />} label="Analytics Center" isCollapsed={isSidebarCollapsed} />
+            <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Dashboard"} />
+            <SidebarLink to="/admin/users" icon={<Users size={20} color="#8b5cf6" />} label={!isSidebarCollapsed && "User Management"} />
+            <SidebarLink to="/admin/jury" icon={<Calendar size={20} color="#6366f1" />} label={!isSidebarCollapsed && "Jury Planning"} />
+            <SidebarLink to="/admin/projects" icon={<Briefcase size={20} color="#06b6d4" />} label={!isSidebarCollapsed && "Projects Archive"} />
+            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} color="#f43f5e" />} label={!isSidebarCollapsed && "Analytics Center"} />
           </nav>
         </div>
 
@@ -80,15 +58,15 @@ const AdminLayout = () => {
             </div>
           )}
           <nav className="nav flex-column">
-            <SidebarLink to="/admin/resources" icon={<Briefcase size={20} color="#f97316" />} label="Resource Hub" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} color="#14b8a6" />} label="Messages" isCollapsed={isSidebarCollapsed} />
-            <SidebarLink to="/admin/notifications" icon={<Bell size={20} color="#f43f5e" />} label="Notifications" isCollapsed={isSidebarCollapsed} badge={2} />
-            <SidebarLink to="/admin/notes" icon={<FileEdit size={20} color="#94a3b8" />} label="Admin Notes" isCollapsed={isSidebarCollapsed} />
+            <SidebarLink to="/admin/resources" icon={<Briefcase size={20} color="#f97316" />} label={!isSidebarCollapsed && "Resource Hub"} />
+            <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} color="#14b8a6" />} label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
+            <SidebarLink to="/admin/notifications" icon={<Bell size={20} color="#f43f5e" />} label={!isSidebarCollapsed && "Notifications"} badge={2} />
+            <SidebarLink to="/admin/notes" icon={<FileEdit size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Admin Notes"} />
           </nav>
         </div>
 
         <div className="mt-auto mb-4 px-3 pt-4 border-top border-secondary border-opacity-25">
-          <SidebarLink to="/admin/settings" icon={<Settings size={20} color="#94a3b8" />} label="Portal Settings" isCollapsed={isSidebarCollapsed} />
+          <SidebarLink to="/admin/settings" icon={<Settings size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Portal Settings"} />
           {!isSidebarCollapsed && (
             <button 
               onClick={logout}
@@ -102,7 +80,6 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-grow-1 main-wrapper bg-background">
         <header className="main-header d-flex align-items-center justify-content-between px-4">
           <div className="header-search-container d-flex align-items-center gap-3">
@@ -140,17 +117,10 @@ const AdminLayout = () => {
           </div>
 
           <div className="header-actions d-flex align-items-center gap-4">
-            <style>{`
-              .hover-text-danger:hover { color: #ef4444 !important; }
-              .dropdown-item:active, .dropdown-item:focus { background-color: transparent !important; color: inherit !important; }
-              .btn:focus, .btn:active { outline: none !important; box-shadow: none !important; }
-            `}</style>
-            {/* Theme toggle */}
             <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}>
               {isDarkMode ? <Sun size={22} className="text-warning" /> : <Moon size={22} />}
             </Button>
 
-            {/* Messages dropdown */}
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
@@ -158,7 +128,7 @@ const AdminLayout = () => {
               >
                 <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <MessageSquare size={22} />
-                  {unreadCountForRole('admin') > 0 && (
+                  {adminUnreadMsgCount > 0 && (
                     <span
                       className="position-absolute badge rounded-pill bg-primary border border-2 border-white"
                       style={{ 
@@ -169,7 +139,7 @@ const AdminLayout = () => {
                         right: '-8px'
                       }}
                     >
-                      {unreadCountForRole('admin')}
+                      {adminUnreadMsgCount}
                     </span>
                   )}
                 </motion.div>
@@ -179,7 +149,7 @@ const AdminLayout = () => {
                   <span className="fw-bold">Messages</span>
                   <Link to="/admin/messages" className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
                 </div>
-                <div className="p-0 max-h-400 overflow-y-auto">
+                <div className="p-0 overflow-y-auto" style={{ maxHeight: '400px' }}>
                   {messages.filter(m => m.sender !== 'admin').slice(0, 3).map(msg => (
                     <div key={msg.id} className="dropdown-item px-3 py-3 border-bottom d-flex gap-3 position-relative group">
                       <Link to="/admin/messages" className="d-flex gap-3 text-decoration-none flex-grow-1 overflow-hidden">
@@ -214,7 +184,6 @@ const AdminLayout = () => {
               </Dropdown.Menu>
             </Dropdown>
 
-            {/* Notifications bell */}
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
@@ -245,7 +214,6 @@ const AdminLayout = () => {
               </Dropdown.Menu>
             </Dropdown>
 
-            {/* User menu */}
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
