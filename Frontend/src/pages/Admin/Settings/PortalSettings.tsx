@@ -1,20 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { 
   Monitor, Bell, Shield, 
-  Puzzle, Globe, Clock, Moon, 
-  Sun, Check, Save, Upload,
-  AlertTriangle, ChevronRight, Mail, Server, Smartphone, User
+  Puzzle, Globe, Clock, 
+  Moon, Sun, Save, Upload,
+  ChevronRight, Mail, Server, Smartphone, User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Button, Form, Badge, Nav } from 'react-bootstrap';
-import { useApp } from '../../../context/AppContext';
 
 type SettingsTab = 'general' | 'appearance' | 'profile' | 'notifications' | 'security' | 'integrations';
 
 const PortalSettings: React.FC = () => {
-  const { theme, setTheme } = useApp();
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const [selectedColor, setSelectedColor] = useState('#2563eb');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs: { id: SettingsTab; label: string; icon: React.ReactElement }[] = [
@@ -28,19 +25,19 @@ const PortalSettings: React.FC = () => {
 
   return (
     <div className="settings-modern-layout py-4">
-      <Container fluid className="px-4">
+      <Container fluid className="px-0">
         {/* Header Section */}
         <div className="mb-5">
-          <h2 className="fw-bold mb-1 text-gradient">Paramètres du Portail</h2>
-          <p className="text-muted small mb-0">Gestion avancée de la plateforme et de ses services.</p>
+          <h2 className="fw-bold mb-1 text-navy">Paramètres du Portail</h2>
+          <p className="text-muted small mb-0 fw-bold opacity-75">Gestion avancée de la plateforme et de ses services.</p>
         </div>
 
         <Row className="g-4">
           {/* Navigation Sidebar */}
           <Col lg={3}>
-            <div className="glass-card shadow-sm rounded-4 overflow-hidden mb-4">
-              <div className="p-3 border-bottom opacity-50">
-                <span className="extra-small fw-bold text-muted text-uppercase tracking-wider">Menu Configuration</span>
+            <div className="glass-card shadow-sm rounded-4 overflow-hidden mb-4 border">
+              <div className="p-3 border-bottom bg-surface-alt">
+                <span className="extra-small fw-bold text-muted text-uppercase">Configuration</span>
               </div>
               <Nav className="flex-column p-2">
                 {tabs.map((tab) => (
@@ -53,7 +50,9 @@ const PortalSettings: React.FC = () => {
                         : 'text-muted hover-bg-surface'
                     }`}
                   >
-                    {tab.icon}
+                    <div className="d-flex align-items-center justify-content-center">
+                      {tab.icon}
+                    </div>
                     <span className="flex-grow-1">{tab.label}</span>
                     <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-100' : 'opacity-25'} />
                   </Nav.Link>
@@ -61,16 +60,16 @@ const PortalSettings: React.FC = () => {
               </Nav>
             </div>
 
-            <div className="glass-card p-4 rounded-4 border-primary border-opacity-10 bg-primary bg-opacity-5">
+            <div className="glass-card p-4 rounded-4 border-primary border-opacity-10 bg-primary-soft">
               <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-2 bg-primary bg-opacity-10 rounded-circle text-primary">
+                <div className="p-2 bg-primary-soft rounded-circle text-primary border border-primary border-opacity-10">
                   <Server size={20} />
                 </div>
                 <h6 className="fw-bold mb-0 text-navy">État Système</h6>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <span className="extra-small text-muted fw-bold">Version</span>
-                <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">v2.4.1</Badge>
+                <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">v2.4.1</Badge>
               </div>
               <div className="d-flex justify-content-between align-items-center">
                 <span className="extra-small text-muted fw-bold">Uptime</span>
@@ -81,10 +80,12 @@ const PortalSettings: React.FC = () => {
 
           {/* Settings Content */}
           <Col lg={9}>
-            <div className="glass-card shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column">
-              <div className="border-bottom p-4">
+            <div className="glass-card shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column border">
+              <div className="border-bottom p-4 bg-surface-alt">
                 <h5 className="fw-bold mb-0 d-flex align-items-center gap-2 text-navy">
-                  {tabs.find(t => t.id === activeTab)?.icon}
+                  <div className="text-primary d-flex align-items-center justify-content-center">
+                    {tabs.find(t => t.id === activeTab)?.icon}
+                  </div>
                   {tabs.find(t => t.id === activeTab)?.label}
                 </h5>
               </div>
@@ -95,24 +96,24 @@ const PortalSettings: React.FC = () => {
                     <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations de base</h6>
                     <Row className="g-4 mb-5">
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Nom de l'Institution</Form.Label>
-                        <Form.Control defaultValue="Université EMSI - Portails PFE" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de l'Institution</Form.Label>
+                        <Form.Control defaultValue="Université EMSI - Portails PFE" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Email Administrateur</Form.Label>
-                        <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Administrateur</Form.Label>
+                        <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Langue d'Interface</Form.Label>
-                        <Form.Select className="form-control-premium">
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Langue d'Interface</Form.Label>
+                        <Form.Select className="form-control-premium fw-bold">
                           <option>Français (FR)</option>
                           <option>English (US)</option>
                           <option>Arabe (MA)</option>
                         </Form.Select>
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Format de Date</Form.Label>
-                        <Form.Select className="form-control-premium">
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Format de Date</Form.Label>
+                        <Form.Select className="form-control-premium fw-bold">
                           <option>DD/MM/YYYY</option>
                           <option>MM/DD/YYYY</option>
                           <option>YYYY-MM-DD</option>
@@ -121,20 +122,20 @@ const PortalSettings: React.FC = () => {
                     </Row>
 
                     <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Contrôles Globaux</h6>
-                    <div className="d-flex flex-column gap-4">
-                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt">
+                    <div className="d-flex flex-column gap-3">
+                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt border">
                         <div>
                           <div className="small fw-bold text-navy">Maintenance Système</div>
                           <div className="extra-small text-muted fw-bold opacity-75">Affiche une page de maintenance pour tous les utilisateurs.</div>
                         </div>
-                        <Form.Check type="switch" id="maintenance-switch" />
+                        <Form.Check type="switch" id="maintenance-switch" className="custom-switch-lg" />
                       </div>
-                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt">
+                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt border">
                         <div>
                           <div className="small fw-bold text-navy">Inscriptions Ouvertes</div>
                           <div className="extra-small text-muted fw-bold opacity-75">Permettre aux nouveaux étudiants de créer un compte.</div>
                         </div>
-                        <Form.Check type="switch" id="register-switch" defaultChecked />
+                        <Form.Check type="switch" id="register-switch" defaultChecked className="custom-switch-lg" />
                       </div>
                     </div>
                   </motion.div>
@@ -145,60 +146,31 @@ const PortalSettings: React.FC = () => {
                     <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Thème & Identité Visuelle</h6>
                     
                     <div className="mb-5">
-                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Mode d'affichage</Form.Label>
+                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Mode d'affichage</Form.Label>
                       <Row className="g-3">
                         <Col md={4}>
-                          <div 
-                            onClick={() => setTheme('light')}
-                            className={`p-3 border rounded-4 text-center cursor-pointer transition-all ${theme === 'light' ? 'border-primary border-2 shadow-sm bg-primary bg-opacity-10' : 'opacity-50'}`}
-                          >
-                            <Sun size={24} className={`mb-2 ${theme === 'light' ? 'text-primary' : 'text-muted'}`} />
-                            <div className="extra-small fw-bold">Mode Clair</div>
+                          <div className="p-3 border rounded-4 text-center cursor-pointer transition-all border-primary bg-primary-soft shadow-sm">
+                            <Sun size={24} className="mb-2 text-primary" />
+                            <div className="extra-small fw-bold text-navy">Mode Clair</div>
                           </div>
                         </Col>
                         <Col md={4}>
-                          <div 
-                            onClick={() => setTheme('dark')}
-                            className={`p-3 border rounded-4 text-center cursor-pointer transition-all ${theme === 'dark' ? 'border-primary border-2 shadow-sm bg-primary bg-opacity-10' : 'opacity-50'}`}
-                          >
-                            <Moon size={24} className={`mb-2 ${theme === 'dark' ? 'text-primary' : ''}`} />
-                            <div className="extra-small fw-bold">Mode Sombre</div>
+                          <div className="p-3 border rounded-4 text-center cursor-pointer transition-all opacity-50 bg-surface-alt">
+                            <Moon size={24} className="mb-2 text-muted" />
+                            <div className="extra-small fw-bold text-muted">Mode Sombre</div>
                           </div>
                         </Col>
                         <Col md={4}>
-                          <div 
-                            onClick={() => setTheme('system')}
-                            className={`p-3 border rounded-4 text-center cursor-pointer transition-all ${theme === 'system' ? 'border-primary border-2 shadow-sm bg-primary bg-opacity-10' : 'opacity-50'}`}
-                          >
-                            <Monitor size={24} className={`mb-2 ${theme === 'system' ? 'text-primary' : 'text-muted'}`} />
-                            <div className="extra-small fw-bold">Système</div>
+                          <div className="p-3 border rounded-4 text-center cursor-pointer transition-all opacity-50 bg-surface-alt">
+                            <Monitor size={24} className="mb-2 text-muted" />
+                            <div className="extra-small fw-bold text-muted">Système</div>
                           </div>
                         </Col>
                       </Row>
                     </div>
 
-                    <div className="mb-5">
-                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Couleur d'accentuation</Form.Label>
-                      <div className="d-flex gap-3">
-                        {['#2563eb', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'].map(color => (
-                          <div 
-                            key={color} 
-                            onClick={() => setSelectedColor(color)}
-                            className="rounded-circle cursor-pointer border transition-all" 
-                            style={{ 
-                              backgroundColor: color, 
-                              width: '32px', 
-                              height: '32px',
-                              border: selectedColor === color ? '3px solid var(--color-primary)' : 'none',
-                              transform: selectedColor === color ? 'scale(1.2)' : 'scale(1)'
-                            }}
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
-
                     <div>
-                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Logo de la plateforme</Form.Label>
+                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Logo de la plateforme</Form.Label>
                       <input 
                         type="file" 
                         ref={fileInputRef} 
@@ -206,8 +178,8 @@ const PortalSettings: React.FC = () => {
                         accept="image/*"
                       />
                       <div className="d-flex align-items-center gap-4 p-4 rounded-4 border border-dashed bg-surface-alt">
-                        <div className="p-4 bg-white rounded-3 shadow-sm border">
-                          <Globe size={40} className="text-primary" />
+                        <div className="p-4 bg-white rounded-3 shadow-sm border d-flex align-items-center justify-content-center">
+                          <img src="/logo_emsi.png" alt="EMSI" style={{ maxHeight: '40px' }} />
                         </div>
                         <div>
                           <Button 
@@ -217,7 +189,7 @@ const PortalSettings: React.FC = () => {
                           >
                             Changer le logo
                           </Button>
-                          <div className="extra-small text-muted fw-bold">Recommandé : PNG ou SVG, min 512x512px.</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Recommandé : PNG ou SVG, fond transparent.</div>
                         </div>
                       </div>
                     </div>
@@ -229,29 +201,31 @@ const PortalSettings: React.FC = () => {
                     <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations Personnelles</h6>
                     <div className="d-flex align-items-center gap-4 mb-5">
                       <div className="position-relative">
-                        <div className="avatar-preview rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-primary border-opacity-25" style={{ width: '100px', height: '100px' }}>
+                        <div className="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-primary border-opacity-10" style={{ width: '100px', height: '100px' }}>
                           AS
                         </div>
-                        <Button size="sm" variant="light" className="position-absolute bottom-0 end-0 p-1 rounded-circle shadow border"><Upload size={14}/></Button>
+                        <Button size="sm" variant="light" className="position-absolute bottom-0 end-0 p-1 rounded-circle shadow border border-primary border-opacity-20 text-primary">
+                          <Upload size={14}/>
+                        </Button>
                       </div>
                       <div>
-                        <h5 className="fw-bold mb-1 text-navy">Admin System</h5>
-                        <p className="extra-small text-muted mb-0 fw-bold">Rôle : Super Administrateur</p>
+                        <h5 className="fw-bold mb-1 text-navy">Administrateur Système</h5>
+                        <p className="extra-small text-muted mb-0 fw-bold opacity-75">Rôle : Super Administrateur</p>
                       </div>
                     </div>
 
-                    <Row className="g-4 mb-5">
+                    <Row className="g-4">
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Prénom</Form.Label>
-                        <Form.Control defaultValue="Admin" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
+                        <Form.Control defaultValue="Admin" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Nom</Form.Label>
-                        <Form.Control defaultValue="System" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom</Form.Label>
+                        <Form.Control defaultValue="System" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={12}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Poste Administratif</Form.Label>
-                        <Form.Control defaultValue="Responsable Portails Académiques" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Poste Administratif</Form.Label>
+                        <Form.Control defaultValue="Responsable Portails Académiques" className="form-control-premium fw-bold" />
                       </Col>
                     </Row>
                   </motion.div>
@@ -259,31 +233,28 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'notifications' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Préférences & Activités</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Préférences de Notification</h6>
                     
-                    <div className="mb-5">
-                      <Form.Label className="extra-small fw-bold text-muted uppercase mb-3">Configuration des Alertes</Form.Label>
-                      <div className="d-flex flex-column gap-3">
-                        <div className="d-flex justify-content-between align-items-center p-3 rounded-4 border bg-surface-alt shadow-sm">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="p-2 bg-primary bg-opacity-10 border rounded-circle text-primary"><Mail size={18}/></div>
-                            <div>
-                              <div className="small fw-bold text-navy">Rapports par Email</div>
-                              <div className="extra-small text-muted fw-bold opacity-75">Résumé hebdomadaire de l'activité du portail.</div>
-                            </div>
+                    <div className="d-flex flex-column gap-3">
+                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 border bg-surface-alt shadow-sm">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="p-2 bg-primary-soft border border-primary border-opacity-10 rounded-circle text-primary"><Mail size={18}/></div>
+                          <div>
+                            <div className="small fw-bold text-navy">Rapports par Email</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Résumé hebdomadaire de l'activité du portail.</div>
                           </div>
-                          <Form.Check type="switch" defaultChecked />
                         </div>
-                        <div className="d-flex justify-content-between align-items-center p-3 rounded-4 border bg-surface-alt shadow-sm">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="p-2 bg-primary bg-opacity-10 border rounded-circle text-primary"><Bell size={18}/></div>
-                            <div>
-                              <div className="small fw-bold text-navy">Alertes de Bureau</div>
-                              <div className="extra-small text-muted fw-bold opacity-75">Notifications instantanées lors de nouvelles soumissions.</div>
-                            </div>
+                        <Form.Check type="switch" defaultChecked className="custom-switch-lg" />
+                      </div>
+                      <div className="d-flex justify-content-between align-items-center p-3 rounded-4 border bg-surface-alt shadow-sm">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="p-2 bg-primary-soft border border-primary border-opacity-10 rounded-circle text-primary"><Bell size={18}/></div>
+                          <div>
+                            <div className="small fw-bold text-navy">Alertes de Bureau</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Notifications instantanées lors de nouvelles soumissions.</div>
                           </div>
-                          <Form.Check type="switch" defaultChecked />
                         </div>
+                        <Form.Check type="switch" defaultChecked className="custom-switch-lg" />
                       </div>
                     </div>
                   </motion.div>
@@ -291,35 +262,35 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'security' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Gestion du Mot de Passe</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Sécurité du Compte</h6>
                     <Row className="g-4 mb-5">
                       <Col md={12}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Mot de passe actuel</Form.Label>
-                        <Form.Control type="password" placeholder="••••••••••••" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe actuel</Form.Label>
+                        <Form.Control type="password" placeholder="••••••••••••" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Nouveau mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nouveau mot de passe</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted uppercase">Confirmer le mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Confirmer le mot de passe</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium fw-bold" />
                       </Col>
                     </Row>
 
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Double Authentification (2FA)</h6>
-                    <div className="p-4 rounded-4 border mb-5 shadow-sm bg-surface-alt">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Authentification à deux facteurs</h6>
+                    <div className="p-4 rounded-4 border bg-surface-alt shadow-sm">
+                      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div className="d-flex align-items-center gap-3">
-                          <div className="p-2 bg-primary bg-opacity-10 border rounded-3 text-primary">
+                          <div className="p-2 bg-primary-soft border border-primary border-opacity-10 rounded-3 text-primary">
                             <Smartphone size={24} />
                           </div>
                           <div>
                             <div className="small fw-bold text-navy">Application d'authentification</div>
-                            <div className="extra-small text-muted fw-bold opacity-75">Utilisez Google Authenticator pour sécuriser votre accès.</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Sécurisez votre compte avec Google Authenticator ou Authy.</div>
                           </div>
                         </div>
-                        <Button className="btn-premium px-4">Configurer</Button>
+                        <Button className="btn-premium px-4">Activer 2FA</Button>
                       </div>
                     </div>
                   </motion.div>
@@ -327,9 +298,9 @@ const PortalSettings: React.FC = () => {
               </div>
               
               <div className="p-4 border-top text-end bg-surface-alt">
-                <Button className="btn-premium">
+                <Button className="btn-premium px-4">
                   <Save size={18} className="me-2" />
-                  Enregistrer les modifications
+                  Sauvegarder les paramètres
                 </Button>
               </div>
             </div>

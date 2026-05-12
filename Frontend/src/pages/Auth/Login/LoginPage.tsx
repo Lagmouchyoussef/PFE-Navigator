@@ -4,7 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 import { 
   GraduationCap, UserCog, Users, Shield, 
-  ArrowRight, Key, Layout
+  ArrowRight, Key
 } from 'lucide-react';
 import { UserRole } from '../../../types';
 
@@ -13,7 +13,7 @@ interface RoleOption {
   title: string;
   desc: string;
   icon: React.ReactElement;
-  color: string;
+  colorClass: string;
 }
 
 const LoginPage: React.FC = () => {
@@ -22,48 +22,48 @@ const LoginPage: React.FC = () => {
   const roles: RoleOption[] = [
     { 
       id: 'student', 
-      title: 'Student Portal', 
-      desc: 'Access your PFE workspace and submit reports.', 
+      title: 'Portail Étudiant', 
+      desc: 'Accédez à votre espace PFE et soumettez vos livrables.', 
       icon: <GraduationCap size={32} />,
-      color: '#3498db'
+      colorClass: 'primary'
     },
     { 
       id: 'supervisor', 
-      title: 'Faculty Portal', 
-      desc: 'Monitor students and evaluate project milestones.', 
+      title: 'Espace Encadrant', 
+      desc: 'Suivez vos étudiants et validez les étapes clés.', 
       icon: <Users size={32} />,
-      color: '#27ae60'
+      colorClass: 'success'
     },
     { 
       id: 'jury', 
-      title: 'Jury Board', 
-      desc: 'Review final projects and manage defense sessions.', 
+      title: 'Conseil de Jury', 
+      desc: 'Évaluez les projets et gérez les soutenances.', 
       icon: <UserCog size={32} />,
-      color: '#f39c12'
+      colorClass: 'warning'
     },
     { 
       id: 'admin', 
-      title: 'Admin Center', 
-      desc: 'System-wide management and academic coordination.', 
+      title: 'Centre Admin', 
+      desc: 'Gestion globale et coordination académique.', 
       icon: <Shield size={32} />,
-      color: '#2c3e50'
+      colorClass: 'danger'
     }
   ];
 
   return (
-    <div className="login-page-modern min-vh-100 d-flex align-items-center bg-light py-5">
+    <div className="login-page-modern min-vh-100 d-flex align-items-center py-5" style={{ backgroundColor: 'var(--color-bg)' }}>
       <Container>
         <div className="text-center mb-5">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="d-inline-block p-3 rounded-4 bg-white shadow-sm mb-4"
+            className="d-inline-block p-4 rounded-4 glass-card mb-4"
           >
-            <Layout className="text-primary" size={40} />
+            <img src="/logo_emsi.png" alt="Logo" style={{ maxHeight: '50px' }} />
           </motion.div>
-          <h1 className="fw-black text-navy tracking-tighter mb-2">PFE Navigator</h1>
-          <p className="text-muted mx-auto" style={{ maxWidth: '500px' }}>
-            Welcome to the academic project management system. Select your profile below to enter your dedicated workspace.
+          <h1 className="fw-bold text-navy mb-2" style={{ fontSize: '2.5rem' }}>PFE Navigator</h1>
+          <p className="text-muted mx-auto fw-bold opacity-75" style={{ maxWidth: '500px' }}>
+            Bienvenue sur la plateforme de gestion des projets de fin d'études. Veuillez sélectionner votre profil.
           </p>
         </div>
 
@@ -74,31 +74,22 @@ const LoginPage: React.FC = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ y: -8 }}
                 onClick={() => login(role.id)}
                 className="h-100"
               >
-                <Card className="h-100 border-0 shadow-sm rounded-4 p-4 cursor-pointer login-role-card position-relative overflow-hidden">
+                <Card className="h-100 border-0 glass-card p-4 cursor-pointer position-relative overflow-hidden shadow-sm">
                   <div 
-                    className="position-absolute top-0 end-0 p-3 opacity-10" 
-                    style={{ transform: 'translate(20%, -20%)' }}
-                  >
-                    {React.cloneElement(role.icon as React.ReactElement<{ size?: number }>, { size: 100 })}
-                  </div>
-                  
-                  <div 
-                    className="p-3 rounded-4 mb-4 d-inline-block" 
-                    style={{ background: `${role.color}15`, color: role.color }}
+                    className={`p-3 rounded-4 mb-4 d-inline-block bg-${role.colorClass}-soft text-${role.colorClass}`} 
                   >
                     {role.icon}
                   </div>
                   
                   <h5 className="fw-bold text-navy mb-2">{role.title}</h5>
-                  <p className="extra-small text-muted mb-4">{role.desc}</p>
+                  <p className="extra-small text-muted mb-4 fw-bold opacity-75">{role.desc}</p>
                   
-                  <div className="mt-auto d-flex align-items-center gap-2 text-primary fw-bold small">
-                    Quick Connect <ArrowRight size={16} />
+                  <div className={`mt-auto d-flex align-items-center gap-2 text-${role.colorClass} fw-bold small`}>
+                    Se connecter <ArrowRight size={16} />
                   </div>
                 </Card>
               </motion.div>
@@ -107,10 +98,10 @@ const LoginPage: React.FC = () => {
         </Row>
 
         <div className="text-center mt-5">
-          <div className="extra-small text-muted mb-3 d-flex align-items-center justify-content-center gap-2">
-            <Key size={12} /> Secure Single-Sign-On Active
+          <div className="extra-small text-muted mb-3 d-flex align-items-center justify-content-center gap-2 fw-bold opacity-50">
+            <Key size={12} /> Connexion sécurisée (SSO) active
           </div>
-          <div className="fw-bold small text-navy opacity-50">EMSI Academic Group © 2026</div>
+          <div className="fw-bold small text-navy opacity-25">Groupe Scolaire EMSI © 2026</div>
         </div>
       </Container>
     </div>

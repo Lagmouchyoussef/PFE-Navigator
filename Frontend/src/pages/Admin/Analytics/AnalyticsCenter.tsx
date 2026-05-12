@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Target, Clock, 
   Award, Download, Filter, Activity
@@ -8,14 +8,14 @@ import {
   AreaChart, Area
 } from 'recharts';
 import { motion } from 'framer-motion';
-import { Container, Row, Col, Button, Badge, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Button, ProgressBar } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 
 const SCORE_DISTRIBUTION = [
-  { range: '18-20', count: 15, color: '#10b981' },
-  { range: '14-17', count: 45, color: '#3b82f6' },
-  { range: '10-13', count: 30, color: '#f59e0b' },
-  { range: '0-9', count: 10, color: '#ef4444' },
+  { range: '18-20', count: 15, colorClass: 'success' },
+  { range: '14-17', count: 45, colorClass: 'primary' },
+  { range: '10-13', count: 30, colorClass: 'warning' },
+  { range: '0-9', count: 10, colorClass: 'danger' },
 ];
 
 const MONTHLY_SUBMISSIONS = [
@@ -26,25 +26,20 @@ const MONTHLY_SUBMISSIONS = [
 ];
 
 const AnalyticsCenter: React.FC = () => {
-  const [showFilterModal, setShowFilterModal] = useState(false);
-
   return (
     <div className="analytics-modern-layout py-4">
-      <Container fluid className="px-4">
+      <Container fluid className="px-0">
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Centre d'Analyses</h2>
-            <p className="text-muted small mb-0">Statistiques détaillées et indicateurs de performance académique.</p>
+            <h2 className="fw-bold mb-1 text-navy">Centre d'Analyses</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Statistiques détaillées et indicateurs de performance académique.</p>
           </div>
           <div className="d-flex gap-2">
             <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
               <Download size={18} /> Exporter
             </Button>
-            <Button 
-              className="btn-premium d-flex align-items-center gap-2" 
-              onClick={() => setShowFilterModal(true)}
-            >
+            <Button className="btn-premium d-flex align-items-center gap-2">
               <Filter size={18} /> Filtrer par période
             </Button>
           </div>
@@ -69,17 +64,17 @@ const AnalyticsCenter: React.FC = () => {
         {/* Charts Section 1 */}
         <Row className="g-4 mb-5">
           <Col lg={6}>
-            <div className="glass-card p-4 rounded-4 shadow-sm h-100">
+            <div className="glass-card p-4 rounded-4 shadow-sm h-100 border">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Distribution des Notes</h5>
               <div className="space-y-4">
                 {SCORE_DISTRIBUTION.map((item, i) => (
                   <div key={i} className="mb-4">
                     <div className="d-flex justify-content-between extra-small mb-2 fw-bold">
                       <span className="text-muted">Plage {item.range}</span>
-                      <span className="opacity-75 text-navy">{item.count}% des étudiants</span>
+                      <span className={`text-${item.colorClass}`}>{item.count}% des étudiants</span>
                     </div>
-                    <ProgressBar now={item.count} style={{ height: '8px', backgroundColor: 'var(--color-surface-alt)' }} className="rounded-pill">
-                      <ProgressBar now={item.count} style={{ backgroundColor: item.color }} className="rounded-pill border-0" />
+                    <ProgressBar now={item.count} className={`bg-${item.colorClass}-soft rounded-pill`} style={{ height: '8px' }}>
+                      <ProgressBar now={item.count} className={`bg-${item.colorClass} border-0 rounded-pill`} />
                     </ProgressBar>
                   </div>
                 ))}
@@ -91,23 +86,22 @@ const AnalyticsCenter: React.FC = () => {
             </div>
           </Col>
           <Col lg={6}>
-            <div className="glass-card p-4 rounded-4 shadow-sm h-100">
+            <div className="glass-card p-4 rounded-4 shadow-sm h-100 border">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Evolution des Soumissions</h5>
               <div style={{ height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={MONTHLY_SUBMISSIONS}>
                     <defs>
                       <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px' }}
-                      itemStyle={{ color: 'var(--color-text-primary)' }}
+                      contentStyle={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', fontWeight: 600 }}
                     />
                     <Area type="monotone" dataKey="count" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
                   </AreaChart>
