@@ -36,19 +36,19 @@ const AnalyticsView: React.FC = () => {
         </Card>
       </Col>
       <Col lg={5}>
-        <Card className="glass-card border-0 h-100 bg-navy text-white border-0 shadow-sm overflow-hidden">
+        <Card className="glass-card border-0 h-100 border shadow-sm overflow-hidden">
           <Card.Body className="p-4 d-flex flex-column justify-content-between position-relative" style={{ zIndex: 2 }}>
             <div className="d-flex justify-content-between align-items-start">
               <div>
-                <h6 className="fw-bold text-uppercase opacity-50 extra-small tracking-widest">Confidence Score</h6>
-                <h1 className="display-4 fw-bold mb-0 mt-2">98.2</h1>
+                <h6 className="fw-bold text-uppercase text-muted extra-small tracking-widest">Confidence Score</h6>
+                <h1 className="display-4 fw-bold mb-0 mt-2 text-primary">98.2</h1>
               </div>
-              <div className="p-3 bg-white bg-opacity-10 rounded-4 text-success shadow-sm">
+              <div className="p-3 bg-primary-soft rounded-4 text-primary shadow-sm">
                 <Target size={28} />
               </div>
             </div>
             
-            <div className="mt-4 p-3 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-10 text-success shadow-sm">
+            <div className="mt-4 p-3 rounded-4 bg-success-soft border border-success text-success shadow-sm">
               <div className="d-flex align-items-center gap-2 extra-small">
                 <Target size={18} />
                 <span className="fw-bold">Goal: Highest Distinction</span>
@@ -57,11 +57,11 @@ const AnalyticsView: React.FC = () => {
 
             <div className="mt-4">
               <div className="d-flex justify-content-between extra-small fw-bold mb-2">
-                <span className="opacity-75">Goal Progression</span>
+                <span className="text-muted">Goal Progression</span>
                 <span className="text-success">Excellent</span>
               </div>
-              <ProgressBar now={90} variant="success" style={{ height: '8px' }} className="bg-white bg-opacity-10 rounded-pill border-0" />
-              <p className="extra-small fw-bold mt-3 mb-0 text-center opacity-50">
+              <ProgressBar now={90} variant="success" style={{ height: '8px' }} className="bg-surface-alt rounded-pill border-0" />
+              <p className="extra-small fw-bold mt-3 mb-0 text-center text-muted">
                 Based on submission punctuality and feedback.
               </p>
             </div>

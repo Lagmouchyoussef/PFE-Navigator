@@ -324,20 +324,20 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={4}>
             <div className="d-flex flex-column gap-4">
               {/* Upcoming Deadlines */}
-              <Card className="glass-card border p-4 shadow-sm bg-navy text-white border-0">
+              <Card className="glass-card border p-4 shadow-sm border-0">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-white">Upcoming Deadlines</h6>
+                  <h6 className="fw-bold mb-0 text-primary">Upcoming Deadlines</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
-                <div className="mb-4 pb-3 border-bottom border-white border-opacity-10">
+                <div className="mb-4 pb-3 border-bottom border-muted">
                   <div className="extra-small text-warning fw-bold mb-1">MAY 15, 2026</div>
                   <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small opacity-75 fw-bold">12 students remaining</div>
+                  <div className="extra-small text-muted fw-bold">12 students remaining</div>
                 </div>
                 <div className="deadline-item">
                   <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
                   <div className="small fw-bold mb-1">Defense Session A</div>
-                  <div className="extra-small opacity-75 fw-bold">Salle 304 - 09:00 AM</div>
+                  <div className="extra-small text-muted fw-bold">Salle 304 - 09:00 AM</div>
                 </div>
               </Card>
 

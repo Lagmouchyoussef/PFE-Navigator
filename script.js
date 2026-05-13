@@ -1,24 +1,14 @@
 /* BLUEPRINT-JS-START */
-// 🚀 Auto-generado para typescript: 5/12/2026, 11:57:47 PM
+// 🚀 Auto-generado para typescript: 5/13/2026, 12:33:48 AM
 
 'use strict';
 
-console.log('✅ 3 funciones y 0 clases detectadas');
+console.log('✅ 1 funciones y 0 clases detectadas');
 
 // Funciones interactivas
-function demo_App() {
-    console.log('▶️ Ejecutando: App()');
-    alert('Función App() ejecutada');
-}
-
-function demo_toggleSidebar() {
-    console.log('▶️ Ejecutando: toggleSidebar()');
-    alert('Función toggleSidebar() ejecutada');
-}
-
-function demo_toggleGroup() {
-    console.log('▶️ Ejecutando: toggleGroup()');
-    alert('Función toggleGroup() ejecutada');
+function demo_handleSave() {
+    console.log('▶️ Ejecutando: handleSave()');
+    alert('Función handleSave() ejecutada');
 }
 
 

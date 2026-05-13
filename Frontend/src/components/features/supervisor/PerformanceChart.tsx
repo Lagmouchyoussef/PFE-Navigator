@@ -33,7 +33,7 @@ const PerformanceChart: React.FC = () => (
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8', fontWeight: 600}} />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600}} />
           <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8', fontWeight: 600}} />
           <Tooltip 
             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}

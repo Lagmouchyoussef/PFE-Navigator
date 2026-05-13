@@ -31,7 +31,7 @@ const AdminMessages: React.FC = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [conversations] = useState<Conversation[]>([
-    { id: 1, name: 'Dr. Sarah Smith', role: 'Superviseur de Projet', lastMsg: 'Excellent travail sur le rapport...', time: '2h', avatar: 'DS', color: '#3b82f6', online: true, unread: 2 },
+    { id: 1, name: 'Dr. Sarah Smith', role: 'Superviseur de Projet', lastMsg: 'Excellent travail sur le rapport...', time: '2h', avatar: 'DS', color: 'var(--color-primary)', online: true, unread: 2 },
     { id: 2, name: 'Ahmed Ben Ali', role: 'Étudiant', lastMsg: 'Pouvons-nous nous voir demain ?', time: '5h', avatar: 'AA', color: '#10b981', online: true, unread: 0 },
     { id: 3, name: 'Bureau Coordination PFE', role: 'Administration', lastMsg: 'Rappel : Planning des soutenances...', time: 'Hier', avatar: 'BC', color: '#f59e0b', online: false, unread: 1 },
     { id: 4, name: 'Fatima Zahra', role: 'Étudiante', lastMsg: 'J\'ai terminé la documentation', time: '2j', avatar: 'FZ', color: '#6366f1', online: false, unread: 0 },

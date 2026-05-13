@@ -67,16 +67,16 @@ const NotificationsPage: React.FC = () => {
           </div>
           <div className="d-flex flex-column">
             {NOTIFICATIONS_DATA.map((notif) => (
-              <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${notif.unread ? 'bg-primary bg-opacity-5' : 'hover-bg-surface'}`}>
-                <div className={`p-3 rounded-4 bg-${notif.color} bg-opacity-10 text-${notif.color} flex-shrink-0`} style={{ height: 'fit-content' }}>
+              <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${notif.unread ? 'border-start border-primary border-3 bg-surface-alt' : 'hover-bg-surface'}`}>
+                <div className={`p-3 rounded-4 bg-${notif.color}-soft text-${notif.color} flex-shrink-0`} style={{ height: 'fit-content' }}>
                   {notif.icon}
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex justify-content-between align-items-start mb-1">
-                    <h6 className={`mb-0 small ${notif.unread ? 'fw-bold text-navy' : 'fw-semibold opacity-75'}`}>{notif.title}</h6>
+                    <h6 className={`mb-0 small ${notif.unread ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>{notif.title}</h6>
                     <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>{notif.time}</span>
                   </div>
-                  <p className="extra-small text-muted mb-0 lh-base">{notif.desc}</p>
+                  <p className={`extra-small mb-0 lh-base ${notif.unread ? 'text-navy' : 'text-muted'}`}>{notif.desc}</p>
                 </div>
                 <Dropdown align="end">
                   <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>

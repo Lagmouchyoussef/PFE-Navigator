@@ -63,17 +63,17 @@
 }
 
 [data-theme='dark'] {
-  --color-background: #212529;
-  --color-surface: #343a40;
-  --color-surface-alt: #495057;
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-background: #0d0d0d;
+  --color-surface: #1e1e1e;
+  --color-surface-alt: #2d2d2d;
+  --color-border: rgba(255, 255, 255, 0.2);
   --color-text-primary: #ffffff;
-  --color-text-secondary: #adb5bd;
-  --color-text-muted: #6c757d;
+  --color-text-secondary: #e0e0e0;
+  --color-text-muted: #b0b0b0;
   
-  --glass-bg: rgba(52, 58, 64, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(30, 30, 30, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   
-  --sidebar-bg: #212529;
+  --sidebar-bg: #0a0a0a;
 }

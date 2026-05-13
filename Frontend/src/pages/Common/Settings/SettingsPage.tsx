@@ -49,7 +49,7 @@ const SettingsPage: React.FC = () => {
               className="glass-card mb-4 p-4 border-start border-4 border-success d-flex justify-content-between align-items-center shadow-sm"
             >
               <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                <div className="p-2 rounded-circle bg-success-soft text-success">
                   <CheckCircle size={24} />
                 </div>
                 <div>
@@ -95,7 +95,7 @@ const SettingsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="glass-card p-4 rounded-4 bg-primary bg-opacity-5 border-primary border-opacity-25">
+            <div className="glass-card p-4 rounded-4 bg-primary-soft border-primary">
               <div className="d-flex align-items-center gap-2 mb-3">
                 <Lock size={18} className="text-primary" />
                 <h6 className="fw-bold mb-0 small text-navy">Security Status</h6>
@@ -114,7 +114,7 @@ const SettingsPage: React.FC = () => {
                   <motion.div key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <div className="d-flex align-items-center gap-4 mb-5 p-4 rounded-4 bg-surface-alt border">
                       <div className="position-relative">
-                        <div className="avatar-xl bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>
+                        <div className="avatar-xl bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>
                           {session?.name?.charAt(0)}
                         </div>
                         <Button className="position-absolute bottom-0 end-0 p-2 rounded-circle bg-primary border-0 shadow-sm" style={{ width: '36px', height: '36px' }} onClick={() => fileInputRef.current?.click()}>
@@ -125,7 +125,7 @@ const SettingsPage: React.FC = () => {
                       <div>
                         <h4 className="fw-bold mb-1 text-navy">{session?.name}</h4>
                         <div className="d-flex align-items-center gap-2">
-                          <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small fw-bold">{session?.role?.toUpperCase()}</Badge>
+                          <Badge bg="primary" className="bg-primary-soft text-primary border border-primary extra-small fw-bold">{session?.role?.toUpperCase()}</Badge>
                           <span className="extra-small text-muted fw-bold">ID: EMSI-2026-9482</span>
                         </div>
                         <div className="extra-small text-muted fw-bold mt-2 d-flex align-items-center gap-1">
@@ -209,7 +209,7 @@ const SettingsPage: React.FC = () => {
                     <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Two-Factor Authentication (2FA)</h5>
                     <div className="p-4 rounded-4 bg-surface-alt border border-dashed d-flex align-items-center justify-content-between mb-5">
                       <div className="d-flex align-items-center gap-3">
-                        <div className="p-3 rounded-4 bg-primary bg-opacity-10 text-primary"><Smartphone size={28} /></div>
+                        <div className="p-3 rounded-4 bg-primary-soft text-primary"><Smartphone size={28} /></div>
                         <div>
                           <div className="fw-bold small text-navy">Authentication App</div>
                           <div className="extra-small text-muted fw-bold">Use Google Authenticator to secure your account.</div>
@@ -229,13 +229,13 @@ const SettingsPage: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-bottom border-light border-opacity-10">
+                          <tr className="border-bottom border-muted">
                             <td className="px-3 py-3">
                               <div className="fw-bold small text-navy">Windows 11 • Chrome</div>
                               <div className="extra-small text-success fw-bold">Current session</div>
                             </td>
                             <td className="py-3 extra-small text-muted fw-bold">Casablanca, Morocco</td>
-                            <td className="px-3 py-3 text-end"><Badge bg="success" className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small">Active</Badge></td>
+                            <td className="px-3 py-3 text-end"><Badge bg="success" className="bg-success-soft text-success border border-success extra-small">Active</Badge></td>
                           </tr>
                         </tbody>
                       </Table>
@@ -257,7 +257,7 @@ const SettingsPage: React.FC = () => {
                             <div className="fw-bold small mb-1 text-navy">{n.title}</div>
                             <div className="extra-small text-muted fw-bold mb-2 opacity-75">{n.desc}</div>
                             <div className="d-flex gap-2">
-                              {n.channels.map(c => <Badge key={c} bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">{c}</Badge>)}
+                              {n.channels.map(c => <Badge key={c} bg="primary" className="bg-primary-soft text-primary border border-primary extra-small">{c}</Badge>)}
                             </div>
                           </div>
                           <Form.Check type="switch" defaultChecked className="settings-switch" />
@@ -277,7 +277,7 @@ const SettingsPage: React.FC = () => {
                       ].map((t) => (
                         <Col md={6} key={t.id}>
                           <div 
-                            className={`p-4 rounded-4 text-center cursor-pointer border-2 transition-all ${theme === t.id ? 'bg-primary bg-opacity-5 border-primary shadow-sm' : 'bg-surface-alt border-transparent hover-bg-surface'}`}
+                            className={`p-4 rounded-4 text-center cursor-pointer border-2 transition-all ${theme === t.id ? 'bg-primary-soft border-primary shadow-sm' : 'bg-surface-alt border-transparent hover-bg-surface'}`}
                             onClick={() => setTheme(t.id)}
                           >
                             <div className="mb-3">{t.icon}</div>
@@ -307,10 +307,10 @@ const SettingsPage: React.FC = () => {
                             { name: 'Dr. Sarah Smith', role: 'Super-Admin', dept: 'CS', status: 'Online' },
                             { name: 'Prof. Martin', role: 'Admin', dept: 'Civil Engineering', status: 'Busy' },
                           ].map((admin, idx) => (
-                            <tr key={idx} className="border-bottom border-light border-opacity-10">
+                            <tr key={idx} className="border-bottom border-muted">
                               <td className="px-3 py-3">
                                 <div className="d-flex align-items-center gap-2">
-                                  <div className="avatar-xs bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>{admin.name.charAt(4)}</div>
+                                  <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>{admin.name.charAt(4)}</div>
                                   <div>
                                     <div className="fw-bold small text-navy">{admin.name}</div>
                                     <div className="extra-small text-muted fw-bold">{admin.role}</div>
@@ -319,7 +319,7 @@ const SettingsPage: React.FC = () => {
                               </td>
                               <td className="py-3 extra-small text-muted fw-bold">{admin.dept}</td>
                               <td className="px-3 py-3 text-end">
-                                <Badge bg={admin.status === 'Online' ? 'success' : 'secondary'} className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small">{admin.status}</Badge>
+                                <Badge bg={admin.status === 'Online' ? 'success' : 'secondary'} className="bg-success-soft text-success border border-success extra-small">{admin.status}</Badge>
                               </td>
                             </tr>
                           ))}
