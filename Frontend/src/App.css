@@ -25,9 +25,13 @@ body {
   display: flex;
   flex-direction: column;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
+  overflow: hidden;
   max-height: 100vh;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav:not(.collapsed) {
+  overflow-y: auto;
 }
 
 .main-wrapper {
@@ -324,7 +328,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Sidebar Specifics */
 .sidebar-nav.collapsed {
-  width: 80px;
+  width: 0;
+  min-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  border-right: none;
 }
 
 .sidebar-header {
