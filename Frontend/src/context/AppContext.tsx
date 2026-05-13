@@ -7,10 +7,10 @@ import {
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
 const ACCOUNTS: User[] = [
-  { id: '1', email: 'student@mail.com', name: 'Youssef', role: 'student', initials: 'YM' },
-  { id: '2', email: 'jury@mail.com', name: 'Prof. Youssef', role: 'jury', initials: 'PY' },
-  { id: '3', email: 'supervisor@mail.com', name: 'Dr. Supervisor', role: 'supervisor', initials: 'DS' },
-  { id: '4', email: 'admin@mail.com', name: 'Admin System', role: 'admin', initials: 'AS' },
+  { id: '1', email: 'ahmed.khalil@emsi.ma', name: 'Ahmed Khalil', role: 'student', initials: 'AK' },
+  { id: '2', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
+  { id: '3', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
+  { id: '4', email: 'admin@emsi.ma', name: 'Système PFE Navigator', role: 'admin', initials: 'SP' },
 ];
 
 const INITIAL_SCORES: Scores = {
@@ -30,17 +30,18 @@ const COEFFICIENTS: Record<keyof Scores, number> = {
 };
 
 const SCORE_LABELS: Record<keyof Scores, string> = {
-  rapport:      'Thesis Report',
-  presentation: 'Oral Defense',
-  technique:    'Technical Proficiency',
-  innovation:   'Innovation & Research',
-  delais:       'Milestone Compliance',
+  rapport:      'Rapport de Thèse',
+  presentation: 'Soutenance Orale',
+  technique:    'Maîtrise Technique',
+  innovation:   'Innovation & Recherche',
+  delais:       'Respect des Échéances',
 };
 
 const INITIAL_DOCUMENTS: AppDocument[] = [
   {
     id: 1,
-    title: 'Final_Report_v1.pdf',
+    title: 'Rapport_Final_v1.pdf',
+    studentName: 'Ahmed Khalil',
     version: 1,
     date: '2026-04-20T09:30:00',
     status: 'approved',
@@ -49,12 +50,33 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
   },
   {
     id: 2,
-    title: 'Defense_Presentation.pptx',
+    title: 'Presentation_Soutenance.pptx',
+    studentName: 'Ahmed Khalil',
     version: 1,
     date: '2026-04-22T14:15:00',
     status: 'pending',
     comment: '',
     size: '5.1 MB',
+  },
+  {
+    id: 3,
+    title: 'Cahier_des_Charges.pdf',
+    studentName: 'Sara Bennani',
+    version: 1,
+    date: '2026-04-10T11:00:00',
+    status: 'approved',
+    comment: '',
+    size: '1.2 MB',
+  },
+  {
+    id: 4,
+    title: 'Rapport_Avancement.pdf',
+    studentName: 'Mehdi Alami',
+    version: 2,
+    date: '2026-04-18T16:45:00',
+    status: 'pending',
+    comment: '',
+    size: '3.8 MB',
   },
 ];
 
@@ -62,7 +84,7 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: 1,
     sender: 'jury',
-    text: 'Hello Youssef, your initial report has been received.',
+    text: 'Bonjour Ahmed, votre rapport initial a bien été reçu et est en cours de révision.',
     time: '2026-04-20T10:00:00',
     readByStudent: true,
     readByJury: true,
@@ -70,7 +92,7 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: 2,
     sender: 'student',
-    text: 'Thank you Prof. Youssef! I am preparing the presentation.',
+    text: 'Merci Prof. Lagmouch ! Je prépare actuellement la présentation pour la soutenance.',
     time: '2026-04-20T10:15:00',
     readByStudent: true,
     readByJury: true,
@@ -78,7 +100,7 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: 3,
     sender: 'student',
-    text: 'Admin, I have a question regarding the project archiving process.',
+    text: 'Admin, j\'ai une question concernant la date limite de dépôt du rapport final.',
     time: new Date().toISOString(),
     readByStudent: true,
     readByJury: false,
@@ -88,12 +110,12 @@ const INITIAL_MESSAGES: Message[] = [
 const INITIAL_DEFENSES: Defense[] = [
   {
     id: 1,
-    title: 'PFE Defense – Youssef',
+    title: 'Soutenance de PFE – Ahmed Khalil',
     date: '2026-05-15',
     time: '09:00',
     duration: 45,
-    room: 'Hall A',
-    notes: '',
+    room: 'Salle de Conférence A',
+    notes: 'Présentation de 20 min + 25 min de Q&A',
   },
 ];
 
@@ -101,7 +123,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 1,
     type: 'approved',
-    text: 'Your document Final_Report_v1.pdf has been approved.',
+    text: 'Votre document Rapport_Final_v1.pdf a été approuvé par le jury.',
     date: '2026-04-21T08:00:00',
     read: true,
     link: '/student/reports',
@@ -109,7 +131,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 2,
     type: 'grade',
-    text: 'System Update: New academic year parameters have been initialized.',
+    text: 'Mise à jour Système : Les paramètres de l\'année académique 2026 ont été initialisés.',
     date: new Date().toISOString(),
     read: false,
     link: '/admin/dashboard',
@@ -117,7 +139,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 3,
     type: 'message',
-    text: 'New message from Youssef (Student) regarding archiving.',
+    text: 'Nouveau message de Ahmed Khalil (Étudiant) concernant le dépôt final.',
     date: new Date().toISOString(),
     read: false,
     link: '/jury/messages',
@@ -280,6 +302,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const newDoc: AppDocument = {
       id: Date.now(),
       title: title || file?.name || 'Document',
+      studentName: session?.name || 'Ahmed Khalil',
       version,
       date: new Date().toISOString(),
       status: 'pending',

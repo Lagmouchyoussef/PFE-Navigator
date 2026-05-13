@@ -128,8 +128,10 @@ const JuryDocumentsPage = () => {
                     </td>
                     <td className="py-4">
                       <div className="d-flex align-items-center gap-2">
-                        <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>Y</div>
-                        <span className="extra-small fw-bold text-navy opacity-75">Youssef M.</span>
+                        <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
+                          {doc.studentName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'S'}
+                        </div>
+                        <span className="extra-small fw-bold text-navy opacity-75">{doc.studentName}</span>
                       </div>
                     </td>
                     <td className="py-4 small text-navy fw-bold opacity-75">{new Date(doc.date).toLocaleDateString()}</td>

@@ -92,19 +92,40 @@ const SchedulePage = () => {
     }
   ];
 
-  // Calendar Logic for May 2026 (Starts on Friday, 31 days)
+  const [viewDate, setViewDate] = useState(new Date(2026, 4, 1)); // Default to May 2026 as per user projects
+
+  const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+  
+  const handlePrevMonth = () => {
+    setViewDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setViewDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const handlePrevYear = () => {
+    setViewDate(prev => new Date(prev.getFullYear() - 1, prev.getMonth(), 1));
+  };
+
+  const handleNextYear = () => {
+    setViewDate(prev => new Date(prev.getFullYear() + 1, prev.getMonth(), 1));
+  };
+
+  // Calendar Logic
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
   const days = [];
-  // Empty slots for May 2026 (Starts on Friday, so 5 empty days: Sun-Thu)
-  for (let i = 0; i < 5; i++) days.push(null);
-  for (let i = 1; i <= 31; i++) days.push(i);
+  for (let i = 0; i < firstDayOfMonth; i++) days.push(null);
+  for (let i = 1; i <= daysInMonth; i++) days.push(i);
 
   const getEventForDay = (day) => {
-    if (day === 2) return { name: 'Supervisor Meeting', type: 'meeting' };
-    if (day === 5) return { name: 'Code Review Session', type: 'meeting' };
-    if (day === 8) return { name: 'Documentation Deadline', type: 'deadline' };
-    if (day === 15) return { name: 'Final Report Submission', type: 'submission' };
-    if (day === 20) return { name: 'Defense Presentation', type: 'submission' };
-    return null;
+    if (!day) return null;
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return allEvents.find(ev => ev.date === dateStr);
   };
 
   return (

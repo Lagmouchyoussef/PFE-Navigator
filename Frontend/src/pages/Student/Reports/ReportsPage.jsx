@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Button, Table, Form, InputGroup 
+  Button, Table, Form, InputGroup, Modal 
 } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -12,8 +12,31 @@ import {
 import { Dropdown } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext.jsx';
 
+// Custom Animated Trash Icon Component
+const AnimatedTrash = ({ isDeleting }) => {
+  return (
+    <svg 
+      width="32" height="32" viewBox="0 0 24 24" fill="none" 
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    >
+      {/* Lid & Handle */}
+      <motion.g
+        animate={isDeleting ? { y: -4, rotate: -20, originX: '20px', originY: '6px' } : { y: 0, rotate: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <path d="M3 6h18" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      </motion.g>
+      {/* Body */}
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+};
+
 const ReportsPage = () => {
-  const { documents = [], deleteDocument, uploadDocument } = useApp();
+  const { session, documents = [], deleteDocument, uploadDocument } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const fileInputRef = useRef(null);
@@ -21,6 +44,8 @@ const ReportsPage = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [pendingFiles, setPendingFiles] = useState([]);
+  const [deleteModalDoc, setDeleteModalDoc] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const dragCounter = useRef(0);
   // Map docId -> object URL for real file preview/download
   const fileUrlMap = useRef({});
@@ -96,15 +121,19 @@ const ReportsPage = () => {
   };
 
   const filteredDocs = documents.filter(doc => {
+    // Only show documents for the current logged-in student
+    const isOwner = doc.studentName === session?.name;
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    return isOwner && matchesSearch;
   });
 
+  const userDocs = documents.filter(d => d.studentName === session?.name);
+
   const categories = [
-    { name: 'Tous', count: documents.length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'PDF', count: documents.filter(d => d.title.endsWith('.pdf')).length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'DOCX', count: documents.filter(d => d.title.endsWith('.docx')).length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'PPTX', count: documents.filter(d => d.title.endsWith('.pptx')).length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'Tous', count: userDocs.length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'PDF', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pdf')).length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'DOCX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.docx')).length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'PPTX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pptx')).length, icon: <Folder size={20} />, color: 'blue' },
   ];
 
   return (
@@ -392,11 +421,9 @@ const ReportsPage = () => {
                               <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
                               <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => {
-                                if(window.confirm(`Are you sure you want to delete ${doc.title}?`)) {
-                                  deleteDocument(doc.id);
-                                }
-                              }}><Trash2 size={14} /> Supprimer</Dropdown.Item>
+                              <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
+                                <Trash2 size={14} /> Supprimer
+                              </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
                         </td>
@@ -415,6 +442,54 @@ const ReportsPage = () => {
           </Card.Body>
         </Card>
       </Container>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={!!deleteModalDoc} onHide={() => setDeleteModalDoc(null)} centered>
+        <div className="glass-card border-0 shadow-lg rounded-4 overflow-hidden">
+          <div className="p-4 text-center">
+            <motion.div 
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="d-inline-flex align-items-center justify-content-center mb-4 p-3 rounded-circle bg-danger-soft text-danger" 
+              style={{ width: '64px', height: '64px' }}
+            >
+              <AnimatedTrash isDeleting={isDeleting} />
+            </motion.div>
+            <h5 className="fw-bold text-navy mb-3">Supprimer le document ?</h5>
+            <p className="text-muted small mb-4 fw-bold px-3">
+              Êtes-vous sûr de vouloir supprimer <span className="text-danger">"{deleteModalDoc?.title}"</span> ? Cette action est irréversible.
+            </p>
+            <div className="d-flex gap-2 p-2">
+              <Button 
+                variant="outline-secondary" 
+                className="flex-grow-1 rounded-pill fw-bold extra-small border-2 py-2"
+                onClick={() => setDeleteModalDoc(null)}
+              >
+                Annuler
+              </Button>
+              <Button 
+                variant="danger" 
+                className="flex-grow-1 rounded-pill fw-bold extra-small border-0 shadow-sm py-2"
+                disabled={isDeleting}
+                onClick={() => {
+                  setIsDeleting(true);
+                  // Wait for animation to finish before closing and deleting
+                  setTimeout(() => {
+                    deleteDocument(deleteModalDoc.id);
+                    setDeleteModalDoc(null);
+                    setIsDeleting(false);
+                    setSuccessMsg(`"${deleteModalDoc.title}" a été supprimé.`);
+                    setShowSuccessCard(true);
+                    setTimeout(() => setShowSuccessCard(false), 5000);
+                  }, 600);
+                }}
+              >
+                {isDeleting ? 'Suppression...' : 'Supprimer'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

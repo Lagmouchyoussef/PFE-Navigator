@@ -149,10 +149,10 @@ const StudentDashboard: React.FC = () => {
                   <Calendar size={18} className="opacity-75" />
                 </div>
                 <div className="mb-4">
-                  <div className="fw-bold fs-6 mb-1">Final Defense Presentation</div>
-                  <div className="small opacity-75">May 20, 2026</div>
+                  <div className="fw-bold fs-6 mb-1">Soutenance de PFE</div>
+                  <div className="small opacity-75">15 Mai, 2026</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
-                    <Clock size={12} /> 10:00 AM - Room 304
+                    <Clock size={12} /> 09:00 - Salle de Conférence A
                   </div>
                 </div>
                 <Button 
@@ -161,38 +161,38 @@ const StudentDashboard: React.FC = () => {
                   className="w-100 fw-bold rounded-pill text-primary py-2 border-0"
                   onClick={() => alert("Détails de convocation...")}
                 >
-                  Convocation Details
+                  Détails de la Convocation
                 </Button>
               </Card>
 
               {/* Recent Feedback Widget */}
               <Card className="glass-card border p-4 shadow-sm">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-navy">Recent Feedback</h6>
+                  <h6 className="fw-bold mb-0 text-navy">Retours Récents</h6>
                   <MessageSquare size={18} className="text-primary" />
                 </div>
                 <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4">
-                  <div className="fw-bold small mb-1 text-navy">Interim Report Revision</div>
+                  <div className="fw-bold small mb-1 text-navy">Révision du Rapport Initial</div>
                   <p className="extra-small text-muted mb-2">
-                    "Please revise sections 3.2 and 4.1. Good progress overall!"
+                    "Veuillez réviser les sections 3.2 et 4.1. Bon progrès dans l'ensemble !"
                   </p>
                   <div className="d-flex justify-content-between align-items-center extra-small mt-2">
-                    <span className="text-primary fw-bold">Dr. Sarah Smith</span>
-                    <span className="opacity-50">2 days ago</span>
+                    <span className="text-primary fw-bold">Dr. Sofia Drissi</span>
+                    <span className="opacity-50">Il y a 2 jours</span>
                   </div>
                 </div>
               </Card>
 
               {/* Supervisor Card */}
               <Card className="glass-card border p-4 shadow-sm">
-                <h6 className="fw-bold mb-4 text-navy">Academic Supervisor</h6>
+                <h6 className="fw-bold mb-4 text-navy">Encadrant Académique</h6>
                 <div className="d-flex align-items-center gap-3 mb-4">
                   <div className="avatar-md bg-primary text-white rounded-4 d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '48px', height: '48px' }}>
-                    SS
+                    SD
                   </div>
                   <div>
-                    <h6 className="fw-bold mb-0 text-navy">Dr. Sarah Smith</h6>
-                    <div className="extra-small text-muted fw-bold">AI Systems Lab</div>
+                    <h6 className="fw-bold mb-0 text-navy">Dr. Sofia Drissi</h6>
+                    <div className="extra-small text-muted fw-bold">Département Informatique</div>
                   </div>
                 </div>
                 <Button 

@@ -17,35 +17,35 @@ import PerformanceChart from '../../../components/features/supervisor/Performanc
 import StatusDistribution from '../../../components/features/supervisor/StatusDistribution';
 
 const WEEKLY_ACTIVITY = [
-  { day: 'Mon', meetings: 4, feedback: 12 },
-  { day: 'Tue', meetings: 2, feedback: 8 },
-  { day: 'Wed', meetings: 5, feedback: 15 },
-  { day: 'Thu', meetings: 3, feedback: 10 },
-  { day: 'Fri', meetings: 6, feedback: 18 },
-  { day: 'Sat', meetings: 1, feedback: 4 },
+  { day: 'Lun', meetings: 4, feedback: 12 },
+  { day: 'Mar', meetings: 2, feedback: 8 },
+  { day: 'Mer', meetings: 5, feedback: 15 },
+  { day: 'Jeu', meetings: 3, feedback: 10 },
+  { day: 'Ven', meetings: 6, feedback: 18 },
+  { day: 'Sam', meetings: 1, feedback: 4 },
 ];
 
 const DELIVERABLE_STATUS = [
-  { name: 'Abstract', value: 90, color: 'var(--color-success)' },
-  { name: 'Interim', value: 65, color: 'var(--color-primary)' },
-  { name: 'Final', value: 20, color: 'var(--color-warning)' },
-  { name: 'Slides', value: 10, color: 'var(--color-info)' },
+  { name: 'Cahier des Charges', value: 90, color: 'var(--color-success)' },
+  { name: 'Rapport Partiel', value: 65, color: 'var(--color-primary)' },
+  { name: 'Rapport Final', value: 20, color: 'var(--color-warning)' },
+  { name: 'Présentation', value: 10, color: 'var(--color-info)' },
 ];
 
 const SKILLS_DISTRIBUTION = [
-  { subject: 'Analysis', A: 120, B: 110, fullMark: 150 },
-  { subject: 'Coding', A: 98, B: 130, fullMark: 150 },
-  { subject: 'Design', A: 86, B: 130, fullMark: 150 },
-  { subject: 'Docs', A: 99, B: 100, fullMark: 150 },
-  { subject: 'Research', A: 85, B: 90, fullMark: 150 },
-  { subject: 'Testing', A: 65, B: 85, fullMark: 150 },
+  { subject: 'Analyse', A: 120, B: 110, fullMark: 150 },
+  { subject: 'Développement', A: 98, B: 130, fullMark: 150 },
+  { subject: 'Conception', A: 86, B: 130, fullMark: 150 },
+  { subject: 'Documentation', A: 99, B: 100, fullMark: 150 },
+  { subject: 'Recherche', A: 85, B: 90, fullMark: 150 },
+  { subject: 'Tests', A: 65, B: 85, fullMark: 150 },
 ];
 
 const RECENT_STUDENTS = [
-  { id: 1, name: 'Ahmed Khalil', project: 'AI-Powered Student System', progress: 85, status: 'Validated', date: '2026-05-15' },
-  { id: 2, name: 'Sara Kamali', project: 'Blockchain Certificate Verif.', progress: 60, status: 'In Progress', date: '2026-05-18' },
-  { id: 3, name: 'Mohamed Alaoui', project: 'IoT Smart Campus Solution', progress: 40, status: 'Pending', date: '2026-05-20' },
-  { id: 4, name: 'Fatima Zahra', project: 'Cybersecurity Audit Tool', progress: 95, status: 'Validated', date: '2026-05-12' },
+  { id: 1, name: 'Ahmed Khalil', project: 'Système de Gestion PFE avec IA', progress: 85, status: 'Validé', date: '2026-05-15' },
+  { id: 2, name: 'Sara Bennani', project: 'Vérification de Diplômes via Blockchain', progress: 60, status: 'En Cours', date: '2026-05-18' },
+  { id: 3, name: 'Mehdi Alami', project: 'Solution IoT pour Smart Campus', progress: 40, status: 'En Attente', date: '2026-05-20' },
+  { id: 4, name: 'Fatima Zahra Mansouri', project: 'Outil d\'Audit de Cybersécurité', progress: 95, status: 'Validé', date: '2026-05-12' },
 ];
 
 const SupervisorDashboard: React.FC = () => {

@@ -15,6 +15,7 @@ export interface Session extends User {}
 export interface Document {
   id: number;
   title: string;
+  studentName: string;
   version: number;
   date: string;
   status: 'approved' | 'pending' | 'rejected';

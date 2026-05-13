@@ -136,9 +136,9 @@ const JuryDashboard: React.FC = () => {
               </thead>
               <tbody>
                 {[
-                  { name: 'Amin Mansouri', project: 'EcoTrack Blockchain', category: 'Blockchain', deadline: 'In 2d', status: 'Pending' },
-                  { name: 'Sara Bennani', project: 'Smart City API', category: 'IoT', deadline: 'In 5d', status: 'In Review' },
-                  { name: 'Khalid Tazi', project: 'CyberSafe VPN', category: 'Security', deadline: 'Tomorrow', status: 'Urgent' },
+                  { name: 'Ahmed Khalil', project: 'Gestion PFE avec IA', category: 'Intelligence Artificielle', deadline: 'Dans 2j', status: 'En Attente' },
+                  { name: 'Sara Bennani', project: 'Blockchain Diplômes', category: 'Blockchain', deadline: 'Dans 5j', status: 'En Cours' },
+                  { name: 'Mehdi Alami', project: 'Smart Campus IoT', category: 'IoT', deadline: 'Demain', status: 'Urgent' },
                 ].map((row, idx) => (
                   <tr key={idx} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
                     <td className="px-4 py-3">

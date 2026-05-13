@@ -13,16 +13,16 @@ import { useApp } from './context/AppContext';
 import SidebarLink from './components/shared/SidebarLink';
 import NotificationItem from './components/shared/NotificationItem';
 
-import LoginPage       from './pages/Auth/Login/LoginPage';
+import LoginPage from './pages/Auth/Login/LoginPage';
 import StudentDashboard from './pages/Student/Dashboard/StudentDashboard';
-import ReportsPage     from './pages/Student/Reports/ReportsPage';
-import EvaluationPage  from './pages/Student/Evaluation/EvaluationPage';
-import SchedulePage    from './pages/Student/Schedule/SchedulePage';
-import MessagesPage    from './pages/Common/Messages/MessagesPage';
+import ReportsPage from './pages/Student/Reports/ReportsPage';
+import EvaluationPage from './pages/Student/Evaluation/EvaluationPage';
+import SchedulePage from './pages/Student/Schedule/SchedulePage';
+import MessagesPage from './pages/Common/Messages/MessagesPage';
 import NotificationsPage from './pages/Common/Notifications/NotificationsPage';
-import SettingsPage    from './pages/Common/Settings/SettingsPage';
+import SettingsPage from './pages/Common/Settings/SettingsPage';
 import ResourceHubPage from './pages/Common/ResourceHub/ResourceHubPage';
-import JuryDashboard   from './pages/Jury/Dashboard/JuryDashboard';
+import JuryDashboard from './pages/Jury/Dashboard/JuryDashboard';
 import JuryProjectsPage from './pages/Jury/Projects/JuryProjectsPage';
 import JurySchedulePage from './pages/Jury/Schedule/JurySchedulePage';
 import JuryEvaluationPage from './pages/Jury/Evaluation/JuryEvaluationPage';
@@ -60,11 +60,11 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
   const { session } = useApp();
   if (!session) return <Navigate to="/login" replace />;
   if (requiredRole && session.role !== requiredRole) {
-    const rolePath = 
+    const rolePath =
       session.role === 'admin' ? '/admin/dashboard' :
-      session.role === 'jury' ? '/jury/dashboard' : 
-      session.role === 'supervisor' ? '/supervisor/dashboard' : 
-      '/student/dashboard';
+        session.role === 'jury' ? '/jury/dashboard' :
+          session.role === 'supervisor' ? '/supervisor/dashboard' :
+            '/student/dashboard';
     return <Navigate to={rolePath} replace />;
   }
   return <>{children}</>;
@@ -72,12 +72,12 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
 
 function App() {
   const location = useLocation();
-  const { 
-    session, logout, theme, setTheme, unreadCountForRole, 
+  const {
+    session, logout, theme, setTheme, unreadCountForRole,
     notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
-    messages, deleteMessage 
+    messages, deleteMessage
   } = useApp();
-  
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
@@ -133,17 +133,17 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="*"      element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
   if (location.pathname === '/login' || location.pathname === '/') {
-    const dashPath = 
+    const dashPath =
       session.role === 'admin' ? '/admin/dashboard' :
-      session.role === 'jury' ? '/jury/dashboard' :
-      session.role === 'supervisor' ? '/supervisor/dashboard' :
-      '/student/dashboard';
+        session.role === 'jury' ? '/jury/dashboard' :
+          session.role === 'supervisor' ? '/supervisor/dashboard' :
+            '/student/dashboard';
     return <Navigate to={dashPath} replace />;
   }
 
@@ -153,15 +153,15 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users"     element={<UserManagement />} />
-          <Route path="jury"      element={<JuryPlanning />} />
-          <Route path="projects"  element={<ProjectsArchive />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="jury" element={<JuryPlanning />} />
+          <Route path="projects" element={<ProjectsArchive />} />
           <Route path="analytics" element={<AnalyticsCenter />} />
           <Route path="resources" element={<ResourceHub />} />
-          <Route path="messages"  element={<AdminMessages />} />
+          <Route path="messages" element={<AdminMessages />} />
           <Route path="notifications" element={<AdminNotifications />} />
-          <Route path="notes"      element={<AdminNotes />} />
-          <Route path="settings"   element={<PortalSettings />} />
+          <Route path="notes" element={<AdminNotes />} />
+          <Route path="settings" element={<PortalSettings />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
       </Routes>
@@ -179,7 +179,7 @@ function App() {
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <aside 
+      <aside
         ref={sidebarRef}
         className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}
         style={{ width: isSidebarCollapsed ? '0px' : `${sidebarWidth}px`, transition: isResizing ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}
@@ -194,7 +194,7 @@ function App() {
 
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div 
+            <div
               className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('core')}
             >
@@ -209,30 +209,30 @@ function App() {
             </div>
           )}
         </div>
-        
+
         {expandedGroups.core && (
           <nav className="nav flex-column px-3">
             {session.role === 'jury' ? (
               <>
                 <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/jury/projects"  icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Assigned Projects"} />
+                <SidebarLink to="/jury/projects" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Assigned Projects"} />
                 <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
-                <SidebarLink to="/jury/schedule"  icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Calendar"} />
+                <SidebarLink to="/jury/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Calendar"} />
               </>
             ) : session.role === 'supervisor' ? (
               <>
                 <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/supervisor/students"  icon={<GraduationCap size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "My Students"} />
-                <SidebarLink to="/supervisor/subjects"  icon={<FileText size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Subjects"} />
+                <SidebarLink to="/supervisor/students" icon={<GraduationCap size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "My Students"} />
+                <SidebarLink to="/supervisor/subjects" icon={<FileText size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Subjects"} />
                 <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluations"} />
-                <SidebarLink to="/supervisor/schedule"  icon={<Calendar size={20} />} iconClassName="icon-purple" label={!isSidebarCollapsed && "Planning"} />
+                <SidebarLink to="/supervisor/schedule" icon={<Calendar size={20} />} iconClassName="icon-purple" label={!isSidebarCollapsed && "Planning"} />
               </>
             ) : (
               <>
-                <SidebarLink to="/student/dashboard"     icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
-                <SidebarLink to="/student/reports"       icon={<FileUp size={20} />}           iconClassName="icon-success" label={!isSidebarCollapsed && "Documents"} />
-                <SidebarLink to="/student/evaluation"    icon={<GraduationCap size={20} />}    iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
-                <SidebarLink to="/student/schedule"      icon={<Calendar size={20} />}          iconClassName="icon-indigo" label={!isSidebarCollapsed && "Schedule"} />
+                <SidebarLink to="/student/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
+                <SidebarLink to="/student/reports" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Documents"} />
+                <SidebarLink to="/student/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
+                <SidebarLink to="/student/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Schedule"} />
               </>
             )}
           </nav>
@@ -240,7 +240,7 @@ function App() {
 
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div 
+            <div
               className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('resources')}
             >
@@ -255,22 +255,22 @@ function App() {
             </div>
           )}
         </div>
-        
+
         {expandedGroups.resources && (
           <nav className="nav flex-column px-3">
             <SidebarLink to="/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Resource Hub"} />
-            <SidebarLink 
-              to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} 
-              icon={<MessageSquare size={20} />} 
+            <SidebarLink
+              to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+              icon={<MessageSquare size={20} />}
               iconClassName="icon-teal"
-              label={!isSidebarCollapsed && "Messages"} 
+              label={!isSidebarCollapsed && "Messages"}
               badge={unreadMsgCount > 0 ? unreadMsgCount : null}
             />
-            <SidebarLink 
-              to={session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'} 
-              icon={<Bell size={20} />} 
+            <SidebarLink
+              to={session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'}
+              icon={<Bell size={20} />}
               iconClassName="icon-rose"
-              label={!isSidebarCollapsed && "Notifications"} 
+              label={!isSidebarCollapsed && "Notifications"}
               badge={localUnreadNotifs > 0 ? localUnreadNotifs : null}
             />
             <SidebarLink to={session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
@@ -281,7 +281,7 @@ function App() {
           <div className="d-flex flex-column gap-1">
             <SidebarLink to="/settings" icon={<Settings size={18} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Paramètres"} />
             {!isSidebarCollapsed && (
-              <button 
+              <button
                 onClick={logout}
                 className="nav-link-custom w-100 text-danger border-0 bg-transparent"
                 style={{ textAlign: 'left' }}
@@ -296,7 +296,7 @@ function App() {
         </div>
 
         {/* Resizer Handle */}
-        <div 
+        <div
           className="sidebar-resizer"
           onMouseDown={startResizing}
         />
@@ -305,9 +305,9 @@ function App() {
       <main className="flex-grow-1 main-wrapper bg-background">
         <header className="main-header d-flex align-items-center justify-content-between px-4">
           <div className="header-search-container d-flex align-items-center gap-3">
-            <Button 
-              variant="link" 
-              className="p-1 text-navy shadow-none border-0 hover-bg-light transition-all" 
+            <Button
+              variant="link"
+              className="p-1 text-navy shadow-none border-0 hover-bg-light transition-all"
               onClick={toggleSidebar}
               title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
@@ -338,9 +338,9 @@ function App() {
             )}
           </div>
           <div className="header-actions d-flex align-items-center gap-3">
-            <Button 
-              variant="link" 
-              className="p-2 text-muted shadow-none hover-bg-surface-alt rounded-circle transition-all" 
+            <Button
+              variant="link"
+              className="p-2 text-muted shadow-none hover-bg-surface-alt rounded-circle transition-all"
               onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
             >
               {isDarkMode ? <Sun size={20} className="text-warning" /> : <Moon size={20} />}
@@ -381,7 +381,7 @@ function App() {
                         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-alt)')}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                       >
-                        <Link 
+                        <Link
                           className="d-flex gap-3 align-items-start text-decoration-none flex-grow-1 overflow-hidden"
                           onClick={() => markMessagesRead(session.role)}
                           to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
@@ -399,9 +399,9 @@ function App() {
                             <div className="extra-small text-muted text-truncate">{m.text}</div>
                           </div>
                         </Link>
-                        <Button 
-                          variant="link" 
-                          className="p-1 text-muted hover-text-danger border-0 shadow-none align-self-start mt-n1 me-n1 transition-all" 
+                        <Button
+                          variant="link"
+                          className="p-1 text-muted hover-text-danger border-0 shadow-none align-self-start mt-n1 me-n1 transition-all"
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
@@ -427,9 +427,9 @@ function App() {
                   {localUnreadNotifs > 0 && (
                     <span
                       className="position-absolute badge rounded-pill bg-danger border border-2 border-white"
-                      style={{ 
-                        fontSize: '0.65rem', 
-                        padding: '2px 5px', 
+                      style={{
+                        fontSize: '0.65rem',
+                        padding: '2px 5px',
                         zIndex: 10,
                         top: '-6px',
                         right: '-8px'
@@ -481,10 +481,10 @@ function App() {
                 <div className="p-2 text-center border-top bg-light-soft">
                   <Link
                     to={
-                      session.role === 'student' ? '/student/notifications' : 
-                      session.role === 'supervisor' ? '/supervisor/notifications' : 
-                      session.role === 'admin' ? '/admin/notifications' :
-                      '/jury/notifications'
+                      session.role === 'student' ? '/student/notifications' :
+                        session.role === 'supervisor' ? '/supervisor/notifications' :
+                          session.role === 'admin' ? '/admin/notifications' :
+                            '/jury/notifications'
                     }
                     className="text-decoration-none small text-secondary-custom fw-bold p-0"
                   >
@@ -499,7 +499,7 @@ function App() {
                 variant="link"
                 className="p-0 border-0 shadow-none d-flex align-items-center gap-3 text-decoration-none no-caret"
               >
-                <motion.div 
+                <motion.div
                   className="d-flex align-items-center gap-3"
                   whileHover={{ x: -5 }}
                 >
@@ -535,44 +535,44 @@ function App() {
 
         <div className="content-area flex-grow-1" style={{ minHeight: 'calc(100vh - 80px)', position: 'relative' }}>
           <Routes>
-            <Route path="/student/dashboard"  element={<RequireAuth requiredRole="student"><StudentDashboard /></RequireAuth>} />
-            <Route path="/student/reports"    element={<RequireAuth requiredRole="student"><ReportsPage /></RequireAuth>} />
+            <Route path="/student/dashboard" element={<RequireAuth requiredRole="student"><StudentDashboard /></RequireAuth>} />
+            <Route path="/student/reports" element={<RequireAuth requiredRole="student"><ReportsPage /></RequireAuth>} />
             <Route path="/student/evaluation" element={<RequireAuth requiredRole="student"><EvaluationPage /></RequireAuth>} />
-            <Route path="/student/schedule"   element={<RequireAuth requiredRole="student"><SchedulePage /></RequireAuth>} />
-            <Route path="/student/messages"   element={<RequireAuth requiredRole="student"><MessagesPage /></RequireAuth>} />
+            <Route path="/student/schedule" element={<RequireAuth requiredRole="student"><SchedulePage /></RequireAuth>} />
+            <Route path="/student/messages" element={<RequireAuth requiredRole="student"><MessagesPage /></RequireAuth>} />
             <Route path="/student/notifications" element={<RequireAuth requiredRole="student"><NotificationsPage /></RequireAuth>} />
-            <Route path="/student/notes"      element={<RequireAuth requiredRole="student"><AdministrativeNotesPage /></RequireAuth>} />
-            <Route path="/student/settings"   element={<RequireAuth requiredRole="student"><SettingsPage /></RequireAuth>} />
+            <Route path="/student/notes" element={<RequireAuth requiredRole="student"><AdministrativeNotesPage /></RequireAuth>} />
+            <Route path="/student/settings" element={<RequireAuth requiredRole="student"><SettingsPage /></RequireAuth>} />
 
             <Route path="/resources" element={<RequireAuth><ResourceHubPage /></RequireAuth>} />
-            <Route path="/settings"  element={<RequireAuth><SettingsPage /></RequireAuth>} />
+            <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
 
-            <Route path="/jury/dashboard"  element={<RequireAuth requiredRole="jury"><JuryDashboard /></RequireAuth>} />
-            <Route path="/jury/projects"   element={<RequireAuth requiredRole="jury"><JuryProjectsPage /></RequireAuth>} />
-            <Route path="/jury/schedule"   element={<RequireAuth requiredRole="jury"><JurySchedulePage /></RequireAuth>} />
-            <Route path="/jury/documents"  element={<RequireAuth requiredRole="jury"><JuryDocumentsPage /></RequireAuth>} />
+            <Route path="/jury/dashboard" element={<RequireAuth requiredRole="jury"><JuryDashboard /></RequireAuth>} />
+            <Route path="/jury/projects" element={<RequireAuth requiredRole="jury"><JuryProjectsPage /></RequireAuth>} />
+            <Route path="/jury/schedule" element={<RequireAuth requiredRole="jury"><JurySchedulePage /></RequireAuth>} />
+            <Route path="/jury/documents" element={<RequireAuth requiredRole="jury"><JuryDocumentsPage /></RequireAuth>} />
             <Route path="/jury/evaluation" element={<RequireAuth requiredRole="jury"><JuryEvaluationPage /></RequireAuth>} />
-            <Route path="/jury/messages"   element={<RequireAuth requiredRole="jury"><MessagesPage /></RequireAuth>} />
+            <Route path="/jury/messages" element={<RequireAuth requiredRole="jury"><MessagesPage /></RequireAuth>} />
             <Route path="/jury/notifications" element={<RequireAuth requiredRole="jury"><NotificationsPage /></RequireAuth>} />
-            <Route path="/jury/notes"      element={<RequireAuth requiredRole="jury"><AdministrativeNotesPage /></RequireAuth>} />
-            <Route path="/jury/settings"   element={<RequireAuth requiredRole="jury"><SettingsPage /></RequireAuth>} />
+            <Route path="/jury/notes" element={<RequireAuth requiredRole="jury"><AdministrativeNotesPage /></RequireAuth>} />
+            <Route path="/jury/settings" element={<RequireAuth requiredRole="jury"><SettingsPage /></RequireAuth>} />
 
-            <Route path="/supervisor/dashboard"  element={<RequireAuth requiredRole="supervisor"><SupervisorDashboard /></RequireAuth>} />
-            <Route path="/supervisor/students"   element={<RequireAuth requiredRole="supervisor"><StudentsList /></RequireAuth>} />
+            <Route path="/supervisor/dashboard" element={<RequireAuth requiredRole="supervisor"><SupervisorDashboard /></RequireAuth>} />
+            <Route path="/supervisor/students" element={<RequireAuth requiredRole="supervisor"><StudentsList /></RequireAuth>} />
             <Route path="/supervisor/student/:id" element={<RequireAuth requiredRole="supervisor"><StudentDetail /></RequireAuth>} />
-            <Route path="/supervisor/subjects"   element={<RequireAuth requiredRole="supervisor"><SupervisorSubjects /></RequireAuth>} />
+            <Route path="/supervisor/subjects" element={<RequireAuth requiredRole="supervisor"><SupervisorSubjects /></RequireAuth>} />
             <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluations /></RequireAuth>} />
-            <Route path="/supervisor/messages"   element={<RequireAuth requiredRole="supervisor"><SupervisorMessages /></RequireAuth>} />
-            <Route path="/supervisor/schedule"   element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
+            <Route path="/supervisor/messages" element={<RequireAuth requiredRole="supervisor"><SupervisorMessages /></RequireAuth>} />
+            <Route path="/supervisor/schedule" element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
             <Route path="/supervisor/notifications" element={<RequireAuth requiredRole="supervisor"><NotificationsPage /></RequireAuth>} />
-            <Route path="/supervisor/notes"      element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />
-            <Route path="/supervisor/settings"   element={<RequireAuth requiredRole="supervisor"><SettingsPage /></RequireAuth>} />
+            <Route path="/supervisor/notes" element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />
+            <Route path="/supervisor/settings" element={<RequireAuth requiredRole="supervisor"><SettingsPage /></RequireAuth>} />
 
             <Route path="*" element={
               <Navigate to={
                 session.role === 'jury' ? '/jury/dashboard' :
-                session.role === 'supervisor' ? '/supervisor/dashboard' :
-                '/student/dashboard'
+                  session.role === 'supervisor' ? '/supervisor/dashboard' :
+                    '/student/dashboard'
               } replace />
             } />
           </Routes>
