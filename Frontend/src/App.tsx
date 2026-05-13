@@ -5,7 +5,7 @@ import {
   LayoutDashboard, FileUp, GraduationCap,
   Calendar, MessageSquare, Settings, Bell, Search,
   Sun, Moon, LogOut, Users, Briefcase, Activity, History, FileText,
-  ChevronRight, Menu, X
+  ChevronRight, Menu, X, MoreVertical
 } from 'lucide-react';
 import { Container, Button, Dropdown, Form } from 'react-bootstrap';
 import { useApp } from './context/AppContext';
@@ -364,16 +364,23 @@ function App() {
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="notification-dropdown-menu border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
-                <div className="px-3 py-3 border-bottom bg-surface d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">Messages</span>
-                  <Link to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
+                <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+                  <span className="fw-bold text-navy">Messages</span>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
+                    <MoreVertical size={16} className="text-muted cursor-pointer" />
+                  </div>
                 </div>
                 <div className="message-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
                   {unreadMessages.length === 0 ? (
                     <div className="px-3 py-4 text-center text-muted small">No new messages</div>
                   ) : (
                     unreadMessages.map(m => (
-                      <div key={m.id} className="dropdown-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative group">
+                      <div key={m.id} className="px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative group transition-all"
+                        style={{ cursor: 'default' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-alt)')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
+                      >
                         <Link 
                           className="d-flex gap-3 align-items-start text-decoration-none flex-grow-1 overflow-hidden"
                           onClick={() => markMessagesRead(session.role)}
@@ -434,16 +441,19 @@ function App() {
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="notification-dropdown-menu border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
-                <div className="px-3 py-3 border-bottom bg-surface d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">Notifications {localUnreadNotifs > 0 && `(${localUnreadNotifs})`}</span>
-                  {localUnreadNotifs > 0 && (
-                    <button
-                      className="extra-small text-primary fw-bold bg-transparent border-0 p-0"
-                      onClick={markAllNotificationsRead}
-                    >
-                      Mark all as read
-                    </button>
-                  )}
+                <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+                  <span className="fw-bold text-navy">Notifications {localUnreadNotifs > 0 && `(${localUnreadNotifs})`}</span>
+                  <div className="d-flex align-items-center gap-2">
+                    {localUnreadNotifs > 0 && (
+                      <button
+                        className="extra-small text-primary fw-bold bg-transparent border-0 p-0"
+                        onClick={markAllNotificationsRead}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                    <MoreVertical size={16} className="text-muted cursor-pointer" />
+                  </div>
                 </div>
                 <div className="notification-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
                   {recentNotifs.length === 0 ? (

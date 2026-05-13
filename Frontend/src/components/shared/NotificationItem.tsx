@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
-import { Bell } from 'lucide-react';
+import { Bell, MoreVertical, Trash2, CheckCircle } from 'lucide-react';
 import { Notification } from '../../types';
 
 interface NotificationItemProps {
@@ -17,9 +17,10 @@ const NOTIF_COLORS: Record<string, string> = {
 };
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick }) => (
-  <Dropdown.Item
+  <div
+    className={`notif-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative transition-all hover-bg-surface-alt ${!notif.read ? 'notif-unread' : ''}`}
     onClick={onClick}
-    className={`notif-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start ${!notif.read ? 'notif-unread' : ''}`}
+    style={{ cursor: 'pointer' }}
   >
     <div
       className={`p-2 rounded-circle bg-${NOTIF_COLORS[notif.type] || 'secondary'} bg-opacity-10 text-${NOTIF_COLORS[notif.type] || 'secondary'} mt-1 flex-shrink-0`}
@@ -27,15 +28,27 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick }) =
       <Bell size={14} />
     </div>
     <div className="flex-grow-1 overflow-hidden">
-      <div className="extra-small text-muted text-truncate mb-1">{notif.text}</div>
-      <div className="extra-small text-secondary-custom fw-medium">
+      <div className="extra-small text-muted text-truncate mb-1 fw-bold">{notif.text}</div>
+      <div className="extra-small text-secondary-custom fw-bold opacity-75">
         {new Date(notif.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
       </div>
     </div>
-    {!notif.read && (
-      <span className="bg-primary rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', marginTop: '6px' }} />
-    )}
-  </Dropdown.Item>
+    
+    <div className="d-flex flex-column align-items-end gap-2 ms-2">
+      {!notif.read && (
+        <span className="bg-primary rounded-circle" style={{ width: '6px', height: '6px' }} />
+      )}
+      <Dropdown align="end" onClick={(e) => e.stopPropagation()}>
+        <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none hover-bg-light rounded-circle">
+          <MoreVertical size={14} />
+        </Dropdown.Toggle>
+        <Dropdown.Menu className="border-0 shadow-lg extra-small py-1">
+          <Dropdown.Item className="fw-bold py-2"><CheckCircle size={12} className="me-2 text-success" /> Lu</Dropdown.Item>
+          <Dropdown.Item className="fw-bold py-2 text-danger"><Trash2 size={12} className="me-2" /> Supprimer</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
+  </div>
 );
 
 export default NotificationItem;

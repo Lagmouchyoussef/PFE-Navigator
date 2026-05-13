@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
   MessageSquare, Bell, FileEdit, Settings, 
   LogOut, Search, Menu, X, ChevronRight, Briefcase, 
-  Sun, Moon, User
+  Sun, Moon, User, MoreVertical
 } from 'lucide-react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
@@ -194,20 +194,27 @@ const AdminLayout: React.FC = () => {
               <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px', borderRadius: '16px' }}>
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Messages Directs</span>
-                  <Link to="/admin/messages" className="extra-small text-primary fw-bold text-decoration-none">Voir tout</Link>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link to="/admin/messages" className="extra-small text-primary fw-bold text-decoration-none">Voir tout</Link>
+                    <MoreVertical size={16} className="text-muted cursor-pointer" />
+                  </div>
                 </div>
                 <div className="p-0 overflow-y-auto" style={{ maxHeight: '400px' }}>
                   {messages.filter(m => m.sender !== 'admin').length === 0 ? (
                     <div className="p-4 text-center text-muted extra-small fw-bold">Aucun nouveau message</div>
                   ) : (
                     messages.filter(m => m.sender !== 'admin').slice(0, 3).map(msg => (
-                      <div key={msg.id} className="dropdown-item px-3 py-3 border-bottom d-flex gap-3 position-relative hover-bg-surface-alt">
+                      <div key={msg.id} className="px-3 py-3 border-bottom d-flex gap-3 position-relative transition-all"
+                        style={{ cursor: 'default' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-alt)')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
+                      >
                         <div className="avatar-circle small flex-shrink-0" style={{ width: '32px', height: '32px', background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}>
                           {msg.sender?.charAt(0).toUpperCase()}
                         </div>
                         <div className="overflow-hidden flex-grow-1">
                           <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="fw-bold extra-small text-primary text-capitalize">{msg.sender}</span>
+                            <span className="fw-bold extra-small text-navy text-capitalize">{msg.sender}</span>
                             <span className="extra-small text-muted" style={{ fontSize: '10px' }}>{new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           <p className="extra-small text-muted text-truncate mb-0 fw-bold">{msg.text}</p>
@@ -234,13 +241,30 @@ const AdminLayout: React.FC = () => {
               <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px', borderRadius: '16px' }}>
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Notifications</span>
-                  <Link to="/admin/notifications" className="extra-small text-primary fw-bold text-decoration-none">Tout marquer</Link>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link to="/admin/notifications" className="extra-small text-primary fw-bold text-decoration-none">Tout marquer</Link>
+                    <MoreVertical size={16} className="text-muted cursor-pointer" />
+                  </div>
                 </div>
                 <div className="p-2">
-                  <div className="p-3 dropdown-item rounded-3 border-bottom-dashed-light hover-bg-surface-alt">
-                    <div className="fw-bold extra-small text-navy mb-1">Nouveau Rapport</div>
-                    <div className="extra-small text-muted">Ahmed Khalil a soumis son rapport final.</div>
-                    <div className="extra-small text-primary mt-2 fw-bold" style={{ fontSize: '10px' }}>Il y a 10 minutes</div>
+                  <div className="p-3 dropdown-item rounded-3 border-bottom-dashed-light hover-bg-surface-alt d-flex gap-3 align-items-start transition-all">
+                    <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle mt-1 flex-shrink-0">
+                      <Bell size={14} />
+                    </div>
+                    <div className="flex-grow-1 overflow-hidden">
+                      <div className="fw-bold extra-small text-navy mb-1">Nouveau Rapport</div>
+                      <div className="extra-small text-muted text-truncate fw-bold opacity-75">Ahmed Khalil a soumis son rapport final.</div>
+                      <div className="extra-small text-primary mt-1 fw-bold" style={{ fontSize: '10px' }}>Il y a 10 minutes</div>
+                    </div>
+                    <Dropdown align="end" onClick={(e) => e.stopPropagation()}>
+                      <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none hover-bg-light rounded-circle">
+                        <MoreVertical size={14} />
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="border-0 shadow-lg extra-small py-1">
+                        <Dropdown.Item className="fw-bold py-2 small"><CheckCircle size={12} className="me-2 text-success" /> Lu</Dropdown.Item>
+                        <Dropdown.Item className="fw-bold py-2 small text-danger"><Trash2 size={12} className="me-2" /> Supprimer</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                   </div>
                 </div>
               </Dropdown.Menu>

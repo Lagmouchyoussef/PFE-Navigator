@@ -626,3 +626,26 @@ input, textarea, select, .form-control {
 .sidebar-resizer:active {
   background-color: rgba(37, 99, 235, 0.5);
 }
+
+/* =====================================================
+   GLOBAL FIX: Remove Bootstrap active blue on click
+   ===================================================== */
+.dropdown-item:active,
+.dropdown-item:focus,
+.dropdown-item.active {
+  background-color: var(--color-surface-alt, rgba(0,0,0,0.04)) !important;
+  color: inherit !important;
+}
+
+.btn-link:active,
+.btn-link:focus {
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+a.dropdown-item:active,
+a.dropdown-item:focus {
+  background-color: var(--color-surface-alt, rgba(0,0,0,0.04)) !important;
+  color: inherit !important;
+}
