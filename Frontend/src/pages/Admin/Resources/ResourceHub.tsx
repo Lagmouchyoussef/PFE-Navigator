@@ -18,9 +18,9 @@ interface ResourceFile {
 
 const FILES: ResourceFile[] = [
   { name: 'Rapport_jury_2026.pdf', type: 'PDF', size: '2.4 MB', date: '10 Mai 2026', color: 'primary' },
-  { name: 'Guide_evaluation.docx', type: 'DOCX', size: '1.1 MB', date: '08 Mai 2026', color: 'primary' },
-  { name: 'Donnees_analyse.xlsx', type: 'XLSX', size: '3.8 MB', date: '05 Mai 2026', color: 'primary' },
-  { name: 'Presentation_projet.pptx', type: 'PPTX', size: '5.2 MB', date: '01 Mai 2026', color: 'primary' },
+  { name: 'Guide_evaluation.docx', type: 'DOCX', size: '1.1 MB', date: '8 Mai 2026', color: 'primary' },
+  { name: 'Donnees_analyse.xlsx', type: 'XLSX', size: '3.8 MB', date: '5 Mai 2026', color: 'primary' },
+  { name: 'Presentation_projet.pptx', type: 'PPTX', size: '5.2 MB', date: '1 Mai 2026', color: 'primary' },
 ];
 
 const ResourceHub: React.FC = () => {
@@ -57,10 +57,10 @@ const ResourceHub: React.FC = () => {
             <StatCard label="Espace Utilisé" value="1.2 GB" icon={<HardDrive />} color="info" trend="Sur 10 GB" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Nouveautés" value="04" icon={<Plus />} color="success" trend="Semaine" />
+            <StatCard label="Nouveautés" value="4" icon={<Plus />} color="success" trend="Semaine" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Favoris" value="06" icon={<Award />} color="warning" trend="Accès" />
+            <StatCard label="Favoris" value="6" icon={<Award />} color="warning" trend="Accès" />
           </Col>
         </Row>
 

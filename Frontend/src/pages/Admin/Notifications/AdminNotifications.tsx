@@ -96,16 +96,16 @@ const AdminNotifications: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="02" icon={<Bell />} color="primary" trend="Alert" />
+            <StatCard label="Non lues" value="2" icon={<Bell />} color="primary" trend="Alert" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Total" value="07" icon={<Activity />} color="info" trend="Stats" />
+            <StatCard label="Total" value="7" icon={<Activity />} color="info" trend="Stats" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Cette semaine" value="24" icon={<RefreshCcw />} color="success" trend="Active" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Importantes" value="03" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Importantes" value="3" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 

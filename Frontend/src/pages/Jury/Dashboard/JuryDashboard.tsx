@@ -13,7 +13,7 @@ import JuryPerformanceChart from '../../../components/features/jury/JuryPerforma
 
 const RECENT_ACTIVITIES = [
   { id: 1, title: 'Nouvelle évaluation assignée', time: 'Il y a 2 heures', desc: 'Le projet "Blockchain Certificate Verification" nécessite votre évaluation', icon: <Clock size={16} />, color: 'warning' as const },
-  { id: 2, title: 'Soutenance programmée', time: 'Il y a 5 heures', desc: "Soutenance prévue le 5 Mai à 09:00 en salle A-204", icon: <Calendar size={16} />, color: 'primary' as const },
+  { id: 2, title: 'Soutenance programmée', time: 'Il y a 5 heures', desc: "Soutenance prévue le 5 Mai à 9:00 en salle A-204", icon: <Calendar size={16} />, color: 'primary' as const },
   { id: 3, title: 'Nouveau message', time: 'Hier', desc: 'Prof. Martin vous a envoyé un message concernant la grille d\'évaluation', icon: <MessageSquare size={16} />, color: 'info' as const },
   { id: 4, title: 'Mise à jour du système', time: 'Il y a 2 jours', desc: 'Nouvelles fonctionnalités disponibles dans le tableau de bord', icon: <Activity size={16} />, color: 'success' as const },
 ];
@@ -50,10 +50,10 @@ const JuryDashboard: React.FC = () => {
             <StatCard label="Assigned Projects" value="12" icon={<Briefcase />} color="primary" trend="+2" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Evaluations Done" value="08" icon={<CheckCircle />} color="success" trend="66%" />
+            <StatCard label="Evaluations Done" value="8" icon={<CheckCircle />} color="success" trend="66%" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Defenses" value="04" icon={<Calendar />} color="warning" trend="This Week" />
+            <StatCard label="Defenses" value="4" icon={<Calendar />} color="warning" trend="This Week" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Avg Grade Given" value="15.4" icon={<Star />} color="info" trend="+1.2" />

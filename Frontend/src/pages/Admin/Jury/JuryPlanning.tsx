@@ -14,12 +14,12 @@ interface JurySession {
 }
 
 const INITIAL_JURIES: JurySession[] = [
-  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A', time: '09:00' },
+  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A', time: '9:00' },
   { id: 2, title: 'Session Technique', day: 3, date: '3 Jan 2025', location: 'Salle B', time: '14:00' },
   { id: 3, title: 'Revue de Projet', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00' },
   { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Salle D', time: '10:30' },
   { id: 5, title: 'Audit Final', day: 12, date: '12 Jan 2025', location: 'Salle A', time: '15:00' },
-  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '09:30' },
+  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '9:30' },
   { id: 7, title: 'Clôture de Session', day: 17, date: '17 Jan 2025', location: 'Salle C', time: '16:30' },
 ];
 
@@ -41,7 +41,7 @@ const JuryPlanning: React.FC = () => {
       day: formData.day,
       date: `${formData.day} Jan 2025`,
       location: formData.location,
-      time: '09:00'
+      time: '9:00'
     };
     setJuries([...juries, newJury]);
     setShowModal(false);

@@ -24,7 +24,7 @@ const ARCHIVE_DATA: ArchiveItem[] = [
   { id: 'B', name: 'Projet Beta', desc: 'Interface web de visualisation de données en temps réel.', date: '28 Mar 2026', files: 8, status: 'Completed', type: 'Web', supervisor: 'Mme. Alami' },
   { id: 'G', name: 'Projet Gamma', desc: 'Système automatique d\'analyse de performance.', date: '10 Mar 2026', files: 15, status: 'Completed', type: 'System', supervisor: 'Mr. Tazi' },
   { id: 'D', name: 'Projet Delta', desc: 'Plateforme e-learning interactive avec IA.', date: '22 Fév 2026', files: 20, status: 'Completed', type: 'AI', supervisor: 'Dr. Mansouri' },
-  { id: 'E', name: 'Projet Epsilon', desc: 'Solution de cybersécurité pour entreprise.', date: '05 Fév 2026', files: 6, status: 'Cancelled', type: 'Security', supervisor: 'Mme. Alami' },
+  { id: 'E', name: 'Projet Epsilon', desc: 'Solution de cybersécurité pour entreprise.', date: '5 Fév 2026', files: 6, status: 'Cancelled', type: 'Security', supervisor: 'Mme. Alami' },
   { id: 'Z', name: 'Projet Zeta', desc: 'Optimisation énergétique pour bâtiments intelligents.', date: '18 Jan 2026', files: 9, status: 'Completed', type: 'IoT', supervisor: 'Mr. Tazi' },
 ];
 

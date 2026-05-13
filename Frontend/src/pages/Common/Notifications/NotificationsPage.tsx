@@ -9,7 +9,7 @@ import StatCard from '../../../components/shared/StatCard';
 
 const NOTIFICATIONS_DATA = [
   { id: 1, title: 'New evaluation assigned', time: '2 hours ago', desc: 'The project "Blockchain Certificate Verification" requires your evaluation', type: 'eval', unread: true, icon: <Activity size={20} />, color: 'primary' as const },
-  { id: 2, title: 'Defense scheduled', time: '5 hours ago', desc: 'Defense scheduled for May 5th at 09:00 in Room A-204', type: 'sched', unread: true, icon: <Calendar size={20} />, color: 'info' as const },
+  { id: 2, title: 'Defense scheduled', time: '5 hours ago', desc: 'Defense scheduled for May 5th at 9:00 in Room A-204', type: 'sched', unread: true, icon: <Calendar size={20} />, color: 'info' as const },
   { id: 3, title: 'New message', time: 'Yesterday', desc: 'Prof. Martin sent you a message regarding the evaluation grid', type: 'msg', unread: false, icon: <MessageSquare size={20} />, color: 'success' as const },
   { id: 4, title: 'System Update', time: '2 days ago', desc: 'New predictive analysis features available', type: 'system', unread: false, icon: <RefreshCcw size={20} />, color: 'warning' as const },
   { id: 5, title: 'Evaluation completed', time: '3 days ago', desc: 'Your evaluation for Mohamed Alaoui has been submitted successfully', type: 'eval', unread: false, icon: <CheckCircle size={20} />, color: 'success' as const },
@@ -46,16 +46,16 @@ const NotificationsPage: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} sm={6}>
-            <StatCard label="Unread" value="02" color="primary" icon={<Bell />} trend="Now" />
+            <StatCard label="Unread" value="2" color="primary" icon={<Bell />} trend="Now" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Total" value="07" color="info" icon={<Activity />} trend="Overall" />
+            <StatCard label="Total" value="7" color="info" icon={<Activity />} trend="Overall" />
           </Col>
           <Col lg={3} sm={6}>
             <StatCard label="This Week" value="24" color="success" icon={<RefreshCcw />} trend="+5" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Urgent" value="03" color="danger" icon={<AlertCircle />} trend="Critical" />
+            <StatCard label="Urgent" value="3" color="danger" icon={<AlertCircle />} trend="Critical" />
           </Col>
         </Row>
 

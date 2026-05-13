@@ -337,7 +337,7 @@ const SupervisorDashboard: React.FC = () => {
                 <div className="deadline-item">
                   <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
                   <div className="small fw-bold mb-1">Defense Session A</div>
-                  <div className="extra-small text-muted fw-bold">Salle 304 - 09:00 AM</div>
+                  <div className="extra-small text-muted fw-bold">Salle 304 - 9:00 AM</div>
                 </div>
               </Card>
 

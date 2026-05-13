@@ -79,13 +79,13 @@ const StudentDashboard: React.FC = () => {
         {/* Global Statistics Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Upcoming Events" value="05" color="primary" icon={<Calendar />} />
+            <StatCard label="Upcoming Events" value="5" color="primary" icon={<Calendar />} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pending Deadlines" value="02" color="warning" icon={<Clock />} trend="2 weeks" />
+            <StatCard label="Pending Deadlines" value="2" color="warning" icon={<Clock />} trend="2 weeks" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Tasks Completed" value="05" color="success" icon={<CheckCircle />} trend="+2" />
+            <StatCard label="Tasks Completed" value="5" color="success" icon={<CheckCircle />} trend="+2" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Average Score" value="18.5" color="info" icon={<GraduationCap />} />

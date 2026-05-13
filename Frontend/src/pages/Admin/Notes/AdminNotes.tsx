@@ -105,16 +105,16 @@ const AdminNotes: React.FC = () => {
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Total Notes" value="08" icon={<FileText />} color="primary" trend="Overall" />
+            <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Overall" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="03" icon={<Bell />} color="danger" trend="Action" />
+            <StatCard label="Non lues" value="3" icon={<Bell />} color="danger" trend="Action" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Épinglées" value="03" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="Épinglées" value="3" icon={<Pin />} color="warning" trend="Fav" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Priorité Haute" value="04" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Priorité Haute" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 

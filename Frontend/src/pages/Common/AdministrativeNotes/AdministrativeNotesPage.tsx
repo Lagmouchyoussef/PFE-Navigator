@@ -59,16 +59,16 @@ const AdministrativeNotesPage: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Total Notes" value="08" icon={<FileText />} color="primary" trend="Docs" />
+            <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Docs" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="03" icon={<Bell />} color="danger" trend="Alert" />
+            <StatCard label="Non lues" value="3" icon={<Bell />} color="danger" trend="Alert" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Épinglées" value="03" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="Épinglées" value="3" icon={<Pin />} color="warning" trend="Fav" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Prioritaires" value="04" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Prioritaires" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 
