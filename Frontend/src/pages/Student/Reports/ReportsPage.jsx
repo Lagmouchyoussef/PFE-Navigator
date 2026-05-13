@@ -19,51 +19,93 @@ const ReportsPage = () => {
   const fileInputRef = useRef(null);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const dragCounter = useRef(0);
+  // Map docId -> object URL for real file preview/download
+  const fileUrlMap = useRef({});
 
-  const categories = [
-    { name: 'Proposal', count: 1, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'Reports', count: 3, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'Documentation', count: 3, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'Presentations', count: 1, icon: <Folder size={20} />, color: 'blue' },
-  ];
-
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
   };
 
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const processFiles = (files) => {
+    if (!files || files.length === 0) return;
+    files.forEach(file => {
+      const allowed = ['application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+      if (allowed.includes(file.type) || file.name.match(/\.(pdf|docx|pptx)$/i)) {
+        const doc = uploadDocument(file.name, file);
+        // Store a real browser object URL so we can view/download this file
+        const url = URL.createObjectURL(file);
+        fileUrlMap.current[doc.id] = { url, name: file.name };
+      }
+    });
+    setSuccessMsg(`${files.length} fichier(s) importé(s) avec succès !`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    processFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const handleUploadClick = () => fileInputRef.current.click();
+
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      uploadDocument(file.name, file);
-      // Reset input
-      e.target.value = null;
-    }
+    processFiles(Array.from(e.target.files));
+    e.target.value = null;
   };
 
   const handleView = (doc) => {
-    // Professional simulation: Open in new tab
-    const samplePdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-    window.open(samplePdfUrl, '_blank');
+    const entry = fileUrlMap.current[doc.id];
+    if (entry) {
+      window.open(entry.url, '_blank');
+    } else {
+      alert('Aperçu indisponible : le fichier n\'est plus en mémoire. Veuillez re-téléverser le fichier.');
+    }
   };
 
   const handleDownload = (doc) => {
-    // Professional simulation: Trigger file download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.setAttribute('download', doc.title);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    
-    setSuccessMsg(`Téléchargement de "${doc.title}" commencé...`);
+    const entry = fileUrlMap.current[doc.id];
+    if (entry) {
+      const link = document.createElement('a');
+      link.href = entry.url;
+      link.download = entry.name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setSuccessMsg(`Téléchargement de "${doc.title}" commencé...`);
+    } else {
+      setSuccessMsg(`"${doc.title}" — fichier non disponible localement.`);
+    }
     setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 8000);
+    setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
   const filteredDocs = documents.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  const categories = [
+    { name: 'Tous', count: documents.length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'PDF', count: documents.filter(d => d.title.endsWith('.pdf')).length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'DOCX', count: documents.filter(d => d.title.endsWith('.docx')).length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'PPTX', count: documents.filter(d => d.title.endsWith('.pptx')).length, icon: <Folder size={20} />, color: 'blue' },
+  ];
 
   return (
     <div className="reports-page-layout py-4">
@@ -145,21 +187,132 @@ const ReportsPage = () => {
         </Row>
 
         {/* Dropzone Area */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+        <div
           className="mb-5"
-          onClick={handleUploadClick}
+          onDragEnter={e => { e.preventDefault(); e.stopPropagation(); dragCounter.current++; setIsDragging(true); }}
+          onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+          onDragLeave={e => { e.preventDefault(); e.stopPropagation(); dragCounter.current--; if (dragCounter.current === 0) setIsDragging(false); }}
+          onDrop={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter.current = 0;
+            setIsDragging(false);
+            const files = Array.from(e.dataTransfer.files).filter(f =>
+              f.name.match(/\.(pdf|docx|pptx)$/i)
+            );
+            if (files.length > 0) {
+              setPendingFiles(files);
+            }
+          }}
         >
-          <div className="p-5 text-center bg-surface-alt border-dashed-primary rounded-4 cursor-pointer hover-bg-white transition-all shadow-sm">
-            <div className="p-3 bg-primary-soft text-primary rounded-circle d-inline-block mb-3">
-              <Upload size={32} />
+          <div
+            className="rounded-4 overflow-hidden cursor-pointer"
+            style={{
+              background: isDragging
+                ? 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.06) 100%)'
+                : 'linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(37,99,235,0.02) 100%)',
+              border: isDragging
+                ? '2px dashed rgba(37,99,235,0.75)'
+                : '2px dashed rgba(37,99,235,0.25)',
+              transform: isDragging ? 'scale(1.015)' : 'scale(1)',
+              transition: 'all 0.25s ease',
+            }}
+            onClick={handleUploadClick}
+          >
+            <div className="p-5 text-center">
+              {/* Animated icon */}
+              <motion.div
+                animate={{ y: isDragging ? [-4, 4, -4] : [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: isDragging ? 0.6 : 2.5, ease: 'easeInOut' }}
+                className="d-inline-flex align-items-center justify-content-center mb-4"
+                style={{
+                  width: '72px', height: '72px',
+                  background: isDragging
+                    ? 'linear-gradient(135deg, #16a34a, #22c55e)'
+                    : 'linear-gradient(135deg, #2563eb, #818cf8)',
+                  borderRadius: '20px',
+                  boxShadow: isDragging
+                    ? '0 8px 24px rgba(22,163,74,0.35)'
+                    : '0 8px 24px rgba(37,99,235,0.25)',
+                }}
+              >
+                <Upload size={32} color="white" strokeWidth={1.8} />
+              </motion.div>
+
+              <h5 className="fw-bold text-navy mb-1" style={{ fontSize: '1.05rem' }}>
+                {isDragging ? '✓ Relâchez pour importer' : 'Glisser-déposer vos fichiers ici'}
+              </h5>
+              <p className="text-muted mb-4 fw-bold" style={{ fontSize: '0.82rem' }}>
+                {isDragging ? (
+                  <span className="text-success fw-bold">Fichier détecté — relâchez pour continuer</span>
+                ) : (
+                  <>ou cliquer pour <span className="text-primary">parcourir vos fichiers</span></>
+                )}
+              </p>
+
+              {!isDragging && (
+                <>
+                  <div className="d-flex justify-content-center gap-2 mb-4">
+                    {[
+                      { label: 'PDF', color: '#ef4444', bg: '#fef2f2' },
+                      { label: 'DOCX', color: '#2563eb', bg: '#eff6ff' },
+                      { label: 'PPTX', color: '#f97316', bg: '#fff7ed' },
+                    ].map(type => (
+                      <span key={type.label} className="fw-bold rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                        style={{ fontSize: '0.7rem', background: type.bg, color: type.color, letterSpacing: '0.5px' }}>
+                        <FileText size={11} /> {type.label}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold"
+                    style={{ background: 'rgba(0,0,0,0.04)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%', display: 'inline-block' }} />
+                    Taille maximale : 10 MB par fichier
+                  </div>
+                </>
+              )}
             </div>
-            <h5 className="fw-bold mb-1 text-navy">Drag and drop files here or click to browse</h5>
-            <p className="extra-small text-muted mb-0 fw-bold">Supported: PDF, DOCX, PPTX (Max 10MB)</p>
           </div>
-        </motion.div>
+
+          {/* Pending files preview */}
+          {pendingFiles.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 p-4 rounded-4 border"
+              style={{ background: 'var(--color-surface-alt)' }}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span className="fw-bold small text-navy">{pendingFiles.length} fichier(s) prêt(s) à importer</span>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold extra-small"
+                    onClick={e => { e.stopPropagation(); setPendingFiles([]); }}>
+                    Annuler
+                  </button>
+                  <button className="btn btn-sm btn-premium rounded-pill px-3 fw-bold extra-small"
+                    onClick={e => { e.stopPropagation(); processFiles(pendingFiles); setPendingFiles([]); }}>
+                    ✓ Importer
+                  </button>
+                </div>
+              </div>
+              <div className="d-flex flex-column gap-2">
+                {pendingFiles.map((f, i) => (
+                  <div key={i} className="d-flex align-items-center gap-3 p-2 rounded-3 bg-surface border">
+                    <div className="p-2 rounded-3 flex-shrink-0"
+                      style={{ background: f.name.endsWith('.pdf') ? '#fef2f2' : f.name.endsWith('.pptx') ? '#fff7ed' : '#eff6ff' }}>
+                      <FileText size={16} style={{ color: f.name.endsWith('.pdf') ? '#ef4444' : f.name.endsWith('.pptx') ? '#f97316' : '#2563eb' }} />
+                    </div>
+                    <div className="flex-grow-1 overflow-hidden">
+                      <div className="extra-small fw-bold text-navy text-truncate">{f.name}</div>
+                      <div className="extra-small text-muted fw-bold">{(f.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                    <CheckCircle size={16} className="text-success flex-shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
 
         {/* Filters & Table Card */}
         <Card className="glass-card border-0 shadow-sm border overflow-hidden">

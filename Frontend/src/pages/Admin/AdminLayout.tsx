@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
   MessageSquare, Bell, FileEdit, Settings, 
   LogOut, Search, Menu, X, ChevronRight, Briefcase, 
-  Sun, Moon, User, MoreVertical
+  Sun, Moon, User, MoreVertical, CheckCircle, Trash2
 } from 'lucide-react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
