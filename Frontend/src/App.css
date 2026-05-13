@@ -649,3 +649,60 @@ a.dropdown-item:focus {
   background-color: var(--color-surface-alt, rgba(0,0,0,0.04)) !important;
   color: inherit !important;
 }
+
+/* =====================================================
+   GLOBAL FIX: Dropdown Menus in Dark Mode
+   ===================================================== */
+.dropdown-menu {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.dropdown-item {
+  color: var(--color-text-primary) !important;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--color-surface-alt) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.dropdown-divider {
+  border-top: 1px solid var(--color-border) !important;
+}
+
+/* Ensure the message/notification headers also adapt */
+.bg-surface-alt {
+  background-color: var(--color-surface-alt) !important;
+}
+
+/* =====================================================
+   THEME UTILITY OVERRIDES
+   ===================================================== */
+/* Force bg-white and bg-light to follow the theme */
+.bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+.bg-light {
+  background-color: var(--color-surface-alt) !important;
+}
+
+.hover-bg-light:hover {
+  background-color: var(--color-surface-alt) !important;
+}
+
+.border-bottom {
+  border-bottom-color: var(--color-border) !important;
+}
+
+.border-top {
+  border-top-color: var(--color-border) !important;
+}
+
+.border {
+  border-color: var(--color-border) !important;
+}

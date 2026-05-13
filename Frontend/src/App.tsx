@@ -73,9 +73,9 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
 function App() {
   const location = useLocation();
   const { 
-    session, logout, notifications, markNotificationRead, markAllNotificationsRead,
-    unreadCountForRole, messages, markMessagesRead, deleteMessage,
-    theme, setTheme 
+    session, logout, theme, setTheme, unreadCountForRole, 
+    notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
+    messages, deleteMessage 
   } = useApp();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -464,6 +464,16 @@ function App() {
                         key={n.id}
                         notif={n}
                         onClick={() => markNotificationRead(n.id)}
+                        onMarkRead={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          markNotificationRead(n.id);
+                        }}
+                        onDelete={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          deleteNotification(n.id);
+                        }}
                       />
                     ))
                   )}

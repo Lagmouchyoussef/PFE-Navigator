@@ -11,6 +11,7 @@ import { Button, Dropdown, Form } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import SidebarLink from '../../components/shared/SidebarLink';
+import NotificationItem from '../../components/shared/NotificationItem';
 
 const AdminLayout: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(300);
@@ -18,7 +19,11 @@ const AdminLayout: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const { session, logout, theme, setTheme, unreadCountForRole, messages, deleteMessage } = useApp();
+  const { 
+    session, logout, theme, setTheme, unreadCountForRole, 
+    notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
+    messages, deleteMessage 
+  } = useApp();
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -274,39 +279,50 @@ const AdminLayout: React.FC = () => {
               >
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <Bell size={20} />
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
-                    2
-                  </span>
+                  {unreadNotificationsCount > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
+                      {unreadNotificationsCount}
+                    </span>
+                  )}
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px', borderRadius: '16px' }}>
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Notifications</span>
                   <div className="d-flex align-items-center gap-2">
-                    <Link to="/admin/notifications" className="extra-small text-primary fw-bold text-decoration-none">Tout marquer</Link>
+                    {unreadNotificationsCount > 0 && (
+                      <button 
+                        className="extra-small text-primary fw-bold bg-transparent border-0 p-0"
+                        onClick={markAllNotificationsRead}
+                      >
+                        Tout marquer
+                      </button>
+                    )}
                     <MoreVertical size={16} className="text-muted cursor-pointer" />
                   </div>
                 </div>
-                <div className="p-2">
-                  <div className="p-3 dropdown-item rounded-3 border-bottom-dashed-light hover-bg-surface-alt d-flex gap-3 align-items-start transition-all">
-                    <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle mt-1 flex-shrink-0">
-                      <Bell size={14} />
-                    </div>
-                    <div className="flex-grow-1 overflow-hidden">
-                      <div className="fw-bold extra-small text-navy mb-1">Nouveau Rapport</div>
-                      <div className="extra-small text-muted text-truncate fw-bold opacity-75">Ahmed Khalil a soumis son rapport final.</div>
-                      <div className="extra-small text-primary mt-1 fw-bold" style={{ fontSize: '10px' }}>Il y a 10 minutes</div>
-                    </div>
-                    <Dropdown align="end" onClick={(e) => e.stopPropagation()}>
-                      <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none hover-bg-light rounded-circle">
-                        <MoreVertical size={14} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="border-0 shadow-lg extra-small py-1">
-                        <Dropdown.Item className="fw-bold py-2 small"><CheckCircle size={12} className="me-2 text-success" /> Lu</Dropdown.Item>
-                        <Dropdown.Item className="fw-bold py-2 small text-danger"><Trash2 size={12} className="me-2" /> Supprimer</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
+                <div className="p-0 overflow-y-auto" style={{ maxHeight: '400px' }}>
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-muted extra-small fw-bold">Aucune notification</div>
+                  ) : (
+                    notifications.map(n => (
+                      <NotificationItem 
+                        key={n.id}
+                        notif={n}
+                        onClick={() => markNotificationRead(n.id)}
+                        onMarkRead={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          markNotificationRead(n.id);
+                        }}
+                        onDelete={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          deleteNotification(n.id);
+                        }}
+                      />
+                    ))
+                  )}
                 </div>
               </Dropdown.Menu>
             </Dropdown>
