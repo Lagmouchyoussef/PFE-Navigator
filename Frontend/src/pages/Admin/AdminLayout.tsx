@@ -144,7 +144,7 @@ const AdminLayout: React.FC = () => {
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
-                className="p-0 border-0 shadow-none d-flex align-items-center gap-3 text-decoration-none"
+                className="p-0 border-0 shadow-none d-flex align-items-center gap-3 text-decoration-none no-caret"
               >
                 <div className="d-flex flex-column text-end d-none d-md-flex">
                   <span className="fw-bold text-navy small">

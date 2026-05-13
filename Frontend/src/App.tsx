@@ -272,7 +272,7 @@ function App() {
               </div>
             )}
           </div>
-          <div className="header-actions d-flex align-items-center gap-4">
+          <div className="header-actions d-flex align-items-center gap-3">
             <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}>
               {isDarkMode ? <Sun size={22} className="text-warning" /> : <Moon size={22} />}
             </Button>
@@ -403,7 +403,7 @@ function App() {
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
-                className="p-0 border-0 shadow-none d-flex align-items-center gap-3 text-decoration-none"
+                className="p-0 border-0 shadow-none d-flex align-items-center gap-3 text-decoration-none no-caret"
               >
                 <motion.div 
                   className="d-flex align-items-center gap-3"
