@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
   MessageSquare, Bell, FileEdit, Settings, 
   LogOut, Search, Menu, X, ChevronRight, Briefcase, 
-  Sun, Moon
+  Sun, Moon, User
 } from 'lucide-react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
@@ -130,7 +130,7 @@ const AdminLayout: React.FC = () => {
                 variant="link"
                 className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
               >
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <MessageSquare size={20} />
                   {adminUnreadMsgCount > 0 && (
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
@@ -172,7 +172,7 @@ const AdminLayout: React.FC = () => {
                 variant="link"
                 className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
               >
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="position-relative">
                   <Bell size={20} />
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
                     2
@@ -209,11 +209,14 @@ const AdminLayout: React.FC = () => {
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
                 <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 extra-small fw-bold">
-                  <Settings size={16} className="me-2 text-muted" /> Profil & Paramètres
+                  <User size={16} className="me-2 text-muted" /> Profile
+                </Dropdown.Item>
+                <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 extra-small fw-bold">
+                  <Settings size={16} className="me-2 text-muted" /> Settings
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item onClick={logout} className="text-danger d-flex align-items-center gap-2 rounded-3 py-2 extra-small fw-bold">
-                  <LogOut size={16} /> Déconnexion
+                  <LogOut size={16} /> Sign Out
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
