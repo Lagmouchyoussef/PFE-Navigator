@@ -73,6 +73,18 @@ const NOTIFICATIONS: NotificationItem[] = [
 ];
 
 const AdminNotifications: React.FC = () => {
+  const [loading, setLoading] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
+
+  const handleLoadMore = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setHasMore(false);
+      alert("Toutes les notifications ont été chargées.");
+    }, 800);
+  };
+
   return (
     <div className="admin-notifications-pro-layout py-4">
       <Container fluid className="px-4">
@@ -163,7 +175,20 @@ const AdminNotifications: React.FC = () => {
         </div>
         
         <div className="text-center mt-5">
-          <Button variant="outline-primary" className="fw-bold px-5 py-2 rounded-pill border-2">Charger plus de notifications</Button>
+          <Button 
+            variant="outline-primary" 
+            className="fw-bold px-5 py-2 rounded-pill border-2 d-flex align-items-center gap-2 mx-auto"
+            onClick={handleLoadMore}
+            disabled={loading || !hasMore}
+          >
+            {loading ? (
+              <><RefreshCcw size={18} className="animate-spin" /> Chargement...</>
+            ) : hasMore ? (
+              "Charger plus de notifications"
+            ) : (
+              "Plus de notifications"
+            )}
+          </Button>
         </div>
       </Container>
       <style>{`

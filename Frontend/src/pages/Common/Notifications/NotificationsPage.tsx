@@ -18,6 +18,17 @@ const NOTIFICATIONS_DATA = [
 
 const NotificationsPage: React.FC = () => {
   const { session } = useApp();
+  const [loading, setLoading] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
+
+  const handleShowMore = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setHasMore(false);
+      alert("All notifications have been loaded.");
+    }, 800);
+  };
 
   return (
     <div className="notifications-modern-layout py-4">
@@ -89,7 +100,20 @@ const NotificationsPage: React.FC = () => {
             ))}
           </div>
           <div className="p-3 text-center bg-surface-alt">
-            <Button variant="link" className="extra-small fw-bold text-primary text-decoration-none">Show more notifications</Button>
+            <Button 
+              variant="link" 
+              className="extra-small fw-bold text-primary text-decoration-none"
+              onClick={handleShowMore}
+              disabled={loading || !hasMore}
+            >
+              {loading ? (
+                <><RefreshCcw size={14} className="me-2 animate-spin" /> Loading...</>
+              ) : hasMore ? (
+                "Show more notifications"
+              ) : (
+                "No more notifications"
+              )}
+            </Button>
           </div>
         </div>
       </Container>

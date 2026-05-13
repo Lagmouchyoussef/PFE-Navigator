@@ -324,6 +324,14 @@ const AdminLayout: React.FC = () => {
                     ))
                   )}
                 </div>
+                <div className="p-2 text-center border-top bg-light-soft mt-1">
+                  <Link 
+                    to="/admin/notifications" 
+                    className="text-decoration-none small text-secondary-custom fw-bold p-0"
+                  >
+                    Voir toutes les notifications
+                  </Link>
+                </div>
               </Dropdown.Menu>
             </Dropdown>
 

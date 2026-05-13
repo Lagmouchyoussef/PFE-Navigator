@@ -98,7 +98,14 @@ const SupervisorDashboard: React.FC = () => {
         {/* Global Statistics Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Total Students" value="24" color="primary" icon={<Users />} trend="+3 month" />
+            <StatCard 
+              label="Total Students" 
+              value="24" 
+              color="primary" 
+              icon={<Users />} 
+              trend="+3 month" 
+              onClick={() => navigate('/supervisor/students')}
+            />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Avg Progress" value="72%" color="success" icon={<TrendingUp />} trend="+12% week" />
@@ -107,7 +114,14 @@ const SupervisorDashboard: React.FC = () => {
             <StatCard label="Meeting Hours" value="142h" color="info" icon={<Clock />} trend="Semester" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Active Projects" value="18" color="warning" icon={<Activity />} trend="4 Ending" />
+            <StatCard 
+              label="Active Projects" 
+              value="18" 
+              color="warning" 
+              icon={<Activity />} 
+              trend="4 Ending" 
+              onClick={() => navigate('/supervisor/subjects')}
+            />
           </Col>
         </Row>
 

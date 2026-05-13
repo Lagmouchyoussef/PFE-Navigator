@@ -32,7 +32,11 @@ const JuryDashboard: React.FC = () => {
             <p className="text-muted small mb-0">Track your evaluations and defense schedule, Prof. {session?.name}.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+            <Button 
+              variant="outline-primary" 
+              className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2"
+              onClick={() => navigate('/jury/schedule')}
+            >
               <Calendar size={18} /> My Calendar
             </Button>
             <Button 
@@ -47,13 +51,34 @@ const JuryDashboard: React.FC = () => {
         {/* Top Stats Row */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Assigned Projects" value="12" icon={<Briefcase />} color="primary" trend="+2" />
+            <StatCard 
+              label="Assigned Projects" 
+              value="12" 
+              icon={<Briefcase />} 
+              color="primary" 
+              trend="+2" 
+              onClick={() => navigate('/jury/projects')}
+            />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Evaluations Done" value="8" icon={<CheckCircle />} color="success" trend="66%" />
+            <StatCard 
+              label="Evaluations Done" 
+              value="8" 
+              icon={<CheckCircle />} 
+              color="success" 
+              trend="66%" 
+              onClick={() => navigate('/jury/evaluation')}
+            />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Defenses" value="4" icon={<Calendar />} color="warning" trend="This Week" />
+            <StatCard 
+              label="Defenses" 
+              value="4" 
+              icon={<Calendar />} 
+              color="warning" 
+              trend="This Week" 
+              onClick={() => navigate('/jury/schedule')}
+            />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Avg Grade Given" value="15.4" icon={<Star />} color="info" trend="+1.2" />

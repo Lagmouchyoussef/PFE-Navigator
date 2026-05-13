@@ -480,7 +480,12 @@ function App() {
                 </div>
                 <div className="p-2 text-center border-top bg-light-soft">
                   <Link
-                    to={session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'}
+                    to={
+                      session.role === 'student' ? '/student/notifications' : 
+                      session.role === 'supervisor' ? '/supervisor/notifications' : 
+                      session.role === 'admin' ? '/admin/notifications' :
+                      '/jury/notifications'
+                    }
                     className="text-decoration-none small text-secondary-custom fw-bold p-0"
                   >
                     View all notifications
