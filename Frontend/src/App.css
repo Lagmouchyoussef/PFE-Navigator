@@ -606,3 +606,23 @@ input, textarea, select, .form-control {
     display: none;
   }
 }
+
+/* Sidebar Resizer */
+.sidebar-resizer {
+  width: 6px;
+  cursor: ew-resize;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  transition: background-color 0.2s;
+}
+
+.sidebar-resizer:hover {
+  background-color: rgba(37, 99, 235, 0.2);
+}
+
+.sidebar-resizer:active {
+  background-color: rgba(37, 99, 235, 0.5);
+}

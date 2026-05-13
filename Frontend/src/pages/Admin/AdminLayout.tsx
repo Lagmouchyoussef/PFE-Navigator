@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
@@ -12,21 +12,63 @@ import { useApp } from '../../context/AppContext';
 import SidebarLink from '../../components/shared/SidebarLink';
 
 const AdminLayout: React.FC = () => {
+  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const { session, logout, theme, setTheme, unreadCountForRole, messages, deleteMessage } = useApp();
+
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      let newWidth = e.clientX;
+      if (newWidth < 280) newWidth = 280;
+      if (newWidth > 450) newWidth = 450;
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
+    if (isSidebarCollapsed) {
+      setIsSidebarCollapsed(false);
+      setSidebarWidth(300);
+    } else {
+      setIsSidebarCollapsed(true);
+      setSidebarWidth(0);
+    }
   };
 
   const adminUnreadMsgCount = unreadCountForRole ? unreadCountForRole('admin') : 0;
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <aside className={`sidebar-nav shadow-lg flex-shrink-0 ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside 
+        ref={sidebarRef}
+        className={`sidebar-nav shadow-lg flex-shrink-0 ${isSidebarCollapsed ? 'collapsed' : ''}`}
+        style={{ width: isSidebarCollapsed ? '0px' : `${sidebarWidth}px`, transition: isResizing ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}
+      >
         <div className="sidebar-header d-flex align-items-center px-4 py-3" style={{ height: '80px' }}>
           {!isSidebarCollapsed && (
             <div className="d-flex align-items-center animate-fade-in overflow-hidden flex-grow-1">
@@ -81,6 +123,12 @@ const AdminLayout: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Resizer Handle */}
+        <div 
+          className="sidebar-resizer"
+          onMouseDown={startResizing}
+        />
       </aside>
 
       <main className="flex-grow-1 main-wrapper bg-background">

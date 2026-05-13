@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import {
@@ -85,10 +85,48 @@ function App() {
 
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
+  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      let newWidth = e.clientX;
+      if (newWidth < 280) newWidth = 280;
+      if (newWidth > 450) newWidth = 450;
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   const toggleSidebar = () => {
     const newState = !isSidebarCollapsed;
     setIsSidebarCollapsed(newState);
     localStorage.setItem('sidebar-collapsed', String(newState));
+    if (!newState) {
+      setSidebarWidth(300);
+    } else {
+      setSidebarWidth(0);
+    }
   };
 
   if (!session) {
@@ -141,7 +179,11 @@ function App() {
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <aside className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside 
+        ref={sidebarRef}
+        className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}
+        style={{ width: isSidebarCollapsed ? '0px' : `${sidebarWidth}px`, transition: isResizing ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}
+      >
         <div className="sidebar-header d-flex align-items-center px-4 py-3" style={{ height: '80px' }}>
           {!isSidebarCollapsed && (
             <div className="d-flex align-items-center animate-fade-in overflow-hidden flex-grow-1">
@@ -252,6 +294,12 @@ function App() {
             )}
           </div>
         </div>
+
+        {/* Resizer Handle */}
+        <div 
+          className="sidebar-resizer"
+          onMouseDown={startResizing}
+        />
       </aside>
 
       <main className="flex-grow-1 main-wrapper bg-background">
