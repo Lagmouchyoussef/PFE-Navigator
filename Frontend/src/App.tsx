@@ -424,17 +424,17 @@ function App() {
                   <div className="avatar-circle">{session.name.charAt(0)}</div>
                 </motion.div>
               </Dropdown.Toggle>
-              <Dropdown.Menu className="border-0 shadow-lg mt-2">
-                <Dropdown.Item as={Link} to="/settings">
+              <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
+                <Dropdown.Item as={Link} to="/settings" className="rounded-3 py-2 small fw-bold text-navy">
                   Profile
                 </Dropdown.Item>
-                <Dropdown.Item as={Link} to="/settings">
+                <Dropdown.Item as={Link} to="/settings" className="rounded-3 py-2 small fw-bold text-navy">
                   Settings
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
                   onClick={() => { logout(); }}
-                  className="text-danger d-flex align-items-center gap-2"
+                  className="text-danger d-flex align-items-center gap-2 rounded-3 py-2 small fw-bold"
                 >
                   <LogOut size={16} /> Sign Out
                 </Dropdown.Item>

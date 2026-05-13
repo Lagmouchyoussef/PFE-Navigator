@@ -208,14 +208,14 @@ const AdminLayout: React.FC = () => {
                 <div className="avatar-circle">{session?.name?.charAt(0) || 'A'}</div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
-                <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 extra-small fw-bold">
-                  <User size={16} className="me-2 text-muted" /> Profile
+                <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 small fw-bold text-navy">
+                  Profile
                 </Dropdown.Item>
-                <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 extra-small fw-bold">
-                  <Settings size={16} className="me-2 text-muted" /> Settings
+                <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 small fw-bold text-navy">
+                  Settings
                 </Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item onClick={logout} className="text-danger d-flex align-items-center gap-2 rounded-3 py-2 extra-small fw-bold">
+                <Dropdown.Item onClick={logout} className="text-danger d-flex align-items-center gap-2 rounded-3 py-2 small fw-bold">
                   <LogOut size={16} /> Sign Out
                 </Dropdown.Item>
               </Dropdown.Menu>
