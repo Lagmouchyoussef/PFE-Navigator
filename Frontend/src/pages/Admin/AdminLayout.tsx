@@ -64,18 +64,22 @@ const AdminLayout: React.FC = () => {
           </nav>
         </div>
 
-        <div className="mt-auto mb-4 px-3 pt-4 border-top border-secondary border-opacity-25">
-          <SidebarLink to="/admin/settings" icon={<Settings size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Paramètres"} />
-          {!isSidebarCollapsed && (
-            <button 
-              onClick={logout}
-              className="nav-link-custom w-100 text-danger border-0 bg-transparent px-3 py-2"
-              style={{ textAlign: 'left' }}
-            >
-              <LogOut size={20} />
-              <span className="fw-bold">Déconnexion</span>
-            </button>
-          )}
+        <div className="sidebar-footer mt-auto p-3 border-top border-secondary border-opacity-10">
+          <div className="d-flex flex-column gap-1">
+            <SidebarLink to="/admin/settings" icon={<Settings size={18} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Paramètres"} />
+            {!isSidebarCollapsed && (
+              <button 
+                onClick={logout}
+                className="nav-link-custom w-100 text-danger border-0 bg-transparent"
+                style={{ textAlign: 'left' }}
+              >
+                <div className="sidebar-icon-wrapper">
+                  <LogOut size={18} />
+                </div>
+                <span className="fw-bold">Déconnexion</span>
+              </button>
+            )}
+          </div>
         </div>
       </aside>
 

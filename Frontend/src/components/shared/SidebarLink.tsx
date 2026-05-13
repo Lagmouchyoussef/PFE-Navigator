@@ -17,12 +17,12 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, badge, iconC
       to={to}
       end
       title={typeof label === 'string' ? label : undefined}
-      className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center gap-3 text-decoration-none`}
+      className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center text-decoration-none`}
     >
-      <div className={`d-flex align-items-center justify-content-center ${iconClassName || ''}`}>
+      <div className={`sidebar-icon-wrapper ${iconClassName || ''}`}>
         {icon}
       </div>
-      {label && <span className="flex-grow-1">{label}</span>}
+      {label && <span className="label-text">{label}</span>}
       {badge && (
         <span className="badge rounded-pill bg-danger extra-small px-2">
           {badge}

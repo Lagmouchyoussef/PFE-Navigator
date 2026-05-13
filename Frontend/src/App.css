@@ -22,13 +22,16 @@ body {
   width: var(--sidebar-width);
   flex-shrink: 0;
   background-color: var(--sidebar-bg);
+  background-image: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
   color: #f8fafc;
   display: flex;
   flex-direction: column;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   max-height: 100vh;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 100;
 }
 
 .sidebar-nav:not(.collapsed) {
@@ -182,53 +185,80 @@ input, textarea, select, .form-control {
 
 .nav-link-custom {
   color: #94a3b8;
-  padding: 0.875rem 1.25rem;
-  margin: 0.25rem 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0.2rem 0.75rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.875rem;
   text-decoration: none;
   font-weight: 500;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   white-space: nowrap;
   border-radius: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
+  border: 1px solid transparent;
 }
 
 .nav-link-custom:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-  color: #f8fafc;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
   transform: translateX(4px);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .nav-link-custom.active {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05));
-  color: #3b82f6;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.05));
+  color: #60a5fa;
+  font-weight: 700;
+  border-color: rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.nav-link-custom.active::before {
+.nav-link-custom.active::after {
   content: '';
   position: absolute;
-  left: 0;
-  top: 20%;
-  height: 60%;
-  width: 4px;
+  right: 0.75rem;
+  width: 6px;
+  height: 6px;
   background-color: #3b82f6;
-  border-radius: 0 4px 4px 0;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #3b82f6;
+}
+
+.sidebar-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.nav-link-custom:hover .sidebar-icon-wrapper {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.05);
+}
+
+.nav-link-custom.active .sidebar-icon-wrapper {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.2);
+  color: #3b82f6 !important;
 }
 
 .sidebar-group-title {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  color: #64748b;
-  padding: 0 2.25rem;
-  margin-top: 2rem;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  color: #475569;
+  padding: 0 1.75rem;
+  margin-top: 1.75rem;
   margin-bottom: 0.75rem;
+  opacity: 0.8;
 }
 
 /* Icon Colors */
@@ -245,19 +275,53 @@ input, textarea, select, .form-control {
 .icon-rose { color: #f43f5e !important; }
 .icon-indigo { color: #6366f1 !important; }
 
-[data-theme='dark'] .nav-link-custom.active .icon-primary,
-[data-theme='dark'] .nav-link-custom.active .icon-success,
-[data-theme='dark'] .nav-link-custom.active .icon-warning,
-[data-theme='dark'] .nav-link-custom.active .icon-danger,
-[data-theme='dark'] .nav-link-custom.active .icon-info,
-[data-theme='dark'] .nav-link-custom.active .icon-purple,
-[data-theme='dark'] .nav-link-custom.active .icon-pink,
-[data-theme='dark'] .nav-link-custom.active .icon-slate,
-[data-theme='dark'] .nav-link-custom.active .icon-teal,
-[data-theme='dark'] .nav-link-custom.active .icon-orange,
-[data-theme='dark'] .nav-link-custom.active .icon-rose,
-[data-theme='dark'] .nav-link-custom.active .icon-indigo {
-  color: #3b82f6 !important;
+.nav-link-custom.active .icon-primary,
+.nav-link-custom.active .icon-success,
+.nav-link-custom.active .icon-warning,
+.nav-link-custom.active .icon-danger,
+.nav-link-custom.active .icon-info,
+.nav-link-custom.active .icon-purple,
+.nav-link-custom.active .icon-pink,
+.nav-link-custom.active .icon-slate,
+.nav-link-custom.active .icon-teal,
+.nav-link-custom.active .icon-orange,
+.nav-link-custom.active .icon-rose,
+.nav-link-custom.active .icon-indigo {
+  color: #60a5fa !important;
+}
+
+.label-text {
+  flex-grow: 1;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-link-custom.active .label-text {
+  color: #ffffff;
+}
+
+.user-profile-card {
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.user-profile-card:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Sidebar Scrollbar */
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Tables */
