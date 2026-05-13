@@ -112,17 +112,18 @@ function App() {
   if (session.role === 'admin') {
     return (
       <Routes>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users"     element={<UserManagement />} />
-          <Route path="/admin/jury"      element={<JuryPlanning />} />
-          <Route path="/admin/projects"  element={<ProjectsArchive />} />
-          <Route path="/admin/analytics" element={<AnalyticsCenter />} />
-          <Route path="/admin/resources" element={<ResourceHub />} />
-          <Route path="/admin/messages"  element={<AdminMessages />} />
-          <Route path="/admin/notifications" element={<AdminNotifications />} />
-          <Route path="/admin/notes"      element={<AdminNotes />} />
-          <Route path="/admin/settings"   element={<PortalSettings />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users"     element={<UserManagement />} />
+          <Route path="jury"      element={<JuryPlanning />} />
+          <Route path="projects"  element={<ProjectsArchive />} />
+          <Route path="analytics" element={<AnalyticsCenter />} />
+          <Route path="resources" element={<ResourceHub />} />
+          <Route path="messages"  element={<AdminMessages />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="notes"      element={<AdminNotes />} />
+          <Route path="settings"   element={<PortalSettings />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
       </Routes>
@@ -155,7 +156,7 @@ function App() {
               className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('core')}
             >
-              <span>Core Workspace</span>
+              <span>PRINCIPAL</span>
               <motion.div
                 animate={{ rotate: expandedGroups.core ? 90 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -201,7 +202,7 @@ function App() {
               className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('resources')}
             >
-              <span>Resources & Sync</span>
+              <span>COMMUNICATION</span>
               <motion.div
                 animate={{ rotate: expandedGroups.resources ? 90 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -236,6 +237,16 @@ function App() {
 
         <div className="mt-auto mb-4 px-3 pt-4 border-top border-secondary border-opacity-25">
           <SidebarLink to="/settings" icon={<Settings size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Portal Settings"} />
+          {!isSidebarCollapsed && (
+            <button 
+              onClick={logout}
+              className="nav-link-custom w-100 text-danger border-0 bg-transparent px-3 py-2"
+              style={{ textAlign: 'left' }}
+            >
+              <LogOut size={20} />
+              <span className="fw-bold">Déconnexion</span>
+            </button>
+          )}
         </div>
       </aside>
 

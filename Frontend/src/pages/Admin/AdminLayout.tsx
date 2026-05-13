@@ -25,12 +25,12 @@ const AdminLayout: React.FC = () => {
   const adminUnreadMsgCount = unreadCountForRole ? unreadCountForRole('admin') : 0;
 
   return (
-    <div className="app-shell">
-      <aside className={`sidebar-nav ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header d-flex align-items-center px-4 py-4" style={{ minHeight: '72px' }}>
+    <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
+      <aside className={`sidebar-nav shadow-lg flex-shrink-0 ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header d-flex align-items-center px-4 py-3" style={{ height: '80px' }}>
           {!isSidebarCollapsed && (
-            <div className="d-flex align-items-center overflow-hidden flex-grow-1">
-              <img src="/logo_emsi.png" alt="EMSI Logo" className="logo-img-sidebar" style={{ maxHeight: '40px' }} />
+            <div className="d-flex align-items-center animate-fade-in overflow-hidden flex-grow-1">
+              <img src="/logo_emsi.png" alt="EMSI Logo" className="logo-img-sidebar" />
             </div>
           )}
         </div>
@@ -38,10 +38,10 @@ const AdminLayout: React.FC = () => {
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
             <div className="sidebar-group-title">
-              Principal
+              PRINCIPAL
             </div>
           )}
-          <nav className="nav flex-column gap-1">
+          <nav className="nav flex-column gap-1 px-3">
             <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Tableau de Bord"} />
             <SidebarLink to="/admin/users" icon={<Users size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Gestion Utilisateurs"} />
             <SidebarLink to="/admin/jury" icon={<Calendar size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Planning Jury"} />
@@ -53,10 +53,10 @@ const AdminLayout: React.FC = () => {
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
             <div className="sidebar-group-title">
-              Communication
+              COMMUNICATION
             </div>
           )}
-          <nav className="nav flex-column gap-1">
+          <nav className="nav flex-column gap-1 px-3">
             <SidebarLink to="/admin/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Ressources"} />
             <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
             <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={2} />
@@ -65,7 +65,7 @@ const AdminLayout: React.FC = () => {
         </div>
 
         <div className="mt-auto mb-4 px-3 pt-4 border-top border-secondary border-opacity-25">
-          <SidebarLink to="/admin/settings" icon={<Settings size={20} />} label={!isSidebarCollapsed && "Paramètres"} />
+          <SidebarLink to="/admin/settings" icon={<Settings size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Paramètres"} />
           {!isSidebarCollapsed && (
             <button 
               onClick={logout}
@@ -79,7 +79,7 @@ const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
-      <main className="main-wrapper">
+      <main className="flex-grow-1 main-wrapper bg-background">
         <header className="main-header d-flex align-items-center justify-content-between px-4">
           <div className="d-flex align-items-center gap-3 flex-grow-1">
             <Button 
@@ -223,12 +223,13 @@ const AdminLayout: React.FC = () => {
           </div>
         </header>
 
-        <div className="p-4 overflow-auto flex-grow-1">
+        <div className="content-area flex-grow-1 px-4">
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="w-100"
           >
             <Outlet />
           </motion.div>

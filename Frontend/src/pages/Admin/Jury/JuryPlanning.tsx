@@ -49,7 +49,7 @@ const JuryPlanning: React.FC = () => {
   };
 
   return (
-    <div className="jury-modern-layout py-4">
+    <div className="py-2">
       <Container fluid className="px-0">
         {/* Header Section */}
         <div className="d-flex justify-content-between align-items-center mb-5">

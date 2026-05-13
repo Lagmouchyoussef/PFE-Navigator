@@ -34,7 +34,7 @@ const STATUS_DATA = [
 
 const AdminDashboard: React.FC = () => {
   return (
-    <div className="admin-modern-layout py-4">
+    <div className="py-2">
       <Container fluid className="px-0">
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">

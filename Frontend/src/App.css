@@ -20,6 +20,7 @@ body {
 
 .sidebar-nav {
   width: var(--sidebar-width);
+  flex-shrink: 0;
   background-color: var(--sidebar-bg);
   color: #f8fafc;
   display: flex;
@@ -182,7 +183,7 @@ input, textarea, select, .form-control {
 .nav-link-custom {
   color: #94a3b8;
   padding: 0.875rem 1.25rem;
-  margin: 0.25rem 1rem;
+  margin: 0.25rem 0.75rem;
   display: flex;
   align-items: center;
   gap: 1rem;
