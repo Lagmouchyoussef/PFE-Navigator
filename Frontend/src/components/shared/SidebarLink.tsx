@@ -19,7 +19,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, badge, iconC
       title={typeof label === 'string' ? label : undefined}
       className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''} d-flex align-items-center gap-3 text-decoration-none`}
     >
-      <div className={`d-flex align-items-center justify-content-center ${isActive ? 'text-navy' : 'text-inherit'} ${iconClassName || ''}`}>
+      <div className={`d-flex align-items-center justify-content-center ${iconClassName || ''}`}>
         {icon}
       </div>
       {label && <span className="flex-grow-1">{label}</span>}

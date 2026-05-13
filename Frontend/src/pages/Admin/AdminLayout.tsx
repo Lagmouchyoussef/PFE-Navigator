@@ -42,11 +42,11 @@ const AdminLayout: React.FC = () => {
             </div>
           )}
           <nav className="nav flex-column gap-1">
-            <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} color="#3b82f6" />} label={!isSidebarCollapsed && "Tableau de Bord"} />
-            <SidebarLink to="/admin/users" icon={<Users size={20} color="#6366f1" />} label={!isSidebarCollapsed && "Gestion Utilisateurs"} />
-            <SidebarLink to="/admin/jury" icon={<Calendar size={20} color="#10b981" />} label={!isSidebarCollapsed && "Planning Jury"} />
-            <SidebarLink to="/admin/projects" icon={<Briefcase size={20} color="#f59e0b" />} label={!isSidebarCollapsed && "Archive Projets"} />
-            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} color="#ef4444" />} label={!isSidebarCollapsed && "Analyses"} />
+            <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Tableau de Bord"} />
+            <SidebarLink to="/admin/users" icon={<Users size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Gestion Utilisateurs"} />
+            <SidebarLink to="/admin/jury" icon={<Calendar size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Planning Jury"} />
+            <SidebarLink to="/admin/projects" icon={<Briefcase size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Archive Projets"} />
+            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} />} iconClassName="icon-danger" label={!isSidebarCollapsed && "Analyses"} />
           </nav>
         </div>
 
@@ -57,10 +57,10 @@ const AdminLayout: React.FC = () => {
             </div>
           )}
           <nav className="nav flex-column gap-1">
-            <SidebarLink to="/admin/resources" icon={<Briefcase size={20} color="#f97316" />} label={!isSidebarCollapsed && "Ressources"} />
-            <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} color="#14b8a6" />} label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
-            <SidebarLink to="/admin/notifications" icon={<Bell size={20} color="#f43f5e" />} label={!isSidebarCollapsed && "Notifications"} badge={2} />
-            <SidebarLink to="/admin/notes" icon={<FileEdit size={20} color="#94a3b8" />} label={!isSidebarCollapsed && "Notes"} />
+            <SidebarLink to="/admin/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Ressources"} />
+            <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
+            <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={2} />
+            <SidebarLink to="/admin/notes" icon={<FileEdit size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Notes"} />
           </nav>
         </div>
 
@@ -80,7 +80,7 @@ const AdminLayout: React.FC = () => {
       </aside>
 
       <main className="main-wrapper">
-        <header className="main-header px-4">
+        <header className="main-header d-flex align-items-center justify-content-between px-4">
           <div className="d-flex align-items-center gap-3 flex-grow-1">
             <Button 
               variant="link" 

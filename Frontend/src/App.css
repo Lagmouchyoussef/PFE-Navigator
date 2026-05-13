@@ -189,6 +189,7 @@ input, textarea, select, .form-control {
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9375rem;
+  white-space: nowrap;
   border-radius: 0.75rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -227,6 +228,35 @@ input, textarea, select, .form-control {
   padding: 0 2.25rem;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
+}
+
+/* Icon Colors */
+.icon-primary { color: #3b82f6 !important; }
+.icon-success { color: #10b981 !important; }
+.icon-warning { color: #f59e0b !important; }
+.icon-danger { color: #ef4444 !important; }
+.icon-info { color: #06b6d4 !important; }
+.icon-purple { color: #8b5cf6 !important; }
+.icon-pink { color: #ec4899 !important; }
+.icon-slate { color: #94a3b8 !important; }
+.icon-teal { color: #14b8a6 !important; }
+.icon-orange { color: #f97316 !important; }
+.icon-rose { color: #f43f5e !important; }
+.icon-indigo { color: #6366f1 !important; }
+
+[data-theme='dark'] .nav-link-custom.active .icon-primary,
+[data-theme='dark'] .nav-link-custom.active .icon-success,
+[data-theme='dark'] .nav-link-custom.active .icon-warning,
+[data-theme='dark'] .nav-link-custom.active .icon-danger,
+[data-theme='dark'] .nav-link-custom.active .icon-info,
+[data-theme='dark'] .nav-link-custom.active .icon-purple,
+[data-theme='dark'] .nav-link-custom.active .icon-pink,
+[data-theme='dark'] .nav-link-custom.active .icon-slate,
+[data-theme='dark'] .nav-link-custom.active .icon-teal,
+[data-theme='dark'] .nav-link-custom.active .icon-orange,
+[data-theme='dark'] .nav-link-custom.active .icon-rose,
+[data-theme='dark'] .nav-link-custom.active .icon-indigo {
+  color: #3b82f6 !important;
 }
 
 /* Tables */
