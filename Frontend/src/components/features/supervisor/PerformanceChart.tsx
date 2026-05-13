@@ -43,7 +43,7 @@ const PerformanceChart: React.FC = () => (
             dataKey="average" 
             stroke="var(--color-primary)" 
             strokeWidth={4} 
-            dot={{ r: 6, fill: 'var(--color-primary)', strokeWidth: 2, stroke: '#fff' }}
+            dot={{ r: 6, fill: 'var(--color-primary)', strokeWidth: 2, stroke: 'var(--color-surface)' }}
             activeDot={{ r: 8, strokeWidth: 0 }}
             name="Avg Grade"
           />

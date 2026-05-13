@@ -66,10 +66,21 @@
   --color-background: #0d0d0d;
   --color-surface: #1e1e1e;
   --color-surface-alt: #2d2d2d;
-  --color-border: rgba(255, 255, 255, 0.2);
+  --color-border: rgba(255, 255, 255, 0.1);
   --color-text-primary: #ffffff;
   --color-text-secondary: #e0e0e0;
   --color-text-muted: #b0b0b0;
+  
+  --color-primary: #60a5fa;
+  --color-primary-soft: rgba(96, 165, 250, 0.15);
+  --color-success: #4ade80;
+  --color-success-soft: rgba(74, 222, 128, 0.15);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.15);
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.15);
+  --color-info: #22d3ee;
+  --color-info-soft: rgba(34, 211, 238, 0.15);
   
   --glass-bg: rgba(30, 30, 30, 0.9);
   --glass-border: rgba(255, 255, 255, 0.1);

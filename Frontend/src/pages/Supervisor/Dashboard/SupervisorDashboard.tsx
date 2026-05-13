@@ -117,7 +117,7 @@ const SupervisorDashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="p-4 mb-5 d-flex align-items-center gap-4 bg-primary-soft border border-primary border-opacity-10 rounded-4 shadow-sm"
         >
-          <div className="p-3 rounded-4 bg-white shadow-sm text-primary">
+          <div className="p-3 rounded-4 bg-surface shadow-sm text-primary">
             <Activity size={32} />
           </div>
           <div className="flex-grow-1">
@@ -125,7 +125,7 @@ const SupervisorDashboard: React.FC = () => {
               <Badge className="bg-primary text-white border-0 rounded-pill extra-small px-3 py-1 fw-bold">AI COPILOT</Badge>
               <span className="extra-small text-primary fw-bold opacity-75">PROJECTED SUCCESS RATE: 98.2%</span>
             </div>
-            <p className="extra-small text-navy opacity-75 mb-0 fw-bold">
+            <p className="extra-small text-primary-custom opacity-85 mb-0 fw-bold">
               Based on recent submissions, <strong>Ahmed Khalil</strong> and <strong>Fatima Zahra</strong> are ready for defense. 
               Consider scheduling a review session for <strong>Mohamed Alaoui</strong> who is slightly behind schedule.
             </p>
@@ -160,7 +160,7 @@ const SupervisorDashboard: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 600 }} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
                     <Bar dataKey="meetings" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Meetings" barSize={12} />
                     <Bar dataKey="feedback" fill="var(--color-info)" radius={[4, 4, 0, 0]} name="Feedback" barSize={12} />
                   </BarChart>
@@ -185,7 +185,7 @@ const SupervisorDashboard: React.FC = () => {
                     <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: 'var(--color-text-muted)'}} />
                     <Radar name="Current" dataKey="A" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.6} />
                     <Radar name="Target" dataKey="B" stroke="var(--color-success)" fill="var(--color-success)" fillOpacity={0.2} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontWeight: 600 }} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
@@ -218,7 +218,7 @@ const SupervisorDashboard: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontWeight: 600 }} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -237,7 +237,7 @@ const SupervisorDashboard: React.FC = () => {
         <Row className="g-4">
           <Col lg={8}>
             <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
-              <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
+              <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                 <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
                 <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
                   View Full List <ChevronRight size={14} />

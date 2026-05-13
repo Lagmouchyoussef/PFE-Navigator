@@ -105,12 +105,16 @@ const Evaluations = () => {
             </Card>
           </Col>
           <Col lg={4}>
-            <Card className="glass-card border-0 shadow-sm border p-4 h-100 bg-navy text-white text-center d-flex flex-column justify-content-center">
+            <Card className="glass-card border-0 shadow-sm p-4 h-100 bg-primary text-white text-center d-flex flex-column justify-content-center" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-info))' }}>
               <h6 className="fw-bold mb-3 text-white">AI Grading Assistant</h6>
-              <p className="extra-small opacity-75 mb-4 fw-bold">
+              <p className="extra-small text-white opacity-90 mb-4 fw-bold">
                 Our AI has pre-analyzed <strong>4 new submissions</strong> for plagiarism and technical consistency. 
               </p>
-              <Button variant="light" className="w-100 py-3 extra-small fw-bold text-navy rounded-pill shadow-sm border-0">
+              <Button 
+                variant="light" 
+                className="w-100 py-3 extra-small fw-bold rounded-pill shadow-sm border-0 bg-white"
+                style={{ color: 'var(--color-primary)' }}
+              >
                 View AI Insights
               </Button>
             </Card>

@@ -108,6 +108,25 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-navy { color: var(--color-text-primary) !important; }
 .text-muted { color: var(--color-text-muted) !important; }
+.text-primary-custom { color: var(--color-text-primary) !important; }
+
+/* Global Input & Placeholder Styles */
+input, textarea, select, .form-control {
+  color: var(--color-text-primary) !important;
+}
+
+::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 0.8 !important;
+}
+
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea, 
+[data-theme='dark'] select, 
+[data-theme='dark'] .form-control {
+  color: var(--color-text-primary) !important;
+  background-color: transparent;
+}
 
 /* Form Controls */
 .form-control-premium {
@@ -272,7 +291,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 [data-theme='dark'] .bg-surface-alt,
+[data-theme='dark'] .bg-light,
 [data-theme='dark'] .hover-bg-surface-alt:hover,
+[data-theme='dark'] .hover-bg-light:hover,
 [data-theme='dark'] .hover-bg-white:hover {
   background-color: var(--color-surface-alt) !important;
 }
@@ -284,6 +305,55 @@ h1, h2, h3, h4, h5, h6 {
 
 [data-theme='dark'] .text-navy {
   color: var(--color-text-primary) !important;
+}
+
+/* Supervisor Specific Card Styles */
+.sv-card-premium {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.sv-card-premium:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.sv-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.sv-card-title {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+/* Recharts Tooltip Theme Override */
+.recharts-default-tooltip {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--color-text-primary) !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+}
+
+[data-theme='dark'] .recharts-cartesian-grid-horizontal line,
+[data-theme='dark'] .recharts-cartesian-grid-vertical line {
+  stroke: var(--color-border) !important;
+  opacity: 0.2;
 }
 
 /* Helpers */

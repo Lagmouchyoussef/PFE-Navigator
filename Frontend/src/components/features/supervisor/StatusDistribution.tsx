@@ -41,7 +41,7 @@ const StatusDistribution: React.FC = () => (
     <div className="mt-4">
       {STATUS_DISTRIBUTION.map((item, i) => (
         <div key={i} className="d-flex justify-content-between align-items-center mb-2">
-          <div className="d-flex align-items-center gap-2 extra-small fw-bold">
+          <div className="d-flex align-items-center gap-2 extra-small fw-bold" style={{ color: item.color }}>
             <div className="dot" style={{ backgroundColor: item.color, width: '10px', height: '10px', borderRadius: '50%' }}></div>
             {item.name}
           </div>
