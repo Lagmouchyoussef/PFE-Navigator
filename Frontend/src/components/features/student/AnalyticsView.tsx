@@ -66,10 +66,7 @@ const AnalyticsView: React.FC = () => {
               </p>
             </div>
           </Card.Body>
-          {/* Decorative Background Element */}
-          <div className="position-absolute bottom-0 end-0 opacity-10 translate-middle-x translate-middle-y" style={{ zIndex: 1 }}>
-             <Target size={200} />
-          </div>
+
         </Card>
       </Col>
     </Row>

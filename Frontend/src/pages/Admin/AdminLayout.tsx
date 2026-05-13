@@ -4,10 +4,11 @@ import {
   LayoutDashboard, Users, Calendar, BarChart as BarChartIcon, 
   MessageSquare, Bell, FileEdit, Settings, 
   LogOut, Search, Menu, X, ChevronRight, Briefcase, 
-  Sun, Moon, User, MoreVertical, CheckCircle, Trash2
+  Sun, Moon, User, MoreVertical, CheckCircle, Trash2,
+  ChevronDown
 } from 'lucide-react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import SidebarLink from '../../components/shared/SidebarLink';
 
@@ -61,6 +62,8 @@ const AdminLayout: React.FC = () => {
   };
 
   const adminUnreadMsgCount = unreadCountForRole ? unreadCountForRole('admin') : 0;
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ principal: true, communication: true });
+  const toggleGroup = (key: string) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
@@ -77,33 +80,71 @@ const AdminLayout: React.FC = () => {
           )}
         </div>
 
+        {/* PRINCIPAL Group */}
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div className="sidebar-group-title">
-              PRINCIPAL
-            </div>
+            <button
+              onClick={() => toggleGroup('principal')}
+              className="sidebar-group-title w-100 border-0 bg-transparent d-flex align-items-center justify-content-between px-3 py-1"
+              style={{ cursor: 'pointer' }}
+            >
+              <span>PRINCIPAL</span>
+              <motion.span animate={{ rotate: expandedGroups.principal ? 0 : -90 }} transition={{ duration: 0.2 }}>
+                <ChevronDown size={13} className="opacity-50" />
+              </motion.span>
+            </button>
           )}
-          <nav className="nav flex-column gap-1 px-3">
-            <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Tableau de Bord"} />
-            <SidebarLink to="/admin/users" icon={<Users size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Gestion Utilisateurs"} />
-            <SidebarLink to="/admin/jury" icon={<Calendar size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Planning Jury"} />
-            <SidebarLink to="/admin/projects" icon={<Briefcase size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Archive Projets"} />
-            <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} />} iconClassName="icon-danger" label={!isSidebarCollapsed && "Analyses"} />
-          </nav>
+          <AnimatePresence initial={false}>
+            {(isSidebarCollapsed || expandedGroups.principal) && (
+              <motion.nav
+                key="principal-nav"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="nav flex-column gap-1 px-3 overflow-hidden"
+              >
+                <SidebarLink to="/admin/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Tableau de Bord"} />
+                <SidebarLink to="/admin/users" icon={<Users size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Gestion Utilisateurs"} />
+                <SidebarLink to="/admin/jury" icon={<Calendar size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Planning Jury"} />
+                <SidebarLink to="/admin/projects" icon={<Briefcase size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Archive Projets"} />
+                <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} />} iconClassName="icon-danger" label={!isSidebarCollapsed && "Analyses"} />
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
 
+        {/* COMMUNICATION Group */}
         <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div className="sidebar-group-title">
-              COMMUNICATION
-            </div>
+            <button
+              onClick={() => toggleGroup('communication')}
+              className="sidebar-group-title w-100 border-0 bg-transparent d-flex align-items-center justify-content-between px-3 py-1"
+              style={{ cursor: 'pointer' }}
+            >
+              <span>COMMUNICATION</span>
+              <motion.span animate={{ rotate: expandedGroups.communication ? 0 : -90 }} transition={{ duration: 0.2 }}>
+                <ChevronDown size={13} className="opacity-50" />
+              </motion.span>
+            </button>
           )}
-          <nav className="nav flex-column gap-1 px-3">
-            <SidebarLink to="/admin/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Ressources"} />
-            <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
-            <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={2} />
-            <SidebarLink to="/admin/notes" icon={<FileEdit size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Notes"} />
-          </nav>
+          <AnimatePresence initial={false}>
+            {(isSidebarCollapsed || expandedGroups.communication) && (
+              <motion.nav
+                key="communication-nav"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="nav flex-column gap-1 px-3 overflow-hidden"
+              >
+                <SidebarLink to="/admin/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Ressources"} />
+                <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
+                <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={2} />
+                <SidebarLink to="/admin/notes" icon={<FileEdit size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Notes"} />
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="sidebar-footer mt-auto p-3 border-top border-secondary border-opacity-10">

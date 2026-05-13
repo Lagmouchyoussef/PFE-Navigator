@@ -1,13 +1,14 @@
 import React from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  ProgressBar, Table, Button 
+  ProgressBar, Table, Button, Dropdown 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
   Award, TrendingUp, Users, CheckCircle, 
   Clock, Download, Calendar, MessageSquare,
-  Activity, Star, ChevronRight
+  Activity, Star, ChevronRight, FileText, 
+  Table as TableIcon, File as FileIcon
 } from 'lucide-react';
 import { 
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
@@ -83,12 +84,54 @@ const EvaluationPage = () => {
             <h2 className="fw-bold mb-1 text-navy">Evaluation & Performance</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">Track your project assessments and academic performance</p>
           </motion.div>
-          <Button 
-            className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm"
-            onClick={() => alert("Génération du rapport de notes PDF...")}
-          >
-            <Download size={18} /> Export Results
-          </Button>
+          <Dropdown align="end">
+            <Dropdown.Toggle 
+              className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm border-0 no-caret"
+            >
+              <Download size={18} /> Export Results
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className="border-0 shadow-lg rounded-4 p-2 mt-2">
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-3 py-2 rounded-3"
+                onClick={() => alert("Génération du rapport PDF...")}
+              >
+                <div className="p-2 bg-danger-soft text-danger rounded-3">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <div className="fw-bold small">Export PDF</div>
+                  <div className="extra-small text-muted fw-bold">Document Portable</div>
+                </div>
+              </Dropdown.Item>
+
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-3 py-2 rounded-3"
+                onClick={() => alert("Exportation CSV en cours...")}
+              >
+                <div className="p-2 bg-success-soft text-success rounded-3">
+                  <TableIcon size={18} />
+                </div>
+                <div>
+                  <div className="fw-bold small">Export CSV</div>
+                  <div className="extra-small text-muted fw-bold">Feuille de calcul</div>
+                </div>
+              </Dropdown.Item>
+
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-3 py-2 rounded-3"
+                onClick={() => alert("Génération du document Word...")}
+              >
+                <div className="p-2 bg-primary-soft text-primary rounded-3">
+                  <FileIcon size={18} />
+                </div>
+                <div>
+                  <div className="fw-bold small">Export Word</div>
+                  <div className="extra-small text-muted fw-bold">Document Microsoft</div>
+                </div>
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </header>
 
         {/* Stats Grid */}
