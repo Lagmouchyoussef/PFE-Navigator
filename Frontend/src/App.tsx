@@ -141,7 +141,7 @@ function App() {
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <aside className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className={`sidebar-header d-flex align-items-center justify-content-center px-4 py-3`} style={{ minHeight: '80px', position: 'relative' }}>
+        <div className="sidebar-header d-flex align-items-center px-4 py-3" style={{ height: '80px' }}>
           {!isSidebarCollapsed && (
             <div className="d-flex align-items-center animate-fade-in overflow-hidden flex-grow-1">
               <img src="/logo_emsi.png" alt="EMSI Logo" className="logo-img-sidebar" />
@@ -149,10 +149,10 @@ function App() {
           )}
         </div>
 
-        <div className="sidebar-group px-3 mt-4 mb-2">
+        <div className="sidebar-group">
           {!isSidebarCollapsed && (
             <div 
-              className="sidebar-group-title d-flex align-items-center justify-content-between extra-small text-white opacity-75 fw-bold text-uppercase tracking-widest px-2 mb-2"
+              className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('core')}
             >
               <span>Core Workspace</span>
@@ -195,10 +195,10 @@ function App() {
           </nav>
         )}
 
-        <div className="sidebar-group px-3 mt-4 mb-2">
+        <div className="sidebar-group">
           {!isSidebarCollapsed && (
             <div 
-              className="sidebar-group-title d-flex align-items-center justify-content-between extra-small text-white opacity-50 fw-bold text-uppercase tracking-widest px-2 mb-2"
+              className="sidebar-group-title d-flex align-items-center justify-content-between"
               onClick={() => toggleGroup('resources')}
             >
               <span>Resources & Sync</span>

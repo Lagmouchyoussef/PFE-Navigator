@@ -35,9 +35,9 @@ const AdminLayout: React.FC = () => {
           )}
         </div>
 
-        <div className="sidebar-group px-3 mt-4">
+        <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div className="extra-small text-muted fw-bold text-uppercase px-2 mb-2 opacity-50">
+            <div className="sidebar-group-title">
               Principal
             </div>
           )}
@@ -50,9 +50,9 @@ const AdminLayout: React.FC = () => {
           </nav>
         </div>
 
-        <div className="sidebar-group px-3 mt-4">
+        <div className="sidebar-group">
           {!isSidebarCollapsed && (
-            <div className="extra-small text-muted fw-bold text-uppercase px-2 mb-2 opacity-50">
+            <div className="sidebar-group-title">
               Communication
             </div>
           )}

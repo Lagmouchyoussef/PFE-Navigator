@@ -50,7 +50,7 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
   
   /* --- Sidebar --- */
-  --sidebar-bg: #343a40;
+  --sidebar-bg: #0f172a; /* Deep Slate */
   --sidebar-width: 280px;
   
   /* --- Spacing --- */
