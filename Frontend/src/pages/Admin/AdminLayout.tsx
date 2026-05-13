@@ -106,13 +106,21 @@ const AdminLayout: React.FC = () => {
                 className="border-0 shadow-none bg-transparent text-primary-custom fw-bold"
               />
             </div>
+            {session && (
+              <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
+                <span className="opacity-50">Portail</span>
+                <ChevronRight size={12} className="opacity-25" />
+                <span className="text-primary">Espace Admin</span>
+              </div>
+            )}
           </div>
 
           <div className="header-actions d-flex align-items-center gap-3">
             <Button 
               variant="link" 
-              className="p-2 text-muted shadow-none hover-bg-surface-alt rounded-circle" 
+              className="p-2 text-muted shadow-none hover-bg-surface-alt rounded-circle transition-all" 
               onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
+              title={isDarkMode ? "Passer au mode clair" : "Passer au mode sombre"}
             >
               {isDarkMode ? <Sun size={20} className="text-warning" /> : <Moon size={20} />}
             </Button>
@@ -122,20 +130,65 @@ const AdminLayout: React.FC = () => {
                 variant="link"
                 className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
               >
-                <Bell size={20} />
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-2 border-white" style={{ fontSize: '0.6rem', marginTop: '8px', marginLeft: '-8px' }}>
-                  2
-                </span>
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                  <MessageSquare size={20} />
+                  {adminUnreadMsgCount > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
+                      {adminUnreadMsgCount}
+                    </span>
+                  )}
+                </motion.div>
               </Dropdown.Toggle>
-              <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px' }}>
+              <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px', borderRadius: '16px' }}>
+                <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+                  <span className="fw-bold text-navy">Messages Directs</span>
+                  <Link to="/admin/messages" className="extra-small text-primary fw-bold text-decoration-none">Voir tout</Link>
+                </div>
+                <div className="p-0 overflow-y-auto" style={{ maxHeight: '400px' }}>
+                  {messages.filter(m => m.sender !== 'admin').length === 0 ? (
+                    <div className="p-4 text-center text-muted extra-small fw-bold">Aucun nouveau message</div>
+                  ) : (
+                    messages.filter(m => m.sender !== 'admin').slice(0, 3).map(msg => (
+                      <div key={msg.id} className="dropdown-item px-3 py-3 border-bottom d-flex gap-3 position-relative hover-bg-surface-alt">
+                        <div className="avatar-circle small flex-shrink-0" style={{ width: '32px', height: '32px', background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}>
+                          {msg.sender?.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="overflow-hidden flex-grow-1">
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="fw-bold extra-small text-primary text-capitalize">{msg.sender}</span>
+                            <span className="extra-small text-muted" style={{ fontSize: '10px' }}>{new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          <p className="extra-small text-muted text-truncate mb-0 fw-bold">{msg.text}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </Dropdown.Menu>
+            </Dropdown>
+
+            <Dropdown align="end">
+              <Dropdown.Toggle
+                variant="link"
+                className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
+              >
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                  <Bell size={20} />
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{ fontSize: '0.6rem', padding: '3px 5px' }}>
+                    2
+                  </span>
+                </motion.div>
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="border-0 shadow-lg mt-3 p-0 overflow-hidden" style={{ width: '320px', borderRadius: '16px' }}>
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Notifications</span>
-                  <Link to="/admin/notifications" className="extra-small text-primary fw-bold text-decoration-none">Voir tout</Link>
+                  <Link to="/admin/notifications" className="extra-small text-primary fw-bold text-decoration-none">Tout marquer</Link>
                 </div>
                 <div className="p-2">
-                  <div className="p-3 dropdown-item rounded-3 border-bottom-dashed-light">
+                  <div className="p-3 dropdown-item rounded-3 border-bottom-dashed-light hover-bg-surface-alt">
                     <div className="fw-bold extra-small text-navy mb-1">Nouveau Rapport</div>
                     <div className="extra-small text-muted">Ahmed Khalil a soumis son rapport final.</div>
+                    <div className="extra-small text-primary mt-2 fw-bold" style={{ fontSize: '10px' }}>Il y a 10 minutes</div>
                   </div>
                 </div>
               </Dropdown.Menu>
@@ -150,7 +203,7 @@ const AdminLayout: React.FC = () => {
                   <span className="fw-bold text-navy small">
                     {session?.name || 'Admin'}
                   </span>
-                  <span className="text-muted extra-small fw-bold uppercase letter-spacing-1">Administrateur</span>
+                  <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Administrateur</span>
                 </div>
                 <div className="avatar-circle">{session?.name?.charAt(0) || 'A'}</div>
               </Dropdown.Toggle>

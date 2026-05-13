@@ -261,29 +261,33 @@ function App() {
               <Form.Control
                 type="text"
                 placeholder="Search resources, documents..."
-                className="border-0 shadow-none bg-transparent text-primary-custom"
+                className="border-0 shadow-none bg-transparent text-primary-custom fw-bold"
               />
             </div>
             {session && (
               <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
-                <span className="opacity-50">Portal</span>
+                <span className="opacity-50">Portail</span>
                 <ChevronRight size={12} className="opacity-25" />
-                <span className="text-primary">{session.role} Workspace</span>
+                <span className="text-primary text-capitalize">{session.role} Workspace</span>
               </div>
             )}
           </div>
           <div className="header-actions d-flex align-items-center gap-3">
-            <Button variant="link" className="p-0 text-muted shadow-none" onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}>
-              {isDarkMode ? <Sun size={22} className="text-warning" /> : <Moon size={22} />}
+            <Button 
+              variant="link" 
+              className="p-2 text-muted shadow-none hover-bg-surface-alt rounded-circle transition-all" 
+              onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
+            >
+              {isDarkMode ? <Sun size={20} className="text-warning" /> : <Moon size={20} />}
             </Button>
 
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
-                className="p-0 text-muted shadow-none position-relative border-0 no-caret"
+                className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
               >
                 <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="position-relative">
-                  <MessageSquare size={22} />
+                  <MessageSquare size={20} />
                   {unreadMsgCount > 0 && (
                     <span
                       className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-2 border-white"
@@ -344,10 +348,10 @@ function App() {
             <Dropdown align="end">
               <Dropdown.Toggle
                 variant="link"
-                className="p-0 text-muted shadow-none position-relative border-0 no-caret"
+                className="p-2 text-muted shadow-none position-relative border-0 no-caret hover-bg-surface-alt rounded-circle"
               >
                 <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="position-relative">
-                  <Bell size={22} />
+                  <Bell size={20} />
                   {localUnreadNotifs > 0 && (
                     <span
                       className="position-absolute badge rounded-pill bg-danger border border-2 border-white"
@@ -413,8 +417,8 @@ function App() {
                     <span className="fw-bold text-primary-custom" style={{ fontSize: '0.9rem' }}>
                       {session.name}
                     </span>
-                    <span className="text-muted extra-small">
-                      {session.role === 'jury' ? 'Jury Member' : session.role === 'supervisor' ? 'Supervisor' : 'PFE Student'}
+                    <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>
+                      {session.role === 'jury' ? 'Jury Member' : session.role === 'supervisor' ? 'Prof. Superviseur' : 'Étudiant PFE'}
                     </span>
                   </div>
                   <div className="avatar-circle">{session.name.charAt(0)}</div>
