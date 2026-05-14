@@ -9,6 +9,29 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Custom Animated Trash Icon Component
+const AnimatedTrash = ({ isDeleting, size = 32 }) => {
+  return (
+    <svg 
+      width={size} height={size} viewBox="0 0 24 24" fill="none" 
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    >
+      {/* Lid & Handle */}
+      <motion.g
+        animate={isDeleting ? { y: -4, rotate: -20, originX: '20px', originY: '6px' } : { y: 0, rotate: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <path d="M3 6h18" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      </motion.g>
+      {/* Body */}
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+};
+
 const STUDENTS_DATA = [
   { 
     id: 1, 
@@ -84,6 +107,7 @@ const StudentsList = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleteModalStudent, setDeleteModalStudent] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -102,10 +126,16 @@ const StudentsList = () => {
   };
 
   const handleDeleteStudent = () => {
-    setSuccessMsg(`L'étudiant ${deleteModalStudent.name} a été retiré de votre liste de supervision.`);
-    setDeleteModalStudent(null);
-    setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
+    setIsDeleting(true);
+    
+    // Simulate deletion delay for animation
+    setTimeout(() => {
+      setSuccessMsg(`L'étudiant ${deleteModalStudent.name} a été retiré de votre liste de supervision.`);
+      setDeleteModalStudent(null);
+      setIsDeleting(false);
+      setShowSuccessCard(true);
+      setTimeout(() => setShowSuccessCard(false), 5000);
+    }, 800);
   };
 
   const filteredStudents = STUDENTS_DATA.filter(student => {
@@ -460,11 +490,13 @@ const StudentsList = () => {
       >
         <Modal.Body className="p-4 text-center">
           <div className="mb-4 d-flex justify-content-center">
-            <div className="p-3 rounded-circle bg-danger-soft text-danger">
-              <Trash2 size={40} />
+            <div className={`p-4 rounded-circle ${isDeleting ? 'bg-danger text-white shadow-lg' : 'bg-danger-soft text-danger'} transition-all`}>
+              <AnimatedTrash isDeleting={isDeleting} size={48} />
             </div>
           </div>
-          <h5 className="fw-bold text-navy mb-2">Supprimer l'Étudiant ?</h5>
+          <h5 className="fw-bold text-navy mb-2">
+            {isDeleting ? 'Suppression en cours...' : "Supprimer l'Étudiant ?"}
+          </h5>
           <p className="text-muted extra-small fw-bold mb-4">
             Êtes-vous sûr de vouloir retirer <strong>{deleteModalStudent?.name}</strong> de votre liste de supervision ? Cette action est irréversible.
           </p>
