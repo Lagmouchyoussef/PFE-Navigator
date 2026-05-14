@@ -621,7 +621,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addNotification('grade', "Les barèmes des critères du jury ont été mis à jour par l'administration.", '/jury/evaluation');
       },
       theme, setTheme,
-      updateMilestone,
+      projectMilestones, updateMilestone,
       isProjectValidated, finalResultMessage,
       appointments, addAppointment, rescheduleAppointment, cancelAppointment, deleteAppointment,
       sendReminder,

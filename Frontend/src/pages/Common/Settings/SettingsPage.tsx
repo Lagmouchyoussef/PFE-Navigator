@@ -14,7 +14,7 @@ import { useApp } from '../../../context/AppContext';
 type SettingsTab = 'profile' | 'security' | 'notifications' | 'preferences';
 
 const SettingsPage: React.FC = () => {
-  const { session, theme, setTheme } = useApp();
+  const { user, theme, setTheme } = useApp();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [showPassword, setShowPassword] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
@@ -72,7 +72,7 @@ const SettingsPage: React.FC = () => {
             <h2 className="fw-bold mb-1 text-gradient">Account Settings</h2>
             <p className="text-muted small mb-0">Manage your institutional identity and security preferences.</p>
           </div>
-          {session?.role === 'admin' && (
+          {user?.role === 'admin' && (
             <Button 
               className="btn-premium d-flex align-items-center gap-2"
               onClick={handleSave}
@@ -121,9 +121,9 @@ const SettingsPage: React.FC = () => {
                     <div className="d-flex align-items-center gap-4 mb-5 p-4 rounded-4 bg-surface-alt border">
                       <div className="position-relative">
                         <div className="avatar-xl bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>
-                          {session?.name?.charAt(0)}
+                          {user?.name?.charAt(0)}
                         </div>
-                        {session?.role === 'admin' && (
+                        {user?.role === 'admin' && (
                           <Button className="position-absolute bottom-0 end-0 p-2 rounded-circle bg-primary border-0 shadow-sm" style={{ width: '36px', height: '36px' }} onClick={() => fileInputRef.current?.click()}>
                             <Camera size={16} color="white" />
                           </Button>
@@ -131,13 +131,13 @@ const SettingsPage: React.FC = () => {
                         <input type="file" ref={fileInputRef} className="d-none" />
                       </div>
                       <div>
-                        <h4 className="fw-bold mb-1 text-navy">{session?.name}</h4>
+                        <h4 className="fw-bold mb-1 text-navy">{user?.name}</h4>
                         <div className="d-flex align-items-center gap-2">
-                          <Badge bg="primary" className="bg-primary-soft text-primary border border-primary extra-small fw-bold">{session?.role?.toUpperCase()}</Badge>
-                          <span className="extra-small text-muted fw-bold">ID: {session?.institutionalId || 'PENDING-ID'}</span>
+                          <Badge bg="primary" className="bg-primary-soft text-primary border border-primary extra-small fw-bold">{user?.role?.toUpperCase()}</Badge>
+                          <span className="extra-small text-muted fw-bold">ID: {user?.institutionalId || 'PENDING-ID'}</span>
                         </div>
                         <div className="extra-small text-muted fw-bold mt-2 d-flex align-items-center gap-1">
-                          <Briefcase size={12}/> Academic Role: <span className="text-primary">{session?.role === 'admin' ? 'PFE Coordinator' : session?.role}</span>
+                          <Briefcase size={12}/> Academic Role: <span className="text-primary">{user?.role === 'admin' ? 'PFE Coordinator' : user?.role}</span>
                         </div>
                       </div>
                     </div>
@@ -147,29 +147,29 @@ const SettingsPage: React.FC = () => {
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Nom</Form.Label>
-                            <Form.Control defaultValue={session?.name?.split(' ')[1] || ''} placeholder="Ex: Benali" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control defaultValue={user?.name?.split(' ')[1] || ''} placeholder="Ex: Benali" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Prénom</Form.Label>
-                            <Form.Control defaultValue={session?.name?.split(' ')[0] || ''} placeholder="Ex: Ahmed" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control defaultValue={user?.name?.split(' ')[0] || ''} placeholder="Ex: Ahmed" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Numéro de téléphone</Form.Label>
-                            <Form.Control type="tel" defaultValue="+212 600 000 000" placeholder="+212 6..." className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control type="tel" defaultValue="+212 600 000 000" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Email Institutionnel</Form.Label>
                             <Form.Control 
-                              defaultValue={session?.email} 
+                              defaultValue={user?.email} 
                               className="form-control-premium" 
-                              readOnly={session?.role !== 'admin'} 
-                              title={session?.role !== 'admin' ? "Seul l'administrateur peut modifier l'email" : ""}
+                              readOnly={user?.role !== 'admin'} 
+                              title={user?.role !== 'admin' ? "Seul l'administrateur peut modifier l'email" : ""}
                             />
                           </Form.Group>
                         </Col>
@@ -178,46 +178,77 @@ const SettingsPage: React.FC = () => {
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">CIN (Carte d'Identité Nationale)</Form.Label>
-                            <Form.Control placeholder="Ex: AB123456" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control placeholder="Ex: AB123456" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Adresse de Résidence</Form.Label>
-                            <Form.Control placeholder="Ex: 123 Rue de la Liberté, Casablanca" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control placeholder="Ex: 123 Rue de la Liberté, Casablanca" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
+                        {(user?.role === 'jury' || user?.role === 'supervisor' || user?.role === 'admin') && (
+                          <>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Code de CNSS</Form.Label>
+                                <Form.Control placeholder="Ex: 123456789" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Situation familiale</Form.Label>
+                                <Form.Select className="form-control-premium" disabled={user?.role !== 'admin'}>
+                                  <option>Célibataire</option>
+                                  <option>Marié(e)</option>
+                                  <option>Divorcé(e)</option>
+                                  <option>Veuf/Veuve</option>
+                                </Form.Select>
+                              </Form.Group>
+                            </Col>
+                          </>
+                        )}
 
                         {/* Section: Informations Académiques */}
                         <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations Académiques</h6></Col>
                         <Col md={4}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Année Universitaire</Form.Label>
-                            <Form.Control defaultValue="2025/2026" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control defaultValue="2025/2026" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
-                        <Col md={4}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Code National (CNE/Massar)</Form.Label>
-                            <Form.Control placeholder="Ex: G130000000" className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
+                        {user?.role !== 'jury' && user?.role !== 'supervisor' && (
+                          <Col md={4}>
+                            <Form.Group>
+                              <Form.Label className="small fw-bold text-muted mb-2">Code National (CNE/Massar)</Form.Label>
+                              <Form.Control placeholder="Ex: G130000000" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                            </Form.Group>
+                          </Col>
+                        )}
                         <Col md={4}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Section / Groupe</Form.Label>
-                            <Form.Control placeholder="Ex: 5IIR-G1" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Control placeholder="Ex: 5IIR-G1" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Note du Diplôme (Dernière année)</Form.Label>
-                            <Form.Control type="number" step="0.01" placeholder="Ex: 16.50" className="form-control-premium" readOnly={session?.role !== 'admin'} />
+                            <Form.Label className="small fw-bold text-muted mb-2">
+                              {user?.role === 'jury' || user?.role === 'supervisor' ? 'Diplôme obtenu' : 'Note du Diplôme (Dernière année)'}
+                            </Form.Label>
+                            <Form.Control 
+                              type={user?.role === 'jury' || user?.role === 'supervisor' ? 'text' : 'number'} 
+                              step="0.01" 
+                              placeholder={user?.role === 'jury' || user?.role === 'supervisor' ? 'Ex: Doctorat en Informatique' : 'Ex: 16.50'} 
+                              className="form-control-premium" 
+                              readOnly={user?.role !== 'admin'} 
+                            />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Filière / Spécialité</Form.Label>
-                            <Form.Select className="form-control-premium" disabled={session?.role !== 'admin'}>
+                            <Form.Select className="form-control-premium" disabled={user?.role !== 'admin'}>
                               <option>Ingénierie Informatique et Réseaux (IIR)</option>
                               <option>Ingénierie Automatismes et Informatique Industrielle (IAII)</option>
                               <option>Génie Civil</option>
@@ -226,71 +257,75 @@ const SettingsPage: React.FC = () => {
                         </Col>
 
                         {/* Section: Informations des Parents */}
-                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations des Parents</h6></Col>
-                        
-                        {/* Père */}
-                        <Col md={12} className="mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails du Père (Papa)</span></Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom du Père</Form.Label>
-                            <Form.Control placeholder="Nom du père..." className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
-                            <Form.Control placeholder="Ex: Cadre Bancaire" className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Tél. du Père</Form.Label>
-                            <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Email du Père</Form.Label>
-                            <Form.Control type="email" placeholder="papa@email.com" className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
+                        {user?.role !== 'jury' && user?.role !== 'supervisor' && (
+                          <>
+                            <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations des Parents</h6></Col>
+                            
+                            {/* Père */}
+                            <Col md={12} className="mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails du Père (Papa)</span></Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom du Père</Form.Label>
+                                <Form.Control placeholder="Nom du père..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
+                                <Form.Control placeholder="Ex: Cadre Bancaire" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Tél. du Père</Form.Label>
+                                <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Email du Père</Form.Label>
+                                <Form.Control type="email" placeholder="papa@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
 
-                        {/* Mère */}
-                        <Col md={12} className="mt-4 mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails de la Mère (Maman)</span></Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom de la Mère</Form.Label>
-                            <Form.Control placeholder="Nom de la mère..." className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
-                            <Form.Control placeholder="Ex: Enseignante" className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Tél. de la Mère</Form.Label>
-                            <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Email de la Mère</Form.Label>
-                            <Form.Control type="email" placeholder="maman@email.com" className="form-control-premium" readOnly={session?.role !== 'admin'} />
-                          </Form.Group>
-                        </Col>
+                            {/* Mère */}
+                            <Col md={12} className="mt-4 mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails de la Mère (Maman)</span></Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom de la Mère</Form.Label>
+                                <Form.Control placeholder="Nom de la mère..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
+                                <Form.Control placeholder="Ex: Enseignante" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Tél. de la Mère</Form.Label>
+                                <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group>
+                                <Form.Label className="small fw-bold text-muted mb-2">Email de la Mère</Form.Label>
+                                <Form.Control type="email" placeholder="maman@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                              </Form.Group>
+                            </Col>
+                          </>
+                        )}
 
                         <Col md={12} className="mt-5">
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Notes Additionnelles</Form.Label>
-                            <Form.Control as="textarea" rows={3} className="form-control-premium" placeholder="Autres informations pertinentes..." readOnly={session?.role !== 'admin'} />
+                            <Form.Control as="textarea" rows={3} className="form-control-premium" placeholder="Autres informations pertinentes..." readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                       </Row>
 
-                      {session?.role !== 'admin' && (
+                      {user?.role !== 'admin' && (
                         <div className="mt-5 pt-4 border-top">
                           {!isReporting ? (
                             <div className="d-flex flex-column gap-3">
@@ -458,7 +493,7 @@ const SettingsPage: React.FC = () => {
                       <Button className="btn-premium">Configure</Button>
                     </div>
 
-                    <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Active Sessions</h5>
+                    <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Active users</h5>
                     <div className="table-responsive">
                       <Table borderless className="align-middle mb-0">
                         <thead>
@@ -472,7 +507,7 @@ const SettingsPage: React.FC = () => {
                           <tr className="border-bottom border-muted">
                             <td className="px-3 py-3">
                               <div className="fw-bold small text-navy">Windows 11 • Chrome</div>
-                              <div className="extra-small text-success fw-bold">Current session</div>
+                              <div className="extra-small text-success fw-bold">Current user</div>
                             </td>
                             <td className="py-3 extra-small text-muted fw-bold">Casablanca, Morocco</td>
                             <td className="px-3 py-3 text-end"><Badge bg="success" className="bg-success-soft text-success border border-success extra-small">Active</Badge></td>
