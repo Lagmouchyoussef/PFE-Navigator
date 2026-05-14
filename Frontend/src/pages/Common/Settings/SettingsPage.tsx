@@ -4,7 +4,7 @@ import {
   Badge, Table, ProgressBar, InputGroup
 } from 'react-bootstrap';
 import { 
-  User, Bell, Shield, Moon, Sun, CheckCircle, Save, Camera, 
+  User, Bell, Shield, Moon, Sun, CheckCircle, AlertCircle, Save, Camera, 
   ChevronRight, Lock, Smartphone, Eye, EyeOff, 
   Briefcase, X, Users
 } from 'lucide-react';
@@ -17,6 +17,11 @@ const SettingsPage: React.FC = () => {
   const { session, theme, setTheme } = useApp();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [showPassword, setShowPassword] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -285,6 +290,128 @@ const SettingsPage: React.FC = () => {
                           </Form.Group>
                         </Col>
                       </Row>
+
+                      {session?.role !== 'admin' && (
+                        <div className="mt-5 pt-4 border-top">
+                          {!isReporting ? (
+                            <div className="d-flex flex-column gap-3">
+                              <AnimatePresence>
+                                {isConfirmed && (
+                                  <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-success-soft p-4 rounded-4 border border-success border-opacity-25 mb-3 d-flex align-items-center gap-3"
+                                  >
+                                    <div className="p-2 bg-success text-white rounded-circle">
+                                      <CheckCircle size={20} />
+                                    </div>
+                                    <div>
+                                      <h6 className="fw-bold mb-0 text-navy">Informations Confirmées</h6>
+                                      <p className="extra-small text-success mb-0 fw-bold">Merci ! Vos informations ont été confirmées avec succès.</p>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+
+                              <div className="d-flex flex-column flex-md-row gap-3">
+                                <Button 
+                                  variant="success" 
+                                  className="d-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-3 fw-bold border-0 shadow-sm transition-all"
+                                  onClick={() => setIsConfirmed(true)}
+                                  disabled={isConfirmed}
+                                  style={{ backgroundColor: isConfirmed ? '#6ee7b7' : '#10b981', opacity: isConfirmed ? 0.7 : 1 }}
+                                >
+                                  <CheckCircle size={18} /> {isConfirmed ? 'Déjà confirmé' : 'Tout les informations sont correct'}
+                                </Button>
+                                {!isConfirmed && (
+                                  <Button 
+                                    variant="outline-danger" 
+                                    className="d-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-3 fw-bold shadow-sm"
+                                    onClick={() => setIsReporting(true)}
+                                  >
+                                    <AlertCircle size={18} /> Signaler des informations incorrectes
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 10 }} 
+                              animate={{ opacity: 1, y: 0 }}
+                              className="bg-danger-soft p-4 rounded-4 border border-danger border-opacity-25"
+                            >
+                              <div className="d-flex align-items-center gap-3 mb-4">
+                                <div className="p-2 bg-danger text-white rounded-3">
+                                  <AlertCircle size={20} />
+                                </div>
+                                <div>
+                                  <h6 className="fw-bold mb-0 text-navy">Signaler une erreur</h6>
+                                  <p className="extra-small text-muted mb-0">Décrivez les modifications à apporter (Données ou Photo)</p>
+                                </div>
+                              </div>
+                              
+                              <Form.Group className="mb-4">
+                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Description des corrections</Form.Label>
+                                <Form.Control 
+                                  as="textarea" 
+                                  rows={3} 
+                                  placeholder="Ex: Mon adresse est incorrecte, ou Je souhaite changer ma photo de profil..."
+                                  className="form-control-premium border-danger border-opacity-10 shadow-none"
+                                  value={reportMessage}
+                                  onChange={(e) => setReportMessage(e.target.value)}
+                                />
+                              </Form.Group>
+
+                              <Form.Group className="mb-4">
+                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nouvelle Photo (Optionnel)</Form.Label>
+                                <div 
+                                  className="border-dashed rounded-4 p-4 text-center cursor-pointer hover-bg-surface-alt transition-all"
+                                  onClick={() => document.getElementById('report-photo-input')?.click()}
+                                >
+                                  <Camera size={24} className="text-muted mb-2" />
+                                  <div className="small fw-bold text-navy">Cliquez pour téléverser votre nouvelle photo</div>
+                                  <div className="extra-small text-muted">L'admin validera ce changement</div>
+                                  {newPhoto && <Badge bg="success" className="mt-2">{newPhoto.name}</Badge>}
+                                  <input 
+                                    id="report-photo-input" 
+                                    type="file" 
+                                    className="d-none" 
+                                    accept="image/*"
+                                    onChange={(e) => setNewPhoto(e.target.files?.[0] || null)}
+                                  />
+                                </div>
+                              </Form.Group>
+
+                              <div className="d-flex gap-2 justify-content-end">
+                                <Button variant="link" className="text-muted small fw-bold text-decoration-none" onClick={() => setIsReporting(false)}>Annuler</Button>
+                                <Button 
+                                  className="btn-premium bg-danger border-0 px-4"
+                                  onClick={() => {
+                                    setReportSuccess(true);
+                                    setIsReporting(false);
+                                    setTimeout(() => setReportSuccess(false), 5000);
+                                  }}
+                                >
+                                  Envoyer le signalement
+                                </Button>
+                              </div>
+                            </motion.div>
+                          )}
+                          
+                          <AnimatePresence>
+                            {reportSuccess && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className="mt-3 p-3 bg-success-soft text-success rounded-3 border border-success border-opacity-25 d-flex align-items-center gap-3 fw-bold small"
+                              >
+                                <CheckCircle size={18} /> Signalement envoyé avec succès ! L'administrateur traitera votre demande.
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      )}
                     </Form>
                   </motion.div>
                 )}
