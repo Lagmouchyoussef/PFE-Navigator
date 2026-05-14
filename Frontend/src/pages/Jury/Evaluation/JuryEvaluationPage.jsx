@@ -36,16 +36,22 @@ const JuryEvaluationPage = () => {
   const evaluationRef = useRef(null);
   const [activeStudent, setActiveStudent] = useState(null);
   const [scores, setScores] = useState({
-    innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+    innovation: '', methodology: '', quality: '', presentation: '', docs: ''
   });
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [msgVariant, setMsgVariant] = useState('success');
   const [juryNote, setJuryNote] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetStudentId, setResetStudentId] = useState(null);
   const [respectInstructions, setRespectInstructions] = useState('');
   const [observations, setObservations] = useState('');
 
   const handleScoreChange = (id, val) => {
+    if (val === '') {
+      setScores(prev => ({ ...prev, [id]: '' }));
+      return;
+    }
     const num = Math.min(20, Math.max(0, parseFloat(val) || 0));
     setScores(prev => ({ ...prev, [id]: num }));
   };
@@ -72,7 +78,7 @@ const JuryEvaluationPage = () => {
       setScores(savedScores);
     } else {
       setScores({
-        innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+        innovation: '', methodology: '', quality: '', presentation: '', docs: ''
       });
     }
     
@@ -85,11 +91,12 @@ const JuryEvaluationPage = () => {
     
     Object.keys(scores).forEach(key => {
       const weight = juryCriteriaWeights[key] || 0;
-      weightedSum += (scores[key] * weight);
+      const scoreValue = scores[key] === '' ? 0 : scores[key];
+      weightedSum += (scoreValue * weight);
       weightTotal += weight;
     });
 
-    if (weightTotal === 0) return 0;
+    if (weightTotal === 0) return "0.00";
     return (weightedSum / weightTotal).toFixed(2);
   };
 
@@ -140,7 +147,7 @@ const JuryEvaluationPage = () => {
     
     // Reset the form for the next student
     setScores({
-      innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+      innovation: '', methodology: '', quality: '', presentation: '', docs: ''
     });
     setRespectInstructions('');
     setObservations('');
@@ -150,20 +157,28 @@ const JuryEvaluationPage = () => {
   };
 
   const handleReset = (studentId) => {
-    if (window.confirm("Voulez-vous vraiment réinitialiser cette évaluation ? Toutes les notes seront remises à zéro.")) {
-      updateStudentEvaluation(studentId, {
-        juryScore: null,
-        juryCriteriaScores: null,
-        isJuryEvaluated: false,
-        juryRemarks: '',
-        juryRespectInstructions: '',
-        juryObservations: ''
-      });
-      setSuccessMsg("L'évaluation a été réinitialisée avec succès.");
-      setMsgVariant('success');
-      setShowSuccessCard(true);
-      setTimeout(() => setShowSuccessCard(false), 5000);
-    }
+    setResetStudentId(studentId);
+    setShowResetConfirm(true);
+  };
+
+  const executeReset = () => {
+    if (!resetStudentId) return;
+    
+    updateStudentEvaluation(resetStudentId, {
+      juryScore: null,
+      juryCriteriaScores: null,
+      isJuryEvaluated: false,
+      juryRemarks: '',
+      juryRespectInstructions: '',
+      juryObservations: ''
+    });
+    
+    setShowResetConfirm(false);
+    setResetStudentId(null);
+    setSuccessMsg("L'évaluation a été réinitialisée avec succès.");
+    setMsgVariant('success');
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
   const totalScorePercentage = (Number(calculatedFinalScore) / 20) * 100;
@@ -196,6 +211,45 @@ const JuryEvaluationPage = () => {
                 >
                   Continuer
                 </Button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Reset Confirmation Overlay */}
+        <AnimatePresence>
+          {showResetConfirm && (
+            <div className="notification-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 10000, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(6px)' }}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="glass-card p-5 rounded-5 shadow-lg border-top-5 border-danger bg-white d-flex flex-column align-items-center text-center"
+                style={{ maxWidth: '500px', width: '90%' }}
+              >
+                <div className="p-4 rounded-circle bg-danger-soft text-danger mb-4">
+                  <RotateCcw size={48} />
+                </div>
+                <h4 className="fw-bold mb-3 text-navy">Confirmer la Réinitialisation</h4>
+                <p className="text-muted fw-bold mb-5 px-3">
+                  Voulez-vous vraiment réinitialiser cette évaluation ? Toutes les notes seront remises à zéro.
+                </p>
+                <div className="d-flex gap-3 w-100">
+                  <Button 
+                    variant="outline-secondary" 
+                    className="flex-grow-1 py-3 rounded-pill fw-bold border-2"
+                    onClick={() => setShowResetConfirm(false)}
+                  >
+                    Annuler
+                  </Button>
+                  <Button 
+                    variant="danger" 
+                    className="flex-grow-1 py-3 rounded-pill fw-bold shadow-sm border-0"
+                    onClick={executeReset}
+                  >
+                    Réinitialiser
+                  </Button>
+                </div>
               </motion.div>
             </div>
           )}
