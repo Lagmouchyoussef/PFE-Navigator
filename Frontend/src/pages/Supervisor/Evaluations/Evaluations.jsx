@@ -269,9 +269,16 @@ const Evaluations = () => {
                         )}
                       </td>
                       <td>
-                        <Badge className={`bg-${item.isJuryEvaluated ? 'success' : 'warning'}-soft text-${item.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold`}>
-                          {item.isJuryEvaluated ? 'Jury Évalué' : 'Jury en attente'}
-                        </Badge>
+                        <div className="d-flex flex-column gap-1">
+                          <Badge className={`bg-${item.isJuryEvaluated ? 'success' : 'warning'}-soft text-${item.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold w-fit`}>
+                            {item.isJuryEvaluated ? 'Jury Évalué' : 'Jury en attente'}
+                          </Badge>
+                          <span className={`extra-small fw-bold ${isGradesPublished ? 'text-primary' : 'text-muted opacity-25'}`}>
+                            {isGradesPublished 
+                              ? (item.juryScore !== null ? `${item.juryScore}/20` : '--')
+                              : 'Confidentiel'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-end">
                         <div className="d-flex justify-content-end gap-1">

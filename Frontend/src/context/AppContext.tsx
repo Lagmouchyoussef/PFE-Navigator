@@ -249,6 +249,8 @@ interface AppContextType {
   publishGrades: () => void;
   pfeWeights: { supervisor: number; jury: number };
   updatePfeWeights: (supervisor: number, jury: number) => void;
+  juryCriteriaWeights: Record<string, number>;
+  updateJuryCriteriaWeights: (weights: Record<string, number>) => void;
   theme: string;
   setTheme: (theme: string) => void;
   // Milestones
@@ -324,6 +326,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [juryComment, setJuryComment] = useState('');
   const [isGradesPublished, setIsGradesPublished] = useState(false);
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
+  const [juryCriteriaWeights, setJuryCriteriaWeights] = useState(() => {
+    const saved = localStorage.getItem('pfe-jury-weights');
+    return saved ? JSON.parse(saved) : {
+      innovation: 4,
+      methodology: 4,
+      quality: 4,
+      presentation: 4,
+      docs: 4
+    };
+  });
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [reminders, setReminders] = useState(initialReminders);
   const [students, setStudents] = useState(() => {
@@ -335,6 +347,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('pfe-students', JSON.stringify(students));
   }, [students]);
+
+  useEffect(() => {
+    localStorage.setItem('pfe-jury-weights', JSON.stringify(juryCriteriaWeights));
+  }, [juryCriteriaWeights]);
 
   // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
   const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
@@ -599,6 +615,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       progressPct, approvedDocs, totalRequired,
       isGradesPublished, publishGrades,
       pfeWeights, updatePfeWeights,
+      juryCriteriaWeights,
+      updateJuryCriteriaWeights: (weights: Record<string, number>) => {
+        setJuryCriteriaWeights(weights);
+        addNotification('grade', "Les barèmes des critères du jury ont été mis à jour par l'administration.", '/jury/evaluation');
+      },
       theme, setTheme,
       updateMilestone,
       isProjectValidated, finalResultMessage,

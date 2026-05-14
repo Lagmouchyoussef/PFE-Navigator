@@ -32,7 +32,7 @@ const CRITERIA = [
 ];
 
 const JuryEvaluationPage = () => {
-  const { theme, saveScore, isGradesPublished, scores: globalScores, students, updateStudentEvaluation } = useApp();
+  const { theme, saveScore, isGradesPublished, juryCriteriaWeights, students, updateStudentEvaluation } = useApp();
   const evaluationRef = useRef(null);
   const [activeStudent, setActiveStudent] = useState(null);
   const [scores, setScores] = useState({
@@ -41,6 +41,8 @@ const JuryEvaluationPage = () => {
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [juryNote, setJuryNote] = useState('');
+  const [respectInstructions, setRespectInstructions] = useState('');
+  const [observations, setObservations] = useState('');
 
   const handleScoreChange = (id, val) => {
     const num = Math.min(20, Math.max(0, parseFloat(val) || 0));
@@ -50,6 +52,8 @@ const JuryEvaluationPage = () => {
   const handleOpenEvaluation = (student) => {
     setActiveStudent(student);
     setJuryNote(student.juryScore !== null ? student.juryScore.toString() : '');
+    setRespectInstructions(student.juryRespectInstructions || '');
+    setObservations(student.juryObservations || '');
     // Reset criteria scores to 0 for a "new" evaluation experience
     setScores({
       innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
@@ -57,11 +61,29 @@ const JuryEvaluationPage = () => {
     evaluationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const calculateTotalJuryScore = () => {
+    let weightedSum = 0;
+    let weightTotal = 0;
+    
+    Object.keys(scores).forEach(key => {
+      const weight = juryCriteriaWeights[key] || 0;
+      weightedSum += (scores[key] * weight);
+      weightTotal += weight;
+    });
+
+    if (weightTotal === 0) return 0;
+    return (weightedSum / weightTotal).toFixed(2);
+  };
+
+  const calculatedFinalScore = calculateTotalJuryScore();
+
   const handleDraft = () => {
     if (!activeStudent) return;
     updateStudentEvaluation(activeStudent.id, { 
-      juryScore: juryNote === '' ? 0 : Number(juryNote),
-      juryRemarks: 'Brouillon - Notes en cours de saisie'
+      juryScore: Number(calculatedFinalScore),
+      juryRemarks: 'Brouillon - Notes en cours de saisie',
+      juryRespectInstructions: respectInstructions,
+      juryObservations: observations
     });
     setSuccessMsg(`Succès : Les notes pour ${activeStudent.name} ont été enregistrées en brouillon.`);
     setShowSuccessCard(true);
@@ -71,16 +93,18 @@ const JuryEvaluationPage = () => {
   const handleSubmit = () => {
     if (!activeStudent) return;
     updateStudentEvaluation(activeStudent.id, { 
-      juryScore: juryNote === '' ? 0 : Number(juryNote),
+      juryScore: Number(calculatedFinalScore),
       isJuryEvaluated: true,
-      juryRemarks: 'Évaluation finale confirmée et enregistrée.'
+      juryRemarks: 'Évaluation finale confirmée et enregistrée.',
+      juryRespectInstructions: respectInstructions,
+      juryObservations: observations
     });
-    setSuccessMsg(`Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès.`);
+    setSuccessMsg(`Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès. Les notes sont soumises.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 8000);
   };
 
-  const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+  const totalScorePercentage = (Number(calculatedFinalScore) / 20) * 100;
 
   return (
     <div className="jury-evaluation-layout py-4">
@@ -166,8 +190,19 @@ const JuryEvaluationPage = () => {
                         {p.isJuryEvaluated ? 'Évalué' : 'À Évaluer'}
                       </Badge>
                     </td>
-                    <td className="py-3 small fw-bold text-navy">
-                      {p.juryScore !== null ? `${p.juryScore}/20` : '--'}
+                    <td className="py-3 small">
+                      <div className="d-flex flex-column gap-1">
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="extra-small text-muted fw-bold opacity-50">Jury:</span>
+                          <span className="fw-bold text-navy">{p.juryScore !== null ? `${p.juryScore}/20` : '--'}</span>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="extra-small text-muted fw-bold opacity-50">Encadrant:</span>
+                          <span className={`fw-bold ${isGradesPublished ? 'text-primary' : 'text-muted opacity-25'}`}>
+                            {isGradesPublished ? (p.supervisorScore !== null ? `${p.supervisorScore}/20` : '--') : '??'}
+                          </span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-end">
                       <Button 
@@ -195,8 +230,8 @@ const JuryEvaluationPage = () => {
                 <p className="text-muted small mb-0 fw-bold opacity-75">{activeStudent?.title}</p>
               </div>
               <div className="p-4 rounded-4 bg-surface-alt border border-light border-opacity-10 text-center shadow-sm" style={{ minWidth: '160px' }}>
-                <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Total Score</div>
-                <div className="h2 fw-bold mb-0 text-primary">{totalScore}<small className="h6 text-muted ms-1 fw-bold opacity-50">/100</small></div>
+                <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Note Finale Soutenance</div>
+                <div className="h2 fw-bold mb-0 text-primary">{calculatedFinalScore}<small className="h6 text-muted ms-1 fw-bold opacity-50">/20</small></div>
               </div>
             </div>
 
@@ -208,9 +243,10 @@ const JuryEvaluationPage = () => {
               <Table borderless className="align-middle">
                 <thead className="bg-surface-alt">
                   <tr className="border-bottom opacity-50">
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Criterion</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Score (0-20)</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-end">Status</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Critère</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Coefficient (Barème)</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note (0-20)</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-end">Statut</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,11 +254,17 @@ const JuryEvaluationPage = () => {
                     <tr key={item.id} className="border-bottom border-light border-opacity-10">
                       <td className="py-4">
                         <div className="fw-bold small text-navy">{item.label}</div>
-                        <div className="extra-small text-muted fw-bold opacity-50">Evaluation of relevance and rigor of the criterion.</div>
+                        <div className="extra-small text-muted fw-bold opacity-50">Évaluation de la pertinence et de la rigueur du critère.</div>
+                      </td>
+                      <td className="py-4 text-center">
+                        <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold rounded-pill">
+                          Coef: {juryCriteriaWeights[item.id] || 0}
+                        </Badge>
                       </td>
                       <td className="py-4">
                         <Form.Control 
                           type="number" 
+                          max={20} min={0}
                           className="bg-surface-alt border-0 rounded-4 text-center fw-bold mx-auto text-navy shadow-none" 
                           style={{ width: '80px', height: '45px' }}
                           value={scores[item.id]}
@@ -231,7 +273,7 @@ const JuryEvaluationPage = () => {
                       </td>
                       <td className="py-4 text-end">
                         <Badge className={`bg-${scores[item.id] >= 14 ? 'success' : 'primary'}-soft text-${scores[item.id] >= 14 ? 'success' : 'primary'} border-0 px-3 py-1 extra-small fw-bold`}>
-                          {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Good' : 'Pending'}
+                          {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Bon' : 'En attente'}
                         </Badge>
                       </td>
                     </tr>
@@ -253,6 +295,8 @@ const JuryEvaluationPage = () => {
                       rows={3} 
                       className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
                       placeholder="L'étudiant a-t-il respecté les consignes du PFE devant le jury ?"
+                      value={respectInstructions}
+                      onChange={(e) => setRespectInstructions(e.target.value)}
                     />
                   </Form.Group>
                   <Form.Group>
@@ -262,22 +306,19 @@ const JuryEvaluationPage = () => {
                       rows={2} 
                       className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
                       placeholder="Forces, points à améliorer..."
+                      value={observations}
+                      onChange={(e) => setObservations(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
                 <Col md={3}>
                   <div className="h-100 p-4 rounded-4 bg-white border border-light-soft d-flex flex-column align-items-center justify-content-center text-center shadow-sm">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note du Jury</Form.Label>
-                    <Form.Control 
-                      type="number" 
-                      max={20} min={0} 
-                      className="h1 fw-bold text-center border-0 bg-transparent text-success shadow-none mb-0" 
-                      style={{ fontSize: '3rem' }}
-                      placeholder="00"
-                      value={juryNote}
-                      onChange={(e) => setJuryNote(e.target.value)}
-                    />
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Finale Calculée</Form.Label>
+                    <div className="h1 fw-bold text-center border-0 bg-transparent text-success shadow-none mb-0" style={{ fontSize: '3rem' }}>
+                      {calculatedFinalScore}
+                    </div>
                     <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
+                    <div className="extra-small text-muted fw-bold mt-2 opacity-50">Générée par le programme</div>
                   </div>
                 </Col>
                 <Col md={3}>

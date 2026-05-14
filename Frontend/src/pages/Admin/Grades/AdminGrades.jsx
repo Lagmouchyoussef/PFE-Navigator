@@ -11,13 +11,15 @@ import { useApp } from '../../../context/AppContext';
 // Student list fetched from context
 
 const AdminGrades = () => {
-  const { scores, saveScore, isGradesPublished, publishGrades, pfeWeights, updatePfeWeights, students, updateStudentEvaluation } = useApp();
+  const { scores, saveScore, isGradesPublished, publishGrades, pfeWeights, updatePfeWeights, juryCriteriaWeights, updateJuryCriteriaWeights, students, updateStudentEvaluation } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showWeightModal, setShowWeightModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [editForm, setEditForm] = useState({ supervisor: '', jury: '' });
   const [weightForm, setWeightForm] = useState({ supervisor: 50, jury: 50 });
+  const [juryCriteriaWeightForm, setJuryCriteriaWeightForm] = useState({});
 
   const handleOpenWeights = () => {
     setWeightForm({ ...pfeWeights });
@@ -30,18 +32,22 @@ const AdminGrades = () => {
       return;
     }
     updatePfeWeights(parseInt(weightForm.supervisor), parseInt(weightForm.jury));
+    updateJuryCriteriaWeights(juryCriteriaWeightForm);
     setShowWeightModal(false);
   };
 
   const handleOpenEdit = (student) => {
     setSelectedStudent(student);
-    // In a real app, scores would be keyed by student ID. 
-    // Here we use the global scores for demo.
     setEditForm({ 
       supervisor: student.supervisorScore || '', 
       jury: student.juryScore || '' 
     });
     setShowEditModal(true);
+  };
+
+  const handleOpenView = (student) => {
+    setSelectedStudent(student);
+    setShowViewModal(true);
   };
 
   const handleSaveEdit = () => {
@@ -76,9 +82,13 @@ const AdminGrades = () => {
             <Button 
               variant="outline-primary"
               className="d-flex align-items-center gap-2 px-4 rounded-pill border-2 fw-bold extra-small shadow-none"
-              onClick={handleOpenWeights}
+              onClick={() => {
+                setWeightForm({ ...pfeWeights });
+                setJuryCriteriaWeightForm({ ...juryCriteriaWeights });
+                setShowWeightModal(true);
+              }}
             >
-              <Filter size={18} /> Coefficients ({pfeWeights.supervisor}% / {pfeWeights.jury}%)
+              <Filter size={18} /> Barèmes & Coefs
             </Button>
             <Button 
               className={`btn-premium d-flex align-items-center gap-2 shadow-sm border-0 ${isGradesPublished ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -191,6 +201,13 @@ const AdminGrades = () => {
                         <Button 
                           variant="link" 
                           className="p-2 text-primary hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
+                          onClick={() => handleOpenView(student)}
+                        >
+                          <Eye size={18} />
+                        </Button>
+                        <Button 
+                          variant="link" 
+                          className="p-2 text-success hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
                           onClick={() => handleOpenEdit(student)}
                         >
                           <Edit3 size={18} />
@@ -308,17 +325,73 @@ const AdminGrades = () => {
               </Col>
             </Row>
 
-            <div className="p-3 bg-white rounded-4 mb-4 border border-light-soft text-center d-flex justify-content-between align-items-center">
-              <span className="extra-small text-muted fw-bold text-uppercase">Total des coefficients</span>
-              <Badge className={`px-3 py-2 rounded-pill border-0 ${parseInt(weightForm.supervisor) + parseInt(weightForm.jury) === 100 ? 'bg-success text-white' : 'bg-danger text-white'}`}>
-                {parseInt(weightForm.supervisor || 0) + parseInt(weightForm.jury || 0)} %
-              </Badge>
-            </div>
+            <hr className="my-4 opacity-10" />
+            
+            <h6 className="fw-bold text-navy mb-3">Barème des Critères Jury (Coefficient par critère)</h6>
+            <Row className="g-3 mb-4">
+              {[
+                { id: 'innovation', label: 'Innovation' },
+                { id: 'methodology', label: 'Méthodologie' },
+                { id: 'quality', label: 'Qualité Technique' },
+                { id: 'presentation', label: 'Présentation' },
+                { id: 'docs', label: 'Documentation' },
+              ].map(crit => (
+                <Col sm={4} key={crit.id}>
+                  <Form.Group>
+                    <Form.Label className="extra-small fw-bold text-muted opacity-75">{crit.label}</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none"
+                      value={juryCriteriaWeightForm[crit.id] || 0}
+                      onChange={(e) => setJuryCriteriaWeightForm({...juryCriteriaWeightForm, [crit.id]: Number(e.target.value)})}
+                    />
+                  </Form.Group>
+                </Col>
+              ))}
+            </Row>
 
             <Button className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0" onClick={handleSaveWeights}>
-              <Save size={18} className="me-2" /> Appliquer les nouveaux coefficients
+              <Save size={18} className="me-2" /> Appliquer tous les barèmes
             </Button>
           </Form>
+        </Modal.Body>
+      </Modal>
+      {/* View Details Modal */}
+      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} centered className="glass-modal" size="lg">
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <Modal.Title className="fw-bold text-navy h5">Détails de l'Évaluation : {selectedStudent?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Row className="g-4 mb-4">
+            <Col md={6}>
+              <Card className="rounded-4 border-light-soft bg-surface-alt p-4 h-100 shadow-none">
+                <h6 className="extra-small fw-bold text-primary text-uppercase mb-3">Évaluation Encadrant</h6>
+                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.supervisorScore !== null ? `${selectedStudent?.supervisorScore}/20` : 'Non noté'}</div>
+                <div className="p-3 bg-white rounded-3 border-start border-4 border-primary">
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Remarques Encadrant</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.supervisorRemarks || 'Aucune remarque.'}</p>
+                </div>
+              </Card>
+            </Col>
+            <Col md={6}>
+              <Card className="rounded-4 border-light-soft bg-surface-alt p-4 h-100 shadow-none">
+                <h6 className="extra-small fw-bold text-success text-uppercase mb-3">Évaluation Jury</h6>
+                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.juryScore !== null ? `${selectedStudent?.juryScore}/20` : 'Non noté'}</div>
+                <div className="p-3 bg-white rounded-3 border-start border-4 border-success mb-3">
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Consignes de présentation</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryRespectInstructions || 'Aucune remarque.'}</p>
+                </div>
+                <div className="p-3 bg-white rounded-3 border-start border-4 border-success">
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Observations générales</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryObservations || 'Aucune observation.'}</p>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+          <div className="p-3 bg-primary-soft rounded-4 text-center border border-primary border-opacity-10">
+            <span className="extra-small text-primary fw-bold">Note finale consolidée : </span>
+            <span className="fw-bold text-navy ms-1">{calculateFinal(selectedStudent?.supervisorScore || '', selectedStudent?.juryScore || '')} / 20</span>
+          </div>
         </Modal.Body>
       </Modal>
     </div>

@@ -18,12 +18,22 @@ import {
 import { useApp } from '../../../context/AppContext';
 
 const EvaluationPage = () => {
-  const { scores, pfeFinalGrade, isGradesPublished, pfeWeights } = useApp();
+  const { students, user, isGradesPublished, pfeWeights } = useApp();
+  
+  // Find current student data
+  const studentData = students.find(s => s.name === user?.name) || students[0];
+  const supScore = studentData?.supervisorScore;
+  const juryScore = studentData?.juryScore;
+  
+  const pfeFinalGrade = (supScore !== null && juryScore !== null)
+    ? (supScore * (pfeWeights.supervisor / 100)) + (juryScore * (pfeWeights.jury / 100))
+    : (supScore !== null) ? supScore : (juryScore !== null) ? juryScore : null;
+
   const performanceData = [
     { name: 'Proposal', score: 85 },
     { name: 'Interim', score: 88 },
-    { name: 'Final', score: 0 },
-    { name: 'Defense', score: 0 },
+    { name: 'Final', score: supScore ? (supScore / 20) * 100 : 0 },
+    { name: 'Defense', score: juryScore ? (juryScore / 20) * 100 : 0 },
   ];
 
   const criteriaData = [
@@ -61,19 +71,19 @@ const EvaluationPage = () => {
     },
     {
       title: 'Final Report',
-      status: 'Pending',
-      evaluator: 'Dr. Sarah Smith',
+      status: supScore !== null ? 'Completed' : 'Pending',
+      evaluator: 'Dr. Sofia Drissi',
       date: '2026-05-15',
-      score: '-',
-      comments: 'Awaiting submission'
+      score: supScore !== null ? (supScore * 5).toString() : '-',
+      comments: studentData?.supervisorRemarks || 'Awaiting submission'
     },
     {
       title: 'Final Defense',
-      status: 'Pending',
-      evaluator: 'Evaluation Committee',
+      status: juryScore !== null ? 'Completed' : 'Pending',
+      evaluator: 'Prof. Youssef Lagmouch',
       date: '2026-05-20',
-      score: '-',
-      comments: 'Scheduled for May 20, 2026'
+      score: juryScore !== null ? (juryScore * 5).toString() : '-',
+      comments: studentData?.juryRemarks || 'Scheduled for May 20, 2026'
     }
   ];
 
@@ -139,9 +149,9 @@ const EvaluationPage = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Current Grade', value: '30.4', sub: 'out of 100', icon: <Award size={24} />, color: 'primary' },
-            { label: 'Completed', value: '2/4', sub: 'Evaluations', icon: <CheckCircle size={24} />, color: 'success' },
-            { label: 'Average Score', value: '86.5', sub: '%', icon: <TrendingUp size={24} />, color: 'info' },
+            { label: 'Current Grade', value: pfeFinalGrade ? pfeFinalGrade.toFixed(1) : '30.4', sub: 'out of 20', icon: <Award size={24} />, color: 'primary' },
+            { label: 'Completed', value: juryScore !== null && supScore !== null ? '4/4' : '2/4', sub: 'Evaluations', icon: <CheckCircle size={24} />, color: 'success' },
+            { label: 'Average Score', value: pfeFinalGrade ? (pfeFinalGrade * 5).toFixed(1) : '86.5', sub: '%', icon: <TrendingUp size={24} />, color: 'info' },
             { label: 'Class Rank', value: '12th', sub: 'out of 45', icon: <Users size={24} />, color: 'warning' },
           ].map((stat, i) => (
             <Col key={i} lg={3} md={6}>
@@ -251,13 +261,13 @@ const EvaluationPage = () => {
                         </td>
                         <td><span className="extra-small fw-bold text-muted">{pfeWeights.supervisor}%</span></td>
                         <td>
-                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${scores.pfeSupervisor === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
-                            {scores.pfeSupervisor !== null ? `${scores.pfeSupervisor}/20` : 'En attente'}
+                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${supScore === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
+                            {supScore !== null ? `${supScore}/20` : 'En attente'}
                           </Badge>
                         </td>
-                        <td><span className="fw-bold text-navy small">{scores.pfeSupervisor !== null ? (scores.pfeSupervisor * (pfeWeights.supervisor / 100)).toFixed(2) : '--'}</span></td>
+                        <td><span className="fw-bold text-navy small">{supScore !== null ? (supScore * (pfeWeights.supervisor / 100)).toFixed(2) : '--'}</span></td>
                         <td className="px-4 py-4 text-end" style={{ width: '200px' }}>
-                          <ProgressBar now={scores.pfeSupervisor ? (scores.pfeSupervisor / 20) * 100 : 0} variant="success" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
+                          <ProgressBar now={supScore ? (supScore / 20) * 100 : 0} variant="success" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
                         </td>
                       </tr>
                       <tr className="border-bottom border-light border-opacity-10 bg-info-soft bg-opacity-10">
@@ -266,13 +276,13 @@ const EvaluationPage = () => {
                         </td>
                         <td><span className="extra-small fw-bold text-muted">{pfeWeights.jury}%</span></td>
                         <td>
-                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${scores.pfeJury === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
-                            {scores.pfeJury !== null ? `${scores.pfeJury}/20` : 'En attente'}
+                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${juryScore === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
+                            {juryScore !== null ? `${juryScore}/20` : 'En attente'}
                           </Badge>
                         </td>
-                        <td><span className="fw-bold text-navy small">{scores.pfeJury !== null ? (scores.pfeJury * (pfeWeights.jury / 100)).toFixed(2) : '--'}</span></td>
+                        <td><span className="fw-bold text-navy small">{juryScore !== null ? (juryScore * (pfeWeights.jury / 100)).toFixed(2) : '--'}</span></td>
                         <td className="px-4 py-4 text-end" style={{ width: '200px' }}>
-                          <ProgressBar now={scores.pfeJury ? (scores.pfeJury / 20) * 100 : 0} variant="info" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
+                          <ProgressBar now={juryScore ? (juryScore / 20) * 100 : 0} variant="info" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
                         </td>
                       </tr>
                       <tr className="bg-surface-alt align-middle">
