@@ -706,3 +706,38 @@ a.dropdown-item:focus {
 .border {
   border-color: var(--color-border) !important;
 }
+
+/* =====================================================
+   SCROLLABLE DROPDOWN UTILITY
+   ===================================================== */
+.dropdown-menu-scrollable {
+  max-height: 250px;
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .dropdown-menu-scrollable {
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+[data-theme='dark'] .dropdown-menu-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}

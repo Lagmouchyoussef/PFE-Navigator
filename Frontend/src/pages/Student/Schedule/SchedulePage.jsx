@@ -14,6 +14,13 @@ import {
 const SchedulePage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'Meeting' });
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
+  };
 
   const handleAddEvent = (e) => {
     e.preventDefault();
@@ -247,7 +254,7 @@ const SchedulePage = () => {
                         <Dropdown.Toggle variant="link" className="text-navy fw-bold p-0 border-0 shadow-none no-caret" style={{ fontSize: '1.1rem', textDecoration: 'none' }}>
                           {months[month]}
                         </Dropdown.Toggle>
-                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden extra-small">
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden extra-small dropdown-menu-scrollable">
                           {months.map((m, i) => (
                             <Dropdown.Item key={m} active={i === month} onClick={() => setViewDate(new Date(year, i, 1))}>
                               {m}
@@ -260,8 +267,8 @@ const SchedulePage = () => {
                         <Dropdown.Toggle variant="link" className="text-navy fw-bold p-0 border-0 shadow-none no-caret" style={{ fontSize: '1.1rem', textDecoration: 'none', opacity: 0.6 }}>
                           {year}
                         </Dropdown.Toggle>
-                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden extra-small" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                          {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small dropdown-menu-scrollable">
+                          {Array.from({ length: 21 }, (_, i) => 2015 + i).map(y => (
                             <Dropdown.Item key={y} active={y === year} onClick={() => setViewDate(new Date(y, month, 1))}>
                               {y}
                             </Dropdown.Item>
@@ -291,7 +298,9 @@ const SchedulePage = () => {
                             <motion.div 
                               initial={{ scale: 0.8, opacity: 0 }} 
                               animate={{ scale: 1, opacity: 1 }}
-                              className={`p-2 rounded-3 extra-small fw-bold d-flex align-items-center gap-2 shadow-sm bg-${event.status === 'Upcoming' ? 'primary' : 'success'}-soft text-${event.status === 'Upcoming' ? 'primary' : 'success'}`}
+                              whileHover={{ scale: 1.05 }}
+                              onClick={() => handleEventClick(event)}
+                              className={`p-2 rounded-3 extra-small fw-bold d-flex align-items-center gap-2 shadow-sm bg-${event.status === 'Upcoming' ? 'primary' : 'success'}-soft text-${event.status === 'Upcoming' ? 'primary' : 'success'} cursor-pointer`}
                               style={{ fontSize: '9px' }}
                             >
                               <div className="rounded-circle" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></div>
@@ -430,6 +439,75 @@ const SchedulePage = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Event Details Modal */}
+      <Modal 
+        show={showEventModal} 
+        onHide={() => setShowEventModal(false)} 
+        centered 
+        className="glass-modal"
+      >
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <div className="d-flex align-items-center gap-3">
+            <div className={`p-2 rounded-3 bg-${selectedEvent?.title.toLowerCase().includes('report') ? 'danger' : 'primary'}-soft text-${selectedEvent?.title.toLowerCase().includes('report') ? 'danger' : 'primary'}`}>
+              <CalendarIcon size={24} />
+            </div>
+            <Modal.Title className="fw-bold text-navy h5 mb-0">{selectedEvent?.title}</Modal.Title>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <div className="d-flex flex-column gap-4">
+            <div className="d-flex align-items-center gap-3 p-3 rounded-4 bg-surface-alt border">
+              <div className="p-2 rounded-circle bg-white text-primary shadow-sm">
+                <Clock size={20} />
+              </div>
+              <div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Date & Heure</div>
+                <div className="small fw-bold text-navy">
+                  {selectedEvent && new Date(selectedEvent.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  <span className="mx-2 opacity-25">|</span>
+                  {selectedEvent?.time}
+                </div>
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center gap-3 p-3 rounded-4 bg-surface-alt border">
+              <div className="p-2 rounded-circle bg-white text-danger shadow-sm">
+                <MapPin size={20} />
+              </div>
+              <div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Localisation / Lien</div>
+                <div className="small fw-bold text-navy">{selectedEvent?.loc || 'Online Portal'}</div>
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center gap-3 p-3 rounded-4 bg-surface-alt border">
+              <div className="p-2 rounded-circle bg-white text-success shadow-sm">
+                <Users size={20} />
+              </div>
+              <div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Intervenants</div>
+                <div className="small fw-bold text-navy">{selectedEvent?.with || 'Equipe PFE'}</div>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-4 bg-surface-alt border">
+              <div className="extra-small text-muted fw-bold text-uppercase opacity-50 mb-2">Description / Consignes</div>
+              <p className="small text-navy mb-0 lh-base">
+                {selectedEvent?.desc || "Aucune description supplémentaire fournie pour cet événement."}
+              </p>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="border-0 p-4 pt-0">
+          <Button 
+            className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0" 
+            onClick={() => setShowEventModal(false)}
+          >
+            Fermer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
