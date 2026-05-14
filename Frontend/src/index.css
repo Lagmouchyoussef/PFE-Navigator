@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+﻿@import './styles/tokens.css';
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -123,3 +123,25 @@ body {
   border-radius: 6px;
   letter-spacing: 0.5px;
 }
+
+/* --- Custom Checkbox Premium --- */
+.custom-checkbox .form-check-input {
+  background-color: var(--color-surface-alt);
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.custom-checkbox .form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.custom-checkbox .form-check-input:focus {
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+

@@ -113,6 +113,7 @@ const StudentsList = () => {
   const [showDeliverables, setShowDeliverables] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const handleExport = (format) => {
     setSuccessMsg(`L'exportation de la liste des étudiants au format ${format} a été lancée.`);
@@ -147,6 +148,20 @@ const StudentsList = () => {
     const matchesStatus = filterStatus === 'All' || student.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredStudents.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredStudents.map(s => s.id));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="supervisor-students-layout py-4">
@@ -189,17 +204,18 @@ const StudentsList = () => {
                 variant="outline-primary" 
                 className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
               >
-                <Download size={18} /> Exportation
+                <Download size={18} /> Exportation {selectedIds.length > 0 && `(${selectedIds.length})`}
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Format d'export</div>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Excel')}>
-                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx)
+                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Word')}>
-                  <FileText size={14} className="text-primary" /> Liste Word (.docx)
+                  <FileText size={14} className="text-primary" /> Liste Word (.docx) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('PDF')}>
-                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf)
+                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -256,7 +272,15 @@ const StudentsList = () => {
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
                 <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student Information</th>
+                  <th className="px-4 py-3" style={{ width: '40px' }}>
+                    <Form.Check 
+                      type="checkbox" 
+                      className="custom-checkbox shadow-none"
+                      checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Student Information</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Details</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Department</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progress</th>
@@ -276,6 +300,14 @@ const StudentsList = () => {
                       className="border-bottom border-light border-opacity-5"
                     >
                       <td className="px-4 py-3">
+                        <Form.Check 
+                          type="checkbox" 
+                          className="custom-checkbox shadow-none"
+                          checked={selectedIds.includes(student.id)}
+                          onChange={() => toggleSelectOne(student.id)}
+                        />
+                      </td>
+                      <td className="py-3">
                         <div className="d-flex align-items-center gap-3">
                           <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
                              {student.name.charAt(0)}
