@@ -19,6 +19,8 @@ const INITIAL_SCORES: Scores = {
   technique:    null,
   innovation:   null,
   delais:       null,
+  pfeSupervisor: null,
+  pfeJury:       null,
 };
 
 const COEFFICIENTS: Record<keyof Scores, number> = {
@@ -27,6 +29,8 @@ const COEFFICIENTS: Record<keyof Scores, number> = {
   technique:    2,
   innovation:   1,
   delais:       1,
+  pfeSupervisor: 1, // Will be handled specifically for PFE Final
+  pfeJury:       1,
 };
 
 const SCORE_LABELS: Record<keyof Scores, string> = {
@@ -35,6 +39,8 @@ const SCORE_LABELS: Record<keyof Scores, string> = {
   technique:    'Maîtrise Technique',
   innovation:   'Innovation & Recherche',
   delais:       'Respect des Échéances',
+  pfeSupervisor: 'Note Encadrant (50%)',
+  pfeJury:       'Note Jury (50%)',
 };
 
 const INITIAL_DOCUMENTS: AppDocument[] = [
@@ -160,6 +166,7 @@ interface AppContextType {
   saveScore: (criterion: keyof Scores, value: string | number) => void;
   submitEvaluation: (comment: string) => void;
   globalGrade: number | null;
+  pfeFinalGrade: number | null;
   coefficients: Record<keyof Scores, number>;
   juryComment: string;
   SCORE_LABELS: Record<keyof Scores, string>;
@@ -186,6 +193,10 @@ interface AppContextType {
   progressPct: number;
   approvedDocs: number;
   totalRequired: number;
+  isGradesPublished: boolean;
+  publishGrades: () => void;
+  pfeWeights: { supervisor: number; jury: number };
+  updatePfeWeights: (supervisor: number, jury: number) => void;
   theme: string;
   setTheme: (theme: string) => void;
 }
@@ -203,6 +214,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [juryComment, setJuryComment] = useState('');
+  const [isGradesPublished, setIsGradesPublished] = useState(false);
+  const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
   
   // THEME MANAGEMENT
   const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'system');
@@ -255,6 +268,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const globalGrade = computeGlobalGrade();
 
+  const pfeFinalGrade = (scores.pfeSupervisor !== null && scores.pfeJury !== null)
+    ? (scores.pfeSupervisor * (pfeWeights.supervisor / 100)) + (scores.pfeJury * (pfeWeights.jury / 100))
+    : (scores.pfeSupervisor !== null) ? scores.pfeSupervisor : (scores.pfeJury !== null) ? scores.pfeJury : null;
+
   // ── JURY ACTIONS ────────────────────────────────────────────────────────────
   const saveScore = useCallback((criterion: keyof Scores, value: string | number) => {
     setScores(prev => ({ ...prev, [criterion]: value === '' ? null : Number(value) }));
@@ -263,7 +280,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const submitEvaluation = useCallback((comment: string) => {
     setJuryComment(comment);
-    addNotification('grade', 'The jury has finalized your evaluation. View your scores.', '/student/evaluation');
+    addNotification('grade', 'Le jury a soumis son évaluation. Les notes seront visibles après publication officielle.', '/student/evaluation');
+  }, []);
+
+  const publishGrades = useCallback(() => {
+    setIsGradesPublished(true);
+    addNotification('grade', 'Les notes finales du PFE ont été publiées officiellement. Vous pouvez les consulter dès maintenant.', '/student/evaluation');
+  }, []);
+
+  const updatePfeWeights = useCallback((supervisor: number, jury: number) => {
+    setPfeWeights({ supervisor, jury });
+    addNotification('grade', `Les coefficients de notation ont été mis à jour par l'administration (${supervisor}% Encadrant / ${jury}% Jury).`, '/admin/grades');
   }, []);
 
   const approveDocument = useCallback((docId: number) => {
@@ -395,13 +422,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return (
     <AppContext.Provider value={{
       session, login, logout,
-      scores, saveScore, submitEvaluation, globalGrade, coefficients: COEFFICIENTS, juryComment,
+      scores, saveScore, submitEvaluation, globalGrade, pfeFinalGrade, coefficients: COEFFICIENTS, juryComment,
       SCORE_LABELS,
       documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
       messages, sendMessage, markMessagesRead, unreadCountForRole, deleteMessage,
       defenses, createDefense, updateDefense, deleteDefense,
       notifications, markNotificationRead, markAllNotificationsRead, unreadNotificationsCount, deleteNotification,
       progressPct, approvedDocs, totalRequired,
+      isGradesPublished, publishGrades,
+      pfeWeights, updatePfeWeights,
       theme, setTheme
     }}>
       {children}

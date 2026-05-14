@@ -38,7 +38,7 @@ const CRITERIA = [
 ];
 
 const JuryEvaluationPage = () => {
-  const { theme } = useApp();
+  const { theme, saveScore, isGradesPublished, scores: globalScores } = useApp();
   const evaluationRef = useRef(null);
   const [activeStudent, setActiveStudent] = useState(PROJECTS_LIST[0]);
   const [scores, setScores] = useState({
@@ -46,6 +46,7 @@ const JuryEvaluationPage = () => {
   });
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [juryNote, setJuryNote] = useState('');
 
   const handleScoreChange = (id, val) => {
     const num = Math.min(20, Math.max(0, parseFloat(val) || 0));
@@ -58,7 +59,8 @@ const JuryEvaluationPage = () => {
   };
 
   const handleSubmit = () => {
-    setSuccessMsg(`L'évaluation pour ${activeStudent.name} a été soumise avec succès.`);
+    saveScore('pfeJury', juryNote);
+    setSuccessMsg(`L'évaluation pour ${activeStudent.name} a été soumise et partagée avec l'encadrant et l'administration.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 8000);
   };
@@ -220,7 +222,7 @@ const JuryEvaluationPage = () => {
                 <Award size={20} className="text-success" /> Évaluation Soutenance PFE (50%)
               </h6>
               <Row className="g-4">
-                <Col md={8}>
+                <Col md={6}>
                   <Form.Group className="mb-4">
                     <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Respect des consignes de présentation</Form.Label>
                     <Form.Control 
@@ -240,8 +242,8 @@ const JuryEvaluationPage = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4}>
-                  <div className="h-100 p-4 rounded-4 bg-white border border-light-soft d-flex flex-column align-items-center justify-content-center text-center">
+                <Col md={3}>
+                  <div className="h-100 p-4 rounded-4 bg-white border border-light-soft d-flex flex-column align-items-center justify-content-center text-center shadow-sm">
                     <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note du Jury</Form.Label>
                     <Form.Control 
                       type="number" 
@@ -249,8 +251,24 @@ const JuryEvaluationPage = () => {
                       className="h1 fw-bold text-center border-0 bg-transparent text-success shadow-none mb-0" 
                       style={{ fontSize: '3rem' }}
                       placeholder="00"
+                      value={juryNote}
+                      onChange={(e) => setJuryNote(e.target.value)}
                     />
                     <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
+                  </div>
+                </Col>
+                <Col md={3}>
+                  <div className="h-100 p-4 rounded-4 bg-surface-alt border border-light-soft d-flex flex-column align-items-center justify-content-center text-center opacity-75">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Encadrant</Form.Label>
+                    <div className="h1 fw-bold text-navy mb-0">
+                      {isGradesPublished 
+                        ? (globalScores.pfeSupervisor !== null ? globalScores.pfeSupervisor : '--')
+                        : '??'}
+                    </div>
+                    <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
+                    <Badge className={`mt-2 border-0 extra-small fw-bold ${isGradesPublished ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
+                      {isGradesPublished ? 'Public' : 'Confidentiel'}
+                    </Badge>
                   </div>
                 </Col>
               </Row>

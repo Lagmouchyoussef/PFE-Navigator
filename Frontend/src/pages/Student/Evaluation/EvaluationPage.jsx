@@ -15,8 +15,10 @@ import {
   CartesianGrid, Tooltip, Radar, RadarChart, 
   PolarGrid, PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
+import { useApp } from '../../../context/AppContext';
 
 const EvaluationPage = () => {
+  const { scores, pfeFinalGrade, isGradesPublished, pfeWeights } = useApp();
   const performanceData = [
     { name: 'Proposal', score: 85 },
     { name: 'Interim', score: 88 },
@@ -227,32 +229,63 @@ const EvaluationPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {breakdownData.map((row, i) => (
-                    <tr key={i} className="border-bottom border-light border-opacity-10">
-                      <td className="px-4 py-3">
-                        <div className="fw-bold small text-navy">{row.component}</div>
-                      </td>
-                      <td><span className="extra-small fw-bold text-muted">{row.weight}</span></td>
-                      <td>
-                        <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${row.score === 'Pending' ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
-                          {row.score}
-                        </Badge>
-                      </td>
-                      <td><span className="fw-bold text-navy small">{row.points}</span></td>
-                      <td className="px-4 py-3 text-end" style={{ width: '200px' }}>
-                        <ProgressBar now={row.progress} variant="primary" style={{ height: '6px' }} className="rounded-pill bg-surface-alt border-0" />
+                  {!isGradesPublished ? (
+                    <tr>
+                      <td colSpan="5" className="py-5 text-center">
+                        <div className="d-flex flex-column align-items-center gap-3">
+                          <div className="p-3 bg-warning-soft text-warning rounded-circle shadow-sm">
+                            <Clock size={32} />
+                          </div>
+                          <h6 className="fw-bold text-navy mb-1">En attente de publication officielle</h6>
+                          <p className="extra-small text-muted fw-bold mb-0 opacity-75 max-w-400 mx-auto">
+                            Vos notes de PFE (Encadrant et Jury) ont été soumises mais restent confidentielles jusqu'à la validation finale par l'administration.
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
-                  <tr className="bg-surface-alt align-middle">
-                    <td colSpan="3" className="px-4 py-4 fw-bold text-navy">Total Points Calculated</td>
-                    <td colSpan="2" className="px-4 py-4 text-end">
-                      <div className="d-flex align-items-baseline justify-content-end gap-2">
-                        <h3 className="fw-bold text-primary mb-0">30.35</h3>
-                        <span className="text-muted extra-small fw-bold">/ 100</span>
-                      </div>
-                    </td>
-                  </tr>
+                  ) : (
+                    <>
+                      <tr className="border-bottom border-light border-opacity-10 bg-primary-soft bg-opacity-10">
+                        <td className="px-4 py-4">
+                          <div className="fw-bold small text-primary">Note Encadrant (Contrôle Continu)</div>
+                        </td>
+                        <td><span className="extra-small fw-bold text-muted">{pfeWeights.supervisor}%</span></td>
+                        <td>
+                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${scores.pfeSupervisor === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
+                            {scores.pfeSupervisor !== null ? `${scores.pfeSupervisor}/20` : 'En attente'}
+                          </Badge>
+                        </td>
+                        <td><span className="fw-bold text-navy small">{scores.pfeSupervisor !== null ? (scores.pfeSupervisor * (pfeWeights.supervisor / 100)).toFixed(2) : '--'}</span></td>
+                        <td className="px-4 py-4 text-end" style={{ width: '200px' }}>
+                          <ProgressBar now={scores.pfeSupervisor ? (scores.pfeSupervisor / 20) * 100 : 0} variant="success" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
+                        </td>
+                      </tr>
+                      <tr className="border-bottom border-light border-opacity-10 bg-info-soft bg-opacity-10">
+                        <td className="px-4 py-4">
+                          <div className="fw-bold small text-info">Note Jury (Soutenance PFE)</div>
+                        </td>
+                        <td><span className="extra-small fw-bold text-muted">{pfeWeights.jury}%</span></td>
+                        <td>
+                          <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${scores.pfeJury === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
+                            {scores.pfeJury !== null ? `${scores.pfeJury}/20` : 'En attente'}
+                          </Badge>
+                        </td>
+                        <td><span className="fw-bold text-navy small">{scores.pfeJury !== null ? (scores.pfeJury * (pfeWeights.jury / 100)).toFixed(2) : '--'}</span></td>
+                        <td className="px-4 py-4 text-end" style={{ width: '200px' }}>
+                          <ProgressBar now={scores.pfeJury ? (scores.pfeJury / 20) * 100 : 0} variant="info" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
+                        </td>
+                      </tr>
+                      <tr className="bg-surface-alt align-middle">
+                        <td colSpan="3" className="px-4 py-4 fw-bold text-navy">Note Finale PFE (Moyenne Consolidée)</td>
+                        <td colSpan="2" className="px-4 py-4 text-end">
+                          <div className="d-flex align-items-baseline justify-content-end gap-2">
+                            <h3 className="fw-bold text-primary mb-0">{pfeFinalGrade !== null ? pfeFinalGrade.toFixed(2) : '--'}</h3>
+                            <span className="text-muted extra-small fw-bold">/ 20</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </Table>
             </div>

@@ -58,4 +58,6 @@ export interface Scores {
   technique: number | null;
   innovation: number | null;
   delais: number | null;
+  pfeSupervisor: number | null;
+  pfeJury: number | null;
 }

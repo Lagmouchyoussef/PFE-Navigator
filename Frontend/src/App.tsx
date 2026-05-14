@@ -71,6 +71,8 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
   return <>{children}</>;
 };
 
+import AdminGrades from './pages/Admin/Grades/AdminGrades';
+
 function App() {
   const location = useLocation();
   const {
@@ -156,6 +158,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="subjects" element={<AdminSubjects />} />
+          <Route path="grades" element={<AdminGrades />} />
           <Route path="jury" element={<JuryPlanning />} />
           <Route path="projects" element={<ProjectsArchive />} />
           <Route path="analytics" element={<AnalyticsCenter />} />
