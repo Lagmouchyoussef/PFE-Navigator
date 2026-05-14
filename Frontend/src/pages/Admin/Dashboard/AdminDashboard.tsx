@@ -6,13 +6,15 @@ import {
 import { 
   Users, Briefcase, Plus, Search, 
   Database, Download, Edit, Trash2, Lock,
-  Clock
+  Clock, Trash
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
 import StatCard from '../../../components/shared/StatCard';
+import { useApp } from '../../../context/AppContext';
+import { motion } from 'framer-motion';
 
 const USER_DATA = [
   { id: 1, name: 'Alice Johnson', email: 'alice.j@emsi.ma', role: 'Student', status: 'Active', color: 'primary' },
@@ -33,6 +35,8 @@ const STATUS_DATA = [
 ];
 
 const AdminDashboard: React.FC = () => {
+  const { appointments, deleteAppointment } = useApp();
+  const [visibleCount, setVisibleCount] = React.useState(5);
   return (
     <div className="py-2">
       <Container fluid className="px-0">
@@ -70,7 +74,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Charts Section */}
         <Row className="g-4 mb-5">
-          <Col lg={8}>
+          <Col lg={7}>
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Tendances de Soumission</h5>
               <div style={{ height: '300px' }}>
@@ -94,13 +98,61 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </Col>
+          <Col lg={5}>
+            <div className="glass-card p-4 h-100">
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy d-flex justify-content-between align-items-center">
+                <span>Événements & Rendez-vous</span>
+                <Badge className="bg-primary-soft text-primary extra-small border-0 px-2 py-1 rounded-pill">{appointments.length}</Badge>
+              </h5>
+              <div className="d-flex flex-column gap-3 overflow-auto" style={{ maxHeight: '400px' }}>
+                {appointments.slice(0, visibleCount).map((appt, i) => (
+                  <motion.div 
+                    key={appt.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className={`p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all ${appt.status === 'Cancelled' ? 'opacity-50' : ''}`}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <div className="small fw-bold text-navy">{appt.title}</div>
+                      <div className="d-flex align-items-center gap-2">
+                        <Badge className={`bg-${appt.status === 'Confirmed' ? 'success' : appt.status === 'Rescheduled' ? 'info' : appt.status === 'Cancelled' ? 'danger' : 'warning'}-soft text-${appt.status === 'Confirmed' ? 'success' : appt.status === 'Rescheduled' ? 'info' : appt.status === 'Cancelled' ? 'danger' : 'warning'} border-0 extra-small px-2`}>
+                          {appt.status}
+                        </Badge>
+                        <Button variant="link" className="p-0 text-danger border-0 shadow-none hover-bg-danger-soft rounded-circle" onClick={() => deleteAppointment(appt.id)}>
+                          <Trash size={12} />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="d-flex align-items-center gap-3 extra-small text-muted fw-bold">
+                      <span className="d-flex align-items-center gap-1"><Users size={12}/> {appt.studentName}</span>
+                      <span className="d-flex align-items-center gap-1"><Clock size={12}/> {appt.date} • {appt.time}</span>
+                    </div>
+                  </motion.div>
+                ))}
+                {visibleCount < appointments.length && (
+                  <Button 
+                    variant="link" 
+                    className="w-100 mt-2 extra-small fw-bold text-primary text-decoration-none border-0 shadow-none"
+                    onClick={() => setVisibleCount(prev => prev + 5)}
+                  >
+                    Load More Events
+                  </Button>
+                )}
+              </div>
+              <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-muted text-decoration-none border-0 shadow-none opacity-50">Gérer le planning complet</Button>
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="mb-5">
           <Col lg={4}>
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Répartition des Statuts</h5>
-              <div style={{ height: '300px' }}>
+              <div style={{ height: '240px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={STATUS_DATA} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    <Pie data={STATUS_DATA} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
                       {STATUS_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <Tooltip />

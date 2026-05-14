@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { 
   User, Session, Document as AppDocument, Message, Defense, 
-  Notification, Scores, UserRole, Milestone
+  Notification, Scores, UserRole, Milestone, Appointment
 } from '../types';
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
@@ -163,6 +163,79 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   },
 ];
 
+const INITIAL_APPOINTMENTS: Appointment[] = [
+  {
+    id: 1,
+    title: "Mid-term Review: AI Project",
+    studentName: "Ahmed Khalil",
+    date: "2026-05-15",
+    time: "10:00 AM",
+    location: "Salle 402 / Online",
+    type: "Review",
+    status: "Confirmed"
+  },
+  {
+    id: 2,
+    title: "Technical Workshop: Blockchain",
+    studentName: "Sara Kamali",
+    date: "2026-05-18",
+    time: "02:00 PM",
+    location: "Lab A-12",
+    type: "Meeting",
+    status: "Pending"
+  },
+  {
+    id: 3,
+    title: "Thesis Draft Review",
+    studentName: "Mehdi Alami",
+    date: "2026-05-20",
+    time: "11:30 AM",
+    location: "Office 302",
+    type: "Review",
+    status: "Confirmed"
+  },
+  {
+    id: 4,
+    title: "Final Presentation Prep",
+    studentName: "Fatima Zahra",
+    date: "2026-05-22",
+    time: "03:00 PM",
+    location: "Auditorium",
+    type: "Workshop",
+    status: "Confirmed"
+  },
+  {
+    id: 5,
+    title: "Jury Coordination Meeting",
+    studentName: "Admin Team",
+    date: "2026-05-25",
+    time: "09:00 AM",
+    location: "Zoom",
+    type: "Meeting",
+    status: "Confirmed"
+  },
+  {
+    id: 6,
+    title: "Prototype Validation",
+    studentName: "Yassine Drissi",
+    date: "2026-05-28",
+    time: "01:30 PM",
+    location: "Lab B-04",
+    type: "Validation",
+    status: "Confirmed"
+  },
+  {
+    id: 7,
+    title: "Project Conclusion",
+    studentName: "Imane Fathi",
+    date: "2026-06-02",
+    time: "10:00 AM",
+    location: "Salle 105",
+    type: "Meeting",
+    status: "Pending"
+  }
+];
+
 // ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
 
 interface AppContextType {
@@ -212,9 +285,22 @@ interface AppContextType {
   // Validation Results
   isProjectValidated: boolean;
   finalResultMessage: string;
+  // Appointments
+  appointments: Appointment[];
+  rescheduleAppointment: (id: number, newDate: string, newTime: string) => void;
+  cancelAppointment: (id: number) => void;
+  deleteAppointment: (id: number) => void;
+  sendReminder: (id: number) => void;
+  reminders: any[];
+  students: any[];
 }
 
 const AppContext = createContext<AppContextType | null>(null);
+
+const initialReminders = [
+  { id: 1, text: "Soumettre la liste du jury", time: "17:00", type: "warning" },
+  { id: 2, text: "Réunion de département", time: "45 min", type: "primary" }
+];
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
@@ -229,6 +315,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [juryComment, setJuryComment] = useState('');
   const [isGradesPublished, setIsGradesPublished] = useState(false);
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
+  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
+  const [reminders, setReminders] = useState(initialReminders);
+  const [students, setStudents] = useState(initialStudents);
+
+  // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+  const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
+    setNotifications(prev => [
+      {
+        id: Date.now(),
+        type,
+        text,
+        date: new Date().toISOString(),
+        read: false,
+        link,
+      },
+      ...prev,
+    ]);
+  }, []);
 
   
   // THEME MANAGEMENT
@@ -347,6 +451,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDefenses(prev => prev.filter(d => d.id !== id));
   }, []);
 
+  // ── APPOINTMENTS ─────────────────────────────────────────────────────────────
+  const rescheduleAppointment = useCallback((id: number, newDate: string, newTime: string) => {
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, date: newDate, time: newTime, status: 'Rescheduled' } : a));
+    const appt = appointments.find(a => a.id === id);
+    addNotification('defense', `Le rendez-vous "${appt?.title}" a été reprogrammé au ${newDate} à ${newTime}.`, '/student/schedule');
+  }, [appointments]);
+
+  const cancelAppointment = useCallback((id: number) => {
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a));
+    const appt = appointments.find(a => a.id === id);
+    addNotification('defense', `Le rendez-vous "${appt?.title}" a été annulé par l'encadrant.`, '/student/schedule');
+  }, [appointments, addNotification]);
+
+  const deleteAppointment = useCallback((id: number) => {
+    setAppointments(prev => prev.filter(a => a.id !== id));
+  }, []);
+
+  const sendReminder = useCallback((id: number) => {
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, reminderSent: true } : a));
+    const appt = appointments.find(a => a.id === id);
+    addNotification('message', `Rappel envoyé pour le rendez-vous "${appt?.title}".`, '/student/schedule');
+  }, [appointments, addNotification]);
+
   // ── STUDENT ACTIONS ─────────────────────────────────────────────────────────
   const uploadDocument = useCallback((title: string, file: File | null, target: 'supervisor' | 'jury' = 'supervisor') => {
     const existing = documents.filter(d => d.title === title);
@@ -408,19 +535,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [messages]);
 
   // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
-  const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
-    setNotifications(prev => [
-      {
-        id: Date.now(),
-        type,
-        text,
-        date: new Date().toISOString(),
-        read: false,
-        link,
-      },
-      ...prev,
-    ]);
-  }, []);
 
   const markNotificationRead = useCallback((id: number) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
@@ -464,7 +578,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       pfeWeights, updatePfeWeights,
       theme, setTheme,
       projectMilestones, updateMilestone,
-      isProjectValidated, finalResultMessage
+      isProjectValidated, finalResultMessage,
+      appointments, rescheduleAppointment, cancelAppointment, deleteAppointment,
+      sendReminder,
+      reminders,
+      students
     }}>
       {children}
     </AppContext.Provider>

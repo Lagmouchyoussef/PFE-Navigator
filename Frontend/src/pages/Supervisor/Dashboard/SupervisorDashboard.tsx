@@ -16,42 +16,38 @@ import StatCard from '../../../components/shared/StatCard';
 import PerformanceChart from '../../../components/features/supervisor/PerformanceChart';
 import StatusDistribution from '../../../components/features/supervisor/StatusDistribution';
 
-const WEEKLY_ACTIVITY = [
-  { day: 'Lun', meetings: 4, feedback: 12 },
-  { day: 'Mar', meetings: 2, feedback: 8 },
-  { day: 'Mer', meetings: 5, feedback: 15 },
-  { day: 'Jeu', meetings: 3, feedback: 10 },
-  { day: 'Ven', meetings: 6, feedback: 18 },
-  { day: 'Sam', meetings: 1, feedback: 4 },
-];
-
-const DELIVERABLE_STATUS = [
-  { name: 'Cahier des Charges', value: 90, color: 'var(--color-success)' },
-  { name: 'Rapport Partiel', value: 65, color: 'var(--color-primary)' },
-  { name: 'Rapport Final', value: 20, color: 'var(--color-warning)' },
-  { name: 'Présentation', value: 10, color: 'var(--color-info)' },
-];
-
-const SKILLS_DISTRIBUTION = [
-  { subject: 'Analyse', A: 120, B: 110, fullMark: 150 },
-  { subject: 'Développement', A: 98, B: 130, fullMark: 150 },
-  { subject: 'Conception', A: 86, B: 130, fullMark: 150 },
-  { subject: 'Documentation', A: 99, B: 100, fullMark: 150 },
-  { subject: 'Recherche', A: 85, B: 90, fullMark: 150 },
-  { subject: 'Tests', A: 65, B: 85, fullMark: 150 },
-];
-
-const RECENT_STUDENTS = [
-  { id: 1, name: 'Ahmed Khalil', project: 'Système de Gestion PFE avec IA', progress: 85, status: 'Validé', date: '2026-05-15' },
-  { id: 2, name: 'Sara Bennani', project: 'Vérification de Diplômes via Blockchain', progress: 60, status: 'En Cours', date: '2026-05-18' },
-  { id: 3, name: 'Mehdi Alami', project: 'Solution IoT pour Smart Campus', progress: 40, status: 'En Attente', date: '2026-05-20' },
-  { id: 4, name: 'Fatima Zahra Mansouri', project: 'Outil d\'Audit de Cybersécurité', progress: 95, status: 'Validé', date: '2026-05-12' },
-];
+// Removed local constants as they are now in AppContext
 
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { session } = useApp();
+  const { user, students, appointments } = useApp();
   const [showSuccessCard, setShowSuccessCard] = useState(true);
+
+  // Mock data for charts (can be made dynamic later)
+  const WEEKLY_ACTIVITY = [
+    { day: 'Lun', meetings: 4, feedback: 12 },
+    { day: 'Mar', meetings: 2, feedback: 8 },
+    { day: 'Mer', meetings: 5, feedback: 15 },
+    { day: 'Jeu', meetings: 3, feedback: 10 },
+    { day: 'Ven', meetings: 6, feedback: 18 },
+    { day: 'Sam', meetings: 1, feedback: 4 },
+  ];
+
+  const DELIVERABLE_STATUS = [
+    { name: 'Cahier des Charges', value: 90, color: 'var(--color-success)' },
+    { name: 'Rapport Partiel', value: 65, color: 'var(--color-primary)' },
+    { name: 'Rapport Final', value: 20, color: 'var(--color-warning)' },
+    { name: 'Présentation', value: 10, color: 'var(--color-info)' },
+  ];
+
+  const SKILLS_DISTRIBUTION = [
+    { subject: 'Analyse', A: 120, B: 110, fullMark: 150 },
+    { subject: 'Développement', A: 98, B: 130, fullMark: 150 },
+    { subject: 'Conception', A: 86, B: 130, fullMark: 150 },
+    { subject: 'Documentation', A: 99, B: 100, fullMark: 150 },
+    { subject: 'Recherche', A: 85, B: 90, fullMark: 150 },
+    { subject: 'Tests', A: 65, B: 85, fullMark: 150 },
+  ];
 
   return (
     <div className="supervisor-dashboard-layout py-4">
@@ -80,9 +76,9 @@ const SupervisorDashboard: React.FC = () => {
         {/* Welcome Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h2>
+            <h2 className="fw-bold mb-1 text-navy">Tableau de Bord Encadrant</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Academic Year 2025/2026 • Welcome back, Prof. {session?.name}
+              Année Universitaire 2025/2026 • Ravi de vous revoir, Prof. {user?.name}
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -99,11 +95,11 @@ const SupervisorDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
             <StatCard 
-              label="Total Students" 
-              value="24" 
+              label="Étudiants Supervisés" 
+              value={students.length.toString()} 
               color="primary" 
               icon={<Users />} 
-              trend="+3 month" 
+              trend="+3 mois" 
               onClick={() => navigate('/supervisor/students')}
             />
           </Col>
@@ -229,9 +225,9 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={8}>
             <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
               <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-                <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
+                <h5 className="mb-0 fw-bold text-navy">Étudiants Supervisés</h5>
                 <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
-                  View Full List <ChevronRight size={14} />
+                  Voir la liste complète <ChevronRight size={14} />
                 </Button>
               </div>
               <div className="table-responsive">
@@ -246,7 +242,7 @@ const SupervisorDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {RECENT_STUDENTS.map((student) => (
+                    {students.map((student) => (
                       <tr key={student.id} className="border-bottom border-light border-opacity-10">
                         <td className="px-4 py-3">
                           <div className="d-flex align-items-center gap-3">
@@ -317,18 +313,18 @@ const SupervisorDashboard: React.FC = () => {
               {/* Upcoming Deadlines */}
               <Card className="glass-card border p-4 shadow-sm border-0">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-primary">Upcoming Deadlines</h6>
+                  <h6 className="fw-bold mb-0 text-primary">Prochaines Échéances</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
                 <div className="mb-4 pb-3 border-bottom border-muted">
-                  <div className="extra-small text-warning fw-bold mb-1">MAY 15, 2026</div>
-                  <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small text-muted fw-bold">12 students remaining</div>
+                  <div className="extra-small text-warning fw-bold mb-1">15 MAI, 2026</div>
+                  <div className="small fw-bold mb-1">Dépôt du Rapport Final</div>
+                  <div className="extra-small text-muted fw-bold">{students.length} étudiants restants</div>
                 </div>
                 <div className="deadline-item">
-                  <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
-                  <div className="small fw-bold mb-1">Defense Session A</div>
-                  <div className="extra-small text-muted fw-bold">Salle 304 - 9:00 AM</div>
+                  <div className="extra-small text-warning fw-bold mb-1">20 MAI, 2026</div>
+                  <div className="small fw-bold mb-1">Session de Soutenance A</div>
+                  <div className="extra-small text-muted fw-bold">{appointments[0]?.location || "Salle 304"} - {appointments[0]?.time || "09:00"}</div>
                 </div>
               </Card>
 

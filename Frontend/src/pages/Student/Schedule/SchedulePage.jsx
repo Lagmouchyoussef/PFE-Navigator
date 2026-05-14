@@ -3,19 +3,22 @@ import {
   Container, Row, Col, Card, Badge, 
   Button, Table, Modal, Form, Dropdown 
 } from 'react-bootstrap';
+import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 import { 
   Calendar as CalendarIcon, Clock, MapPin, 
   Plus, ChevronLeft, ChevronRight, 
   MoreVertical, CheckCircle, AlertCircle,
-  Users, Info, Bell, Activity, X
+  Users, Info, Bell, Activity, X, Trash2
 } from 'lucide-react';
 
 const SchedulePage = () => {
+  const { appointments, deleteAppointment } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'Meeting' });
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -132,7 +135,7 @@ const SchedulePage = () => {
   const getEventForDay = (day) => {
     if (!day) return null;
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return allEvents.find(ev => ev.date === dateStr);
+    return appointments.find(ev => ev.date === dateStr);
   };
 
   return (
@@ -322,7 +325,7 @@ const SchedulePage = () => {
                   <h6 className="fw-bold text-navy mb-0">Upcoming Events Schedule</h6>
                 </div>
                 <div className="events-list">
-                  {allEvents.map((ev, i) => {
+                  {appointments.slice(0, visibleCount).map((ev, i) => {
                     let icon = <Users size={18} />;
                     let iconColor = 'primary';
                     if (ev.title.toLowerCase().includes('report') || ev.title.toLowerCase().includes('deadline')) {
@@ -334,7 +337,7 @@ const SchedulePage = () => {
                     }
 
                     return (
-                      <div key={i} className="p-4 border-bottom border-light border-opacity-10 hover-bg-surface-alt transition-all">
+                      <div key={i} className={`p-4 border-bottom border-light border-opacity-10 hover-bg-surface-alt transition-all ${ev.status === 'Cancelled' ? 'opacity-50 bg-light' : ''}`}>
                         <div className="d-flex gap-4">
                           <div className={`p-3 rounded-4 bg-${iconColor}-soft text-${iconColor} flex-shrink-0 d-flex align-items-center justify-content-center shadow-sm`} style={{ width: '48px', height: '48px' }}>
                             {icon}
@@ -342,7 +345,12 @@ const SchedulePage = () => {
                           <div className="flex-grow-1">
                             <div className="d-flex align-items-center justify-content-between mb-2">
                               <h6 className="fw-bold text-navy mb-0">{ev.title}</h6>
-                              <Badge className={`bg-${ev.status === 'Upcoming' ? 'primary' : 'success'}-soft text-${ev.status === 'Upcoming' ? 'primary' : 'success'} border-0 extra-small px-3 py-1 fw-bold`}>{ev.status}</Badge>
+                              <div className="d-flex align-items-center gap-2">
+                                <Badge className={`bg-${ev.status === 'Confirmed' ? 'primary' : ev.status === 'Rescheduled' ? 'info' : ev.status === 'Cancelled' ? 'danger' : 'success'}-soft text-${ev.status === 'Confirmed' ? 'primary' : ev.status === 'Rescheduled' ? 'info' : ev.status === 'Cancelled' ? 'danger' : 'success'} border-0 extra-small px-3 py-1 fw-bold`}>{ev.status}</Badge>
+                                <Button variant="link" className="p-1 text-danger border-0 shadow-none hover-bg-danger-soft rounded-circle" onClick={() => deleteAppointment(ev.id)}>
+                                  <Trash2 size={14} />
+                                </Button>
+                              </div>
                             </div>
                             
                             <Row className="g-3 mb-3">
@@ -351,7 +359,7 @@ const SchedulePage = () => {
                                   <CalendarIcon size={14} className="text-primary" /> {ev.date}
                                 </div>
                                 <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                                  <MapPin size={14} className="text-primary" /> {ev.loc}
+                                  <MapPin size={14} className="text-primary" /> {ev.location}
                                 </div>
                               </Col>
                               <Col md={6}>
@@ -359,18 +367,27 @@ const SchedulePage = () => {
                                   <Clock size={14} className="text-primary" /> {ev.time}
                                 </div>
                                 <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                                  <Users size={14} className="text-primary" /> {ev.with}
+                                  <Users size={14} className="text-primary" /> {ev.studentName}
                                 </div>
                               </Col>
                             </Row>
-                            
-                            <p className="extra-small text-muted mb-0 fw-bold opacity-75">{ev.desc}</p>
                           </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                {visibleCount < appointments.length && (
+                  <div className="p-4 text-center border-top bg-light-soft">
+                    <Button 
+                      variant="link" 
+                      className="text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-center gap-2 hover-gap-3 transition-all"
+                      onClick={() => setVisibleCount(prev => prev + 5)}
+                    >
+                      Charger plus d'événements <ChevronRight size={14} />
+                    </Button>
+                  </div>
+                )}
               </Card.Body>
             </Card>
           </Col>

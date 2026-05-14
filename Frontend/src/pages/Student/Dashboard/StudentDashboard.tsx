@@ -26,7 +26,8 @@ const StudentDashboard: React.FC = () => {
     deleteDocument, 
     projectMilestones,
     finalResultMessage,
-    isProjectValidated
+    isProjectValidated,
+    appointments
   } = useApp();
 
   const handleNewSubmission = () => {
@@ -61,9 +62,9 @@ const StudentDashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="fw-bold mb-1 text-navy">Welcome back, {session?.name}</h2>
+              <h2 className="fw-bold mb-1 text-navy">Ravi de vous revoir, {session?.name}</h2>
               <p className="text-muted small mb-0 fw-bold opacity-75">
-                PFE Management System • 2026 PFE Candidate
+                Système PFE • Candidat PFE 2026
               </p>
             </motion.div>
             <div className="d-flex gap-2">
@@ -105,8 +106,8 @@ const StudentDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
             <StatCard 
-              label="Upcoming Events" 
-              value="5" 
+              label="Événements à venir" 
+              value={appointments.length.toString()} 
               color="primary" 
               icon={<Calendar />} 
               onClick={() => navigate('/student/schedule')}
@@ -170,21 +171,21 @@ const StudentDashboard: React.FC = () => {
               {/* Upcoming Defense Widget */}
               <Card className="glass-card border p-4 shadow-sm bg-primary text-white border-0">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h6 className="fw-bold mb-0 text-white">Upcoming Defense</h6>
+                  <h6 className="fw-bold mb-0 text-white">Prochaine Soutenance</h6>
                   <Calendar size={18} className="opacity-75" />
                 </div>
                 <div className="mb-4">
-                  <div className="fw-bold fs-6 mb-1">Soutenance de PFE</div>
-                  <div className="small opacity-75">15 Mai, 2026</div>
+                  <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "Soutenance de PFE"}</div>
+                  <div className="small opacity-75">{appointments[0]?.date || "15 Mai, 2026"}</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
-                    <Clock size={12} /> 09:00 - Salle de Conférence A
+                    <Clock size={12} /> {appointments[0]?.time || "09:00"} - {appointments[0]?.location || "Salle de Conférence A"}
                   </div>
                 </div>
                 <Button 
                   variant="light" 
                   size="sm" 
                   className="w-100 fw-bold rounded-pill text-primary py-2 border-0"
-                  onClick={() => alert("Détails de convocation...")}
+                  onClick={() => navigate('/student/schedule')}
                 >
                   Détails de la Convocation
                 </Button>

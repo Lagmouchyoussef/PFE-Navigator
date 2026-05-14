@@ -70,3 +70,15 @@ export interface Milestone {
   status: 'completed' | 'current' | 'pending';
   date: string;
 }
+
+export interface Appointment {
+  id: number;
+  title: string;
+  studentName: string;
+  date: string;
+  time: string;
+  location: string;
+  type: string;
+  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Rescheduled';
+  reminderSent?: boolean;
+}

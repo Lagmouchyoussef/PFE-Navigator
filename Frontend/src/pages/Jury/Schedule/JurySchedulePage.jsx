@@ -8,17 +8,18 @@ import {
   ChevronLeft, ChevronRight, Download, Info, Video, MoreVertical, X
 } from 'lucide-react';
 
-const SCHEDULE_LIST = [
-  { day: '05', month: '05/26', student: 'Ahmed Benali', title: 'Système de Gestion Intelligent basé sur l\'IA', time: '09:00', room: 'A-204', jurys: 3 },
-  { day: '05', month: '05/26', student: 'Sara Kamali', title: 'Vérification de Certificats par Blockchain', time: '11:00', room: 'B-101', jurys: 3 },
-  { day: '06', month: '05/26', student: 'Fatima Zahra', title: 'Application Mobile pour Inscription aux Cours', time: '14:00', room: 'A-204', jurys: 3 },
-  { day: '07', month: '05/26', student: 'Youssef Idrissi', title: 'Modèles de Prédiction Machine Learning', time: '16:00', room: 'C-305', jurys: 3 }
-];
+import { useApp } from '../../../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const JurySchedulePage = () => {
+  const navigate = useNavigate();
+  const { user, appointments, cancelAppointment } = useApp();
   const [selectedDay, setSelectedDay] = useState(12);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+  // Filter defense appointments
+  const defenseAppointments = appointments.filter(app => app.type === 'Defense' || app.type === 'Review');
 
   return (
     <div className="jury-schedule-layout py-4">
@@ -26,12 +27,12 @@ const JurySchedulePage = () => {
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy text-gradient">Defense Calendar</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Schedule and manage academic project defenses.</p>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Calendrier des Soutenances</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Gérez le planning des soutenances et révisions académiques.</p>
           </motion.div>
           <div className="d-flex gap-2">
             <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Export Planning
+              <Download size={18} /> Exporter le Planning
             </Button>
           </div>
         </header>
@@ -39,9 +40,9 @@ const JurySchedulePage = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Upcoming Defenses', value: '8', color: 'primary' },
-            { label: 'This Month', value: '15', color: 'success' },
-            { label: 'Avg Time', value: '5.5h', color: 'warning' },
+            { label: 'Soutenances Prévues', value: defenseAppointments.length, color: 'primary' },
+            { label: 'Ce Mois', value: '15', color: 'success' },
+            { label: 'Temps Moyen', value: '5.5h', color: 'warning' },
           ].map((stat, i) => (
             <Col lg={4} key={i}>
               <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
@@ -82,12 +83,12 @@ const JurySchedulePage = () => {
 
           <Col lg={5}>
             <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-              <h5 className="fw-bold text-navy mb-0">Upcoming Schedule</h5>
-              <Badge className="bg-primary-soft text-primary border-0 extra-small fw-bold px-3 py-2 rounded-pill">4 Planned</Badge>
+              <h5 className="fw-bold text-navy mb-0">Planning à venir</h5>
+              <Badge className="bg-primary-soft text-primary border-0 extra-small fw-bold px-3 py-2 rounded-pill">{defenseAppointments.length} Prévues</Badge>
             </div>
 
             <div className="d-flex flex-column gap-3">
-              {SCHEDULE_LIST.map((item, i) => (
+              {defenseAppointments.map((item, i) => (
                 <motion.div 
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
@@ -97,15 +98,15 @@ const JurySchedulePage = () => {
                 >
                   <div className="d-flex gap-3 align-items-center">
                     <div className="p-3 bg-primary-soft text-primary rounded-4 text-center" style={{ minWidth: '65px' }}>
-                      <div className="fw-bold h4 mb-0">{item.day}</div>
-                      <div className="extra-small fw-bold opacity-75 uppercase">MAY</div>
+                      <div className="fw-bold h4 mb-0">{item.date.split('-')[2]}</div>
+                      <div className="extra-small fw-bold opacity-75 uppercase">MAI</div>
                     </div>
                     <div className="flex-grow-1 overflow-hidden">
-                      <div className="small fw-bold text-navy text-truncate mb-1">{item.student}</div>
+                      <div className="small fw-bold text-navy text-truncate mb-1">{item.studentName}</div>
                       <p className="extra-small text-muted fw-bold opacity-75 text-truncate mb-2">{item.title}</p>
                       <div className="d-flex gap-3 extra-small text-muted fw-bold opacity-50">
                         <span className="d-flex align-items-center gap-1"><Clock size={12} className="text-primary"/> {item.time}</span>
-                        <span className="d-flex align-items-center gap-1"><MapPin size={12} className="text-danger"/> {item.room}</span>
+                        <span className="d-flex align-items-center gap-1"><MapPin size={12} className="text-danger"/> {item.location}</span>
                       </div>
                     </div>
                     <Dropdown align="end">
@@ -113,10 +114,10 @@ const JurySchedulePage = () => {
                         <MoreVertical size={18}/>
                       </Dropdown.Toggle>
                       <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
-                        <Dropdown.Item className="py-2 fw-bold text-navy">View Details</Dropdown.Item>
-                        <Dropdown.Item className="py-2 fw-bold text-navy">Contact Student</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-navy">Voir Détails</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-navy">Contacter l'étudiant</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item className="py-2 fw-bold text-danger">Cancel Defense</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => cancelAppointment(item.id)}>Annuler la soutenance</Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
