@@ -26,18 +26,45 @@ const INITIAL_USERS: UserData[] = [
 ];
 
 const UserManagement: React.FC = () => {
-  const [users] = useState<UserData[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [formData, setFormData] = useState<Partial<UserData>>({});
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleOpenModal = (user?: UserData) => {
+    if (user) {
+      setEditingUser(user);
+      setFormData({ ...user });
+    } else {
+      setEditingUser(null);
+      setFormData({ name: '', email: '', role: 'Student', status: 'Active' });
+    }
+    setShowModal(true);
+  };
 
-  const openAddModal = () => setShowAddModal(true);
-  const closeModal = () => setShowAddModal(false);
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingUser(null);
+  };
+
+  const handleSave = () => {
+    if (editingUser) {
+      setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData } as UserData : u));
+    } else {
+      const newUser: UserData = {
+        id: Math.max(...users.map(u => u.id)) + 1,
+        name: formData.name || '',
+        email: formData.email || '',
+        role: formData.role || 'Student',
+        status: (formData.status as any) || 'Active',
+        lastLogin: 'Never',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`
+      };
+      setUsers([...users, newUser]);
+    }
+    closeModal();
+  };
 
   return (
     <div className="users-modern-layout py-4">
@@ -54,7 +81,7 @@ const UserManagement: React.FC = () => {
             </Button>
             <Button 
               className="btn-premium d-flex align-items-center gap-2"
-              onClick={openAddModal}
+              onClick={() => handleOpenModal()}
             >
               <UserPlus size={18} /> Ajouter Utilisateur
             </Button>
@@ -146,7 +173,7 @@ const UserManagement: React.FC = () => {
                           <MoreHorizontal size={18} />
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                          <Dropdown.Item className="extra-small fw-bold"><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleOpenModal(user)}><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
                           <Dropdown.Item className="extra-small fw-bold"><Mail size={14} className="me-2" /> Message</Dropdown.Item>
                           <Dropdown.Item className="extra-small fw-bold"><Shield size={14} className="me-2" /> Accès</Dropdown.Item>
                           <Dropdown.Divider />
@@ -169,41 +196,88 @@ const UserManagement: React.FC = () => {
         </div>
       </Container>
 
-      {/* Add User Modal */}
-      <Modal show={showAddModal} onHide={closeModal} centered className="users-modal">
+      {/* User Modal (Add/Edit) */}
+      <Modal show={showModal} onHide={closeModal} centered className="users-modal">
         <Modal.Header closeButton className="border-bottom px-4 py-3">
-          <Modal.Title className="fw-bold fs-5 text-navy">Ajouter Utilisateur</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">{editingUser ? 'Modifier Utilisateur' : 'Ajouter Utilisateur'}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
+          <div className="d-flex flex-column align-items-center mb-4">
+            <div className="position-relative mb-2">
+              <img 
+                src={formData.avatar || 'https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff'} 
+                alt="Avatar Preview" 
+                className="rounded-circle border shadow-sm" 
+                style={{ width: '80px', height: '80px', objectFit: 'cover' }} 
+              />
+              <Button 
+                size="sm" 
+                className="position-absolute bottom-0 end-0 p-1 rounded-circle bg-primary border-white" 
+                style={{ width: '28px', height: '28px' }}
+                onClick={() => {
+                  const names = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan'];
+                  const randomName = names[Math.floor(Math.random() * names.length)];
+                  setFormData({...formData, avatar: `https://ui-avatars.com/api/?name=${randomName}&background=random&color=fff`});
+                }}
+              >
+                <Camera size={14} color="white" />
+              </Button>
+            </div>
+            <div className="extra-small fw-bold text-muted text-uppercase">Photo de Profil (Géré par l'Admin)</div>
+          </div>
           <Form>
             <Row className="g-3">
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
-                <Form.Control placeholder="Ex: Jean" className="form-control-premium fw-bold" />
+                <Form.Control 
+                  value={formData.name?.split(' ')[0] || ''} 
+                  onChange={e => setFormData({...formData, name: `${e.target.value} ${formData.name?.split(' ')[1] || ''}`.trim()})}
+                  placeholder="Ex: Jean" 
+                  className="form-control-premium fw-bold" 
+                />
               </Col>
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom</Form.Label>
-                <Form.Control placeholder="Ex: Dupont" className="form-control-premium fw-bold" />
+                <Form.Control 
+                  value={formData.name?.split(' ')[1] || ''} 
+                  onChange={e => setFormData({...formData, name: `${formData.name?.split(' ')[0] || ''} ${e.target.value}`.trim()})}
+                  placeholder="Ex: Martin" 
+                  className="form-control-premium fw-bold" 
+                />
               </Col>
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Professionnel</Form.Label>
-                <Form.Control type="email" placeholder="jean.dupont@email.com" className="form-control-premium fw-bold" />
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Institutionnel</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  value={formData.email || ''} 
+                  onChange={e => setFormData({...formData, email: e.target.value})}
+                  placeholder="jean.martin@email.com" 
+                  className="form-control-premium fw-bold" 
+                />
               </Col>
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Rôle</Form.Label>
-                <Form.Select className="form-control-premium fw-bold">
-                  <option>Étudiant</option>
-                  <option>Jury Member</option>
-                  <option>Supervisor</option>
-                  <option>Admin</option>
+                <Form.Select 
+                  value={formData.role || 'Student'} 
+                  onChange={e => setFormData({...formData, role: e.target.value})}
+                  className="form-control-premium fw-bold"
+                >
+                  <option value="Student">Étudiant</option>
+                  <option value="Jury Member">Membre de Jury</option>
+                  <option value="Supervisor">Encadrant</option>
+                  <option value="Admin">Administrateur</option>
                 </Form.Select>
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Statut Initial</Form.Label>
-                <Form.Select className="form-control-premium fw-bold">
-                  <option>Actif</option>
-                  <option>En attente</option>
-                  <option>Inactif</option>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Statut</Form.Label>
+                <Form.Select 
+                  value={formData.status || 'Active'} 
+                  onChange={e => setFormData({...formData, status: e.target.value as any})}
+                  className="form-control-premium fw-bold"
+                >
+                  <option value="Active">Actif</option>
+                  <option value="Pending">En attente</option>
+                  <option value="Inactive">Inactif</option>
                 </Form.Select>
               </Col>
             </Row>
@@ -211,7 +285,7 @@ const UserManagement: React.FC = () => {
         </Modal.Body>
         <Modal.Footer className="border-top p-4">
           <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={closeModal}>Annuler</Button>
-          <Button className="btn-premium px-4">Créer l'utilisateur</Button>
+          <Button className="btn-premium px-4" onClick={handleSave}>{editingUser ? 'Sauvegarder' : 'Créer l\'utilisateur'}</Button>
         </Modal.Footer>
       </Modal>
     </div>

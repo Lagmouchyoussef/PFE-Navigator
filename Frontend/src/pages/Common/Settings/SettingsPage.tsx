@@ -117,9 +117,11 @@ const SettingsPage: React.FC = () => {
                         <div className="avatar-xl bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>
                           {session?.name?.charAt(0)}
                         </div>
-                        <Button className="position-absolute bottom-0 end-0 p-2 rounded-circle bg-primary border-0 shadow-sm" style={{ width: '36px', height: '36px' }} onClick={() => fileInputRef.current?.click()}>
-                          <Camera size={16} color="white" />
-                        </Button>
+                        {session?.role === 'admin' && (
+                          <Button className="position-absolute bottom-0 end-0 p-2 rounded-circle bg-primary border-0 shadow-sm" style={{ width: '36px', height: '36px' }} onClick={() => fileInputRef.current?.click()}>
+                            <Camera size={16} color="white" />
+                          </Button>
+                        )}
                         <input type="file" ref={fileInputRef} className="d-none" />
                       </div>
                       <div>
@@ -138,14 +140,31 @@ const SettingsPage: React.FC = () => {
                       <Row className="g-4">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">First & Last Name</Form.Label>
-                            <Form.Control defaultValue={session?.name} className="form-control-premium" />
+                            <Form.Label className="small fw-bold text-muted mb-2">Nom</Form.Label>
+                            <Form.Control defaultValue={session?.name?.split(' ')[1] || ''} placeholder="Ex: Benali" className="form-control-premium" />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Institutional Email</Form.Label>
-                            <Form.Control defaultValue={session?.email} className="form-control-premium" readOnly />
+                            <Form.Label className="small fw-bold text-muted mb-2">Prénom</Form.Label>
+                            <Form.Control defaultValue={session?.name?.split(' ')[0] || ''} placeholder="Ex: Ahmed" className="form-control-premium" />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Numéro de téléphone</Form.Label>
+                            <Form.Control type="tel" defaultValue="+212 600 000 000" placeholder="+212 6..." className="form-control-premium" />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Email Institutionnel</Form.Label>
+                            <Form.Control 
+                              defaultValue={session?.email} 
+                              className="form-control-premium" 
+                              readOnly={session?.role !== 'admin'} 
+                              title={session?.role !== 'admin' ? "Seul l'administrateur peut modifier l'email" : ""}
+                            />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
