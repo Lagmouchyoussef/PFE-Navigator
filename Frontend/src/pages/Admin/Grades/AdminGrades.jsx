@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Award, Star, Send, CheckCircle, 
   AlertCircle, Edit3, Save, Search, 
-  Filter, Share2, Eye
+  Filter, Share2, Eye, Download, FileText, FileDown
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
@@ -20,6 +20,34 @@ const AdminGrades = () => {
   const [editForm, setEditForm] = useState({ supervisor: '', jury: '' });
   const [weightForm, setWeightForm] = useState({ supervisor: 50, jury: 50 });
   const [juryCriteriaWeightForm, setJuryCriteriaWeightForm] = useState({});
+  const [selectedGrades, setSelectedGrades] = useState([]);
+
+  const toggleSelectAll = () => {
+    if (selectedGrades.length === filteredStudents.length) {
+      setSelectedGrades([]);
+    } else {
+      setSelectedGrades(filteredStudents.map(s => s.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedGrades.includes(id)) {
+      setSelectedGrades(selectedGrades.filter(sId => sId !== id));
+    } else {
+      setSelectedGrades([...selectedGrades, id]);
+    }
+  };
+
+  const handleExport = (format) => {
+    const count = selectedGrades.length;
+    alert(`Exportation des notes de ${count} étudiant(s) au format ${format} en cours...`);
+    setSelectedGrades([]);
+  };
+
+  const filteredStudents = students.filter(s => 
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.project.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleOpenWeights = () => {
     setWeightForm({ ...pfeWeights });
@@ -126,8 +154,8 @@ const AdminGrades = () => {
         {/* Main Content */}
         <Card className="glass-card border shadow-sm border overflow-hidden">
           <Card.Header className="p-4 bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-0">
-            <div className="d-flex align-items-center gap-3 flex-grow-1 max-w-400">
-              <div className="position-relative w-100">
+            <div className="d-flex align-items-center gap-3 flex-grow-1">
+              <div className="position-relative" style={{ width: '300px' }}>
                 <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted opacity-50" size={18} />
                 <Form.Control 
                   type="text" 
@@ -137,6 +165,41 @@ const AdminGrades = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+              <AnimatePresence>
+                {selectedGrades.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="d-flex gap-2 bg-success-soft p-1 rounded-pill border border-success border-opacity-10 px-2 shadow-sm"
+                  >
+                    <div className="extra-small fw-bold text-success px-2 border-end border-success border-opacity-25 d-flex align-items-center">
+                      {selectedGrades.length} sélectionnés
+                    </div>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-success extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-success hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('PDF')}
+                    >
+                      <FileDown size={14} /> PDF
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-success extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-success hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('Word')}
+                    >
+                      <FileText size={14} /> Word
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-success extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-success hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('CSV')}
+                    >
+                      <Download size={14} /> CSV
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">Session Juin 2026</Badge>
           </Card.Header>
@@ -145,7 +208,15 @@ const AdminGrades = () => {
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
                 <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
+                  <th className="px-4 py-3" style={{ width: '40px' }}>
+                    <Form.Check 
+                      type="checkbox"
+                      className="custom-checkbox-premium mb-0"
+                      checked={selectedGrades.length === filteredStudents.length && filteredStudents.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Encadrant ({pfeWeights.supervisor}%)</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Jury ({pfeWeights.jury}%)</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Remarques Jury</th>
@@ -155,9 +226,17 @@ const AdminGrades = () => {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <tr key={student.id} className="border-bottom border-light border-opacity-10">
                     <td className="px-4 py-3">
+                      <Form.Check 
+                        type="checkbox"
+                        className="custom-checkbox-premium mb-0"
+                        checked={selectedGrades.includes(student.id)}
+                        onChange={() => toggleSelect(student.id)}
+                      />
+                    </td>
+                    <td className="py-3">
                       <div className="fw-bold text-navy small">{student.name}</div>
                       <div className="extra-small text-muted fw-bold opacity-50">{student.project}</div>
                     </td>

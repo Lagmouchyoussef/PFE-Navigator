@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { 
   Search, Edit2, Trash2, Mail, Shield, 
   Clock, XCircle, UserCheck, UserPlus, Users, 
-  MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone
+  MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone, Eye, EyeOff,
+  LayoutDashboard, FileText, Award, Calendar, Settings, Briefcase, UserCheck as UserIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal, Tabs, Tab } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
+import { useApp } from '../../../context/AppContext';
 
 interface UserData {
   id: number;
@@ -98,12 +100,21 @@ const INITIAL_USERS: UserData[] = [
 ];
 
 const UserManagement: React.FC = () => {
+  const { sendMessage: globalSendMessage } = useApp();
   const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [formData, setFormData] = useState<Partial<UserData>>({});
   const [isOtherDiploma, setIsOtherDiploma] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageRecipient, setMessageRecipient] = useState<UserData | null>(null);
+  const [messageContent, setMessageContent] = useState('');
+  const [showAccessModal, setShowAccessModal] = useState(false);
+  const [accessUser, setAccessUser] = useState<UserData | null>(null);
 
   const handleOpenModal = (user?: UserData) => {
     if (user) {
@@ -116,6 +127,7 @@ const UserManagement: React.FC = () => {
       setFormData({ name: '', email: '', role: 'Student', status: 'Active' });
       setIsOtherDiploma(false);
     }
+    setShowPassword(false);
     setShowModal(true);
   };
 
@@ -170,6 +182,44 @@ const UserManagement: React.FC = () => {
       setUsers([...users, newUser]);
     }
     closeModal();
+  };
+
+  const handleDelete = (user: UserData) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (userToDelete) {
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+    }
+  };
+
+  const handleMessage = (user: UserData) => {
+    setMessageRecipient(user);
+    setMessageContent('');
+    setShowMessageModal(true);
+  };
+
+  const sendMessage = () => {
+    if (messageRecipient && messageContent.trim()) {
+      // Send to global context to make it "arrive" for the user
+      globalSendMessage(messageContent, 'admin');
+      
+      alert(`Message envoyé avec succès à ${messageRecipient.name}. Il le recevra dans son interface de messagerie.`);
+      setShowMessageModal(false);
+      setMessageRecipient(null);
+      setMessageContent('');
+    } else {
+      alert("Veuillez saisir un message avant d'envoyer.");
+    }
+  };
+
+  const handleAccess = (user: UserData) => {
+    setAccessUser(user);
+    setShowAccessModal(true);
   };
 
   const filteredUsers = users.filter(u => 
@@ -243,7 +293,7 @@ const UserManagement: React.FC = () => {
         </div>
 
         {/* Users Tables by Role */}
-        <div className="glass-card p-0 overflow-hidden">
+        <div className="glass-card p-0">
           <Tabs
             defaultActiveKey="Student"
             id="user-management-tabs"
@@ -267,7 +317,7 @@ const UserManagement: React.FC = () => {
                   </div>
                 }
               >
-                <div className="table-responsive">
+                <div className="table-responsive" style={{ overflow: 'visible' }}>
                   <Table borderless hover className="align-middle mb-0 custom-table-modern">
                     <thead>
                       <tr>
@@ -317,15 +367,41 @@ const UserManagement: React.FC = () => {
                               <td className="small text-muted fw-bold">{user.lastLogin}</td>
                               <td className="px-4 text-end">
                                 <Dropdown align="end">
-                                  <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
+                                  <Dropdown.Toggle 
+                                    variant="link" 
+                                    className="text-muted p-2 no-caret shadow-none border-0 d-inline-flex align-items-center justify-content-center rounded-circle hover-bg-surface-alt transition-all"
+                                    style={{ width: '32px', height: '32px' }}
+                                  >
                                     <MoreHorizontal size={18} />
                                   </Dropdown.Toggle>
-                                  <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                                    <Dropdown.Item className="extra-small fw-bold" onClick={() => handleOpenModal(user)}><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
-                                    <Dropdown.Item className="extra-small fw-bold"><Mail size={14} className="me-2" /> Message</Dropdown.Item>
-                                    <Dropdown.Item className="extra-small fw-bold"><Shield size={14} className="me-2" /> Accès</Dropdown.Item>
-                                    <Dropdown.Divider />
-                                    <Dropdown.Item className="extra-small fw-bold text-danger"><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
+                                  <Dropdown.Menu 
+                                    className="border-0 shadow-lg rounded-4 overflow-hidden" 
+                                    style={{ zIndex: 1060, minWidth: '180px' }}
+                                    popperConfig={{
+                                      strategy: 'fixed',
+                                      modifiers: [
+                                        {
+                                          name: 'offset',
+                                          options: {
+                                            offset: [0, 8],
+                                          },
+                                        },
+                                      ],
+                                    }}
+                                  >
+                                    <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleOpenModal(user)}>
+                                      <div className="p-1 rounded bg-primary-soft text-primary"><Edit2 size={14} /></div> Modifier
+                                    </Dropdown.Item>
+                                    <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleMessage(user)}>
+                                      <div className="p-1 rounded bg-info-soft text-info"><Mail size={14} /></div> Message
+                                    </Dropdown.Item>
+                                    <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleAccess(user)}>
+                                      <div className="p-1 rounded bg-warning-soft text-warning"><Shield size={14} /></div> Accès
+                                    </Dropdown.Item>
+                                    <Dropdown.Divider className="my-1 opacity-50" />
+                                    <Dropdown.Item className="py-2 px-3 extra-small fw-bold text-danger d-flex align-items-center gap-2" onClick={() => handleDelete(user)}>
+                                      <div className="p-1 rounded bg-danger-soft text-danger"><Trash2 size={14} /></div> Supprimer
+                                    </Dropdown.Item>
                                   </Dropdown.Menu>
                                 </Dropdown>
                               </td>
@@ -584,6 +660,14 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Profession du Père</Form.Label>
+                    <Form.Control 
+                      value={formData.fatherProfession || ''} 
+                      onChange={e => setFormData({...formData, fatherProfession: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
                     <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Père</Form.Label>
                     <Form.Control 
                       value={formData.fatherPhone || ''} 
@@ -596,6 +680,14 @@ const UserManagement: React.FC = () => {
                     <Form.Control 
                       value={formData.motherName || ''} 
                       onChange={e => setFormData({...formData, motherName: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Profession de la Mère</Form.Label>
+                    <Form.Control 
+                      value={formData.motherProfession || ''} 
+                      onChange={e => setFormData({...formData, motherProfession: e.target.value})}
                       className="form-control-premium fw-bold" 
                     />
                   </Col>
@@ -695,18 +787,32 @@ const UserManagement: React.FC = () => {
                 </>
               )}
 
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité</h6></Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Accès</h6></Col>
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe</Form.Label>
-                <InputGroup>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">
+                  {editingUser ? 'Mot de passe actuel' : 'Mot de passe provisoire'}
+                </Form.Label>
+                <InputGroup className="overflow-hidden">
                   <Form.Control 
-                    type="text"
+                    type={showPassword ? 'text' : 'password'}
                     value={formData.password || 'Emsi2026!'} 
                     onChange={e => setFormData({...formData, password: e.target.value})}
-                    className="form-control-premium fw-bold text-primary" 
+                    className="form-control-premium fw-bold text-primary shadow-none" 
                   />
-                  <InputGroup.Text className="bg-surface-alt border-start-0 text-muted extra-small fw-bold">Admin Only</InputGroup.Text>
+                  <Button 
+                    variant="link" 
+                    className="bg-surface-alt border-start text-muted p-2 no-caret"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
                 </InputGroup>
+                <Form.Text className="extra-small text-muted fw-bold opacity-75">
+                  <AlertCircle size={12} className="me-1" />
+                  {editingUser 
+                    ? "Il s'agit du mot de passe actuel utilisé par l'utilisateur." 
+                    : "L'utilisateur sera invité à changer ce mot de passe dès sa première connexion."}
+                </Form.Text>
               </Col>
 
               {editingUser && (
@@ -756,6 +862,133 @@ const UserManagement: React.FC = () => {
         <Modal.Footer className="border-top p-4">
           <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={closeModal}>Annuler</Button>
           <Button className="btn-premium px-4" onClick={handleSave}>{editingUser ? 'Sauvegarder' : 'Créer l\'utilisateur'}</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="delete-modal-premium">
+        <Modal.Body className="p-4 text-center">
+          <div className="bg-danger-soft text-danger rounded-circle p-3 d-inline-block mb-4 shadow-sm">
+            <AlertCircle size={40} />
+          </div>
+          <h4 className="fw-bold text-navy mb-3">Confirmer la suppression</h4>
+          <p className="text-muted small mb-4 px-3">
+            Êtes-vous sûr de vouloir supprimer l'utilisateur <span className="text-navy fw-bold">"{userToDelete?.name}"</span> ? <br />
+            <span className="text-danger fw-bold">Cette action est irréversible.</span>
+          </p>
+          <div className="d-flex gap-3 justify-content-center">
+            <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowDeleteModal(false)}>
+              Annuler
+            </Button>
+            <Button variant="danger" className="px-4 py-2 rounded-3 fw-bold shadow-sm" onClick={confirmDelete}>
+              Supprimer définitivement
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Message Modal */}
+      <Modal show={showMessageModal} onHide={() => setShowMessageModal(false)} centered className="message-modal-premium">
+        <Modal.Header closeButton className="border-bottom-0 pt-4 px-4">
+          <Modal.Title className="fw-bold text-navy d-flex align-items-center gap-2">
+            <Mail size={24} className="text-primary" /> Envoyer un message
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-surface-alt border">
+            <img src={messageRecipient?.avatar} alt="" className="rounded-circle border" style={{ width: '45px', height: '45px' }} />
+            <div>
+              <div className="small fw-bold text-navy">Destinataire : {messageRecipient?.name}</div>
+              <div className="extra-small text-muted fw-bold">{messageRecipient?.email}</div>
+            </div>
+          </div>
+          <Form.Group>
+            <Form.Label className="extra-small fw-bold text-muted text-uppercase">Votre Message</Form.Label>
+            <Form.Control 
+              as="textarea" 
+              rows={5} 
+              placeholder="Saisissez votre message ici..." 
+              className="form-control-premium fw-bold shadow-none border-2"
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer className="border-top-0 pb-4 px-4">
+          <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowMessageModal(false)}>
+            Annuler
+          </Button>
+          <Button className="btn-premium px-4 d-flex align-items-center gap-2" onClick={sendMessage}>
+            <Mail size={18} /> Envoyer le message
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Access Management Modal */}
+      <Modal show={showAccessModal} onHide={() => setShowAccessModal(false)} centered className="access-modal-premium">
+        <Modal.Header closeButton className="border-bottom-0 pt-4 px-4">
+          <Modal.Title className="fw-bold text-navy d-flex align-items-center gap-2">
+            <Shield size={24} className="text-primary" /> Gestion des Accès
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-surface-alt border">
+            <div className="p-2 bg-primary-soft text-primary rounded-circle">
+              <UserCheck size={20} />
+            </div>
+            <div>
+              <div className="small fw-bold text-navy">{accessUser?.name}</div>
+              <Badge bg="primary-soft" className="text-primary extra-small fw-bold">{accessUser?.role}</Badge>
+            </div>
+          </div>
+
+          <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Contrôle de la Navigation Sidebar ({accessUser?.role})</h6>
+          <div className="d-flex flex-column gap-2">
+            {(accessUser?.role === 'Student' ? [
+              { id: 'dash', label: 'Page Dashboard', desc: 'Accès à la vue d\'ensemble.', icon: <LayoutDashboard size={14} /> },
+              { id: 'docs', label: 'Page Mes Documents', desc: 'Accès au dépôt des rapports.', icon: <FileText size={14} /> },
+              { id: 'eval', label: 'Page Évaluations', desc: 'Accès aux notes et critères.', icon: <Award size={14} /> },
+              { id: 'plan', label: 'Page Planning Soutenances', desc: 'Accès à l\'horaire des soutenances.', icon: <Calendar size={14} /> },
+              { id: 'sett', label: 'Page Paramètres', desc: 'Accès au profil et sécurité.', icon: <Settings size={14} /> }
+            ] : accessUser?.role === 'Jury Member' ? [
+              { id: 'j-dash', label: 'Page Dashboard Jury', desc: 'Accès aux projets assignés.', icon: <LayoutDashboard size={14} /> },
+              { id: 'j-proj', label: 'Page Projets à Évaluer', desc: 'Accès aux rapports en attente.', icon: <Briefcase size={14} /> },
+              { id: 'j-prog', label: 'Page Mon Programme', desc: 'Accès au calendrier personnel.', icon: <Calendar size={14} /> },
+              { id: 'j-sett', label: 'Page Paramètres', desc: 'Accès aux paramètres du compte.', icon: <Settings size={14} /> }
+            ] : accessUser?.role === 'Supervisor' ? [
+              { id: 's-dash', label: 'Page Dashboard Encadrant', desc: 'Accès au suivi global.', icon: <LayoutDashboard size={14} /> },
+              { id: 's-stu', label: 'Page Mes Étudiants', desc: 'Accès à la liste des étudiants.', icon: <Users size={14} /> },
+              { id: 's-eval', label: 'Page Évaluations', desc: 'Accès aux grilles de notation.', icon: <Award size={14} /> },
+              { id: 's-rdv', label: 'Page Rendez-vous', desc: 'Accès au planning des rencontres.', icon: <Clock size={14} /> },
+              { id: 's-sett', label: 'Page Paramètres', desc: 'Accès au profil.', icon: <Settings size={14} /> }
+            ] : [
+              { id: 'a-dash', label: 'Page Dashboard Admin', desc: 'Accès aux statistiques globales.', icon: <LayoutDashboard size={14} /> },
+              { id: 'a-user', label: 'Page Gestion Utilisateurs', desc: 'Accès à la liste des membres.', icon: <Users size={14} /> },
+              { id: 'a-plan', label: 'Page Planning Jury', desc: 'Accès à la configuration des sessions.', icon: <Calendar size={14} /> },
+              { id: 'a-sett', label: 'Page Paramètres', desc: 'Accès aux options système.', icon: <Settings size={14} /> }
+            ]).map((perm) => (
+              <div key={perm.id} className="p-3 rounded-4 border bg-white d-flex justify-content-between align-items-center hover-bg-surface-alt transition-all shadow-sm">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2 rounded-3 bg-primary-soft text-primary border border-primary border-opacity-10">
+                    {perm.icon}
+                  </div>
+                  <div>
+                    <div className="small fw-bold text-navy">{perm.label}</div>
+                    <div className="extra-small text-muted opacity-75">{perm.desc}</div>
+                  </div>
+                </div>
+                <Form.Check type="switch" defaultChecked className="access-switch" />
+              </div>
+            ))}
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="border-top-0 pb-4 px-4">
+          <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowAccessModal(false)}>
+            Fermer
+          </Button>
+          <Button className="btn-premium px-4" onClick={() => setShowAccessModal(false)}>
+            Sauvegarder les permissions
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

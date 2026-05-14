@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Search, CheckCircle, XCircle,
   Clock, AlertCircle, Layout, Eye, Check, X,
-  Filter, MoreVertical, MessageSquare, Edit3, Trash2, Edit
+  Filter, MoreVertical, MessageSquare, Edit3, Trash2, Edit,
+  Download, FileText, FileDown, Share2, Printer
 } from 'lucide-react';
 
 // Custom Animated Trash Icon Component
@@ -70,6 +71,30 @@ const AdminSubjects = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [selectedProposals, setSelectedProposals] = useState([]);
+
+  const toggleSelectAll = () => {
+    if (selectedProposals.length === filteredProposals.length) {
+      setSelectedProposals([]);
+    } else {
+      setSelectedProposals(filteredProposals.map(p => p.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedProposals.includes(id)) {
+      setSelectedProposals(selectedProposals.filter(pId => pId !== id));
+    } else {
+      setSelectedProposals([...selectedProposals, id]);
+    }
+  };
+
+  const handleExport = (format) => {
+    const count = selectedProposals.length;
+    alert(`Exportation de ${count} sujet(s) au format ${format} en cours...`);
+    // Simulated export logic
+    setSelectedProposals([]);
+  };
 
   const handleAction = (id, newStatus) => {
     const statusLabel = newStatus === 'Approved' ? 'approuvé' : 'refusé';
@@ -191,7 +216,42 @@ const AdminSubjects = () => {
               <Layout size={20} className="text-primary" />
               Propositions à Examiner
             </h5>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-3 align-items-center">
+              <AnimatePresence>
+                {selectedProposals.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="d-flex gap-2 bg-primary-soft p-1 rounded-pill border border-primary border-opacity-10 px-2 shadow-sm"
+                  >
+                    <div className="extra-small fw-bold text-primary px-2 border-end border-primary border-opacity-25 d-flex align-items-center">
+                      {selectedProposals.length} sélectionnés
+                    </div>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-primary hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('PDF')}
+                    >
+                      <FileDown size={14} /> PDF
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-primary hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('Word')}
+                    >
+                      <FileText size={14} /> Word
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      className="p-1 px-2 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 hover-bg-primary hover-text-white rounded-pill transition-all"
+                      onClick={() => handleExport('CSV')}
+                    >
+                      <Download size={14} /> CSV
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <InputGroup className="bg-surface-alt rounded-pill border px-3" style={{ width: '300px' }}>
                 <InputGroup.Text className="bg-transparent border-0 pe-0">
                   <Search size={16} className="text-muted" />
@@ -210,7 +270,15 @@ const AdminSubjects = () => {
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
                 <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Sujet & Encadrant</th>
+                  <th className="px-4 py-3" style={{ width: '40px' }}>
+                    <Form.Check 
+                      type="checkbox"
+                      className="custom-checkbox-premium mb-0"
+                      checked={selectedProposals.length === filteredProposals.length && filteredProposals.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Sujet & Encadrant</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Catégorie</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Difficulté</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Statut</th>
@@ -228,6 +296,14 @@ const AdminSubjects = () => {
                       className="border-bottom border-light border-opacity-10"
                     >
                       <td className="px-4 py-3">
+                        <Form.Check 
+                          type="checkbox"
+                          className="custom-checkbox-premium mb-0"
+                          checked={selectedProposals.includes(subject.id)}
+                          onChange={() => toggleSelect(subject.id)}
+                        />
+                      </td>
+                      <td className="py-3">
                         <div className="fw-bold text-navy small mb-1">{subject.title}</div>
                         <div className="extra-small text-primary fw-bold d-flex align-items-center gap-1">
                           <MessageSquare size={12} /> {subject.supervisor}

@@ -11,23 +11,46 @@ interface JurySession {
   date: string;
   location: string;
   time: string;
+  members: string[];
 }
 
+const AVAILABLE_JURIES = [
+  { id: 'j1', name: 'Dr. Sofia Drissi', dept: 'Informatique' },
+  { id: 'j2', name: 'Pr. Youssef Lagmouch', dept: 'Génie Logiciel' },
+  { id: 'j3', name: 'Dr. Ahmed Mansouri', dept: 'Cyber-sécurité' },
+  { id: 'j4', name: 'Pr. Sara Kamali', dept: 'Intelligence Artificielle' },
+  { id: 'j5', name: 'Dr. Karim Tazi', dept: 'Réseaux & Télécoms' },
+];
+
 const INITIAL_JURIES: JurySession[] = [
-  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A', time: '9:00' },
-  { id: 2, title: 'Session Technique', day: 3, date: '3 Jan 2025', location: 'Salle B', time: '14:00' },
-  { id: 3, title: 'Revue de Projet', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00' },
-  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Salle D', time: '10:30' },
-  { id: 5, title: 'Audit Final', day: 12, date: '12 Jan 2025', location: 'Salle A', time: '15:00' },
-  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '9:30' },
-  { id: 7, title: 'Clôture de Session', day: 17, date: '17 Jan 2025', location: 'Salle C', time: '16:30' },
+  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A', time: '09:00', members: ['Dr. Sofia Drissi', 'Dr. Ahmed Mansouri'] },
+  { id: 2, title: 'Session Technique', day: 3, date: '3 Jan 2025', location: 'Salle B', time: '14:00', members: ['Pr. Youssef Lagmouch'] },
+  { id: 3, title: 'Revue de Projet', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00', members: ['Pr. Sara Kamali', 'Dr. Karim Tazi'] },
+  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Salle D', time: '10:30', members: ['Dr. Sofia Drissi'] },
+  { id: 5, title: 'Audit Final', day: 12, date: '12 Jan 2025', location: 'Salle A', time: '15:00', members: ['Dr. Ahmed Mansouri', 'Pr. Youssef Lagmouch'] },
+  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '09:30', members: ['Pr. Sara Kamali'] },
+  { id: 7, title: 'Clôture de Session', day: 17, date: '17 Jan 2025', location: 'Salle C', time: '16:30', members: ['Dr. Karim Tazi', 'Dr. Sofia Drissi'] },
 ];
 
 const JuryPlanning: React.FC = () => {
   const [activeView, setActiveView] = useState('Mois');
   const [juries, setJuries] = useState<JurySession[]>(INITIAL_JURIES);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ title: '', day: 1, location: '' });
+  const [formData, setFormData] = useState({ 
+    title: '', 
+    day: 1, 
+    location: '', 
+    time: '09:00',
+    selectedMembers: [] as string[]
+  });
+
+  const toggleMemberSelection = (name: string) => {
+    if (formData.selectedMembers.includes(name)) {
+      setFormData({ ...formData, selectedMembers: formData.selectedMembers.filter(m => m !== name) });
+    } else {
+      setFormData({ ...formData, selectedMembers: [...formData.selectedMembers, name] });
+    }
+  };
 
   const days: { day: number, current: boolean }[] = [];
   for (let i = 27; i <= 30; i++) days.push({ day: i, current: false });
@@ -41,11 +64,12 @@ const JuryPlanning: React.FC = () => {
       day: formData.day,
       date: `${formData.day} Jan 2025`,
       location: formData.location,
-      time: '9:00'
+      time: formData.time,
+      members: formData.selectedMembers
     };
     setJuries([...juries, newJury]);
     setShowModal(false);
-    setFormData({ title: '', day: 1, location: '' });
+    setFormData({ title: '', day: 1, location: '', time: '09:00', selectedMembers: [] });
   };
 
   return (
@@ -125,15 +149,22 @@ const JuryPlanning: React.FC = () => {
               </h6>
               <div className="d-flex flex-column gap-3">
                 {juries.slice(0, 4).map(j => (
-                  <div key={j.id} className="p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all cursor-pointer">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
+                  <div key={j.id} className="p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all cursor-pointer shadow-sm-hover">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
                       <div className="small fw-bold text-navy">{j.title}</div>
                       <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">
                         {j.day} Jan
                       </Badge>
                     </div>
-                    <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                      <MapPin size={12} /> {j.location} • {j.time}
+                    <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold mb-2">
+                      <MapPin size={12} className="text-primary" /> {j.location} • <Clock size={12} className="text-primary" /> {j.time}
+                    </div>
+                    <div className="d-flex flex-wrap gap-1">
+                      {j.members.map((m, idx) => (
+                        <div key={idx} className="extra-small px-2 py-0 bg-white border rounded text-navy opacity-75 fw-bold">
+                          {m}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
@@ -162,45 +193,82 @@ const JuryPlanning: React.FC = () => {
       </Container>
 
       {/* Modal Planifier */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton className="border-bottom p-4">
-          <Modal.Title className="fw-bold fs-5 text-navy">Planifier un Jury</Modal.Title>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg" className="glass-modal">
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <Modal.Title className="fw-bold fs-5 text-navy">Planifier une Session de Jury</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
-            <Form.Group className="mb-4">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase">Titre de la session</Form.Label>
-              <Form.Control 
-                placeholder="Ex: Soutenance Finale Groupe A" 
-                className="form-control-premium fw-bold"
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-              />
-            </Form.Group>
-            <Row className="g-3">
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Jour (Janvier)</Form.Label>
-                <Form.Control 
-                  type="number" 
-                  min="1" 
-                  max="31" 
-                  className="form-control-premium fw-bold"
-                  onChange={(e) => setFormData({...formData, day: parseInt(e.target.value)})}
-                />
+            <Row className="g-4 mb-4">
+              <Col lg={8}>
+                <Form.Group className="mb-4">
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre de la session</Form.Label>
+                  <Form.Control 
+                    placeholder="Ex: Soutenance Finale Groupe A" 
+                    className="form-control-premium fw-bold py-3"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  />
+                </Form.Group>
+                
+                <Row className="g-3">
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Jour (Janvier)</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      min="1" max="31" 
+                      className="form-control-premium fw-bold"
+                      value={formData.day}
+                      onChange={(e) => setFormData({...formData, day: parseInt(e.target.value)})}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Heure</Form.Label>
+                    <Form.Control 
+                      type="time" 
+                      className="form-control-premium fw-bold"
+                      value={formData.time}
+                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Salle / Lieu</Form.Label>
+                    <Form.Control 
+                      placeholder="Ex: Salle B2" 
+                      className="form-control-premium fw-bold"
+                      value={formData.location}
+                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    />
+                  </Col>
+                </Row>
               </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Salle / Lieu</Form.Label>
-                <Form.Control 
-                  placeholder="Ex: Salle B2" 
-                  className="form-control-premium fw-bold"
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
-                />
+
+              <Col lg={4}>
+                <div className="p-3 bg-surface-alt rounded-4 border h-100">
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Membres du Jury</h6>
+                  <div className="d-flex flex-column gap-2 overflow-auto" style={{ maxHeight: '200px' }}>
+                    {AVAILABLE_JURIES.map(jury => (
+                      <div 
+                        key={jury.id} 
+                        className={`p-2 rounded-3 border cursor-pointer transition-all ${formData.selectedMembers.includes(jury.name) ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-navy'}`}
+                        onClick={() => toggleMemberSelection(jury.name)}
+                      >
+                        <div className="extra-small fw-bold">{jury.name}</div>
+                        <div className={`extra-small opacity-75 ${formData.selectedMembers.includes(jury.name) ? 'text-white' : 'text-muted'}`}>{jury.dept}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 extra-small fw-bold text-primary">
+                    {formData.selectedMembers.length} membres sélectionnés
+                  </div>
+                </div>
               </Col>
             </Row>
           </Form>
         </Modal.Body>
-        <Modal.Footer className="border-top p-4">
+        <Modal.Footer className="border-0 p-4 pt-0">
           <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowModal(false)}>Annuler</Button>
-          <Button className="btn-premium px-4" onClick={handleAddJury}>Créer la session</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleAddJury}>Confirmer le Planning</Button>
         </Modal.Footer>
       </Modal>
 
