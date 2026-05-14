@@ -38,6 +38,7 @@ import SupervisorMessages from './pages/Supervisor/Messages/Messages';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
 import UserManagement from './pages/Admin/Users/UserManagement';
+import AdminSubjects from './pages/Admin/Subjects/AdminSubjects';
 import JuryPlanning from './pages/Admin/Jury/JuryPlanning';
 import ProjectsArchive from './pages/Admin/Projects/ProjectsArchive';
 import AnalyticsCenter from './pages/Admin/Analytics/AnalyticsCenter';
@@ -154,6 +155,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="subjects" element={<AdminSubjects />} />
           <Route path="jury" element={<JuryPlanning />} />
           <Route path="projects" element={<ProjectsArchive />} />
           <Route path="analytics" element={<AnalyticsCenter />} />

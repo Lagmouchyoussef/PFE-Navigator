@@ -215,22 +215,51 @@ const JuryEvaluationPage = () => {
               </Table>
             </div>
 
-            <Form.Group className="mb-5">
-              <Form.Label className="fw-bold small d-flex align-items-center gap-2 text-muted mb-3 opacity-75">
-                <FileText size={18} className="text-primary" /> Evaluator Comments
-              </Form.Label>
-              <Form.Control 
-                as="textarea" 
-                rows={5} 
-                className="bg-surface-alt border-0 rounded-4 p-4 small text-navy shadow-none fw-bold"
-                placeholder="Detail here the strengths, areas for improvement and your recommendations for the student..."
-              />
-            </Form.Group>
+            <div className="bg-surface-alt rounded-4 p-4 mb-5 border border-light border-opacity-10 shadow-sm">
+              <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+                <Award size={20} className="text-success" /> Évaluation Soutenance PFE (50%)
+              </h6>
+              <Row className="g-4">
+                <Col md={8}>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Respect des consignes de présentation</Form.Label>
+                    <Form.Control 
+                      as="textarea" 
+                      rows={3} 
+                      className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
+                      placeholder="L'étudiant a-t-il respecté les consignes du PFE devant le jury ?"
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Observations générales du Jury</Form.Label>
+                    <Form.Control 
+                      as="textarea" 
+                      rows={2} 
+                      className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
+                      placeholder="Forces, points à améliorer..."
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <div className="h-100 p-4 rounded-4 bg-white border border-light-soft d-flex flex-column align-items-center justify-content-center text-center">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note du Jury</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      max={20} min={0} 
+                      className="h1 fw-bold text-center border-0 bg-transparent text-success shadow-none mb-0" 
+                      style={{ fontSize: '3rem' }}
+                      placeholder="00"
+                    />
+                    <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
+                  </div>
+                </Col>
+              </Row>
+            </div>
 
             <div className="d-flex justify-content-end gap-3 pt-4 border-top border-light border-opacity-10">
-              <Button variant="outline-secondary" className="px-4 py-2 fw-bold extra-small rounded-pill border-2 opacity-50 hover-opacity-100 transition-all">Draft</Button>
+              <Button variant="outline-secondary" className="px-4 py-2 fw-bold extra-small rounded-pill border-2 opacity-50 hover-opacity-100 transition-all">Brouillon</Button>
               <Button className="btn-premium px-5 py-3 d-flex align-items-center gap-2 fw-bold rounded-pill shadow-sm border-0" onClick={handleSubmit}>
-                <Send size={18} /> Submit Evaluation
+                <Send size={18} /> Soumettre l'Évaluation Finale
               </Button>
             </div>
           </div>
