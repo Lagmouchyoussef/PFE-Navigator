@@ -200,7 +200,10 @@ const Evaluations = () => {
                 </div>
                 <div className="d-flex justify-content-between align-items-center">
                   <span className="extra-small text-muted fw-bold">Note Encadrant (Suivi)</span>
-                  <span className="extra-small fw-bold text-navy">Votre part: {pfeWeights.supervisor}%</span>
+                  <span className="extra-small fw-bold text-navy">
+                    {scores.pfeSupervisor ? `${scores.pfeSupervisor}/20` : 'En attente'} 
+                    <span className="opacity-50 ms-1">({pfeWeights.supervisor}%)</span>
+                  </span>
                 </div>
                 <hr className="my-2 opacity-10" />
                 <div className="d-flex justify-content-between align-items-center pt-1">
@@ -240,11 +243,12 @@ const Evaluations = () => {
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
                 <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student Name</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Deliverable</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submitted On</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Grade</th>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Livrable</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date de dépôt</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Ma Note</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Jury</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
@@ -279,10 +283,19 @@ const Evaluations = () => {
                         </Badge>
                       </td>
                       <td>
-                        {isGradesPublished && item.grade ? (
-                          <span className="extra-small fw-bold text-success">{item.grade}</span>
+                        {scores.pfeSupervisor ? (
+                          <span className="extra-small fw-bold text-navy">{scores.pfeSupervisor}/20</span>
                         ) : (
-                          <Badge className="bg-secondary-soft text-secondary border-0 extra-small fw-bold">Masqué</Badge>
+                          <span className="extra-small text-muted opacity-50 fw-bold">Non noté</span>
+                        )}
+                      </td>
+                      <td>
+                        {isGradesPublished ? (
+                          <span className="extra-small fw-bold text-success">{scores.pfeJury ? `${scores.pfeJury}/20` : 'N/A'}</span>
+                        ) : (
+                          <Badge className="bg-danger-soft text-danger border-0 extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
+                            <Clock size={10} /> Secret
+                          </Badge>
                         )}
                       </td>
                       <td className="px-4 py-3 text-end">

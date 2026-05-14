@@ -5,7 +5,7 @@ import {
   BookOpen, Plus, Search, Filter, 
   CheckCircle, Clock, AlertCircle, 
   MoreVertical, Edit3, Trash2, 
-  ChevronRight, Users, Target, Layout, X, Eye
+  ChevronRight, Users, Target, Layout, X, Eye, Download
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -86,23 +86,26 @@ const Subjects = () => {
   const [showOtherObjective, setShowOtherObjective] = useState(false);
   const [selectedObjectives, setSelectedObjectives] = useState([]);
   const [editModalSubject, setEditModalSubject] = useState(null);
-
-  const toggleObjective = (obj) => {
-    if (obj === 'Autre') {
-      setShowOtherObjective(!showOtherObjective);
-    }
-    
-    if (selectedObjectives.includes(obj)) {
-      setSelectedObjectives(selectedObjectives.filter(item => item !== obj));
-    } else {
-      setSelectedObjectives([...selectedObjectives, obj]);
-    }
-  };
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const filteredSubjects = SUBJECTS_DATA.filter(sub => 
     sub.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     sub.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredSubjects.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredSubjects.map(s => s.id));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -147,9 +150,9 @@ const Subjects = () => {
   };
 
   const translateStatus = (s) => {
-    if (s === 'Approved') return 'Approuvé';
+    if (s === 'Approved') return 'Accepté';
     if (s === 'Pending') return 'En Attente';
-    if (s === 'Revision') return 'À Réviser';
+    if (s === 'Revision') return 'Refusé';
     return s;
   };
 
@@ -188,9 +191,43 @@ const Subjects = () => {
               Proposez et gérez les thématiques de recherche pour la session actuelle
             </p>
           </motion.div>
-          <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => setShowAddModal(true)}>
-            <Plus size={18} /> Proposer un nouveau sujet
-          </Button>
+          <div className="d-flex gap-2">
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="outline-primary" 
+                className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
+              >
+                <Download size={18} /> Exportation {selectedIds.length > 0 && `(${selectedIds.length})`}
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Format d'export</div>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
+                  setSuccessMsg(`L'exportation Excel a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setShowSuccessCard(true);
+                  setTimeout(() => setShowSuccessCard(false), 5000);
+                }}>
+                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
+                  setSuccessMsg(`L'exportation Word a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setShowSuccessCard(true);
+                  setTimeout(() => setShowSuccessCard(false), 5000);
+                }}>
+                  <FileText size={14} className="text-primary" /> Liste Word (.docx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
+                  setSuccessMsg(`L'exportation PDF a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setShowSuccessCard(true);
+                  setTimeout(() => setShowSuccessCard(false), 5000);
+                }}>
+                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf)
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => setShowAddModal(true)}>
+              <Plus size={18} /> Proposer un nouveau sujet
+            </Button>
+          </div>
         </header>
 
         {/* Stats Grid */}
@@ -244,7 +281,15 @@ const Subjects = () => {
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
                 <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Titre & Description du Sujet</th>
+                  <th className="px-4 py-3" style={{ width: '40px' }}>
+                    <Form.Check 
+                      type="checkbox" 
+                      className="custom-checkbox shadow-none"
+                      checked={selectedIds.length === filteredSubjects.length && filteredSubjects.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Titre & Description du Sujet</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Catégorie</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Étudiants</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Statut</th>
@@ -261,8 +306,19 @@ const Subjects = () => {
                       transition={{ delay: index * 0.05 }}
                       className="border-bottom border-light border-opacity-10"
                     >
-                      <td className="px-4 py-3" style={{ maxWidth: '400px' }}>
-                        <div className="fw-bold text-navy small mb-1">{subject.title}</div>
+                      <td className="px-4 py-3">
+                        <Form.Check 
+                          type="checkbox" 
+                          className="custom-checkbox shadow-none"
+                          checked={selectedIds.includes(subject.id)}
+                          onChange={() => toggleSelectOne(subject.id)}
+                        />
+                      </td>
+                      <td className="py-3" style={{ maxWidth: '400px' }}>
+                        <div className="d-flex align-items-center gap-2 mb-1">
+                          <div className={`p-1 rounded-circle bg-${getStatusStyle(subject.status)}`} style={{ width: '8px', height: '8px' }}></div>
+                          <div className="fw-bold text-navy small">{subject.title}</div>
+                        </div>
                         <div className="extra-small text-muted fw-bold opacity-75 text-truncate-2" style={{ lineHeight: '1.4' }}>
                           {subject.description}
                         </div>
