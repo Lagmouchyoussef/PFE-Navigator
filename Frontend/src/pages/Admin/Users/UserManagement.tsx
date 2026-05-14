@@ -4,7 +4,7 @@ import {
   Clock, XCircle, UserCheck, UserPlus, Users, 
   MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone
 } from 'lucide-react';
-import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal, Tabs, Tab } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 
 interface UserData {
@@ -234,125 +234,152 @@ const UserManagement: React.FC = () => {
           </Row>
         </div>
 
-        {/* Users Table */}
-        <div className="glass-card overflow-hidden">
-          <div className="table-responsive">
-            <Table borderless hover className="align-middle mb-0 custom-table-modern">
-              <thead>
-                <tr>
-                  <th className="px-4">Utilisateur</th>
-                  <th>Rôle</th>
-                  <th>Vérification</th>
-                  <th>Statut</th>
-                  <th>Dernière connexion</th>
-                  <th className="text-end px-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <React.Fragment key={user.id}>
-                    <tr>
-                    <td className="px-4 py-3">
-                      <div className="d-flex align-items-center gap-3">
-                        <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
-                        <div>
-                          <div className="small fw-bold text-navy">{user.name}</div>
-                          <div className="extra-small text-primary fw-bold mb-1" style={{ fontSize: '10px' }}>ID: {user.institutionalId}</div>
-                          <div className="extra-small text-muted fw-bold opacity-75">{user.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td>
-                      {user.confirmationStatus === 'Confirmed' ? (
-                        <Badge bg="success-soft" className="text-success extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
-                          <CheckCircle size={12} /> Confirmé
-                        </Badge>
-                      ) : user.confirmationStatus === 'Reported' ? (
-                        <Badge bg="danger-soft" className="text-danger extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
-                          <AlertCircle size={12} /> Erreur Signalée
-                        </Badge>
-                      ) : (
-                        <Badge bg="secondary-soft" className="text-muted extra-small fw-bold" style={{ width: 'fit-content' }}>
-                          En attente
-                        </Badge>
-                      )}
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <div className={`rounded-circle ${user.status === 'Active' ? 'bg-success' : user.status === 'Pending' ? 'bg-warning' : 'bg-danger'}`} style={{ width: '8px', height: '8px' }}></div>
-                        <span className="extra-small fw-bold text-muted">{user.status}</span>
-                      </div>
-                    </td>
-                    <td className="small text-muted fw-bold">{user.lastLogin}</td>
-                    <td className="px-4 text-end">
-                      <Dropdown align="end">
-                        <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
-                          <MoreHorizontal size={18} />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleOpenModal(user)}><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
-                          <Dropdown.Item className="extra-small fw-bold"><Mail size={14} className="me-2" /> Message</Dropdown.Item>
-                          <Dropdown.Item className="extra-small fw-bold"><Shield size={14} className="me-2" /> Accès</Dropdown.Item>
-                          <Dropdown.Divider />
-                          <Dropdown.Item className="extra-small fw-bold text-danger"><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </td>
-                  </tr>
-                  {user.confirmationStatus === 'Reported' && user.reportDetails && (
+        {/* Users Tables by Role */}
+        <div className="glass-card p-0 overflow-hidden">
+          <Tabs
+            defaultActiveKey="Student"
+            id="user-management-tabs"
+            className="custom-tabs-premium px-4 pt-3 border-bottom-0"
+          >
+            {[
+              { key: 'Student', label: 'Étudiants', icon: <Users size={16} /> },
+              { key: 'Supervisor', label: 'Encadrants', icon: <UserCheck size={16} /> },
+              { key: 'Jury Member', label: 'Membres de Jury', icon: <Shield size={16} /> },
+              { key: 'Admin', label: 'Administrateurs', icon: <Shield size={16} className="text-danger" /> },
+            ].map((tab) => (
+              <Tab 
+                key={tab.key} 
+                eventKey={tab.key} 
+                title={
+                  <div className="d-flex align-items-center gap-2">
+                    {tab.icon} {tab.label}
+                    <Badge bg="primary-soft" className="text-primary extra-small rounded-pill">
+                      {users.filter(u => u.role === tab.key).length}
+                    </Badge>
+                  </div>
+                }
+              >
+                <div className="table-responsive">
+                  <Table borderless hover className="align-middle mb-0 custom-table-modern">
+                    <thead>
                       <tr>
-                        <td colSpan={6} className="bg-danger-soft px-4 py-3 border-top-0">
-                          <div className="d-flex gap-3 align-items-start">
-                            <div className="p-2 bg-danger text-white rounded-circle shadow-sm">
-                              <AlertCircle size={16} />
-                            </div>
-                            <div className="flex-grow-1">
-                              <div className="d-flex justify-content-between align-items-center mb-1">
-                                <span className="extra-small fw-bold text-danger text-uppercase tracking-wider">Signalement Reçu le {user.reportDetails.date}</span>
-                                <Button 
-                                  variant="link" 
-                                  size="sm" 
-                                  className="p-0 text-danger extra-small fw-bold text-decoration-none"
-                                  onClick={() => handleProcessReport(user.id)}
-                                >
-                                  Marquer comme traité
-                                </Button>
-                              </div>
-                              <p className="small text-navy mb-2 fw-bold opacity-75">{user.reportDetails.message}</p>
-                              {user.reportDetails.suggestedPhoto && (
-                                <div className="d-flex align-items-center gap-2">
-                                  <span className="extra-small text-muted fw-bold">Nouvelle Photo demandée:</span>
-                                  <img src={user.reportDetails.suggestedPhoto} alt="Suggestion" className="rounded border shadow-sm" style={{ width: '32px', height: '32px' }} />
-                                  <Button 
-                                    variant="link" 
-                                    size="sm" 
-                                    className="p-0 extra-small fw-bold text-primary text-decoration-none"
-                                    onClick={() => handleApplyPhoto(user.id, user.reportDetails!.suggestedPhoto!)}
-                                  >
-                                    Appliquer la photo
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
+                        <th className="px-4">Utilisateur</th>
+                        <th>Vérification</th>
+                        <th>Statut</th>
+                        <th>Dernière connexion</th>
+                        <th className="text-end px-4">Actions</th>
                       </tr>
-                    )}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.filter(u => u.role === tab.key).length > 0 ? (
+                        filteredUsers.filter(u => u.role === tab.key).map((user) => (
+                          <React.Fragment key={user.id}>
+                            <tr>
+                              <td className="px-4 py-3">
+                                <div className="d-flex align-items-center gap-3">
+                                  <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
+                                  <div>
+                                    <div className="small fw-bold text-navy">{user.name}</div>
+                                    <div className="extra-small text-primary fw-bold mb-1" style={{ fontSize: '10px' }}>ID: {user.institutionalId}</div>
+                                    <div className="extra-small text-muted fw-bold opacity-75">{user.email}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                {user.confirmationStatus === 'Confirmed' ? (
+                                  <Badge bg="success-soft" className="text-success extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
+                                    <CheckCircle size={12} /> Confirmé
+                                  </Badge>
+                                ) : user.confirmationStatus === 'Reported' ? (
+                                  <Badge bg="danger-soft" className="text-danger extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
+                                    <AlertCircle size={12} /> Erreur Signalée
+                                  </Badge>
+                                ) : (
+                                  <Badge bg="secondary-soft" className="text-muted extra-small fw-bold" style={{ width: 'fit-content' }}>
+                                    En attente
+                                  </Badge>
+                                )}
+                              </td>
+                              <td>
+                                <div className="d-flex align-items-center gap-2">
+                                  <div className={`rounded-circle ${user.status === 'Active' ? 'bg-success' : user.status === 'Pending' ? 'bg-warning' : 'bg-danger'}`} style={{ width: '8px', height: '8px' }}></div>
+                                  <span className="extra-small fw-bold text-muted">{user.status}</span>
+                                </div>
+                              </td>
+                              <td className="small text-muted fw-bold">{user.lastLogin}</td>
+                              <td className="px-4 text-end">
+                                <Dropdown align="end">
+                                  <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
+                                    <MoreHorizontal size={18} />
+                                  </Dropdown.Toggle>
+                                  <Dropdown.Menu className="border-0 shadow-lg rounded-3">
+                                    <Dropdown.Item className="extra-small fw-bold" onClick={() => handleOpenModal(user)}><Edit2 size={14} className="me-2" /> Modifier</Dropdown.Item>
+                                    <Dropdown.Item className="extra-small fw-bold"><Mail size={14} className="me-2" /> Message</Dropdown.Item>
+                                    <Dropdown.Item className="extra-small fw-bold"><Shield size={14} className="me-2" /> Accès</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item className="extra-small fw-bold text-danger"><Trash2 size={14} className="me-2" /> Supprimer</Dropdown.Item>
+                                  </Dropdown.Menu>
+                                </Dropdown>
+                              </td>
+                            </tr>
+                            {user.confirmationStatus === 'Reported' && user.reportDetails && (
+                              <tr>
+                                <td colSpan={6} className="bg-danger-soft px-4 py-3 border-top-0">
+                                  <div className="d-flex gap-3 align-items-start">
+                                    <div className="p-2 bg-danger text-white rounded-circle shadow-sm">
+                                      <AlertCircle size={16} />
+                                    </div>
+                                    <div className="flex-grow-1">
+                                      <div className="d-flex justify-content-between align-items-center mb-1">
+                                        <span className="extra-small fw-bold text-danger text-uppercase tracking-wider">Signalement Reçu le {user.reportDetails.date}</span>
+                                        <Button 
+                                          variant="link" 
+                                          size="sm" 
+                                          className="p-0 text-danger extra-small fw-bold text-decoration-none"
+                                          onClick={() => handleProcessReport(user.id)}
+                                        >
+                                          Marquer comme traité
+                                        </Button>
+                                      </div>
+                                      <p className="small text-navy mb-2 fw-bold opacity-75">{user.reportDetails.message}</p>
+                                      {user.reportDetails.suggestedPhoto && (
+                                        <div className="d-flex align-items-center gap-2">
+                                          <span className="extra-small text-muted fw-bold">Nouvelle Photo demandée:</span>
+                                          <img src={user.reportDetails.suggestedPhoto} alt="Suggestion" className="rounded border shadow-sm" style={{ width: '32px', height: '32px' }} />
+                                          <Button 
+                                            variant="link" 
+                                            size="sm" 
+                                            className="p-0 extra-small fw-bold text-primary text-decoration-none"
+                                            onClick={() => handleApplyPhoto(user.id, user.reportDetails!.suggestedPhoto!)}
+                                          >
+                                            Appliquer la photo
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="text-center py-5 text-muted small fw-bold">
+                            Aucun utilisateur trouvé dans cette catégorie.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </div>
+              </Tab>
+            ))}
+          </Tabs>
           <div className="p-4 border-top d-flex justify-content-between align-items-center bg-surface-alt">
-            <span className="extra-small text-muted fw-bold">Affichage de {filteredUsers.length} sur {users.length} utilisateurs</span>
+            <span className="extra-small text-muted fw-bold">Affichage catégorisé des utilisateurs</span>
             <div className="d-flex gap-2">
               <Button size="sm" variant="outline-secondary" className="rounded-circle border p-0 d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.75rem' }}>1</Button>
-              <Button size="sm" variant="outline-secondary" className="rounded-circle border p-0 d-flex align-items-center justify-content-center opacity-50 fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.75rem' }}>2</Button>
             </div>
           </div>
         </div>
