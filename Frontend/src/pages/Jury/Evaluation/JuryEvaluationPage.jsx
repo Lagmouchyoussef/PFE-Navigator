@@ -100,17 +100,40 @@ const JuryEvaluationPage = () => {
     return (weightedSum / weightTotal).toFixed(2);
   };
 
+  const getStatus = (score) => {
+    if (score === '' || score === null) return { label: 'En attente', color: 'primary', opacity: '50' };
+    const n = parseFloat(score);
+    if (n < 10) return { label: 'Médiocre', color: 'danger' };
+    if (n < 12) return { label: 'Passable', color: 'warning' };
+    if (n < 14) return { label: 'Assez Bien', color: 'info' };
+    if (n < 16) return { label: 'Bien', color: 'primary' };
+    if (n < 18) return { label: 'Très Bien', color: 'success' };
+    return { label: 'Excellent', color: 'success' };
+  };
+
   const calculatedFinalScore = calculateTotalJuryScore();
 
   const handleDraft = () => {
     if (!activeStudent) return;
+    
+    if (Number(calculatedFinalScore) === 0) {
+      setSuccessMsg(`Erreur : Impossible d'enregistrer un brouillon vide pour ${activeStudent.name}.`);
+      setMsgVariant('danger');
+      setShowSuccessCard(true);
+      setTimeout(() => setShowSuccessCard(false), 5000);
+      return;
+    }
+
     updateStudentEvaluation(activeStudent.id, { 
       juryScore: Number(calculatedFinalScore),
+      juryCriteriaScores: { ...scores },
+      isDraft: true,
       juryRemarks: 'Brouillon - Notes en cours de saisie',
       juryRespectInstructions: respectInstructions,
       juryObservations: observations
     });
-    setSuccessMsg(`Succès : Les notes pour ${activeStudent.name} ont été enregistrées en brouillon.`);
+    setSuccessMsg(`Succès : Le brouillon pour ${activeStudent.name} a été enregistré.`);
+    setMsgVariant('success');
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -329,6 +352,11 @@ const JuryEvaluationPage = () => {
                     </td>
                     <td className="px-4 py-3 text-end">
                       <div className="d-flex justify-content-end align-items-center gap-3">
+                        {p.isDraft && !p.isJuryEvaluated && (
+                          <Badge className="bg-warning-soft text-warning border-0 p-1 rounded-circle" title="Brouillon enregistré">
+                            <FileText size={12} />
+                          </Badge>
+                        )}
                         {p.isJuryEvaluated && (
                           <Button 
                             variant="link" 
@@ -402,13 +430,14 @@ const JuryEvaluationPage = () => {
                           max={20} min={0}
                           className="bg-surface-alt border-0 rounded-4 text-center fw-bold mx-auto text-navy shadow-none" 
                           style={{ width: '80px', height: '45px' }}
+                          placeholder="0"
                           value={scores[item.id]}
                           onChange={(e) => handleScoreChange(item.id, e.target.value)}
                         />
                       </td>
                       <td className="py-4 text-end">
-                        <Badge className={`bg-${scores[item.id] >= 14 ? 'success' : 'primary'}-soft text-${scores[item.id] >= 14 ? 'success' : 'primary'} border-0 px-3 py-1 extra-small fw-bold`}>
-                          {scores[item.id] >= 18 ? 'Excellent' : scores[item.id] >= 14 ? 'Bon' : 'En attente'}
+                        <Badge className={`bg-${getStatus(scores[item.id]).color}-soft text-${getStatus(scores[item.id]).color} border-0 px-3 py-1 extra-small fw-bold ${getStatus(scores[item.id]).opacity ? 'opacity-' + getStatus(scores[item.id]).opacity : ''}`}>
+                          {getStatus(scores[item.id]).label}
                         </Badge>
                       </td>
                     </tr>
