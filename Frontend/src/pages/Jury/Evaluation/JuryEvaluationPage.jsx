@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Container, Row, Col, Card, Badge, 
   Button, Table, Form, Dropdown, ProgressBar 
@@ -9,7 +10,8 @@ import {
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X, Award, RotateCcw
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X, Award, RotateCcw,
+  Download, FileSpreadsheet, Printer, Share2, CheckSquare, Square
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext.jsx';
 
@@ -32,6 +34,7 @@ const CRITERIA = [
 ];
 
 const JuryEvaluationPage = () => {
+  const location = useLocation();
   const { theme, saveScore, isGradesPublished, juryCriteriaWeights, students, updateStudentEvaluation } = useApp();
   const evaluationRef = useRef(null);
   const [activeStudent, setActiveStudent] = useState(null);
@@ -46,6 +49,16 @@ const JuryEvaluationPage = () => {
   const [resetStudentId, setResetStudentId] = useState(null);
   const [respectInstructions, setRespectInstructions] = useState('');
   const [observations, setObservations] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
+
+  useEffect(() => {
+    if (location.state?.openStudentId) {
+      const student = students.find(s => s.id === location.state.openStudentId);
+      if (student) {
+        handleOpenEvaluation(student);
+      }
+    }
+  }, [location.state, students]);
 
   const handleScoreChange = (id, val) => {
     if (val === '') {
@@ -156,6 +169,7 @@ const JuryEvaluationPage = () => {
       juryScore: Number(calculatedFinalScore),
       juryCriteriaScores: { ...scores }, // Persist the individual scores
       isJuryEvaluated: true,
+      isDraft: false,
       juryRemarks: isUpdating ? 'Évaluation mise à jour par le jury.' : 'Évaluation finale confirmée et enregistrée.',
       juryRespectInstructions: respectInstructions,
       juryObservations: observations
@@ -191,11 +205,22 @@ const JuryEvaluationPage = () => {
       juryScore: null,
       juryCriteriaScores: null,
       isJuryEvaluated: false,
+      isDraft: false,
       juryRemarks: '',
       juryRespectInstructions: '',
       juryObservations: ''
     });
     
+    // If the reset student is currently active in the panel, clear it
+    if (activeStudent && activeStudent.id === resetStudentId) {
+      setActiveStudent(null);
+      setScores({
+        innovation: '', methodology: '', quality: '', presentation: '', docs: ''
+      });
+      setRespectInstructions('');
+      setObservations('');
+    }
+
     setShowResetConfirm(false);
     setResetStudentId(null);
     setSuccessMsg("L'évaluation a été réinitialisée avec succès.");
@@ -205,6 +230,60 @@ const JuryEvaluationPage = () => {
   };
 
   const totalScorePercentage = (Number(calculatedFinalScore) / 20) * 100;
+
+  const toggleSelectStudent = (id) => {
+    setSelectedStudents(prev => 
+      prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedStudents.length === students.length) {
+      setSelectedStudents([]);
+    } else {
+      setSelectedStudents(students.map(s => s.id));
+    }
+  };
+
+  const handleExport = (format) => {
+    const dataToExport = students.filter(s => selectedStudents.includes(s.id));
+    if (dataToExport.length === 0) {
+      alert("Veuillez sélectionner au moins un étudiant à exporter.");
+      return;
+    }
+
+    if (format === 'csv') {
+      const headers = ['Etudiant', 'Projet', 'Note Jury', 'Note Encadrant', 'Status'];
+      const rows = dataToExport.map(s => [
+        s.name, 
+        s.project, 
+        s.juryScore || 'N/A', 
+        s.supervisorScore || 'N/A',
+        s.isJuryEvaluated ? 'Evalué' : 'À évaluer'
+      ]);
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + [headers, ...rows].map(e => e.join(",")).join("\n");
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", "evaluations_jury.csv");
+      document.body.appendChild(link);
+      link.click();
+    } else if (format === 'pdf') {
+      window.print();
+    } else if (format === 'word') {
+      const headers = ['Etudiant', 'Projet', 'Note Jury', 'Note Encadrant'];
+      let html = "<html><body><table border='1'><tr>" + headers.map(h => `<th>${h}</th>`).join('') + "</tr>";
+      dataToExport.forEach(s => {
+        html += `<tr><td>${s.name}</td><td>${s.project}</td><td>${s.juryScore || 'N/A'}</td><td>${s.supervisorScore || 'N/A'}</td></tr>`;
+      });
+      html += "</table></body></html>";
+      const blob = new Blob([html], { type: 'application/msword' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "evaluations_jury.doc";
+      link.click();
+    }
+  };
 
   return (
     <div className="jury-evaluation-layout py-4">
@@ -282,44 +361,58 @@ const JuryEvaluationPage = () => {
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h2 className="fw-bold mb-1 text-navy text-gradient">Evaluation Center</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Manage project evaluations and academic tracking.</p>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Gérez les soutenances et le suivi académique en temps réel.</p>
           </motion.div>
         </header>
 
         {/* Stats Row */}
-        <Row className="g-4 mb-5">
-          {[
-            { label: 'Pending', value: '12', icon: <Clock />, color: 'warning' },
-            { label: 'Completed', value: '28', icon: <CheckCircle />, color: 'success' },
-            { label: 'In Progress', value: '5', icon: <Activity />, color: 'primary' },
-            { label: 'Urgent', value: '3', icon: <AlertCircle />, color: 'danger' },
-          ].map((stat, i) => (
-            <Col key={i} lg={3} md={6}>
-              <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h4 className="fw-bold mb-0 text-navy">{stat.value}</h4>
-                    <span className="extra-small text-muted fw-bold text-uppercase opacity-50">{stat.label}</span>
-                  </div>
-                  <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
-                    {React.cloneElement(stat.icon, { size: 24 })}
-                  </div>
-                </div>
-              </div>
-            </Col>
-          ))}
-        </Row>
+        <JuryStatsRow students={students} />
+
 
         {/* Projects Table */}
         <Card className="glass-card rounded-4 overflow-hidden shadow-sm mb-5 border-light border-opacity-10">
-          <Card.Header className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center border-0">
-            <h5 className="fw-bold text-navy mb-0">Project List</h5>
+          <Card.Header className="p-4 border-bottom bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center border-0 gap-3">
+            <div className="d-flex align-items-center gap-3">
+              <h5 className="fw-bold text-navy mb-0">Project List</h5>
+              {selectedStudents.length > 0 && (
+                <Badge className="bg-primary-soft text-primary border-0 px-2 py-1 extra-small fw-bold">
+                  {selectedStudents.length} sélectionnés
+                </Badge>
+              )}
+            </div>
+            
+            <div className="d-flex align-items-center gap-2">
+              <Dropdown>
+                <Dropdown.Toggle variant="light" className="btn-surface-alt extra-small fw-bold d-flex align-items-center gap-2 border-0 rounded-pill px-4 shadow-none">
+                  <Download size={16} className="text-primary" /> Exporter
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="border-0 shadow-lg rounded-4 p-2">
+                  <Dropdown.Item onClick={() => handleExport('pdf')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
+                    <Printer size={16} className="text-danger" /> Exporter en PDF (Imprimer)
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleExport('csv')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
+                    <FileSpreadsheet size={16} className="text-success" /> Exporter en CSV (Excel)
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleExport('word')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
+                    <FileText size={16} className="text-primary" /> Exporter en Word
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
           </Card.Header>
           <div className="table-responsive">
             <Table borderless hover className="align-middle mb-0">
               <thead className="bg-surface-alt">
                 <tr className="border-bottom opacity-50">
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
+                  <th className="px-4 py-3 text-center" style={{ width: '50px' }}>
+                    <Form.Check 
+                      type="checkbox"
+                      className="custom-checkbox"
+                      checked={selectedStudents.length === students.length && students.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Score</th>
@@ -329,7 +422,16 @@ const JuryEvaluationPage = () => {
               <tbody>
                 {students.map((p) => (
                   <tr key={p.id} className={`border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer ${activeStudent?.id === p.id ? 'bg-primary-soft border-primary border-opacity-25' : ''}`}>
-                    <td className="px-4 py-3 fw-bold small text-navy">{p.name}</td>
+                    <td className="px-4 py-3 text-center">
+                      <Form.Check 
+                        type="checkbox"
+                        className="custom-checkbox"
+                        checked={selectedStudents.includes(p.id)}
+                        onChange={() => toggleSelectStudent(p.id)}
+                        onClick={(e) => e.stopPropagation()} // Prevent row click
+                      />
+                    </td>
+                    <td className="py-3 fw-bold small text-navy">{p.name}</td>
                     <td className="py-3 small text-muted text-truncate fw-bold opacity-75" style={{maxWidth: '300px'}}>{p.project}</td>
                     <td className="py-3 small">
                       <Badge className={`bg-${p.isJuryEvaluated ? 'success' : 'warning'}-soft text-${p.isJuryEvaluated ? 'success' : 'warning'} border-0 px-2 py-1 extra-small fw-bold`}>
@@ -353,8 +455,8 @@ const JuryEvaluationPage = () => {
                     <td className="px-4 py-3 text-end">
                       <div className="d-flex justify-content-end align-items-center gap-3">
                         {p.isDraft && !p.isJuryEvaluated && (
-                          <Badge className="bg-warning-soft text-warning border-0 p-1 rounded-circle" title="Brouillon enregistré">
-                            <FileText size={12} />
+                          <Badge className="bg-warning-soft text-warning border-0 px-2 py-1 extra-small fw-bold" title="Brouillon enregistré">
+                            <FileText size={12} className="me-1" /> Brouillon
                           </Badge>
                         )}
                         {p.isJuryEvaluated && (
@@ -521,6 +623,40 @@ const JuryEvaluationPage = () => {
         </section>
       </Container>
     </div>
+  );
+};
+
+const JuryStatsRow = ({ students }) => {
+  const total = students.length;
+  const completed = students.filter(s => s.isJuryEvaluated).length;
+  const pending = students.filter(s => !s.isJuryEvaluated && !s.isDraft).length;
+  const drafts = students.filter(s => s.isDraft && !s.isJuryEvaluated).length;
+
+  const stats = [
+    { label: 'Total Projets', value: total, icon: <FileText />, color: 'primary' },
+    { label: 'Évalués', value: completed, icon: <CheckCircle />, color: 'success' },
+    { label: 'Brouillons', value: drafts, icon: <Edit3 />, color: 'warning' },
+    { label: 'À Évaluer', value: pending, icon: <Clock />, color: 'danger' },
+  ];
+
+  return (
+    <Row className="g-4 mb-5">
+      {stats.map((stat, i) => (
+        <Col key={i} lg={3} md={6}>
+          <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h4 className="fw-bold mb-0 text-navy">{stat.value}</h4>
+                <span className="extra-small text-muted fw-bold text-uppercase opacity-50">{stat.label}</span>
+              </div>
+              <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
+                {React.cloneElement(stat.icon, { size: 24 })}
+              </div>
+            </div>
+          </div>
+        </Col>
+      ))}
+    </Row>
   );
 };
 

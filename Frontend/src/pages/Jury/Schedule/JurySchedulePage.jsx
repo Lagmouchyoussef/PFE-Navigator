@@ -13,13 +13,14 @@ import { useNavigate } from 'react-router-dom';
 
 const JurySchedulePage = () => {
   const navigate = useNavigate();
-  const { user, appointments, cancelAppointment } = useApp();
+  const { user, appointments, cancelAppointment, students } = useApp();
   const [selectedDay, setSelectedDay] = useState(12);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-  // Filter defense appointments
-  const defenseAppointments = appointments.filter(app => app.type === 'Defense' || app.type === 'Review');
+  // Filter active defense appointments
+  const defenseAppointments = appointments.filter(app => (app.type === 'Defense' || app.type === 'Review') && app.status !== 'Cancelled');
 
   return (
     <div className="jury-schedule-layout py-4">
@@ -95,6 +96,7 @@ const JurySchedulePage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   className="glass-card p-3 rounded-4 shadow-sm border border-light border-opacity-10 hover-bg-surface-alt transition-all cursor-pointer group"
+                  style={{ zIndex: openMenuId === item.id ? 100 : 1, position: 'relative' }}
                 >
                   <div className="d-flex gap-3 align-items-center">
                     <div className="p-3 bg-primary-soft text-primary rounded-4 text-center" style={{ minWidth: '65px' }}>
@@ -109,19 +111,36 @@ const JurySchedulePage = () => {
                         <span className="d-flex align-items-center gap-1"><MapPin size={12} className="text-danger"/> {item.location}</span>
                       </div>
                     </div>
-                    <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all">
-                        <MoreVertical size={18}/>
-                      </Dropdown.Toggle>
+                    <div className="dropdown-container">
+                      <Dropdown align="end" onToggle={(isOpen) => setOpenMenuId(isOpen ? item.id : null)}>
+                        <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all">
+                          <MoreVertical size={18}/>
+                        </Dropdown.Toggle>
                       <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
-                        <Dropdown.Item className="py-2 fw-bold text-navy">Voir Détails</Dropdown.Item>
-                        <Dropdown.Item className="py-2 fw-bold text-navy">Contacter l'étudiant</Dropdown.Item>
+                        <Dropdown.Item 
+                          className="py-2 fw-bold text-navy"
+                          onClick={() => {
+                            const student = students.find(s => s.name === item.studentName);
+                            navigate('/jury/evaluation', { state: { openStudentId: student?.id } });
+                          }}
+                        >
+                          Voir Détails
+                        </Dropdown.Item>
+                        <Dropdown.Item 
+                          className="py-2 fw-bold text-navy"
+                          onClick={() => navigate('/jury/messages')}
+                        >
+                          Contacter l'étudiant
+                        </Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => cancelAppointment(item.id)}>Annuler la soutenance</Dropdown.Item>
+                        <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => cancelAppointment(item.id)}>
+                          Annuler la soutenance
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
-                </motion.div>
+                </div>
+              </motion.div>
               ))}
             </div>
           </Col>
