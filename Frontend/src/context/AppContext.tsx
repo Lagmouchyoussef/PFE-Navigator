@@ -7,10 +7,10 @@ import {
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
 const ACCOUNTS: User[] = [
-  { id: '1', email: 'ahmed.khalil@emsi.ma', name: 'Ahmed Khalil', role: 'student', initials: 'AK' },
-  { id: '2', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
-  { id: '3', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
-  { id: '4', email: 'admin@emsi.ma', name: 'Système PFE Navigator', role: 'admin', initials: 'SP' },
+  { id: '1', institutionalId: 'STU-2026-00105', email: 'ahmed.khalil@emsi.ma', name: 'Ahmed Khalil', role: 'student', initials: 'AK' },
+  { id: '2', institutionalId: 'JRY-2026-00951', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
+  { id: '3', institutionalId: 'SUP-2026-00842', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
+  { id: '4', institutionalId: 'ADM-2026-00412', email: 'admin@emsi.ma', name: 'Système PFE Navigator', role: 'admin', initials: 'SP' },
 ];
 
 const INITIAL_SCORES: Scores = {

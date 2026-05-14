@@ -2,27 +2,43 @@ import React, { useState } from 'react';
 import { 
   Search, Edit2, Trash2, Mail, Shield, 
   Clock, XCircle, UserCheck, UserPlus, Users, 
-  MoreHorizontal
+  MoreHorizontal, Camera
 } from 'lucide-react';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 
 interface UserData {
   id: number;
+  institutionalId: string;
   name: string;
   email: string;
   role: string;
   status: 'Active' | 'Pending' | 'Inactive';
   lastLogin: string;
   avatar: string;
+  // New Fields
+  cin?: string;
+  address?: string;
+  academicYear?: string;
+  nationalCode?: string;
+  section?: string;
+  diplomaGrade?: string;
+  fatherName?: string;
+  fatherProfession?: string;
+  fatherPhone?: string;
+  fatherEmail?: string;
+  motherName?: string;
+  motherProfession?: string;
+  motherPhone?: string;
+  motherEmail?: string;
 }
 
 const INITIAL_USERS: UserData[] = [
-  { id: 1, name: 'Marie Dupont', email: 'marie.dupont@email.com', role: 'Admin', status: 'Active', lastLogin: '2 min ago', avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3b82f6&color=fff' },
-  { id: 2, name: 'Jean Martin', email: 'jean.martin@email.com', role: 'Jury Member', status: 'Active', lastLogin: '1 hour ago', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff' },
-  { id: 3, name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff' },
-  { id: 4, name: 'Lucas Petit', email: 'lucas.petit@email.com', role: 'Student', status: 'Active', lastLogin: '3 days ago', avatar: 'https://ui-avatars.com/api/?name=Lucas+Petit&background=3b82f6&color=fff' },
-  { id: 5, name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff' },
+  { id: 1, institutionalId: 'ADM-2026-00412', name: 'Marie Dupont', email: 'marie.dupont@email.com', role: 'Admin', status: 'Active', lastLogin: '2 min ago', avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3b82f6&color=fff' },
+  { id: 2, institutionalId: 'JRY-2026-00951', name: 'Jean Martin', email: 'jean.martin@email.com', role: 'Jury Member', status: 'Active', lastLogin: '1 hour ago', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff' },
+  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff' },
+  { id: 4, institutionalId: 'STU-2026-00105', name: 'Lucas Petit', email: 'lucas.petit@email.com', role: 'Student', status: 'Active', lastLogin: '3 days ago', avatar: 'https://ui-avatars.com/api/?name=Lucas+Petit&background=3b82f6&color=fff' },
+  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff' },
 ];
 
 const UserManagement: React.FC = () => {
@@ -48,23 +64,41 @@ const UserManagement: React.FC = () => {
     setEditingUser(null);
   };
 
+  const generateInstitutionalId = (role: string) => {
+    const year = new Date().getFullYear();
+    const prefix = 
+      role === 'Student' ? 'STU' : 
+      role === 'Jury Member' ? 'JRY' : 
+      role === 'Supervisor' ? 'SUP' : 'ADM';
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    return `${prefix}-${year}-${randomNum}`;
+  };
+
   const handleSave = () => {
     if (editingUser) {
       setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData } as UserData : u));
     } else {
+      const role = formData.role || 'Student';
       const newUser: UserData = {
         id: Math.max(...users.map(u => u.id)) + 1,
+        institutionalId: generateInstitutionalId(role),
         name: formData.name || '',
         email: formData.email || '',
-        role: formData.role || 'Student',
+        role: role,
         status: (formData.status as any) || 'Active',
         lastLogin: 'Never',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`
+        avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`
       };
       setUsers([...users, newUser]);
     }
     closeModal();
   };
+
+  const filteredUsers = users.filter(u => 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="users-modern-layout py-4">
@@ -151,6 +185,7 @@ const UserManagement: React.FC = () => {
                         <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
                         <div>
                           <div className="small fw-bold text-navy">{user.name}</div>
+                          <div className="extra-small text-primary fw-bold mb-1" style={{ fontSize: '10px' }}>ID: {user.institutionalId}</div>
                           <div className="extra-small text-muted fw-bold opacity-75">{user.email}</div>
                         </div>
                       </div>
@@ -227,6 +262,14 @@ const UserManagement: React.FC = () => {
           </div>
           <Form>
             <Row className="g-3">
+              <Col md={12}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">ID Institutionnel (Auto-généré)</Form.Label>
+                <Form.Control 
+                  value={formData.institutionalId || 'Génération automatique...'} 
+                  readOnly
+                  className="form-control-premium fw-bold bg-surface-alt border-dashed" 
+                />
+              </Col>
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
                 <Form.Control 
@@ -279,6 +322,87 @@ const UserManagement: React.FC = () => {
                   <option value="Pending">En attente</option>
                   <option value="Inactive">Inactif</option>
                 </Form.Select>
+              </Col>
+
+              {/* Advanced Student Info - Only if role is Student or Supervisor */}
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Détaillées (Académique & Personnel)</h6></Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">CIN</Form.Label>
+                <Form.Control 
+                  value={formData.cin || ''} 
+                  onChange={e => setFormData({...formData, cin: e.target.value})}
+                  placeholder="AB123456" 
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code National (CNE)</Form.Label>
+                <Form.Control 
+                  value={formData.nationalCode || ''} 
+                  onChange={e => setFormData({...formData, nationalCode: e.target.value})}
+                  placeholder="G13000..." 
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={12}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Adresse</Form.Label>
+                <Form.Control 
+                  value={formData.address || ''} 
+                  onChange={e => setFormData({...formData, address: e.target.value})}
+                  placeholder="Adresse complète..." 
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année Univ.</Form.Label>
+                <Form.Control 
+                  value={formData.academicYear || '2025/2026'} 
+                  onChange={e => setFormData({...formData, academicYear: e.target.value})}
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Section</Form.Label>
+                <Form.Control 
+                  value={formData.section || ''} 
+                  onChange={e => setFormData({...formData, section: e.target.value})}
+                  placeholder="Ex: 5IIR-G1" 
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations des Parents</h6></Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom du Père</Form.Label>
+                <Form.Control 
+                  value={formData.fatherName || ''} 
+                  onChange={e => setFormData({...formData, fatherName: e.target.value})}
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Père</Form.Label>
+                <Form.Control 
+                  value={formData.fatherPhone || ''} 
+                  onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de la Mère</Form.Label>
+                <Form.Control 
+                  value={formData.motherName || ''} 
+                  onChange={e => setFormData({...formData, motherName: e.target.value})}
+                  className="form-control-premium fw-bold" 
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Mère</Form.Label>
+                <Form.Control 
+                  value={formData.motherPhone || ''} 
+                  onChange={e => setFormData({...formData, motherPhone: e.target.value})}
+                  className="form-control-premium fw-bold" 
+                />
               </Col>
             </Row>
           </Form>
