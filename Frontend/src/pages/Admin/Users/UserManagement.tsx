@@ -4,6 +4,7 @@ import {
   Clock, XCircle, UserCheck, UserPlus, Users, 
   MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal, Tabs, Tab } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 
@@ -23,6 +24,9 @@ interface UserData {
   nationalCode?: string;
   section?: string;
   diplomaGrade?: string;
+  diplomaObtained?: string;
+  cnss?: string;
+  familyStatus?: string;
   fatherName?: string;
   fatherProfession?: string;
   fatherPhone?: string;
@@ -99,14 +103,18 @@ const UserManagement: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [formData, setFormData] = useState<Partial<UserData>>({});
+  const [isOtherDiploma, setIsOtherDiploma] = useState(false);
 
   const handleOpenModal = (user?: UserData) => {
     if (user) {
       setEditingUser(user);
       setFormData({ ...user });
+      const standardDiplomas = ['Doctorat', 'Master', "Ingénieur d'État", 'Licence'];
+      setIsOtherDiploma(user.diplomaObtained ? !standardDiplomas.includes(user.diplomaObtained) : false);
     } else {
       setEditingUser(null);
       setFormData({ name: '', email: '', role: 'Student', status: 'Active' });
+      setIsOtherDiploma(false);
     }
     setShowModal(true);
   };
@@ -478,8 +486,7 @@ const UserManagement: React.FC = () => {
                 </Form.Select>
               </Col>
 
-              {/* Advanced Student Info - Only if role is Student or Supervisor */}
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Détaillées (Académique & Personnel)</h6></Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Personnelles & Sécurité</h6></Col>
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">CIN</Form.Label>
                 <Form.Control 
@@ -490,13 +497,17 @@ const UserManagement: React.FC = () => {
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code National (CNE)</Form.Label>
-                <Form.Control 
-                  value={formData.nationalCode || ''} 
-                  onChange={e => setFormData({...formData, nationalCode: e.target.value})}
-                  placeholder="G13000..." 
-                  className="form-control-premium fw-bold" 
-                />
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Situation familiale</Form.Label>
+                <Form.Select 
+                  value={formData.familyStatus || 'Célibataire'} 
+                  onChange={e => setFormData({...formData, familyStatus: e.target.value})}
+                  className="form-control-premium fw-bold"
+                >
+                  <option>Célibataire</option>
+                  <option>Marié(e)</option>
+                  <option>Divorcé(e)</option>
+                  <option>Veuf/Veuve</option>
+                </Form.Select>
               </Col>
               <Col md={12}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Adresse</Form.Label>
@@ -507,60 +518,186 @@ const UserManagement: React.FC = () => {
                   className="form-control-premium fw-bold" 
                 />
               </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année Univ.</Form.Label>
-                <Form.Control 
-                  value={formData.academicYear || '2025/2026'} 
-                  onChange={e => setFormData({...formData, academicYear: e.target.value})}
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Section</Form.Label>
-                <Form.Control 
-                  value={formData.section || ''} 
-                  onChange={e => setFormData({...formData, section: e.target.value})}
-                  placeholder="Ex: 5IIR-G1" 
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
+              
+              {/* Role specific: CNSS for Jury/Supervisor/Admin */}
+              {(formData.role === 'Jury Member' || formData.role === 'Supervisor' || formData.role === 'Admin') && (
+                <Col md={12}>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code de CNSS</Form.Label>
+                  <Form.Control 
+                    value={formData.cnss || ''} 
+                    onChange={e => setFormData({...formData, cnss: e.target.value})}
+                    placeholder="Numéro CNSS..." 
+                    className="form-control-premium fw-bold" 
+                  />
+                </Col>
+              )}
 
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations des Parents</h6></Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom du Père</Form.Label>
-                <Form.Control 
-                  value={formData.fatherName || ''} 
-                  onChange={e => setFormData({...formData, fatherName: e.target.value})}
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Père</Form.Label>
-                <Form.Control 
-                  value={formData.fatherPhone || ''} 
-                  onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de la Mère</Form.Label>
-                <Form.Control 
-                  value={formData.motherName || ''} 
-                  onChange={e => setFormData({...formData, motherName: e.target.value})}
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
-              <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Mère</Form.Label>
-                <Form.Control 
-                  value={formData.motherPhone || ''} 
-                  onChange={e => setFormData({...formData, motherPhone: e.target.value})}
-                  className="form-control-premium fw-bold" 
-                />
-              </Col>
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Sessions</h6></Col>
+              {/* Advanced Student Info - Only if role is Student */}
+              {formData.role === 'Student' && (
+                <>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Académiques Étudiant</h6></Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code National (CNE)</Form.Label>
+                    <Form.Control 
+                      value={formData.nationalCode || ''} 
+                      onChange={e => setFormData({...formData, nationalCode: e.target.value})}
+                      placeholder="G13000..." 
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Note du Diplôme</Form.Label>
+                    <Form.Control 
+                      type="number"
+                      step="0.01"
+                      value={formData.diplomaGrade || ''} 
+                      onChange={e => setFormData({...formData, diplomaGrade: e.target.value})}
+                      placeholder="Ex: 16.50" 
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année Univ.</Form.Label>
+                    <Form.Control 
+                      value={formData.academicYear || '2025/2026'} 
+                      onChange={e => setFormData({...formData, academicYear: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Section / Groupe</Form.Label>
+                    <Form.Control 
+                      value={formData.section || ''} 
+                      onChange={e => setFormData({...formData, section: e.target.value})}
+                      placeholder="Ex: 5IIR-G1" 
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations des Parents</h6></Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom du Père</Form.Label>
+                    <Form.Control 
+                      value={formData.fatherName || ''} 
+                      onChange={e => setFormData({...formData, fatherName: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Père</Form.Label>
+                    <Form.Control 
+                      value={formData.fatherPhone || ''} 
+                      onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de la Mère</Form.Label>
+                    <Form.Control 
+                      value={formData.motherName || ''} 
+                      onChange={e => setFormData({...formData, motherName: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Mère</Form.Label>
+                    <Form.Control 
+                      value={formData.motherPhone || ''} 
+                      onChange={e => setFormData({...formData, motherPhone: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                </>
+              )}
+
+              {/* Role specific: Jury / Supervisor Academic Info */}
+              {(formData.role === 'Jury Member' || formData.role === 'Supervisor') && (
+                <>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Académiques (Professionnel)</h6></Col>
+                  <Col md={12}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Diplôme Obtenu</Form.Label>
+                    <Form.Select 
+                      value={isOtherDiploma ? 'Autre' : (formData.diplomaObtained || '')} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === 'Autre') {
+                          setIsOtherDiploma(true);
+                          setFormData({...formData, diplomaObtained: ''});
+                        } else {
+                          setIsOtherDiploma(false);
+                          setFormData({...formData, diplomaObtained: val});
+                        }
+                      }}
+                      className="form-control-premium fw-bold mb-2"
+                    >
+                      <option value="">Sélectionner un diplôme...</option>
+                      <option value="Doctorat">Doctorat</option>
+                      <option value="Master">Master</option>
+                      <option value="Ingénieur d'État">Ingénieur d'État</option>
+                      <option value="Licence">Licence</option>
+                      <option value="Autre">Autre (Préciser...)</option>
+                    </Form.Select>
+                    
+                    {isOtherDiploma && (
+                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                        <Form.Control 
+                          value={formData.diplomaObtained || ''} 
+                          onChange={e => setFormData({...formData, diplomaObtained: e.target.value})}
+                          placeholder="Saisir le nom du diplôme..." 
+                          className="form-control-premium fw-bold border-primary border-opacity-25" 
+                        />
+                      </motion.div>
+                    )}
+                  </Col>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Affectations & Niveaux d'Enseignement</h6></Col>
+                  <Col md={12} className="mb-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-2">Niveaux Assignés</Form.Label>
+                    <div className="d-flex flex-wrap gap-3 p-3 rounded-4 bg-surface-alt border">
+                      {['1ère année', '2ème année', '3ème année', '4ème année', '5ème année', 'Doctorat'].map((year) => (
+                        <Form.Check 
+                          key={year}
+                          type="checkbox"
+                          id={`year-${year}`}
+                          label={<span className="small fw-bold text-navy">{year}</span>}
+                          className="custom-checkbox-premium"
+                          checked={(formData.section || '').includes(year)}
+                          onChange={e => {
+                            let currentSections = formData.section || '';
+                            if (e.target.checked) {
+                              currentSections = currentSections ? `${currentSections}, ${year}` : year;
+                            } else {
+                              currentSections = currentSections.split(', ').filter(s => s !== year).join(', ');
+                            }
+                            setFormData({...formData, section: currentSections});
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </Col>
+                  <Col md={12}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Groupes / Sections spécifiques</Form.Label>
+                    <Form.Control 
+                      value={formData.section || ''} 
+                      onChange={e => setFormData({...formData, section: e.target.value})}
+                      placeholder="Ex: 5IIR-G1, 4IIR-G2..." 
+                      className="form-control-premium fw-bold" 
+                    />
+                    <Form.Text className="extra-small text-muted fw-bold">Entrez les sections séparées par des virgules.</Form.Text>
+                  </Col>
+                  <Col md={12} className="mt-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année de service</Form.Label>
+                    <Form.Control 
+                      value={formData.academicYear || '2025/2026'} 
+                      onChange={e => setFormData({...formData, academicYear: e.target.value})}
+                      className="form-control-premium fw-bold" 
+                    />
+                  </Col>
+                </>
+              )}
+
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité</h6></Col>
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe actuel</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe</Form.Label>
                 <InputGroup>
                   <Form.Control 
                     type="text"
@@ -572,43 +709,47 @@ const UserManagement: React.FC = () => {
                 </InputGroup>
               </Col>
 
-              <Col md={12} className="mt-3">
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Sessions Actives</Form.Label>
-                <div className="bg-surface-alt rounded-4 p-3 border border-dashed">
-                  {(formData.activeSessions && formData.activeSessions.length > 0) ? (
-                    formData.activeSessions.map((session, idx) => (
-                      <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
-                        <div className="d-flex align-items-center gap-2">
-                          <Smartphone size={14} className="text-primary" />
-                          <div>
-                            <div className="extra-small fw-bold text-navy">{session.device}</div>
-                            <div className="extra-small text-muted opacity-75">{session.ip}</div>
+              {editingUser && (
+                <>
+                  <Col md={12} className="mt-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Sessions Actives</Form.Label>
+                    <div className="bg-surface-alt rounded-4 p-3 border border-dashed">
+                      {(formData.activeSessions && formData.activeSessions.length > 0) ? (
+                        formData.activeSessions.map((session, idx) => (
+                          <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
+                            <div className="d-flex align-items-center gap-2">
+                              <Smartphone size={14} className="text-primary" />
+                              <div>
+                                <div className="extra-small fw-bold text-navy">{session.device}</div>
+                                <div className="extra-small text-muted opacity-75">{session.ip}</div>
+                              </div>
+                            </div>
+                            <Badge bg="success-soft" className="text-success extra-small fw-bold">{session.lastActive}</Badge>
                           </div>
-                        </div>
-                        <Badge bg="success-soft" className="text-success extra-small fw-bold">{session.lastActive}</Badge>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="extra-small text-muted text-center py-2">Aucune session active détectée</div>
-                  )}
-                </div>
-              </Col>
-              
-              <Col md={12} className="mt-3">
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Historique des modifications</Form.Label>
-                <div className="bg-surface-alt rounded-3 p-3 border border-dashed" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                  {(formData.history && formData.history.length > 0) ? (
-                    formData.history.map((log, idx) => (
-                      <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
-                        <span className="extra-small fw-bold text-navy">{log.action}</span>
-                        <span className="extra-small text-muted">{log.date}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="extra-small text-muted text-center py-2">Aucun historique disponible</div>
-                  )}
-                </div>
-              </Col>
+                        ))
+                      ) : (
+                        <div className="extra-small text-muted text-center py-2">Aucune session active détectée</div>
+                      )}
+                    </div>
+                  </Col>
+                  
+                  <Col md={12} className="mt-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Historique des modifications</Form.Label>
+                    <div className="bg-surface-alt rounded-3 p-3 border border-dashed" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                      {(formData.history && formData.history.length > 0) ? (
+                        formData.history.map((log, idx) => (
+                          <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
+                            <span className="extra-small fw-bold text-navy">{log.action}</span>
+                            <span className="extra-small text-muted">{log.date}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="extra-small text-muted text-center py-2">Aucun historique disponible</div>
+                      )}
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
           </Form>
         </Modal.Body>
