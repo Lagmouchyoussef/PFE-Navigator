@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, Edit2, Trash2, Mail, Shield, 
   Clock, XCircle, UserCheck, UserPlus, Users, 
-  MoreHorizontal, Camera
+  MoreHorizontal, Camera, AlertCircle, CheckCircle
 } from 'lucide-react';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
@@ -31,14 +31,48 @@ interface UserData {
   motherProfession?: string;
   motherPhone?: string;
   motherEmail?: string;
+  password?: string;
+  history?: { action: string, date: string }[];
+  // Feedback Fields
+  confirmationStatus?: 'None' | 'Confirmed' | 'Reported';
+  reportDetails?: {
+    message: string;
+    suggestedPhoto?: string;
+    date: string;
+  };
 }
 
 const INITIAL_USERS: UserData[] = [
-  { id: 1, institutionalId: 'ADM-2026-00412', name: 'Marie Dupont', email: 'marie.dupont@email.com', role: 'Admin', status: 'Active', lastLogin: '2 min ago', avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3b82f6&color=fff' },
-  { id: 2, institutionalId: 'JRY-2026-00951', name: 'Jean Martin', email: 'jean.martin@email.com', role: 'Jury Member', status: 'Active', lastLogin: '1 hour ago', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff' },
-  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff' },
-  { id: 4, institutionalId: 'STU-2026-00105', name: 'Lucas Petit', email: 'lucas.petit@email.com', role: 'Student', status: 'Active', lastLogin: '3 days ago', avatar: 'https://ui-avatars.com/api/?name=Lucas+Petit&background=3b82f6&color=fff' },
-  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff' },
+  { 
+    id: 1, 
+    institutionalId: 'ADM-2026-00412', 
+    name: 'Marie Dupont', 
+    email: 'marie.dupont@email.com', 
+    role: 'Admin', 
+    status: 'Active', 
+    lastLogin: '2 min ago', 
+    avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3b82f6&color=fff',
+    confirmationStatus: 'Confirmed'
+  },
+  { 
+    id: 4, 
+    institutionalId: 'STU-2026-00105', 
+    name: 'Lucas Petit', 
+    email: 'lucas.petit@email.com', 
+    role: 'Student', 
+    status: 'Active', 
+    lastLogin: '3 days ago', 
+    avatar: 'https://ui-avatars.com/api/?name=Lucas+Petit&background=3b82f6&color=fff',
+    confirmationStatus: 'Reported',
+    reportDetails: {
+      message: "Mon adresse a changé, je suis maintenant au 45 Rue Hassan II, Rabat. Et je voudrais changer ma photo.",
+      date: "2026-05-14",
+      suggestedPhoto: "https://ui-avatars.com/api/?name=LP&background=random"
+    }
+  },
+  { id: 2, institutionalId: 'JRY-2026-00951', name: 'Jean Martin', email: 'jean.martin@email.com', role: 'Jury Member', status: 'Active', lastLogin: '1 hour ago', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff', confirmationStatus: 'None' },
+  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff', confirmationStatus: 'None' },
+  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff', confirmationStatus: 'None' },
 ];
 
 const UserManagement: React.FC = () => {
@@ -64,6 +98,19 @@ const UserManagement: React.FC = () => {
     setEditingUser(null);
   };
 
+  const handleProcessReport = (userId: number) => {
+    setUsers(users.map(u => u.id === userId ? { ...u, confirmationStatus: 'None', reportDetails: undefined } as UserData : u));
+  };
+
+  const handleApplyPhoto = (userId: number, photo: string) => {
+    setUsers(users.map(u => u.id === userId ? { 
+      ...u, 
+      avatar: photo, 
+      confirmationStatus: 'None', 
+      reportDetails: undefined 
+    } as UserData : u));
+  };
+
   const generateInstitutionalId = (role: string) => {
     const year = new Date().getFullYear();
     const prefix = 
@@ -75,8 +122,10 @@ const UserManagement: React.FC = () => {
   };
 
   const handleSave = () => {
+    const now = new Date().toLocaleString();
     if (editingUser) {
-      setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData } as UserData : u));
+      const newHistory = [...(editingUser.history || []), { action: 'Modification profil par Admin', date: now }];
+      setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData, history: newHistory } as UserData : u));
     } else {
       const role = formData.role || 'Student';
       const newUser: UserData = {
@@ -84,10 +133,13 @@ const UserManagement: React.FC = () => {
         institutionalId: generateInstitutionalId(role),
         name: formData.name || '',
         email: formData.email || '',
+        password: formData.password || 'Emsi2026!',
         role: role,
         status: (formData.status as any) || 'Active',
         lastLogin: 'Never',
-        avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`
+        avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`,
+        history: [{ action: 'Création du compte', date: now }],
+        confirmationStatus: 'None'
       };
       setUsers([...users, newUser]);
     }
@@ -172,6 +224,7 @@ const UserManagement: React.FC = () => {
                 <tr>
                   <th className="px-4">Utilisateur</th>
                   <th>Rôle</th>
+                  <th>Vérification</th>
                   <th>Statut</th>
                   <th>Dernière connexion</th>
                   <th className="text-end px-4">Actions</th>
@@ -179,7 +232,8 @@ const UserManagement: React.FC = () => {
               </thead>
               <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user.id}>
+                  <React.Fragment key={user.id}>
+                    <tr>
                     <td className="px-4 py-3">
                       <div className="d-flex align-items-center gap-3">
                         <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
@@ -194,6 +248,21 @@ const UserManagement: React.FC = () => {
                       <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">
                         {user.role}
                       </Badge>
+                    </td>
+                    <td>
+                      {user.confirmationStatus === 'Confirmed' ? (
+                        <Badge bg="success-soft" className="text-success extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
+                          <CheckCircle size={12} /> Confirmé
+                        </Badge>
+                      ) : user.confirmationStatus === 'Reported' ? (
+                        <Badge bg="danger-soft" className="text-danger extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
+                          <AlertCircle size={12} /> Erreur Signalée
+                        </Badge>
+                      ) : (
+                        <Badge bg="secondary-soft" className="text-muted extra-small fw-bold" style={{ width: 'fit-content' }}>
+                          En attente
+                        </Badge>
+                      )}
                     </td>
                     <td>
                       <div className="d-flex align-items-center gap-2">
@@ -217,6 +286,46 @@ const UserManagement: React.FC = () => {
                       </Dropdown>
                     </td>
                   </tr>
+                  {user.confirmationStatus === 'Reported' && user.reportDetails && (
+                      <tr>
+                        <td colSpan={6} className="bg-danger-soft px-4 py-3 border-top-0">
+                          <div className="d-flex gap-3 align-items-start">
+                            <div className="p-2 bg-danger text-white rounded-circle shadow-sm">
+                              <AlertCircle size={16} />
+                            </div>
+                            <div className="flex-grow-1">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <span className="extra-small fw-bold text-danger text-uppercase tracking-wider">Signalement Reçu le {user.reportDetails.date}</span>
+                                <Button 
+                                  variant="link" 
+                                  size="sm" 
+                                  className="p-0 text-danger extra-small fw-bold text-decoration-none"
+                                  onClick={() => handleProcessReport(user.id)}
+                                >
+                                  Marquer comme traité
+                                </Button>
+                              </div>
+                              <p className="small text-navy mb-2 fw-bold opacity-75">{user.reportDetails.message}</p>
+                              {user.reportDetails.suggestedPhoto && (
+                                <div className="d-flex align-items-center gap-2">
+                                  <span className="extra-small text-muted fw-bold">Nouvelle Photo demandée:</span>
+                                  <img src={user.reportDetails.suggestedPhoto} alt="Suggestion" className="rounded border shadow-sm" style={{ width: '32px', height: '32px' }} />
+                                  <Button 
+                                    variant="link" 
+                                    size="sm" 
+                                    className="p-0 extra-small fw-bold text-primary text-decoration-none"
+                                    onClick={() => handleApplyPhoto(user.id, user.reportDetails!.suggestedPhoto!)}
+                                  >
+                                    Appliquer la photo
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </Table>
@@ -403,6 +512,35 @@ const UserManagement: React.FC = () => {
                   onChange={e => setFormData({...formData, motherPhone: e.target.value})}
                   className="form-control-premium fw-bold" 
                 />
+              </Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Historique</h6></Col>
+              <Col md={12}>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe actuel</Form.Label>
+                <InputGroup>
+                  <Form.Control 
+                    type="text"
+                    value={formData.password || 'Emsi2026!'} 
+                    onChange={e => setFormData({...formData, password: e.target.value})}
+                    className="form-control-premium fw-bold text-primary" 
+                  />
+                  <InputGroup.Text className="bg-surface-alt border-start-0 text-muted extra-small fw-bold">Admin Only</InputGroup.Text>
+                </InputGroup>
+              </Col>
+              
+              <Col md={12} className="mt-3">
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Historique des modifications</Form.Label>
+                <div className="bg-surface-alt rounded-3 p-3 border border-dashed" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                  {(formData.history && formData.history.length > 0) ? (
+                    formData.history.map((log, idx) => (
+                      <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
+                        <span className="extra-small fw-bold text-navy">{log.action}</span>
+                        <span className="extra-small text-muted">{log.date}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="extra-small text-muted text-center py-2">Aucun historique disponible</div>
+                  )}
+                </div>
               </Col>
             </Row>
           </Form>
