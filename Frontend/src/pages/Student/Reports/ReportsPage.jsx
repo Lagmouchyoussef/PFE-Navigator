@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, Upload, Download, CheckCircle, Clock, 
   Search, Trash2, Eye, Folder, Filter, ChevronDown,
-  FilePlus, MoreVertical, X
+  FilePlus, MoreVertical, X, GraduationCap, Users
 } from 'lucide-react';
 import { Dropdown } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext.jsx';
@@ -44,6 +44,7 @@ const ReportsPage = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [pendingFiles, setPendingFiles] = useState([]);
+  const [uploadTarget, setUploadTarget] = useState('supervisor');
   const [deleteModalDoc, setDeleteModalDoc] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const dragCounter = useRef(0);
@@ -69,13 +70,13 @@ const ReportsPage = () => {
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
       if (allowed.includes(file.type) || file.name.match(/\.(pdf|docx|pptx)$/i)) {
-        const doc = uploadDocument(file.name, file);
+        const doc = uploadDocument(file.name, file, uploadTarget);
         // Store a real browser object URL so we can view/download this file
         const url = URL.createObjectURL(file);
         fileUrlMap.current[doc.id] = { url, name: file.name };
       }
     });
-    setSuccessMsg(`${files.length} fichier(s) importé(s) avec succès !`);
+    setSuccessMsg(`${files.length} fichier(s) envoyé(s) à ${uploadTarget === 'supervisor' ? "l'encadrant" : "le jury"} !`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -271,11 +272,12 @@ const ReportsPage = () => {
               <h5 className="fw-bold text-navy mb-1" style={{ fontSize: '1.05rem' }}>
                 {isDragging ? '✓ Relâchez pour importer' : 'Glisser-déposer vos fichiers ici'}
               </h5>
+              <div className="mt-4 mb-4" />
               <p className="text-muted mb-4 fw-bold" style={{ fontSize: '0.82rem' }}>
                 {isDragging ? (
-                  <span className="text-success fw-bold">Fichier détecté — relâchez pour continuer</span>
+                  "Les fichiers seront affectés à la cible sélectionnée"
                 ) : (
-                  <>ou cliquer pour <span className="text-primary">parcourir vos fichiers</span></>
+                  "Cliquez pour parcourir ou déposez vos documents (PDF, Word, PPT)"
                 )}
               </p>
 
@@ -311,18 +313,38 @@ const ReportsPage = () => {
               className="mt-3 p-4 rounded-4 border"
               style={{ background: 'var(--color-surface-alt)' }}
             >
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <span className="fw-bold small text-navy">{pendingFiles.length} fichier(s) prêt(s) à importer</span>
+              <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                  <span className="fw-bold small text-navy d-block mb-1">{pendingFiles.length} fichier(s) prêt(s) à être importé(s)</span>
+                  <span className="extra-small text-muted fw-bold">Veuillez choisir la destination ci-dessous :</span>
+                </div>
                 <div className="d-flex gap-2">
                   <button className="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold extra-small"
                     onClick={e => { e.stopPropagation(); setPendingFiles([]); }}>
                     Annuler
                   </button>
-                  <button className="btn btn-sm btn-premium rounded-pill px-3 fw-bold extra-small"
+                  <button className="btn btn-sm btn-premium rounded-pill px-4 fw-bold extra-small shadow-sm"
                     onClick={e => { e.stopPropagation(); processFiles(pendingFiles); setPendingFiles([]); }}>
-                    ✓ Importer
+                    ✓ Importer pour {uploadTarget === 'supervisor' ? "l'Encadrant" : "le Jury"}
                   </button>
                 </div>
+              </div>
+
+              <div className="d-flex gap-2 mb-4 p-2 bg-white rounded-4 border shadow-sm w-fit-content mx-auto mx-md-0" onClick={e => e.stopPropagation()}>
+                <Button 
+                  variant={uploadTarget === 'supervisor' ? 'primary' : 'outline-light text-muted'} 
+                  className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'supervisor' ? 'shadow-sm' : ''}`}
+                  onClick={() => setUploadTarget('supervisor')}
+                >
+                  <Users size={14} className="me-2" /> Vers Encadrant
+                </Button>
+                <Button 
+                  variant={uploadTarget === 'jury' ? 'primary' : 'outline-light text-muted'} 
+                  className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'jury' ? 'shadow-sm' : ''}`}
+                  onClick={() => setUploadTarget('jury')}
+                >
+                  <GraduationCap size={14} className="me-2" /> Vers Jury
+                </Button>
               </div>
               <div className="d-flex flex-column gap-2">
                 {pendingFiles.map((f, i) => (
@@ -343,104 +365,144 @@ const ReportsPage = () => {
           )}
         </div>
 
-        {/* Filters & Table Card */}
-        <Card className="glass-card border-0 shadow-sm border overflow-hidden">
-          <Card.Body className="p-0">
-            {/* Table Header / Filters */}
-            <div className="p-4 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 bg-white">
-              <div className="w-100" style={{ maxWidth: '400px' }}>
-                <InputGroup className="bg-surface-alt rounded-pill border px-3">
-                  <InputGroup.Text className="bg-transparent border-0 pe-0">
-                    <Search size={18} className="text-muted" />
-                  </InputGroup.Text>
-                  <Form.Control 
-                    placeholder="Search documents..." 
-                    className="bg-transparent border-0 py-2 extra-small shadow-none fw-bold"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-              </div>
-              <div className="d-flex align-items-center gap-3">
-                <div className="d-flex align-items-center gap-2">
-                  <Filter size={18} className="text-muted" />
-                  <Form.Select 
-                    className="extra-small py-2 border rounded-pill bg-surface-alt fw-bold"
-                    style={{ width: '150px' }}
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                  >
-                    <option>All</option>
-                    <option>Proposal</option>
-                    <option>Reports</option>
-                    <option>Documentation</option>
-                  </Form.Select>
+        {/* Tables Section */}
+        <Row className="g-4">
+          <Col lg={12}>
+            <div className="d-flex flex-column gap-5">
+              
+              {/* Supervisor Table */}
+              <div className="document-section">
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <div className="p-2 rounded-3 bg-primary-soft text-primary"><Users size={20} /></div>
+                  <h5 className="fw-bold text-navy mb-0">Documents pour l'Encadrant</h5>
                 </div>
+                <Card className="glass-card border-0 shadow-sm border overflow-hidden">
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 align-middle">
+                      <thead className="bg-surface-alt">
+                        <tr>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Nom du Document</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date d'Envoi</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDocs.filter(d => d.target === 'supervisor').length > 0 ? (
+                          filteredDocs.filter(d => d.target === 'supervisor').map((doc) => (
+                            <tr key={doc.id} className="border-bottom border-light border-opacity-10">
+                              <td className="px-4 py-4">
+                                <div className="d-flex align-items-center gap-3">
+                                  <div className="avatar-sm bg-primary-soft text-primary rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="fw-bold small text-navy">{doc.title}</div>
+                                </div>
+                              </td>
+                              <td className="text-center"><Badge bg="light" className="text-navy border extra-small fw-bold px-3 py-1">v{doc.version}</Badge></td>
+                              <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toLocaleDateString()}</span></td>
+                              <td><span className="extra-small fw-bold text-muted">{doc.size}</span></td>
+                              <td>
+                                <Badge className={`bg-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'}-soft text-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'} border-0 px-3 py-1 extra-small fw-bold`}>
+                                  {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                                </Badge>
+                              </td>
+                              <td className="px-4 text-end">
+                                <Dropdown align="end">
+                                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                                    <MoreVertical size={18} />
+                                  </Dropdown.Toggle>
+                                  <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
+                                      <Trash2 size={14} /> Supprimer
+                                    </Dropdown.Item>
+                                  </Dropdown.Menu>
+                                </Dropdown>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">Aucun document pour l'encadrant</td></tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                </Card>
               </div>
-            </div>
 
-            {/* Document Table */}
-            <div className="table-responsive">
-              <Table hover className="mb-0 align-middle">
-                <thead className="bg-surface-alt">
-                  <tr>
-                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Upload Date</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Version</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredDocs.length > 0 ? (
-                    filteredDocs.map((doc, i) => (
-                      <tr key={doc.id || i} className="border-bottom border-light border-opacity-10">
-                        <td className="px-4 py-3">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="avatar-sm bg-danger-soft text-danger rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
-                               <FileText size={18} />
-                            </div>
-                            <div className="fw-bold small text-navy">{doc.title}</div>
-                          </div>
-                        </td>
-                        <td><span className="extra-small fw-bold text-muted text-uppercase">Proposal</span></td>
-                        <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toISOString().split('T')[0]}</span></td>
-                        <td><span className="extra-small fw-bold text-muted">{doc.size || '1.8 MB'}</span></td>
-                        <td><span className="extra-small fw-bold text-muted">v{doc.version || '1.0'}</span></td>
-                        <td>
-                          <Badge className="bg-success-soft text-success border-0 px-3 py-1 extra-small fw-bold">Approved</Badge>
-                        </td>
-                        <td className="px-4 py-3 text-end">
-                          <Dropdown align="end">
-                            <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                              <MoreVertical size={18} />
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                              <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
-                              <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
-                              <Dropdown.Divider />
-                              <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
-                                <Trash2 size={14} /> Supprimer
-                              </Dropdown.Item>
-                            </Dropdown.Menu>
-                          </Dropdown>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="text-center py-5 text-muted extra-small fw-bold">
-                        No documents found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
+              {/* Jury Table */}
+              <div className="document-section">
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <div className="p-2 rounded-3 bg-warning-soft text-warning"><GraduationCap size={20} /></div>
+                  <h5 className="fw-bold text-navy mb-0">Documents pour le Jury</h5>
+                </div>
+                <Card className="glass-card border-0 shadow-sm border overflow-hidden">
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 align-middle">
+                      <thead className="bg-surface-alt">
+                        <tr>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Nom du Document</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date d'Envoi</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDocs.filter(d => d.target === 'jury').length > 0 ? (
+                          filteredDocs.filter(d => d.target === 'jury').map((doc) => (
+                            <tr key={doc.id} className="border-bottom border-light border-opacity-10">
+                              <td className="px-4 py-4">
+                                <div className="d-flex align-items-center gap-3">
+                                  <div className="avatar-sm bg-warning-soft text-warning rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="fw-bold small text-navy">{doc.title}</div>
+                                </div>
+                              </td>
+                              <td className="text-center"><Badge bg="light" className="text-navy border extra-small fw-bold px-3 py-1">v{doc.version}</Badge></td>
+                              <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toLocaleDateString()}</span></td>
+                              <td><span className="extra-small fw-bold text-muted">{doc.size}</span></td>
+                              <td>
+                                <Badge className={`bg-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'}-soft text-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'} border-0 px-3 py-1 extra-small fw-bold`}>
+                                  {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                                </Badge>
+                              </td>
+                              <td className="px-4 text-end">
+                                <Dropdown align="end">
+                                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
+                                    <MoreVertical size={18} />
+                                  </Dropdown.Toggle>
+                                  <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
+                                      <Trash2 size={14} /> Supprimer
+                                    </Dropdown.Item>
+                                  </Dropdown.Menu>
+                                </Dropdown>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">Aucun document pour le jury</td></tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                </Card>
+              </div>
+
             </div>
-          </Card.Body>
-        </Card>
+          </Col>
+        </Row>
       </Container>
 
       {/* Delete Confirmation Modal */}

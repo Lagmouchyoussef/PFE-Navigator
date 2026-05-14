@@ -21,6 +21,7 @@ export interface Document {
   status: 'approved' | 'pending' | 'rejected';
   comment: string;
   size: string;
+  target: 'supervisor' | 'jury';
 }
 
 export interface Message {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Button, Table, Modal, Form 
+  Button, Table, Modal, Form, Dropdown 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -233,18 +233,53 @@ const SchedulePage = () => {
         <Row className="g-4">
           {/* Main Calendar Content */}
           <Col lg={8}>
-            <Card className="glass-card border shadow-sm border overflow-hidden mb-5">
+            <Card className="glass-card border shadow-sm border mb-5">
               <Card.Body className="p-0">
                 <div className="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
-                  <h5 className="fw-bold text-navy mb-0">May 2026</h5>
-                  <div className="d-flex gap-2">
-                    <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={() => alert("Navigation vers le mois précédent (Simulé)")}><ChevronLeft size={20} /></Button>
-                    <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={() => alert("Navigation vers le mois suivant (Simulé)")}><ChevronRight size={20} /></Button>
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex gap-1">
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevYear} title="Année précédente"><ChevronLeft size={20} /><ChevronLeft size={20} style={{marginLeft: '-12px'}} /></Button>
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevMonth} title="Mois précédent"><ChevronLeft size={20} /></Button>
+                    </div>
+                    
+                    <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-surface-alt border cursor-pointer hover-bg-surface transition-all shadow-sm">
+                      <Dropdown>
+                        <Dropdown.Toggle variant="link" className="text-navy fw-bold p-0 border-0 shadow-none no-caret" style={{ fontSize: '1.1rem', textDecoration: 'none' }}>
+                          {months[month]}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden extra-small">
+                          {months.map((m, i) => (
+                            <Dropdown.Item key={m} active={i === month} onClick={() => setViewDate(new Date(year, i, 1))}>
+                              {m}
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                      
+                      <Dropdown>
+                        <Dropdown.Toggle variant="link" className="text-navy fw-bold p-0 border-0 shadow-none no-caret" style={{ fontSize: '1.1rem', textDecoration: 'none', opacity: 0.6 }}>
+                          {year}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden extra-small" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                          {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
+                            <Dropdown.Item key={y} active={y === year} onClick={() => setViewDate(new Date(y, month, 1))}>
+                              {y}
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+
+                    <div className="d-flex gap-1">
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextMonth} title="Mois suivant"><ChevronRight size={20} /></Button>
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextYear} title="Année suivante"><ChevronRight size={20} /><ChevronRight size={20} style={{marginLeft: '-12px'}} /></Button>
+                    </div>
                   </div>
+                  <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Aujourd'hui</Button>
                 </div>
                 <div className="p-4">
                   <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden' }}>
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
                       <div key={day} className="bg-surface-alt p-3 text-center extra-small fw-bold text-muted text-uppercase">{day}</div>
                     ))}
                     {days.map((day, i) => {
@@ -256,11 +291,11 @@ const SchedulePage = () => {
                             <motion.div 
                               initial={{ scale: 0.8, opacity: 0 }} 
                               animate={{ scale: 1, opacity: 1 }}
-                              className={`p-2 rounded-3 extra-small fw-bold d-flex align-items-center gap-2 shadow-sm bg-${event.type === 'meeting' ? 'primary' : event.type === 'deadline' ? 'danger' : 'warning'}-soft text-${event.type === 'meeting' ? 'primary' : event.type === 'deadline' ? 'danger' : 'warning'}`}
+                              className={`p-2 rounded-3 extra-small fw-bold d-flex align-items-center gap-2 shadow-sm bg-${event.status === 'Upcoming' ? 'primary' : 'success'}-soft text-${event.status === 'Upcoming' ? 'primary' : 'success'}`}
                               style={{ fontSize: '9px' }}
                             >
                               <div className="rounded-circle" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></div>
-                              {event.name}
+                              {event.title}
                             </motion.div>
                           )}
                         </div>

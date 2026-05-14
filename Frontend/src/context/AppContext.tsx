@@ -47,6 +47,7 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
     status: 'approved',
     comment: '',
     size: '2.4 MB',
+    target: 'jury',
   },
   {
     id: 2,
@@ -57,6 +58,7 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
     status: 'pending',
     comment: '',
     size: '5.1 MB',
+    target: 'jury',
   },
   {
     id: 3,
@@ -67,6 +69,7 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
     status: 'approved',
     comment: '',
     size: '1.2 MB',
+    target: 'supervisor',
   },
   {
     id: 4,
@@ -77,6 +80,7 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
     status: 'pending',
     comment: '',
     size: '3.8 MB',
+    target: 'supervisor',
   },
 ];
 
@@ -294,7 +298,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   // ── STUDENT ACTIONS ─────────────────────────────────────────────────────────
-  const uploadDocument = useCallback((title: string, file: File | null) => {
+  const uploadDocument = useCallback((title: string, file: File | null, target: 'supervisor' | 'jury' = 'supervisor') => {
     const existing = documents.filter(d => d.title === title);
     const version = existing.length > 0
       ? Math.max(...existing.map(d => d.version)) + 1
@@ -308,10 +312,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       status: 'pending',
       comment: '',
       size: file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : '—',
+      target,
     };
     setDocuments(prev => [...prev, newDoc]);
     return newDoc;
-  }, [documents]);
+  }, [documents, session]);
 
   const deleteDocument = useCallback((id: number) => {
     setDocuments(prev => prev.filter(d => d.id !== id));

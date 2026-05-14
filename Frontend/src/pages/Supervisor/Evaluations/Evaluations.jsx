@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, CheckCircle, AlertCircle, Clock, 
   MessageSquare, Star, Download, Eye, 
-  Filter, ChevronRight, Award, Edit3
+  Filter, ChevronRight, Award, Edit3, X
 } from 'lucide-react';
 
 const EVALUATIONS_DATA = [
@@ -48,6 +48,20 @@ const EVALUATIONS_DATA = [
 
 const Evaluations = () => {
   const [filter, setFilter] = useState('All');
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const handleExport = (format) => {
+    setSuccessMsg(`L'exportation au format ${format} a été lancée. Votre fichier sera prêt dans quelques secondes.`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
+  const handleFinalGrades = () => {
+    setSuccessMsg("Les notes finales ont été consolidées et envoyées au département académique pour validation.");
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
 
   const filteredData = filter === 'All' ? EVALUATIONS_DATA : EVALUATIONS_DATA.filter(item => item.status === filter);
 
@@ -55,68 +69,95 @@ const Evaluations = () => {
     <div className="supervisor-evaluations-layout py-4">
       <Container fluid className="px-4">
         
+        {/* Success Alert */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="glass-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center bg-white"
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="p-2 rounded-circle bg-success-soft text-success">
+                  <CheckCircle size={24} />
+                </div>
+                <div>
+                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
+                </div>
+              </div>
+              <Button variant="link" className="p-0 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Evaluations & Feedback</h2>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Évaluations & Retours</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Review student submissions, provide feedback, and track milestones
+              Consultez les soumissions des étudiants et gérez les notes de projet
             </p>
           </motion.div>
           <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Batch Export
-            </Button>
-            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm">
-              <Award size={18} /> Final Grades
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="outline-primary" 
+                className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
+              >
+                <Download size={18} /> Exportation
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Excel')}>
+                  <FileText size={14} className="text-success" /> Format Excel (.xlsx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Word')}>
+                  <FileText size={14} className="text-primary" /> Format Word (.docx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('PDF')}>
+                  <FileText size={14} className="text-danger" /> Format PDF (.pdf)
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button 
+              className="btn-premium d-flex align-items-center gap-2 shadow-sm"
+              onClick={handleFinalGrades}
+            >
+              <Award size={18} /> Notes Finales
             </Button>
           </div>
         </header>
 
         {/* Evaluation Summary Cards */}
         <Row className="g-4 mb-5">
-          <Col lg={8}>
+          <Col lg={12}>
             <Card className="glass-card border-0 shadow-sm border p-4 h-100">
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h6 className="fw-bold text-navy mb-0">Grading Progress</h6>
-                <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">Semester 2</Badge>
+                <h6 className="fw-bold text-navy mb-0">Progression de la Correction</h6>
+                <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">Semestre 2</Badge>
               </div>
               <Row className="text-center g-4">
                 <Col xs={4}>
                   <div className="h2 fw-bold text-navy mb-1">14</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Total Submissions</div>
+                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Soumissions Totales</div>
                 </Col>
                 <Col xs={4} className="border-start border-end">
                   <div className="h2 fw-bold text-success mb-1">8</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Evaluated</div>
+                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Évaluées</div>
                 </Col>
                 <Col xs={4}>
                   <div className="h2 fw-bold text-warning mb-1">6</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Remaining</div>
+                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Restantes</div>
                 </Col>
               </Row>
               <div className="mt-4">
                 <div className="d-flex justify-content-between extra-small fw-bold text-navy mb-2">
-                  <span className="opacity-75">Overall Correction Progress</span>
+                  <span className="opacity-75">Progression globale</span>
                   <span className="text-primary">57%</span>
                 </div>
                 <ProgressBar now={57} variant="primary" style={{ height: '8px' }} className="rounded-pill bg-surface-alt border-0" />
               </div>
-            </Card>
-          </Col>
-          <Col lg={4}>
-            <Card className="glass-card border-0 shadow-sm p-4 h-100 bg-primary text-white text-center d-flex flex-column justify-content-center" style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-info))' }}>
-              <h6 className="fw-bold mb-3 text-white">AI Grading Assistant</h6>
-              <p className="extra-small text-white opacity-90 mb-4 fw-bold">
-                Our AI has pre-analyzed <strong>4 new submissions</strong> for plagiarism and technical consistency. 
-              </p>
-              <Button 
-                variant="light" 
-                className="w-100 py-3 extra-small fw-bold rounded-pill shadow-sm border-0 bg-white"
-                style={{ color: 'var(--color-primary)' }}
-              >
-                View AI Insights
-              </Button>
             </Card>
           </Col>
         </Row>

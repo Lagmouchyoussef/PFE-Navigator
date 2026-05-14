@@ -69,8 +69,8 @@ const SupervisorDashboard: React.FC = () => {
                 <CheckCircle size={20} />
               </div>
               <div>
-                <h6 className="mb-0 fw-bold small">Reports Validated Successfully</h6>
-                <p className="extra-small mb-0 opacity-75 fw-bold">3 new reports from your students have been automatically pre-validated by the system.</p>
+                <h6 className="mb-0 fw-bold small">Rapports Mis à Jour</h6>
+                <p className="extra-small mb-0 opacity-75 fw-bold">3 nouveaux rapports ont été déposés par vos étudiants et attendent votre revue.</p>
               </div>
             </div>
             <Button variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Dismiss</Button>
@@ -125,29 +125,6 @@ const SupervisorDashboard: React.FC = () => {
           </Col>
         </Row>
 
-        {/* AI Insight Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 mb-5 d-flex align-items-center gap-4 bg-primary-soft border border-primary border-opacity-10 rounded-4 shadow-sm"
-        >
-          <div className="p-3 rounded-4 bg-surface shadow-sm text-primary">
-            <Activity size={32} />
-          </div>
-          <div className="flex-grow-1">
-            <div className="d-flex align-items-center gap-2 mb-1">
-              <Badge className="bg-primary text-white border-0 rounded-pill extra-small px-3 py-1 fw-bold">AI COPILOT</Badge>
-              <span className="extra-small text-primary fw-bold opacity-75">PROJECTED SUCCESS RATE: 98.2%</span>
-            </div>
-            <p className="extra-small text-primary-custom opacity-85 mb-0 fw-bold">
-              Based on recent submissions, <strong>Ahmed Khalil</strong> and <strong>Fatima Zahra</strong> are ready for defense. 
-              Consider scheduling a review session for <strong>Mohamed Alaoui</strong> who is slightly behind schedule.
-            </p>
-          </div>
-          <Button variant="link" className="text-primary fw-bold text-decoration-none extra-small d-flex align-items-center gap-1">
-            View Analytics <ChevronRight size={14} />
-          </Button>
-        </motion.div>
 
         <Row className="g-4 mb-5">
           <Col lg={8}>

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Table, Form, InputGroup, Dropdown, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Button, Table, Form, InputGroup, Dropdown, ProgressBar, Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Search, Filter, MoreHorizontal, 
   MessageSquare, FileText, ChevronRight, 
   Mail, Phone, ExternalLink, Download,
-  UserPlus, UserCheck, Clock, CheckCircle, TrendingUp
+  UserPlus, UserCheck, Clock, CheckCircle, TrendingUp, X, Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -82,6 +82,31 @@ const StudentsList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteModalStudent, setDeleteModalStudent] = useState(null);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const handleExport = (format) => {
+    setSuccessMsg(`L'exportation de la liste des étudiants au format ${format} a été lancée.`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
+  const handleAddStudent = (e) => {
+    e.preventDefault();
+    setShowAddModal(false);
+    setSuccessMsg("L'étudiant a été ajouté avec succès à votre liste de supervision.");
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
+  const handleDeleteStudent = () => {
+    setSuccessMsg(`L'étudiant ${deleteModalStudent.name} a été retiré de votre liste de supervision.`);
+    setDeleteModalStudent(null);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
 
   const filteredStudents = STUDENTS_DATA.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -94,20 +119,62 @@ const StudentsList = () => {
     <div className="supervisor-students-layout py-4">
       <Container fluid className="px-4">
         
+        {/* Success Alert */}
+        <AnimatePresence>
+          {showSuccessCard && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="glass-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center bg-white"
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div className="p-2 rounded-circle bg-success-soft text-success">
+                  <CheckCircle size={24} />
+                </div>
+                <div>
+                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
+                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
+                </div>
+              </div>
+              <Button variant="link" className="p-0 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Supervised Students</h2>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Étudiants Supervisés</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Manage and track the progress of your supervised students
+              Gérez et suivez la progression de vos étudiants en PFE
             </p>
           </motion.div>
           <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Export List
-            </Button>
-            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm">
-              <UserPlus size={18} /> Add Student
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="outline-primary" 
+                className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
+              >
+                <Download size={18} /> Exportation
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Excel')}>
+                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Word')}>
+                  <FileText size={14} className="text-primary" /> Liste Word (.docx)
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('PDF')}>
+                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf)
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button 
+              className="btn-premium d-flex align-items-center gap-2 shadow-sm"
+              onClick={() => setShowAddModal(true)}
+            >
+              <UserPlus size={18} /> Ajouter un Étudiant
             </Button>
           </div>
         </header>
@@ -247,8 +314,8 @@ const StudentsList = () => {
                                 <UserCheck size={14} className="text-info" /> Validate Phase
                               </Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2">
-                                <ExternalLink size={14} /> Request Update
+                              <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2" onClick={() => setDeleteModalStudent(student)}>
+                                <Trash2 size={14} /> Supprimer l'Étudiant
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
@@ -314,6 +381,111 @@ const StudentsList = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Add Student Modal */}
+      <Modal 
+        show={showAddModal} 
+        onHide={() => setShowAddModal(false)}
+        centered
+        className="extra-small"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold text-navy h5">Ajouter un Étudiant</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Form onSubmit={handleAddStudent}>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold text-muted extra-small">Nom</Form.Label>
+                  <Form.Control type="text" placeholder="Ex: Dupont" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold text-muted extra-small">Prénom</Form.Label>
+                  <Form.Control type="text" placeholder="Ex: Jean" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold text-muted extra-small">Email Académique</Form.Label>
+              <Form.Control type="email" placeholder="email@emsi-edu.ma" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold text-muted extra-small">Téléphone</Form.Label>
+              <Form.Control type="tel" placeholder="+212 6 XX XX XX XX" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold text-muted extra-small">Titre du Projet</Form.Label>
+              <Form.Control type="text" placeholder="Titre du PFE" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-bold text-muted extra-small">Département</Form.Label>
+                  <Form.Select className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none">
+                    <option>Génie Logiciel</option>
+                    <option>Cyber-sécurité</option>
+                    <option>IoT</option>
+                    <option>Cloud Computing</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-bold text-muted extra-small">Type</Form.Label>
+                  <Form.Select className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none">
+                    <option>PFE</option>
+                    <option>Stage</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <div className="d-grid">
+              <Button type="submit" className="btn-premium py-2 rounded-pill fw-bold border-0 shadow-sm">
+                Enregistrer l'Étudiant
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal 
+        show={!!deleteModalStudent} 
+        onHide={() => setDeleteModalStudent(null)}
+        centered
+        className="extra-small"
+      >
+        <Modal.Body className="p-4 text-center">
+          <div className="mb-4 d-flex justify-content-center">
+            <div className="p-3 rounded-circle bg-danger-soft text-danger">
+              <Trash2 size={40} />
+            </div>
+          </div>
+          <h5 className="fw-bold text-navy mb-2">Supprimer l'Étudiant ?</h5>
+          <p className="text-muted extra-small fw-bold mb-4">
+            Êtes-vous sûr de vouloir retirer <strong>{deleteModalStudent?.name}</strong> de votre liste de supervision ? Cette action est irréversible.
+          </p>
+          <div className="d-flex gap-3">
+            <Button 
+              variant="light" 
+              className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0"
+              onClick={() => setDeleteModalStudent(null)}
+            >
+              Annuler
+            </Button>
+            <Button 
+              variant="danger" 
+              className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0 shadow-sm"
+              onClick={handleDeleteStudent}
+            >
+              Confirmer la suppression
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
