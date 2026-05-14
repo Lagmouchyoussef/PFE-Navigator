@@ -85,6 +85,7 @@ const Subjects = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [showOtherObjective, setShowOtherObjective] = useState(false);
   const [selectedObjectives, setSelectedObjectives] = useState([]);
+  const [editModalSubject, setEditModalSubject] = useState(null);
 
   const toggleObjective = (obj) => {
     if (obj === 'Autre') {
@@ -112,9 +113,17 @@ const Subjects = () => {
   };
 
   const handleEditSubject = (sub) => {
-    setSuccessMsg(`Modification du sujet "${sub.title}" ouverte.`);
+    setEditModalSubject(sub);
+    // Mock pre-fill of objectives based on existing data
+    setSelectedObjectives(['Étude de l\'existant', 'Conception UML/SI']);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    setEditModalSubject(null);
+    setSuccessMsg(`Le sujet "${editModalSubject.title}" a été mis à jour avec succès.`);
     setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 3000);
+    setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
   const handleDeleteSubject = () => {
@@ -392,6 +401,87 @@ const Subjects = () => {
             </Row>
             <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
               Soumettre la proposition
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Edit Subject Modal */}
+      <Modal 
+        show={!!editModalSubject} 
+        onHide={() => setEditModalSubject(null)}
+        centered
+        className="glass-modal"
+      >
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <Modal.Title className="fw-bold text-navy h5">Modifier le Sujet</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Form onSubmit={handleEditSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre du sujet</Form.Label>
+              <Form.Control 
+                defaultValue={editModalSubject?.title} 
+                className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Catégorie / Technologies</Form.Label>
+              <Form.Control 
+                defaultValue={editModalSubject?.category} 
+                className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Description du sujet</Form.Label>
+              <Form.Control 
+                as="textarea" 
+                rows={3} 
+                defaultValue={editModalSubject?.description} 
+                className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Objectifs Clés (Sélectionnez)</Form.Label>
+              <div className="d-flex flex-wrap gap-2 mb-3">
+                {['Étude de l\'existant', 'Conception UML/SI', 'Implémentation Tech', 'Tests & Validation', 'Rédaction Mémoire', 'Déploiement Cloud', 'Autre'].map((obj, i) => {
+                  const isSelected = selectedObjectives.includes(obj);
+                  return (
+                    <div 
+                      key={i}
+                      onClick={() => toggleObjective(obj)}
+                      className={`extra-small fw-bold transition-all px-3 py-2 rounded-pill border cursor-pointer unselectable ${
+                        isSelected 
+                        ? 'bg-primary-soft text-primary border-primary border-opacity-25 shadow-sm' 
+                        : 'bg-surface-alt text-navy border-light-soft hover-bg-light'
+                      }`}
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                    >
+                      {obj}
+                    </div>
+                  );
+                })}
+              </div>
+            </Form.Group>
+            <Row className="mb-4">
+              <Col>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulté</Form.Label>
+                <Form.Select defaultValue={editModalSubject?.difficulty} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
+                  <option>Débutant</option>
+                  <option>Intermédiaire</option>
+                  <option>Avancé</option>
+                </Form.Select>
+              </Col>
+              <Col>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nb. Max Étudiants</Form.Label>
+                <Form.Control type="number" defaultValue={editModalSubject?.students} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
+              </Col>
+            </Row>
+            <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
+              Enregistrer les modifications
             </Button>
           </Form>
         </Modal.Body>
