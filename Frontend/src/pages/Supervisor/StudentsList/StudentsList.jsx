@@ -5,7 +5,7 @@ import {
   Users, Search, Filter, MoreHorizontal, 
   MessageSquare, FileText, ChevronRight, 
   Mail, Phone, ExternalLink, Download,
-  UserPlus, UserCheck, Clock, CheckCircle, TrendingUp, X, Trash2
+  UserPlus, UserCheck, Clock, CheckCircle, TrendingUp, X, Trash2, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -110,6 +110,9 @@ const StudentsList = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [showDeliverables, setShowDeliverables] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const handleExport = (format) => {
     setSuccessMsg(`L'exportation de la liste des étudiants au format ${format} a été lancée.`);
@@ -210,7 +213,7 @@ const StudentsList = () => {
         </header>
 
         {/* Filters & Search */}
-        <Card className="glass-card border-0 mb-4 p-3 border shadow-sm">
+        <Card className="glass-card mb-4 p-3 border-0 shadow-sm">
           <Row className="g-3 align-items-center">
             <Col md={6} lg={4}>
               <InputGroup className="bg-surface-alt rounded-pill border px-3">
@@ -248,7 +251,7 @@ const StudentsList = () => {
         </Card>
 
         {/* Students Table */}
-        <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
+        <div className="glass-card border-0 shadow-sm rounded-4 overflow-hidden">
           <div className="table-responsive">
             <Table hover className="mb-0 align-middle">
               <thead className="bg-surface-alt">
@@ -270,7 +273,7 @@ const StudentsList = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-bottom border-light border-opacity-10"
+                      className="border-bottom border-light border-opacity-5"
                     >
                       <td className="px-4 py-3">
                         <div className="d-flex align-items-center gap-3">
@@ -335,14 +338,14 @@ const StudentsList = () => {
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
                               <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
-                                <ChevronRight size={14} className="text-primary" /> View Full Profile
+                                <User size={14} className="text-primary" /> Voir le profil
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2">
-                                <FileText size={14} className="text-success" /> View Deliverables
-                              </Dropdown.Item>
-                              <Dropdown.Item className="py-2 d-flex align-items-center gap-2">
-                                <UserCheck size={14} className="text-info" /> Validate Phase
-                              </Dropdown.Item>
+                               <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => { setSelectedStudent(student); setShowDeliverables(true); }}>
+                                <FileText size={14} className="text-success" /> Voir les livrables
+                               </Dropdown.Item>
+                               <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => { setSelectedStudent(student); setShowValidation(true); }}>
+                                <UserCheck size={14} className="text-info" /> Valider une phase
+                               </Dropdown.Item>
                               <Dropdown.Divider />
                               <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2" onClick={() => setDeleteModalStudent(student)}>
                                 <Trash2 size={14} /> Supprimer l'Étudiant
@@ -515,6 +518,98 @@ const StudentsList = () => {
             >
               Confirmer la suppression
             </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+      {/* Deliverables Modal */}
+      <Modal 
+        show={showDeliverables} 
+        onHide={() => setShowDeliverables(false)}
+        centered
+        size="lg"
+        className="glass-modal"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold text-navy h5">Livrables de {selectedStudent?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <div className="glass-card border-0 p-0 overflow-hidden rounded-4">
+            <Table hover responsive className="mb-0 align-middle">
+              <thead className="bg-surface-alt">
+                <tr>
+                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date de Dépôt</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
+                  <th className="px-4 py-3 text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { id: 1, name: 'Cahier des Charges', date: '2025-11-20', size: '2.4 MB' },
+                  { id: 2, name: 'Rapport Technique v1', date: '2026-02-15', size: '4.8 MB' },
+                  { id: 3, name: 'Présentation Mi-parcours', date: '2026-03-01', size: '1.2 MB' }
+                ].map(doc => (
+                  <tr key={doc.id}>
+                    <td className="px-4 py-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <FileText size={18} className="text-primary" />
+                        <span className="small fw-bold text-navy">{doc.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 small text-muted">{doc.date}</td>
+                    <td className="py-3 small text-muted">{doc.size}</td>
+                    <td className="px-4 py-3 text-end">
+                      <Button variant="link" className="p-1 text-primary shadow-none border-0"><Download size={18}/></Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Validation Modal */}
+      <Modal 
+        show={showValidation} 
+        onHide={() => setShowValidation(false)}
+        centered
+        className="glass-modal"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold text-navy h5">Valider une Phase</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <p className="small text-muted mb-4 fw-bold opacity-75">Sélectionnez la phase à valider pour <strong>{selectedStudent?.name}</strong> :</p>
+          <div className="d-flex flex-column gap-3">
+            {[
+              { id: 1, name: 'Proposition / Sujet', status: 'completed' },
+              { id: 2, name: 'Cahier des Charges', status: 'completed' },
+              { id: 3, name: 'Rapport Intérimaire', status: 'current' },
+              { id: 4, name: 'Rapport Final', status: 'pending' }
+            ].map(phase => (
+              <Button 
+                key={phase.id}
+                variant="outline-primary"
+                className={`text-start p-3 rounded-4 d-flex justify-content-between align-items-center border-2 transition-all ${phase.status === 'completed' ? 'border-success text-success bg-success-soft' : phase.status === 'current' ? 'border-primary' : 'opacity-50'}`}
+                onClick={() => {
+                  if(phase.status !== 'completed') {
+                    setSuccessMsg(`La phase "${phase.name}" a été validée avec succès pour ${selectedStudent.name}.`);
+                    setShowValidation(false);
+                    setShowSuccessCard(true);
+                    setTimeout(() => setShowSuccessCard(false), 5000);
+                  }
+                }}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <div className={`p-2 rounded-circle ${phase.status === 'completed' ? 'bg-success text-white' : 'bg-surface-alt text-primary'}`}>
+                    {phase.status === 'completed' ? <CheckCircle size={16}/> : <Clock size={16}/>}
+                  </div>
+                  <span className="fw-bold small">{phase.name}</span>
+                </div>
+                {phase.status === 'completed' && <Badge className="bg-success text-white rounded-pill">Validé</Badge>}
+              </Button>
+            ))}
           </div>
         </Modal.Body>
       </Modal>

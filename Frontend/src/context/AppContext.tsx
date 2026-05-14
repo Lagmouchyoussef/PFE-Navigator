@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { 
   User, Session, Document as AppDocument, Message, Defense, 
-  Notification, Scores, UserRole 
+  Notification, Scores, UserRole, Milestone
 } from '../types';
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
@@ -11,6 +11,13 @@ const ACCOUNTS: User[] = [
   { id: '2', institutionalId: 'JRY-2026-00951', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
   { id: '3', institutionalId: 'SUP-2026-00842', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
   { id: '4', institutionalId: 'ADM-2026-00412', email: 'admin@emsi.ma', name: 'Système PFE Navigator', role: 'admin', initials: 'SP' },
+];
+
+const INITIAL_MILESTONES: Milestone[] = [
+  { id: 1, title: 'Proposition', description: 'Dépôt du rapport initial / proposition par l\'étudiant.', status: 'completed', date: '2025-11-10' },
+  { id: 2, title: 'Rapport Intérimaire', description: 'Vérification et validation de l\'état d\'avancement par l\'encadrant.', status: 'completed', date: '2026-02-15' },
+  { id: 3, title: 'Rapport Final', description: 'Validation finale ou refus du rapport par le membre du jury.', status: 'current', date: '2026-05-14' },
+  { id: 4, title: 'Défense', description: 'Soutenance et publication des notes finales par l\'administration.', status: 'pending', date: '' },
 ];
 
 const INITIAL_SCORES: Scores = {
@@ -199,6 +206,12 @@ interface AppContextType {
   updatePfeWeights: (supervisor: number, jury: number) => void;
   theme: string;
   setTheme: (theme: string) => void;
+  // Milestones
+  projectMilestones: Milestone[];
+  updateMilestone: (id: number, status: 'completed' | 'current' | 'pending') => void;
+  // Validation Results
+  isProjectValidated: boolean;
+  finalResultMessage: string;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -216,9 +229,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [juryComment, setJuryComment] = useState('');
   const [isGradesPublished, setIsGradesPublished] = useState(false);
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
+
   
   // THEME MANAGEMENT
   const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'system');
+  const [projectMilestones, setProjectMilestones] = useState<Milestone[]>(INITIAL_MILESTONES);
+
+  const updateMilestone = useCallback((id: number, status: 'completed' | 'current' | 'pending') => {
+    setProjectMilestones(prev => prev.map(m => m.id === id ? { 
+      ...m, 
+      status, 
+      date: status === 'completed' ? new Date().toISOString().split('T')[0] : m.date 
+    } : m));
+  }, []);
 
   const applyTheme = useCallback((targetTheme: string) => {
     let resolvedTheme = targetTheme;
@@ -419,6 +442,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const progressPct   = Math.round((approvedDocs / totalRequired) * 100);
   const pendingDocsCount = documents.filter(d => d.status === 'pending').length;
 
+  // FINAL VALIDATION LOGIC
+  const isProjectValidated = (pfeFinalGrade || 0) >= 10;
+  const finalResultMessage = isGradesPublished 
+    ? (isProjectValidated 
+        ? `Bravo Mr ${session?.name}, vous avez validé.` 
+        : `Malheureusement Mr ${session?.name}, vous n'avez pas validé.`)
+    : "";
+
   return (
     <AppContext.Provider value={{
       session, login, logout,
@@ -431,7 +462,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       progressPct, approvedDocs, totalRequired,
       isGradesPublished, publishGrades,
       pfeWeights, updatePfeWeights,
-      theme, setTheme
+      theme, setTheme,
+      projectMilestones, updateMilestone,
+      isProjectValidated, finalResultMessage
     }}>
       {children}
     </AppContext.Provider>

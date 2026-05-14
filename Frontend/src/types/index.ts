@@ -62,3 +62,11 @@ export interface Scores {
   pfeSupervisor: number | null;
   pfeJury: number | null;
 }
+
+export interface Milestone {
+  id: number;
+  title: string;
+  description: string;
+  status: 'completed' | 'current' | 'pending';
+  date: string;
+}

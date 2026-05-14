@@ -24,6 +24,9 @@ const StudentDashboard: React.FC = () => {
     session,
     documents: globalDocs, 
     deleteDocument, 
+    projectMilestones,
+    finalResultMessage,
+    isProjectValidated
   } = useApp();
 
   const handleNewSubmission = () => {
@@ -38,12 +41,10 @@ const StudentDashboard: React.FC = () => {
     alert(`Downloading ${doc.title}...`);
   };
 
-  const steps: Step[] = [
-    { name: 'Proposal', status: 'completed' },
-    { name: 'Interim Report', status: 'completed' },
-    { name: 'Final Report', status: 'active' },
-    { name: 'Defense', status: 'pending' },
-  ];
+  const steps: Step[] = projectMilestones.map(m => ({
+    name: m.title,
+    status: m.status as any
+  }));
 
   const progressData = [
     { name: 'Done', value: 75, color: 'var(--color-primary)' },
@@ -75,6 +76,30 @@ const StudentDashboard: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {finalResultMessage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`mb-5 p-4 rounded-4 border-2 border-dashed ${isProjectValidated ? 'bg-success-soft border-success' : 'bg-danger-soft border-danger'}`}
+          >
+            <div className="d-flex align-items-center gap-4">
+              <div className={`p-3 rounded-circle ${isProjectValidated ? 'bg-success text-white' : 'bg-danger text-white'}`}>
+                {isProjectValidated ? <CheckCircle size={32} /> : <Activity size={32} />}
+              </div>
+              <div>
+                <h3 className={`fw-bold mb-1 ${isProjectValidated ? 'text-success' : 'text-danger'}`}>
+                  {finalResultMessage}
+                </h3>
+                <p className="text-muted small mb-0 fw-bold opacity-75">
+                  {isProjectValidated 
+                    ? "Félicitations pour la réussite de votre projet de fin d'études !" 
+                    : "Nous vous invitons à contacter l'administration pour plus de détails."}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Global Statistics Grid */}
         <Row className="g-4 mb-5">

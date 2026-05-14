@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, Edit2, Trash2, Mail, Shield, 
   Clock, XCircle, UserCheck, UserPlus, Users, 
-  MoreHorizontal, Camera, AlertCircle, CheckCircle
+  MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone
 } from 'lucide-react';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
@@ -33,6 +33,7 @@ interface UserData {
   motherEmail?: string;
   password?: string;
   history?: { action: string, date: string }[];
+  activeSessions?: { device: string, ip: string, lastActive: string }[];
   // Feedback Fields
   confirmationStatus?: 'None' | 'Confirmed' | 'Reported';
   reportDetails?: {
@@ -68,9 +69,26 @@ const INITIAL_USERS: UserData[] = [
       message: "Mon adresse a changé, je suis maintenant au 45 Rue Hassan II, Rabat. Et je voudrais changer ma photo.",
       date: "2026-05-14",
       suggestedPhoto: "https://ui-avatars.com/api/?name=LP&background=random"
-    }
+    },
+    activeSessions: [
+      { device: 'Windows 11 - Chrome', ip: '196.200.14.52', lastActive: '2 mins ago' },
+      { device: 'iPhone 15 - Safari', ip: '105.158.102.1', lastActive: '1 day ago' }
+    ]
   },
-  { id: 2, institutionalId: 'JRY-2026-00951', name: 'Jean Martin', email: 'jean.martin@email.com', role: 'Jury Member', status: 'Active', lastLogin: '1 hour ago', avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff', confirmationStatus: 'None' },
+  { 
+    id: 2, 
+    institutionalId: 'JRY-2026-00951', 
+    name: 'Jean Martin', 
+    email: 'jean.martin@email.com', 
+    role: 'Jury Member', 
+    status: 'Active', 
+    lastLogin: '1 hour ago', 
+    avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff', 
+    confirmationStatus: 'None',
+    activeSessions: [
+      { device: 'macOS - Firefox', ip: '197.252.33.10', lastActive: 'Active now' }
+    ]
+  },
   { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff', confirmationStatus: 'None' },
   { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff', confirmationStatus: 'None' },
 ];
@@ -513,7 +531,7 @@ const UserManagement: React.FC = () => {
                   className="form-control-premium fw-bold" 
                 />
               </Col>
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Historique</h6></Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Sessions</h6></Col>
               <Col md={12}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe actuel</Form.Label>
                 <InputGroup>
@@ -525,6 +543,28 @@ const UserManagement: React.FC = () => {
                   />
                   <InputGroup.Text className="bg-surface-alt border-start-0 text-muted extra-small fw-bold">Admin Only</InputGroup.Text>
                 </InputGroup>
+              </Col>
+
+              <Col md={12} className="mt-3">
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Sessions Actives</Form.Label>
+                <div className="bg-surface-alt rounded-4 p-3 border border-dashed">
+                  {(formData.activeSessions && formData.activeSessions.length > 0) ? (
+                    formData.activeSessions.map((session, idx) => (
+                      <div key={idx} className="d-flex justify-content-between align-items-center mb-2 last-child-mb-0 pb-2 border-bottom border-white border-opacity-10">
+                        <div className="d-flex align-items-center gap-2">
+                          <Smartphone size={14} className="text-primary" />
+                          <div>
+                            <div className="extra-small fw-bold text-navy">{session.device}</div>
+                            <div className="extra-small text-muted opacity-75">{session.ip}</div>
+                          </div>
+                        </div>
+                        <Badge bg="success-soft" className="text-success extra-small fw-bold">{session.lastActive}</Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="extra-small text-muted text-center py-2">Aucune session active détectée</div>
+                  )}
+                </div>
               </Col>
               
               <Col md={12} className="mt-3">

@@ -6,12 +6,12 @@ import {
 import { 
   User, Bell, Shield, Moon, Sun, CheckCircle, AlertCircle, Save, Camera, 
   ChevronRight, Lock, Smartphone, Eye, EyeOff, 
-  Briefcase, X, Users
+  Briefcase, X, Users, Monitor
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../../context/AppContext';
 
-type SettingsTab = 'profile' | 'security' | 'notifications' | 'preferences' | 'admins';
+type SettingsTab = 'profile' | 'security' | 'notifications' | 'preferences';
 
 const SettingsPage: React.FC = () => {
   const { session, theme, setTheme } = useApp();
@@ -32,12 +32,11 @@ const SettingsPage: React.FC = () => {
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
-  const navItems: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
+  const navItems = [
     { id: 'profile', label: 'Public Profile', icon: <User size={20} /> },
     { id: 'security', label: 'Security & Access', icon: <Shield size={20} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={20} /> },
     { id: 'preferences', label: 'UI Preferences', icon: <Sun size={20} /> },
-    { id: 'admins', label: 'Admin Accounts', icon: <Users size={20} /> },
   ];
 
   return (
@@ -515,11 +514,12 @@ const SettingsPage: React.FC = () => {
                       {[
                         { id: 'light', label: 'Light Theme', icon: <Sun size={32} className="text-warning" />, desc: 'Institutional' },
                         { id: 'dark', label: 'Dark Theme', icon: <Moon size={32} className="text-primary" />, desc: 'Midnight Blue' },
+                        { id: 'system', label: 'System Mode', icon: <Monitor size={32} className="text-muted" />, desc: 'Auto-sync with OS' },
                       ].map((t) => (
-                        <Col md={6} key={t.id}>
+                        <Col md={4} key={t.id}>
                           <div 
-                            className={`p-4 rounded-4 text-center cursor-pointer border-2 transition-all ${theme === t.id ? 'bg-primary-soft border-primary shadow-sm' : 'bg-surface-alt border-transparent hover-bg-surface'}`}
-                            onClick={() => setTheme(t.id)}
+                            className={`p-4 rounded-4 text-center cursor-pointer border-2 transition-all h-100 ${theme === t.id ? 'bg-primary-soft border-primary shadow-sm' : 'bg-surface-alt border-transparent hover-bg-surface'}`}
+                            onClick={() => setTheme(t.id as any)}
                           >
                             <div className="mb-3">{t.icon}</div>
                             <h6 className="fw-bold mb-1 text-navy">{t.label}</h6>
@@ -531,44 +531,6 @@ const SettingsPage: React.FC = () => {
                   </motion.div>
                 )}
 
-                {activeTab === 'admins' && (
-                  <motion.div key="admins" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Administration Accounts</h5>
-                    <div className="table-responsive">
-                      <Table borderless className="align-middle mb-0">
-                        <thead>
-                          <tr className="border-bottom opacity-50 bg-surface-alt">
-                            <th className="px-3 py-3 extra-small fw-bold text-muted text-uppercase">Admin</th>
-                            <th className="py-3 extra-small fw-bold text-muted text-uppercase">Department</th>
-                            <th className="px-3 py-3 extra-small fw-bold text-muted text-uppercase text-end">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { name: 'Dr. Sarah Smith', role: 'Super-Admin', dept: 'CS', status: 'Online' },
-                            { name: 'Prof. Martin', role: 'Admin', dept: 'Civil Engineering', status: 'Busy' },
-                          ].map((admin, idx) => (
-                            <tr key={idx} className="border-bottom border-muted">
-                              <td className="px-3 py-3">
-                                <div className="d-flex align-items-center gap-2">
-                                  <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>{admin.name.charAt(4)}</div>
-                                  <div>
-                                    <div className="fw-bold small text-navy">{admin.name}</div>
-                                    <div className="extra-small text-muted fw-bold">{admin.role}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-3 extra-small text-muted fw-bold">{admin.dept}</td>
-                              <td className="px-3 py-3 text-end">
-                                <Badge bg={admin.status === 'Online' ? 'success' : 'secondary'} className="bg-success-soft text-success border border-success extra-small">{admin.status}</Badge>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                    </div>
-                  </motion.div>
-                )}
               </AnimatePresence>
             </div>
           </Col>
