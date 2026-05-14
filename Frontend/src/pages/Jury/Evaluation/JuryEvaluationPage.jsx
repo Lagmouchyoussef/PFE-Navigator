@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X, Award
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X, Award, RotateCcw
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext.jsx';
 
@@ -40,6 +40,7 @@ const JuryEvaluationPage = () => {
   });
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [msgVariant, setMsgVariant] = useState('success');
   const [juryNote, setJuryNote] = useState('');
   const [respectInstructions, setRespectInstructions] = useState('');
   const [observations, setObservations] = useState('');
@@ -50,14 +51,31 @@ const JuryEvaluationPage = () => {
   };
 
   const handleOpenEvaluation = (student) => {
-    setActiveStudent(student);
-    setJuryNote(student.juryScore !== null ? student.juryScore.toString() : '');
-    setRespectInstructions(student.juryRespectInstructions || '');
-    setObservations(student.juryObservations || '');
-    // Reset criteria scores to 0 for a "new" evaluation experience
-    setScores({
-      innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
-    });
+    // Force a fresh lookup from the latest students list in context
+    const currentStudent = students.find(s => s.id === student.id);
+    const targetStudent = currentStudent || student;
+    
+    setActiveStudent(targetStudent);
+    setRespectInstructions(targetStudent.juryRespectInstructions || '');
+    setObservations(targetStudent.juryObservations || '');
+    
+    // Explicitly load previously saved criteria scores if they exist
+    if (targetStudent.juryCriteriaScores) {
+      // Create a clean copy of the scores to avoid any reference issues
+      const savedScores = {
+        innovation: targetStudent.juryCriteriaScores.innovation || 0,
+        methodology: targetStudent.juryCriteriaScores.methodology || 0,
+        quality: targetStudent.juryCriteriaScores.quality || 0,
+        presentation: targetStudent.juryCriteriaScores.presentation || 0,
+        docs: targetStudent.juryCriteriaScores.docs || 0
+      };
+      setScores(savedScores);
+    } else {
+      setScores({
+        innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+      });
+    }
+    
     evaluationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -92,16 +110,60 @@ const JuryEvaluationPage = () => {
 
   const handleSubmit = () => {
     if (!activeStudent) return;
+    
+    if (Number(calculatedFinalScore) === 0) {
+      setSuccessMsg(`Erreur : Vous n'avez pas encore entré les notes pour ${activeStudent.name}.`);
+      setMsgVariant('danger');
+      setShowSuccessCard(true);
+      setTimeout(() => setShowSuccessCard(false), 5000);
+      return;
+    }
+
+    // Check if we are updating an existing evaluation
+    const isUpdating = activeStudent.isJuryEvaluated;
+
     updateStudentEvaluation(activeStudent.id, { 
       juryScore: Number(calculatedFinalScore),
+      juryCriteriaScores: { ...scores }, // Persist the individual scores
       isJuryEvaluated: true,
-      juryRemarks: 'Évaluation finale confirmée et enregistrée.',
+      juryRemarks: isUpdating ? 'Évaluation mise à jour par le jury.' : 'Évaluation finale confirmée et enregistrée.',
       juryRespectInstructions: respectInstructions,
       juryObservations: observations
     });
-    setSuccessMsg(`Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès. Les notes sont soumises.`);
+    
+    setSuccessMsg(isUpdating 
+      ? `Succès : Les modifications pour ${activeStudent.name} ont été faites avec succès.`
+      : `Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès. Les notes sont bien entrées dans le système.`
+    );
+    setMsgVariant('success');
     setShowSuccessCard(true);
+    
+    // Reset the form for the next student
+    setScores({
+      innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+    });
+    setRespectInstructions('');
+    setObservations('');
+    setActiveStudent(null);
+
     setTimeout(() => setShowSuccessCard(false), 8000);
+  };
+
+  const handleReset = (studentId) => {
+    if (window.confirm("Voulez-vous vraiment réinitialiser cette évaluation ? Toutes les notes seront remises à zéro.")) {
+      updateStudentEvaluation(studentId, {
+        juryScore: null,
+        juryCriteriaScores: null,
+        isJuryEvaluated: false,
+        juryRemarks: '',
+        juryRespectInstructions: '',
+        juryObservations: ''
+      });
+      setSuccessMsg("L'évaluation a été réinitialisée avec succès.");
+      setMsgVariant('success');
+      setShowSuccessCard(true);
+      setTimeout(() => setShowSuccessCard(false), 5000);
+    }
   };
 
   const totalScorePercentage = (Number(calculatedFinalScore) / 20) * 100;
@@ -112,23 +174,30 @@ const JuryEvaluationPage = () => {
         {/* Success Alert */}
         <AnimatePresence>
           {showSuccessCard && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="glass-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center"
-            >
-              <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-circle bg-success-soft text-success">
-                  <CheckCircle size={24} />
+            <div className="notification-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 9999, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(4px)' }}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className={`glass-card p-5 rounded-5 shadow-lg border-top-5 border-${msgVariant} bg-white d-flex flex-column align-items-center text-center`}
+                style={{ maxWidth: '500px', width: '90%' }}
+              >
+                <div className={`p-4 rounded-circle bg-${msgVariant}-soft text-${msgVariant} mb-4`}>
+                  {msgVariant === 'success' ? <CheckCircle size={48} /> : <AlertCircle size={48} />}
                 </div>
-                <div>
-                  <h6 className="fw-bold mb-0 text-navy">Evaluation Submitted</h6>
-                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
-                </div>
-              </div>
-              <Button variant="link" className="p-0 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
-            </motion.div>
+                <h4 className="fw-bold mb-2 text-navy">
+                  {msgVariant === 'success' ? 'Évaluation Enregistrée' : 'Échec de Soumission'}
+                </h4>
+                <p className="text-muted fw-bold mb-4 px-3">{successMsg}</p>
+                <Button 
+                  variant={msgVariant === 'success' ? 'success' : 'danger'} 
+                  className="px-5 py-2 rounded-pill fw-bold shadow-sm border-0"
+                  onClick={() => setShowSuccessCard(false)}
+                >
+                  Continuer
+                </Button>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -181,8 +250,8 @@ const JuryEvaluationPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {students.map((p, i) => (
-                  <tr key={i} className={`border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer ${activeStudent?.id === p.id ? 'bg-primary-soft border-primary border-opacity-25' : ''}`}>
+                {students.map((p) => (
+                  <tr key={p.id} className={`border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer ${activeStudent?.id === p.id ? 'bg-primary-soft border-primary border-opacity-25' : ''}`}>
                     <td className="px-4 py-3 fw-bold small text-navy">{p.name}</td>
                     <td className="py-3 small text-muted text-truncate fw-bold opacity-75" style={{maxWidth: '300px'}}>{p.project}</td>
                     <td className="py-3 small">
@@ -205,13 +274,25 @@ const JuryEvaluationPage = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-end">
-                      <Button 
-                        variant="link" 
-                        className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-end gap-1 hover-gap-2 transition-all shadow-none border-0"
-                        onClick={() => handleOpenEvaluation(p)}
-                      >
-                        {p.isJuryEvaluated ? 'Réviser' : 'Évaluer'} <ChevronRight size={14} />
-                      </Button>
+                      <div className="d-flex justify-content-end align-items-center gap-3">
+                        {p.isJuryEvaluated && (
+                          <Button 
+                            variant="link" 
+                            className="p-0 text-danger hover-opacity-100 opacity-50 transition-all shadow-none border-0"
+                            onClick={() => handleReset(p.id)}
+                            title="Réinitialiser l'évaluation"
+                          >
+                            <RotateCcw size={16} />
+                          </Button>
+                        )}
+                        <Button 
+                          variant="link" 
+                          className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-end gap-1 hover-gap-2 transition-all shadow-none border-0"
+                          onClick={() => handleOpenEvaluation(p)}
+                        >
+                          {p.isJuryEvaluated ? 'Réviser' : 'Évaluer'} <ChevronRight size={14} />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
