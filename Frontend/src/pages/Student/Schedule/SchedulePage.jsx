@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 const SchedulePage = () => {
-  const { appointments, deleteAppointment } = useApp();
+  const { user, appointments, addAppointment, deleteAppointment, projectMilestones } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'Meeting' });
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -27,80 +27,15 @@ const SchedulePage = () => {
 
   const handleAddEvent = (e) => {
     e.preventDefault();
+    addAppointment({
+      ...newEvent,
+      studentName: user?.name || 'Ahmed Khalil',
+      location: 'Online Portal',
+      status: 'Confirmed'
+    });
     setShowAddModal(false);
-    alert('Event added successfully! (Demo Mode)');
+    setNewEvent({ title: '', date: '', time: '', type: 'Meeting' });
   };
-  const milestones = [
-    { name: 'Project Proposal', date: '2026-03-15', status: 'completed' },
-    { name: 'Interim Report', date: '2026-04-20', status: 'completed' },
-    { name: 'Final Report', date: '2026-05-15', status: 'pending' },
-    { name: 'Defense', date: '2026-05-20', status: 'pending' },
-  ];
-
-  const upcomingEvents = [
-    { title: 'Supervisor Meeting', date: '2026-05-02', time: '10:00 AM', loc: 'Office 302' },
-    { title: 'Code Review Session', date: '2026-05-05', time: '2:00 PM', loc: 'Lab 201' },
-    { title: 'Documentation Deadline', date: '2026-05-08', time: '11:59 PM', loc: 'Online Portal' },
-    { title: 'Final Report Submission', date: '2026-05-15', time: '11:59 PM', loc: 'Online Portal' },
-    { title: 'Defense Presentation', date: '2026-05-20', time: '10:00 AM', loc: 'Auditorium A' },
-  ];
-
-  const allEvents = [
-    {
-      title: 'Supervisor Meeting',
-      status: 'Upcoming',
-      date: '2026-05-02',
-      time: '10:00 AM',
-      loc: 'Office 302',
-      with: 'Dr. Sarah Smith',
-      desc: 'Weekly progress review and discussion of interim report feedback'
-    },
-    {
-      title: 'Final Report Submission',
-      status: 'Upcoming',
-      date: '2026-05-15',
-      time: '11:59 PM',
-      loc: 'Online Portal',
-      with: 'PFE Portal',
-      desc: 'Submit complete final report with all revisions'
-    },
-    {
-      title: 'Defense Presentation',
-      status: 'Upcoming',
-      date: '2026-05-20',
-      time: '10:00 AM',
-      loc: 'Auditorium A - Room 304',
-      with: 'Evaluation Committee',
-      desc: 'Final project defense - 30 minutes presentation + 15 minutes Q&A'
-    },
-    {
-      title: 'Code Review Session',
-      status: 'Upcoming',
-      date: '2026-05-05',
-      time: '2:00 PM',
-      loc: 'Lab 201',
-      with: 'Dr. Sarah Smith',
-      desc: 'Technical implementation review and code quality assessment'
-    },
-    {
-      title: 'Documentation Deadline',
-      status: 'Upcoming',
-      date: '2026-05-08',
-      time: '11:59 PM',
-      loc: 'Online Portal',
-      with: 'PFE Portal',
-      desc: 'Submit technical documentation and user manual'
-    },
-    {
-      title: 'Interim Report Submission',
-      status: 'Completed',
-      date: '2026-04-20',
-      time: '11:59 PM',
-      loc: 'Online Portal',
-      with: 'PFE Portal',
-      desc: 'Submitted interim progress report'
-    }
-  ];
 
   const [viewDate, setViewDate] = useState(new Date(2026, 4, 1)); // Default to May 2026 as per user projects
 
@@ -171,11 +106,13 @@ const SchedulePage = () => {
           <Modal.Body className="p-4">
             <Form onSubmit={handleAddEvent}>
               <Form.Group className="mb-3">
-                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TITLE</Form.Label>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">TITRE DE L'ÉVÉNEMENT</Form.Label>
                 <Form.Control 
                   type="text" 
-                  placeholder="e.g. Meeting with Supervisor" 
+                  placeholder="ex: Réunion avec Encadrant" 
                   className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                  value={newEvent.title}
+                  onChange={e => setNewEvent({...newEvent, title: e.target.value})}
                   required
                 />
               </Form.Group>
@@ -186,32 +123,40 @@ const SchedulePage = () => {
                     <Form.Control 
                       type="date" 
                       className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                      value={newEvent.date}
+                      onChange={e => setNewEvent({...newEvent, date: e.target.value})}
                       required
                     />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="extra-small fw-bold text-navy opacity-75">TIME</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-navy opacity-75">HEURE</Form.Label>
                     <Form.Control 
                       type="time" 
                       className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                      value={newEvent.time}
+                      onChange={e => setNewEvent({...newEvent, time: e.target.value})}
                       required
                     />
                   </Form.Group>
                 </Col>
               </Row>
               <Form.Group className="mb-4">
-                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TYPE</Form.Label>
-                <Form.Select className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
-                  <option>Meeting</option>
-                  <option>Deadline</option>
-                  <option>Code Review</option>
-                  <option>Defense Prep</option>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">TYPE D'ÉVÉNEMENT</Form.Label>
+                <Form.Select 
+                  className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                  value={newEvent.type}
+                  onChange={e => setNewEvent({...newEvent, type: e.target.value})}
+                >
+                  <option>Réunion</option>
+                  <option>Date Limite</option>
+                  <option>Revue de Code</option>
+                  <option>Soutenance</option>
                 </Form.Select>
               </Form.Group>
               <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
-                Schedule Event
+                Programmer l'événement
               </Button>
             </Form>
           </Modal.Body>
@@ -220,9 +165,9 @@ const SchedulePage = () => {
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Upcoming Events', value: '5', icon: <Bell size={24} />, color: 'primary' },
-            { label: 'Pending Deadlines', value: '2', icon: <AlertCircle size={24} />, color: 'danger' },
-            { label: 'This Month', value: '5', icon: <CalendarIcon size={24} />, color: 'info' },
+            { label: 'Événements à venir', value: appointments.length.toString(), icon: <Bell size={24} />, color: 'primary' },
+            { label: 'Échéances en attente', value: '2', icon: <AlertCircle size={24} />, color: 'danger' },
+            { label: 'Ce mois-ci', value: appointments.filter(a => a.date.startsWith('2026-05')).length.toString(), icon: <CalendarIcon size={24} />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} lg={4}>
               <Card className="glass-card border-0 shadow-sm border p-3">
@@ -401,10 +346,10 @@ const SchedulePage = () => {
                     <Activity size={18} className="text-primary" /> Project Milestones
                   </h6>
                   <div className="d-flex flex-column gap-3">
-                    {milestones.map((m, i) => (
+                    {projectMilestones.map((m, i) => (
                       <div key={i} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-surface-alt border-0 shadow-sm">
                         <div>
-                          <div className="extra-small fw-bold text-navy">{m.name}</div>
+                          <div className="extra-small fw-bold text-navy">{m.title}</div>
                           <div className="extra-small text-muted fw-bold opacity-75">{m.date}</div>
                         </div>
                         {m.status === 'completed' ? (
@@ -425,10 +370,10 @@ const SchedulePage = () => {
               <Card className="glass-card border shadow-sm border overflow-hidden">
                 <Card.Body className="p-0">
                   <div className="p-4 border-bottom bg-white">
-                    <h6 className="fw-bold text-navy mb-0">Upcoming Focus</h6>
+                    <h6 className="fw-bold text-navy mb-0">Focus à venir</h6>
                   </div>
                   <div className="d-flex flex-column gap-1">
-                    {upcomingEvents.map((ue, i) => {
+                    {appointments.slice(0, 5).map((ue, i) => {
                       let iconColor = 'primary';
                       if (ue.title.toLowerCase().includes('report') || ue.title.toLowerCase().includes('deadline')) iconColor = 'danger';
                       else if (ue.title.toLowerCase().includes('defense') || ue.title.toLowerCase().includes('presentation')) iconColor = 'warning';

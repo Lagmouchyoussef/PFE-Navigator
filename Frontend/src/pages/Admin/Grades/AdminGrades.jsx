@@ -8,14 +8,10 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
-const STUDENTS_MOCK = [
-  { id: 1, name: "Ahmed Khalil", pfeTitle: "AI in healthcare", supervisor: "Dr. Sofia Drissi", jury: "Prof. Youssef Lagmouch" },
-  { id: 2, name: "Sara Bennani", pfeTitle: "Blockchain Logistics", supervisor: "Dr. Sofia Drissi", jury: "Prof. Youssef Lagmouch" },
-  { id: 3, name: "Mehdi Alami", pfeTitle: "Smart Grids Optimization", supervisor: "Dr. Sofia Drissi", jury: "Prof. Youssef Lagmouch" }
-];
+// Student list fetched from context
 
 const AdminGrades = () => {
-  const { scores, saveScore, isGradesPublished, publishGrades, pfeWeights, updatePfeWeights } = useApp();
+  const { scores, saveScore, isGradesPublished, publishGrades, pfeWeights, updatePfeWeights, students, updateStudentEvaluation } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showWeightModal, setShowWeightModal] = useState(false);
@@ -42,15 +38,19 @@ const AdminGrades = () => {
     // In a real app, scores would be keyed by student ID. 
     // Here we use the global scores for demo.
     setEditForm({ 
-      supervisor: scores.pfeSupervisor || '', 
-      jury: scores.pfeJury || '' 
+      supervisor: student.supervisorScore || '', 
+      jury: student.juryScore || '' 
     });
     setShowEditModal(true);
   };
 
   const handleSaveEdit = () => {
-    saveScore('pfeSupervisor', editForm.supervisor);
-    saveScore('pfeJury', editForm.jury);
+    updateStudentEvaluation(selectedStudent.id, { 
+      supervisorScore: editForm.supervisor === '' ? null : Number(editForm.supervisor),
+      juryScore: editForm.jury === '' ? null : Number(editForm.jury),
+      isSupervisorEvaluated: editForm.supervisor !== '',
+      isJuryEvaluated: editForm.jury !== ''
+    });
     setShowEditModal(false);
   };
 
@@ -138,37 +138,47 @@ const AdminGrades = () => {
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Encadrant ({pfeWeights.supervisor}%)</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Jury ({pfeWeights.jury}%)</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Remarques Jury</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note Finale</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Statut</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {STUDENTS_MOCK.map((student) => (
+                {students.map((student) => (
                   <tr key={student.id} className="border-bottom border-light border-opacity-10">
                     <td className="px-4 py-3">
                       <div className="fw-bold text-navy small">{student.name}</div>
-                      <div className="extra-small text-muted fw-bold opacity-50">{student.pfeTitle}</div>
+                      <div className="extra-small text-muted fw-bold opacity-50">{student.project}</div>
                     </td>
                     <td>
                       <div className="d-flex align-items-center gap-2">
                         <span className="fw-bold text-primary small">
-                          {scores.pfeSupervisor !== null ? `${scores.pfeSupervisor}/20` : '--'}
+                          {student.supervisorScore !== null ? `${student.supervisorScore}/20` : '--'}
                         </span>
-                        <div className="extra-small text-muted fw-bold opacity-50">({student.supervisor})</div>
+                        <Badge className={`extra-small border-0 ${student.isSupervisorEvaluated ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
+                          {student.isSupervisorEvaluated ? 'Évalué' : 'À faire'}
+                        </Badge>
                       </div>
                     </td>
                     <td>
                       <div className="d-flex align-items-center gap-2">
                         <span className="fw-bold text-success small">
-                          {scores.pfeJury !== null ? `${scores.pfeJury}/20` : '--'}
+                          {student.juryScore !== null ? `${student.juryScore}/20` : '--'}
                         </span>
-                        <div className="extra-small text-muted fw-bold opacity-50">({student.jury})</div>
+                        <Badge className={`extra-small border-0 ${student.isJuryEvaluated ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
+                          {student.isJuryEvaluated ? 'Évalué' : 'À faire'}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="extra-small text-muted fw-bold opacity-75 text-truncate" style={{maxWidth: '150px'}} title={student.juryRemarks}>
+                        {student.juryRemarks || '--'}
                       </div>
                     </td>
                     <td className="text-center">
                       <div className="h5 fw-bold text-navy mb-0">
-                        {calculateFinal(scores.pfeSupervisor || '', scores.pfeJury || '')}
+                        {calculateFinal(student.supervisorScore || '', student.juryScore || '')}
                       </div>
                     </td>
                     <td className="text-center">

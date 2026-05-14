@@ -8,47 +8,10 @@ import {
   Filter, ChevronRight, Award, Edit3, X
 } from 'lucide-react';
 
-const EVALUATIONS_DATA = [
-  {
-    id: 1,
-    student: "Ahmed Khalil",
-    deliverable: "Interim Report - Chapter 1 & 2",
-    submissionDate: "2026-05-10",
-    status: "Pending",
-    grade: null,
-    progress: 45
-  },
-  {
-    id: 2,
-    student: "Fatima Zahra",
-    deliverable: "Final Codebase & Documentation",
-    submissionDate: "2026-05-08",
-    status: "Graded",
-    grade: "18.5/20",
-    progress: 100
-  },
-  {
-    id: 3,
-    student: "Sara Kamali",
-    deliverable: "Technical Specifications",
-    submissionDate: "2026-05-05",
-    status: "Reviewing",
-    grade: null,
-    progress: 75
-  },
-  {
-    id: 4,
-    student: "Youssef Amrani",
-    deliverable: "Project Proposal & Planning",
-    submissionDate: "2026-05-12",
-    status: "Pending",
-    grade: null,
-    progress: 20
-  }
-];
+// Data will be fetched from context
 
 const Evaluations = () => {
-  const { saveScore, isGradesPublished, scores, pfeWeights } = useApp();
+  const { saveScore, isGradesPublished, scores, pfeWeights, students, updateStudentEvaluation } = useApp();
   const [filter, setFilter] = useState('All');
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -60,6 +23,7 @@ const Evaluations = () => {
 
   const handleOpenEval = (student) => {
     setSelectedStudent(student);
+    setPfeNote(student.supervisorScore !== null ? student.supervisorScore.toString() : '0');
     setShowEvalModal(true);
   };
 
@@ -70,9 +34,24 @@ const Evaluations = () => {
 
   const handleEvalSubmit = (e) => {
     e.preventDefault();
-    saveScore('pfeSupervisor', pfeNote);
+    if (!selectedStudent) return;
+    updateStudentEvaluation(selectedStudent.id, { 
+      supervisorScore: pfeNote === '' ? 0 : Number(pfeNote),
+      isSupervisorEvaluated: true 
+    });
     setShowEvalModal(false);
-    setSuccessMsg(`L'évaluation pour ${selectedStudent.student} a été enregistrée et partagée avec le jury et l'administration.`);
+    setSuccessMsg(`Confirmation : Les notes pour ${selectedStudent.name} ont été enregistrées avec succès.`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
+  const handleDraft = () => {
+    if (!selectedStudent) return;
+    updateStudentEvaluation(selectedStudent.id, { 
+      supervisorScore: pfeNote === '' ? 0 : Number(pfeNote)
+    });
+    setShowEvalModal(false);
+    setSuccessMsg(`Info : Brouillon pour ${selectedStudent.name} mis à jour.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -89,7 +68,7 @@ const Evaluations = () => {
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
-  const filteredData = filter === 'All' ? EVALUATIONS_DATA : EVALUATIONS_DATA.filter(item => item.status === filter);
+  const filteredData = filter === 'All' ? students : students.filter(item => item.status === filter);
 
   return (
     <div className="supervisor-evaluations-layout py-4">
@@ -201,7 +180,7 @@ const Evaluations = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <span className="extra-small text-muted fw-bold">Note Encadrant (Suivi)</span>
                   <span className="extra-small fw-bold text-navy">
-                    {scores.pfeSupervisor ? `${scores.pfeSupervisor}/20` : 'En attente'} 
+                    {students.find(s => s.isSupervisorEvaluated)?.supervisorScore ? 'Notes assignées' : 'En attente'} 
                     <span className="opacity-50 ms-1">({pfeWeights.supervisor}%)</span>
                   </span>
                 </div>
@@ -265,15 +244,15 @@ const Evaluations = () => {
                       <td className="px-4 py-3">
                         <div className="d-flex align-items-center gap-2">
                           <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '11px' }}>
-                            {item.student.charAt(0)}
+                            {item.name.charAt(0)}
                           </div>
-                          <span className="fw-bold text-navy small">{item.student}</span>
+                          <span className="fw-bold text-navy small">{item.name}</span>
                         </div>
                       </td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
                           <FileText size={16} className="text-primary" />
-                          <span className="extra-small text-muted fw-bold opacity-75">{item.deliverable}</span>
+                          <span className="extra-small text-muted fw-bold opacity-75">{item.project}</span>
                         </div>
                       </td>
                       <td><span className="extra-small text-muted fw-bold opacity-75">{item.submissionDate}</span></td>
@@ -283,20 +262,16 @@ const Evaluations = () => {
                         </Badge>
                       </td>
                       <td>
-                        {scores.pfeSupervisor ? (
-                          <span className="extra-small fw-bold text-navy">{scores.pfeSupervisor}/20</span>
+                        {item.supervisorScore !== null ? (
+                          <span className="extra-small fw-bold text-navy">{item.supervisorScore}/20</span>
                         ) : (
                           <span className="extra-small text-muted opacity-50 fw-bold">Non noté</span>
                         )}
                       </td>
                       <td>
-                        {isGradesPublished ? (
-                          <span className="extra-small fw-bold text-success">{scores.pfeJury ? `${scores.pfeJury}/20` : 'N/A'}</span>
-                        ) : (
-                          <Badge className="bg-danger-soft text-danger border-0 extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
-                            <Clock size={10} /> Secret
-                          </Badge>
-                        )}
+                        <Badge className={`bg-${item.isJuryEvaluated ? 'success' : 'warning'}-soft text-${item.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold`}>
+                          {item.isJuryEvaluated ? 'Jury Évalué' : 'Jury en attente'}
+                        </Badge>
                       </td>
                       <td className="px-4 py-3 text-end">
                         <div className="d-flex justify-content-end gap-1">
@@ -334,14 +309,14 @@ const Evaluations = () => {
       >
         <Modal.Header closeButton className="border-0 p-4 pb-0">
           <Modal.Title className="fw-bold text-navy h5 d-flex align-items-center gap-2">
-            <Award className="text-primary" /> Évaluation Encadrant PFE : {selectedStudent?.student}
+            <Award className="text-primary" /> Évaluation Encadrant PFE : {selectedStudent?.name}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={handleEvalSubmit}>
             <div className="p-3 bg-primary-soft rounded-4 mb-4 border border-primary border-opacity-10">
               <p className="extra-small text-primary fw-bold mb-0">
-                Livrable : <span className="text-navy">{selectedStudent?.deliverable}</span>
+                Projet : <span className="text-navy">{selectedStudent?.project}</span>
               </p>
             </div>
             
@@ -388,9 +363,19 @@ const Evaluations = () => {
               </Col>
             </Row>
 
-            <div className="mt-4 pt-4 border-top border-light border-opacity-10">
-              <Button type="submit" className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0">
-                Enregistrer l'Évaluation Finale
+            <div className="mt-4 pt-4 border-top border-light border-opacity-10 d-flex gap-3">
+              <Button 
+                variant="outline-secondary" 
+                className="flex-grow-1 py-3 rounded-pill fw-bold border-2 extra-small shadow-none"
+                onClick={handleDraft}
+              >
+                Sauvegarder Brouillon
+              </Button>
+              <Button 
+                type="submit" 
+                className="btn-premium flex-grow-1 py-3 rounded-pill fw-bold shadow-sm border-0"
+              >
+                Enregistrer Évaluation Finale
               </Button>
             </div>
           </Form>
@@ -412,10 +397,10 @@ const Evaluations = () => {
             <h6 className="extra-small fw-bold text-muted text-uppercase opacity-50 mb-3">Informations Étudiant</h6>
             <div className="p-3 bg-surface-alt rounded-4 border border-light-soft d-flex align-items-center gap-3">
               <div className="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '45px', height: '45px' }}>
-                {selectedViewSubmission?.student.charAt(0)}
+                {selectedViewSubmission?.name.charAt(0)}
               </div>
               <div>
-                <div className="fw-bold text-navy">{selectedViewSubmission?.student}</div>
+                <div className="fw-bold text-navy">{selectedViewSubmission?.name}</div>
                 <div className="extra-small text-muted fw-bold opacity-75">ID: STU-2026-{selectedViewSubmission?.id}</div>
               </div>
             </div>
@@ -426,8 +411,8 @@ const Evaluations = () => {
             <Card className="border-light-soft rounded-4 shadow-none bg-surface-alt">
               <Card.Body className="p-3">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="extra-small text-muted fw-bold">Nom du fichier :</span>
-                  <span className="extra-small fw-bold text-navy">{selectedViewSubmission?.deliverable}</span>
+                  <span className="extra-small text-muted fw-bold">Nom du Projet :</span>
+                  <span className="extra-small fw-bold text-navy">{selectedViewSubmission?.project}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
                   <span className="extra-small text-muted fw-bold">Date de dépôt :</span>

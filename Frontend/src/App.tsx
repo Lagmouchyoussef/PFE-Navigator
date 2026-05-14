@@ -58,13 +58,13 @@ interface RequireAuthProps {
 }
 
 const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => {
-  const { session } = useApp();
-  if (!session) return <Navigate to="/login" replace />;
-  if (requiredRole && session.role !== requiredRole) {
+  const { user } = useApp();
+  if (!user) return <Navigate to="/login" replace />;
+  if (requiredRole && user.role !== requiredRole) {
     const rolePath =
-      session.role === 'admin' ? '/admin/dashboard' :
-        session.role === 'jury' ? '/jury/dashboard' :
-          session.role === 'supervisor' ? '/supervisor/dashboard' :
+      user.role === 'admin' ? '/admin/dashboard' :
+        user.role === 'jury' ? '/jury/dashboard' :
+          user.role === 'supervisor' ? '/supervisor/dashboard' :
             '/student/dashboard';
     return <Navigate to={rolePath} replace />;
   }
@@ -76,7 +76,7 @@ import AdminGrades from './pages/Admin/Grades/AdminGrades';
 function App() {
   const location = useLocation();
   const {
-    session, logout, theme, setTheme, unreadCountForRole,
+    user, logout, theme, setTheme, unreadCountForRole,
     notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
     messages, deleteMessage
   } = useApp();
@@ -132,7 +132,7 @@ function App() {
     }
   };
 
-  if (!session) {
+  if (!user) {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -143,14 +143,14 @@ function App() {
 
   if (location.pathname === '/login' || location.pathname === '/') {
     const dashPath =
-      session.role === 'admin' ? '/admin/dashboard' :
-        session.role === 'jury' ? '/jury/dashboard' :
-          session.role === 'supervisor' ? '/supervisor/dashboard' :
+      user.role === 'admin' ? '/admin/dashboard' :
+        user.role === 'jury' ? '/jury/dashboard' :
+          user.role === 'supervisor' ? '/supervisor/dashboard' :
             '/student/dashboard';
     return <Navigate to={dashPath} replace />;
   }
 
-  if (session.role === 'admin') {
+  if (user.role === 'admin') {
     return (
       <Routes>
         <Route path="/admin" element={<AdminLayout />}>
@@ -177,10 +177,10 @@ function App() {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
 
-  const unreadMsgCount = unreadCountForRole ? unreadCountForRole(session.role) : 0;
+  const unreadMsgCount = unreadCountForRole ? unreadCountForRole(user.role) : 0;
   const localUnreadNotifs = notifications ? notifications.filter(n => !n.read).length : 0;
   const recentNotifs = notifications ? notifications.slice(0, 4) : [];
-  const unreadMessages = messages ? messages.filter(m => m.sender !== session.role && (session.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) : [];
+  const unreadMessages = messages ? messages.filter(m => m.sender !== user.role && (user.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) : [];
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
@@ -217,14 +217,14 @@ function App() {
 
         {expandedGroups.core && (
           <nav className="nav flex-column px-3">
-            {session.role === 'jury' ? (
+            {user.role === 'jury' ? (
               <>
                 <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/jury/projects" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Assigned Projects"} />
                 <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
                 <SidebarLink to="/jury/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Calendar"} />
               </>
-            ) : session.role === 'supervisor' ? (
+            ) : user.role === 'supervisor' ? (
               <>
                 <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/supervisor/students" icon={<GraduationCap size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "My Students"} />
@@ -265,20 +265,20 @@ function App() {
           <nav className="nav flex-column px-3">
             <SidebarLink to="/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Resource Hub"} />
             <SidebarLink
-              to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+              to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
               icon={<MessageSquare size={20} />}
               iconClassName="icon-teal"
               label={!isSidebarCollapsed && "Messages"}
               badge={unreadMsgCount > 0 ? unreadMsgCount : null}
             />
             <SidebarLink
-              to={session.role === 'student' ? '/student/notifications' : session.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'}
+              to={user.role === 'student' ? '/student/notifications' : user.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'}
               icon={<Bell size={20} />}
               iconClassName="icon-rose"
               label={!isSidebarCollapsed && "Notifications"}
               badge={localUnreadNotifs > 0 ? localUnreadNotifs : null}
             />
-            <SidebarLink to={session.role === 'student' ? '/student/notes' : session.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
+            <SidebarLink to={user.role === 'student' ? '/student/notes' : user.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
           </nav>
         )}
 
@@ -334,11 +334,11 @@ function App() {
                 className="border-0 shadow-none bg-transparent text-primary-custom fw-bold"
               />
             </div>
-            {session && (
+            {user && (
               <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
                 <span className="opacity-50">Portail</span>
                 <ChevronRight size={12} className="opacity-25" />
-                <span className="text-primary text-capitalize">{session.role} Workspace</span>
+                <span className="text-primary text-capitalize">{user.role} Workspace</span>
               </div>
             )}
           </div>
@@ -372,7 +372,7 @@ function App() {
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Messages</span>
                   <div className="d-flex align-items-center gap-2">
-                    <Link to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
+                    <Link to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
                     <MoreVertical size={16} className="text-muted cursor-pointer" />
                   </div>
                 </div>
@@ -388,8 +388,8 @@ function App() {
                       >
                         <Link
                           className="d-flex gap-3 align-items-start text-decoration-none flex-grow-1 overflow-hidden"
-                          onClick={() => markMessagesRead(session.role)}
-                          to={session.role === 'student' ? '/student/messages' : session.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+                          onClick={() => markMessagesRead(user.role)}
+                          to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
                         >
                           <div className="p-2 rounded-circle bg-primary bg-opacity-10 text-primary mt-1 flex-shrink-0">
                             <MessageSquare size={14} />
@@ -486,9 +486,9 @@ function App() {
                 <div className="p-2 text-center border-top bg-light-soft">
                   <Link
                     to={
-                      session.role === 'student' ? '/student/notifications' :
-                        session.role === 'supervisor' ? '/supervisor/notifications' :
-                          session.role === 'admin' ? '/admin/notifications' :
+                      user.role === 'student' ? '/student/notifications' :
+                        user.role === 'supervisor' ? '/supervisor/notifications' :
+                          user.role === 'admin' ? '/admin/notifications' :
                             '/jury/notifications'
                     }
                     className="text-decoration-none small text-secondary-custom fw-bold p-0"
@@ -510,13 +510,13 @@ function App() {
                 >
                   <div className="d-flex flex-column text-end d-none d-md-flex">
                     <span className="fw-bold text-primary-custom" style={{ fontSize: '0.9rem' }}>
-                      {session.name}
+                      {user.name}
                     </span>
                     <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>
-                      {session.role === 'jury' ? 'Jury Member' : session.role === 'supervisor' ? 'Prof. Superviseur' : 'Étudiant PFE'}
+                      {user.role === 'jury' ? 'Jury Member' : user.role === 'supervisor' ? 'Prof. Superviseur' : 'Étudiant PFE'}
                     </span>
                   </div>
-                  <div className="avatar-circle">{session.name.charAt(0)}</div>
+                  <div className="avatar-circle">{user.name.charAt(0)}</div>
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
@@ -575,8 +575,8 @@ function App() {
 
             <Route path="*" element={
               <Navigate to={
-                session.role === 'jury' ? '/jury/dashboard' :
-                  session.role === 'supervisor' ? '/supervisor/dashboard' :
+                user.role === 'jury' ? '/jury/dashboard' :
+                  user.role === 'supervisor' ? '/supervisor/dashboard' :
                     '/student/dashboard'
               } replace />
             } />

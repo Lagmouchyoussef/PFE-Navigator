@@ -20,7 +20,7 @@ const AdminLayout: React.FC = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const { 
-    session, logout, theme, setTheme, unreadCountForRole, 
+    user, logout, theme, setTheme, unreadCountForRole, 
     notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
     messages, deleteMessage 
   } = useApp();
@@ -206,7 +206,7 @@ const AdminLayout: React.FC = () => {
                 className="border-0 shadow-none bg-transparent text-primary-custom fw-bold"
               />
             </div>
-            {session && (
+            {user && (
               <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
                 <span className="opacity-50">Portail</span>
                 <ChevronRight size={12} className="opacity-25" />
@@ -344,11 +344,11 @@ const AdminLayout: React.FC = () => {
               >
                 <div className="d-flex flex-column text-end d-none d-md-flex">
                   <span className="fw-bold text-navy small">
-                    {session?.name || 'Admin'}
+                    {user?.name || 'Admin'}
                   </span>
                   <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Administrateur</span>
                 </div>
-                <div className="avatar-circle">{session?.name?.charAt(0) || 'A'}</div>
+                <div className="avatar-circle">{user?.name?.charAt(0) || 'A'}</div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
                 <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 small fw-bold text-navy">

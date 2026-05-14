@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   ClipboardCheck, Clock, CheckCircle, AlertCircle, 
-  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X
+  Send, Save, FileText, User, ChevronRight, Edit3, Target, Activity, MoreVertical, X, Award
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext.jsx';
 
@@ -21,13 +21,7 @@ const CHART_DATA = [
   { name: 'May', completed: 28, pending: 12 },
 ];
 
-const PROJECTS_LIST = [
-  { id: 'STU-01', name: 'Ahmed Benali', title: 'AI-Powered Student Management System', sup: 'Prof. Martin', date: '2026-04-15', status: 'Ready for Review' },
-  { id: 'STU-02', name: 'Sara Kamali', title: 'Blockchain-based Certificate Verification', sup: 'Dr. Chen', date: '2026-04-18', status: 'Pending' },
-  { id: 'STU-03', name: 'Mohamed Alaoui', title: 'IoT Smart Campus Solution', sup: 'Prof. Smith', date: '2026-04-10', status: 'Evaluated' },
-  { id: 'STU-04', name: 'Fatima Zahra', title: 'Mobile App for Course Registration', sup: 'Dr. Johnson', date: '2026-04-20', status: 'Ready for Review' },
-  { id: 'STU-05', name: 'Youssef Idrissi', title: 'Machine Learning Prediction Models', sup: 'Prof. Garcia', date: '2026-04-12', status: 'Evaluated' },
-];
+// Projects list will be fetched from context
 
 const CRITERIA = [
   { id: 'innovation', label: 'Innovation' },
@@ -38,9 +32,9 @@ const CRITERIA = [
 ];
 
 const JuryEvaluationPage = () => {
-  const { theme, saveScore, isGradesPublished, scores: globalScores } = useApp();
+  const { theme, saveScore, isGradesPublished, scores: globalScores, students, updateStudentEvaluation } = useApp();
   const evaluationRef = useRef(null);
-  const [activeStudent, setActiveStudent] = useState(PROJECTS_LIST[0]);
+  const [activeStudent, setActiveStudent] = useState(null);
   const [scores, setScores] = useState({
     innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
   });
@@ -55,12 +49,33 @@ const JuryEvaluationPage = () => {
 
   const handleOpenEvaluation = (student) => {
     setActiveStudent(student);
+    setJuryNote(student.juryScore !== null ? student.juryScore.toString() : '');
+    // Reset criteria scores to 0 for a "new" evaluation experience
+    setScores({
+      innovation: 0, methodology: 0, quality: 0, presentation: 0, docs: 0
+    });
     evaluationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleDraft = () => {
+    if (!activeStudent) return;
+    updateStudentEvaluation(activeStudent.id, { 
+      juryScore: juryNote === '' ? 0 : Number(juryNote),
+      juryRemarks: 'Brouillon - Notes en cours de saisie'
+    });
+    setSuccessMsg(`Succès : Les notes pour ${activeStudent.name} ont été enregistrées en brouillon.`);
+    setShowSuccessCard(true);
+    setTimeout(() => setShowSuccessCard(false), 5000);
+  };
+
   const handleSubmit = () => {
-    saveScore('pfeJury', juryNote);
-    setSuccessMsg(`L'évaluation pour ${activeStudent.name} a été soumise et partagée avec l'encadrant et l'administration.`);
+    if (!activeStudent) return;
+    updateStudentEvaluation(activeStudent.id, { 
+      juryScore: juryNote === '' ? 0 : Number(juryNote),
+      isJuryEvaluated: true,
+      juryRemarks: 'Évaluation finale confirmée et enregistrée.'
+    });
+    setSuccessMsg(`Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 8000);
   };
@@ -136,23 +151,31 @@ const JuryEvaluationPage = () => {
                 <tr className="border-bottom opacity-50">
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Supervisor</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Score</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {PROJECTS_LIST.map((p, i) => (
-                  <tr key={i} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                {students.map((p, i) => (
+                  <tr key={i} className={`border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer ${activeStudent?.id === p.id ? 'bg-primary-soft border-primary border-opacity-25' : ''}`}>
                     <td className="px-4 py-3 fw-bold small text-navy">{p.name}</td>
-                    <td className="py-3 small text-muted text-truncate fw-bold opacity-75" style={{maxWidth: '300px'}}>{p.title}</td>
-                    <td className="py-3 small text-navy fw-bold opacity-75">{p.sup}</td>
+                    <td className="py-3 small text-muted text-truncate fw-bold opacity-75" style={{maxWidth: '300px'}}>{p.project}</td>
+                    <td className="py-3 small">
+                      <Badge className={`bg-${p.isJuryEvaluated ? 'success' : 'warning'}-soft text-${p.isJuryEvaluated ? 'success' : 'warning'} border-0 px-2 py-1 extra-small fw-bold`}>
+                        {p.isJuryEvaluated ? 'Évalué' : 'À Évaluer'}
+                      </Badge>
+                    </td>
+                    <td className="py-3 small fw-bold text-navy">
+                      {p.juryScore !== null ? `${p.juryScore}/20` : '--'}
+                    </td>
                     <td className="px-4 py-3 text-end">
                       <Button 
                         variant="link" 
                         className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-end gap-1 hover-gap-2 transition-all shadow-none border-0"
                         onClick={() => handleOpenEvaluation(p)}
                       >
-                        Evaluate <ChevronRight size={14} />
+                        {p.isJuryEvaluated ? 'Réviser' : 'Évaluer'} <ChevronRight size={14} />
                       </Button>
                     </td>
                   </tr>
@@ -262,7 +285,7 @@ const JuryEvaluationPage = () => {
                     <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Encadrant</Form.Label>
                     <div className="h1 fw-bold text-navy mb-0">
                       {isGradesPublished 
-                        ? (globalScores.pfeSupervisor !== null ? globalScores.pfeSupervisor : '--')
+                        ? (activeStudent?.supervisorScore !== null ? activeStudent?.supervisorScore : '--')
                         : '??'}
                     </div>
                     <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
@@ -275,8 +298,17 @@ const JuryEvaluationPage = () => {
             </div>
 
             <div className="d-flex justify-content-end gap-3 pt-4 border-top border-light border-opacity-10">
-              <Button variant="outline-secondary" className="px-4 py-2 fw-bold extra-small rounded-pill border-2 opacity-50 hover-opacity-100 transition-all">Brouillon</Button>
-              <Button className="btn-premium px-5 py-3 d-flex align-items-center gap-2 fw-bold rounded-pill shadow-sm border-0" onClick={handleSubmit}>
+              <Button 
+                variant="outline-secondary" 
+                className="px-4 py-2 fw-bold extra-small rounded-pill border-2 opacity-50 hover-opacity-100 transition-all shadow-none"
+                onClick={handleDraft}
+              >
+                Brouillon
+              </Button>
+              <Button 
+                className="btn-premium px-5 py-3 d-flex align-items-center gap-2 fw-bold rounded-pill shadow-sm border-0" 
+                onClick={handleSubmit}
+              >
                 <Send size={18} /> Soumettre l'Évaluation Finale
               </Button>
             </div>

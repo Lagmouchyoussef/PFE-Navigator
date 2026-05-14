@@ -3,6 +3,7 @@ import {
   User, Session, Document as AppDocument, Message, Defense, 
   Notification, Scores, UserRole, Milestone, Appointment
 } from '../types';
+import { INITIAL_SCORES, COEFFICIENTS, SCORE_LABELS } from '../constants';
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
@@ -20,35 +21,6 @@ const INITIAL_MILESTONES: Milestone[] = [
   { id: 4, title: 'Défense', description: 'Soutenance et publication des notes finales par l\'administration.', status: 'pending', date: '' },
 ];
 
-const INITIAL_SCORES: Scores = {
-  rapport:      null,
-  presentation: null,
-  technique:    null,
-  innovation:   null,
-  delais:       null,
-  pfeSupervisor: null,
-  pfeJury:       null,
-};
-
-const COEFFICIENTS: Record<keyof Scores, number> = {
-  rapport:      3,
-  presentation: 2,
-  technique:    2,
-  innovation:   1,
-  delais:       1,
-  pfeSupervisor: 1, // Will be handled specifically for PFE Final
-  pfeJury:       1,
-};
-
-const SCORE_LABELS: Record<keyof Scores, string> = {
-  rapport:      'Rapport de Thèse',
-  presentation: 'Soutenance Orale',
-  technique:    'Maîtrise Technique',
-  innovation:   'Innovation & Recherche',
-  delais:       'Respect des Échéances',
-  pfeSupervisor: 'Note Encadrant (50%)',
-  pfeJury:       'Note Jury (50%)',
-};
 
 const INITIAL_DOCUMENTS: AppDocument[] = [
   {
@@ -239,7 +211,7 @@ const INITIAL_APPOINTMENTS: Appointment[] = [
 // ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
 
 interface AppContextType {
-  session: Session | null;
+  user: Session | null;
   login: (emailOrRole: string, password?: string, role?: UserRole) => boolean;
   logout: () => void;
   scores: Scores;
@@ -287,12 +259,14 @@ interface AppContextType {
   finalResultMessage: string;
   // Appointments
   appointments: Appointment[];
+  addAppointment: (appointment: Omit<Appointment, 'id'>) => void;
   rescheduleAppointment: (id: number, newDate: string, newTime: string) => void;
   cancelAppointment: (id: number) => void;
   deleteAppointment: (id: number) => void;
   sendReminder: (id: number) => void;
   reminders: any[];
   students: any[];
+  updateStudentEvaluation: (studentId: number, data: any) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -302,12 +276,47 @@ const initialReminders = [
   { id: 2, text: "Réunion de département", time: "45 min", type: "primary" }
 ];
 
+const initialStudents = [
+  { 
+    id: 1, name: 'Ahmed Khalil', project: 'Système de Gestion PFE avec IA', progress: 85, 
+    status: 'Validé', date: '2026-05-15',
+    juryScore: null, supervisorScore: null, juryRemarks: '', 
+    isJuryEvaluated: false, isSupervisorEvaluated: false 
+  },
+  { 
+    id: 2, name: 'Sara Bennani', project: 'Vérification de Diplômes via Blockchain', progress: 60, 
+    status: 'En Cours', date: '2026-05-18',
+    juryScore: null, supervisorScore: null, juryRemarks: '', 
+    isJuryEvaluated: false, isSupervisorEvaluated: false 
+  },
+  { 
+    id: 3, name: 'Mehdi Alami', project: 'Solution IoT pour Smart Campus', progress: 40, 
+    status: 'En Attente', date: '2026-05-20',
+    juryScore: null, supervisorScore: null, juryRemarks: '', 
+    isJuryEvaluated: false, isSupervisorEvaluated: false 
+  },
+  { 
+    id: 4, name: 'Fatima Zahra Mansouri', project: 'Outil d\'Audit de Cybersécurité', progress: 95, 
+    status: 'Validé', date: '2026-05-12',
+    juryScore: null, supervisorScore: null, juryRemarks: '', 
+    isJuryEvaluated: false, isSupervisorEvaluated: false 
+  },
+];
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<Session | null>(null);
 
   // DATA STORE
-  const [scores, setScores] = useState<Scores>(INITIAL_SCORES);
+  const [scores, setScores] = useState<Scores>(() => {
+    const saved = localStorage.getItem('pfe-scores');
+    return saved ? JSON.parse(saved) : INITIAL_SCORES;
+  });
+  
+  // Persist scores
+  useEffect(() => {
+    localStorage.setItem('pfe-scores', JSON.stringify(scores));
+  }, [scores]);
   const [documents, setDocuments] = useState<AppDocument[]>(INITIAL_DOCUMENTS);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
@@ -317,7 +326,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [reminders, setReminders] = useState(initialReminders);
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState(() => {
+    const saved = localStorage.getItem('pfe-students');
+    return saved ? JSON.parse(saved) : initialStudents;
+  });
+
+  // Persist students
+  useEffect(() => {
+    localStorage.setItem('pfe-students', JSON.stringify(students));
+  }, [students]);
 
   // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
   const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
@@ -377,11 +394,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     if (!account) return false;
-    setSession({ ...account });
+    setUser({ ...account });
     return true;
   }, []);
 
-  const logout = useCallback(() => setSession(null), []);
+  const logout = useCallback(() => setUser(null), []);
 
   // ── NOTE CALCULATION ────────────────────────────────────────────────────────
   const computeGlobalGrade = useCallback(() => {
@@ -452,6 +469,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   // ── APPOINTMENTS ─────────────────────────────────────────────────────────────
+  const addAppointment = useCallback((appointment: Omit<Appointment, 'id'>) => {
+    const newAppt = { ...appointment, id: Date.now() };
+    setAppointments(prev => [...prev, newAppt]);
+    addNotification('defense', `Nouveau rendez-vous : "${appointment.title}" pour le ${appointment.date}.`, '/student/schedule');
+  }, [addNotification]);
+
   const rescheduleAppointment = useCallback((id: number, newDate: string, newTime: string) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, date: newDate, time: newTime, status: 'Rescheduled' } : a));
     const appt = appointments.find(a => a.id === id);
@@ -483,7 +506,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const newDoc: AppDocument = {
       id: Date.now(),
       title: title || file?.name || 'Document',
-      studentName: session?.name || 'Ahmed Khalil',
+      studentName: user?.name || 'Ahmed Khalil',
       version,
       date: new Date().toISOString(),
       status: 'pending',
@@ -493,7 +516,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     setDocuments(prev => [...prev, newDoc]);
     return newDoc;
-  }, [documents, session]);
+  }, [documents, user]);
 
   const deleteDocument = useCallback((id: number) => {
     setDocuments(prev => prev.filter(d => d.id !== id));
@@ -560,13 +583,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const isProjectValidated = (pfeFinalGrade || 0) >= 10;
   const finalResultMessage = isGradesPublished 
     ? (isProjectValidated 
-        ? `Bravo Mr ${session?.name}, vous avez validé.` 
-        : `Malheureusement Mr ${session?.name}, vous n'avez pas validé.`)
+        ? `Bravo Mr ${user?.name}, vous avez validé.` 
+        : `Malheureusement Mr ${user?.name}, vous n'avez pas validé.`)
     : "";
 
   return (
     <AppContext.Provider value={{
-      session, login, logout,
+      user, login, logout,
       scores, saveScore, submitEvaluation, globalGrade, pfeFinalGrade, coefficients: COEFFICIENTS, juryComment,
       SCORE_LABELS,
       documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
@@ -577,12 +600,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isGradesPublished, publishGrades,
       pfeWeights, updatePfeWeights,
       theme, setTheme,
-      projectMilestones, updateMilestone,
+      updateMilestone,
       isProjectValidated, finalResultMessage,
-      appointments, rescheduleAppointment, cancelAppointment, deleteAppointment,
+      appointments, addAppointment, rescheduleAppointment, cancelAppointment, deleteAppointment,
       sendReminder,
       reminders,
-      students
+      students,
+      updateStudentEvaluation: (id: number, data: any) => {
+        setStudents(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
+      }
     }}>
       {children}
     </AppContext.Provider>
@@ -594,5 +620,3 @@ export const useApp = () => {
   if (!ctx) throw new Error('useApp must be used inside AppProvider');
   return ctx;
 };
-
-export { SCORE_LABELS, COEFFICIENTS };

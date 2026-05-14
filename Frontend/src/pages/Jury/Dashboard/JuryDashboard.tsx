@@ -20,7 +20,7 @@ const RECENT_ACTIVITIES = [
 
 const JuryDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { session } = useApp();
+  const { user } = useApp();
 
   return (
     <div className="jury-modern-layout py-4">
@@ -29,7 +29,7 @@ const JuryDashboard: React.FC = () => {
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
             <h2 className="fw-bold mb-1 text-gradient">Jury Dashboard</h2>
-            <p className="text-muted small mb-0">Track your evaluations and defense schedule, Prof. {session?.name}.</p>
+            <p className="text-muted small mb-0">Track your evaluations and defense schedule, Prof. {user?.name}.</p>
           </div>
           <div className="d-flex gap-2">
             <Button 

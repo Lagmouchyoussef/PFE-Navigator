@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Table, Form, Modal, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Button, Table, Form, Modal, InputGroup, Dropdown } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Plus, Search, Filter, 
   CheckCircle, Clock, AlertCircle, 
   MoreVertical, Edit3, Trash2, 
-  ChevronRight, Users, Target, Layout, X, Eye, Download
+  ChevronRight, Users, Target, Layout, X, Eye, Download, FileText
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -104,6 +104,15 @@ const Subjects = () => {
   const toggleSelectOne = (id) => {
     setSelectedIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+  
+  const toggleObjective = (obj) => {
+    if (obj === 'Autre') {
+      setShowOtherObjective(!showOtherObjective);
+    }
+    setSelectedObjectives(prev => 
+      prev.includes(obj) ? prev.filter(o => o !== obj) : [...prev, obj]
     );
   };
 

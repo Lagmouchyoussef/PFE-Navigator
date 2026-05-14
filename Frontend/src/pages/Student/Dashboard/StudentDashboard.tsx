@@ -21,7 +21,7 @@ import DocumentsList from '../../../components/features/student/DocumentsList';
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { 
-    session,
+    user,
     documents: globalDocs, 
     deleteDocument, 
     projectMilestones,
@@ -62,7 +62,7 @@ const StudentDashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="fw-bold mb-1 text-navy">Ravi de vous revoir, {session?.name}</h2>
+              <h2 className="fw-bold mb-1 text-navy">Ravi de vous revoir, {user?.name}</h2>
               <p className="text-muted small mb-0 fw-bold opacity-75">
                 Système PFE • Candidat PFE 2026
               </p>
