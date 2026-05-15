@@ -130,16 +130,12 @@
 }
 
 .left-content .logo-icon {
-    width: 80px;
-    height: 80px;
+    width: 220px;
+    height: auto;
     margin: 0 auto 2rem;
-    background: rgba(255,255,255,0.15);
-    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .left-content h1 {

@@ -71,9 +71,8 @@ const AdminLoginPage: React.FC = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="logo-icon"
-            style={{ background: 'rgba(244, 63, 94, 0.2)', borderColor: 'rgba(244, 63, 94, 0.3)' }}
           >
-            <Shield size={40} color="#f43f5e" />
+            <img src="/logo_emsi.png" alt="EMSI Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </motion.div>
           <motion.h1
             initial={{ y: 20, opacity: 0 }}
@@ -189,9 +188,7 @@ const AdminLoginPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="footer-text mt-5">
-            <p>© 2026 EMSI IT Services. <Link to="/login" style={{ color: '#2563eb', marginLeft: '10px', textDecoration: 'underline' }}>Back to Public Login</Link></p>
-          </div>
+          {/* Footer removed as requested */}
         </div>
       </div>
 

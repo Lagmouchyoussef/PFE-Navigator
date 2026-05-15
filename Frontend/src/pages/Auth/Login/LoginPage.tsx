@@ -23,6 +23,10 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [isResetSent, setIsResetSent] = useState(false);
+
   useEffect(() => {
     // Focus email input on mount
     const timer = setTimeout(() => {
@@ -73,12 +77,7 @@ const LoginPage: React.FC = () => {
     setError(null);
 
     if (!email || !password) {
-      setError('Please enter your email and password.');
-      return;
-    }
-
-    if (currentRole === 'student' && !studentId) {
-      setError('Please enter your student ID.');
+      setError('Please enter your credentials.');
       return;
     }
 
@@ -112,7 +111,7 @@ const LoginPage: React.FC = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="logo-icon"
           >
-            <Layout size={40} color="white" />
+            <img src="/logo_emsi.png" alt="EMSI Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </motion.div>
           <motion.h1
             initial={{ y: 20, opacity: 0 }}
@@ -224,26 +223,7 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            {currentRole === 'student' && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                className="form-group"
-              >
-                <label>Student ID</label>
-                <div className="input-wrapper">
-                  <span className="id-prefix">ID#</span>
-                  <input
-                    type="text"
-                    className="form-input with-prefix"
-                    placeholder="Enter your student ID"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    required
-                  />
-                </div>
-              </motion.div>
-            )}
+            {/* Student ID field removed as requested */}
 
             <div className="form-group">
               <label>Password</label>
@@ -276,7 +256,13 @@ const LoginPage: React.FC = () => {
                 </div>
                 <span className="checkbox-label">Remember me</span>
               </div>
-              <a href="#" className="forgot-link" onClick={(e) => e.preventDefault()}>Forgot password?</a>
+              <button 
+                type="button"
+                className="forgot-link bg-transparent border-0 p-0" 
+                onClick={() => setShowForgotModal(true)}
+              >
+                Forgot password?
+              </button>
             </div>
 
             <button 
@@ -293,11 +279,97 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="footer-text mt-5">
-            <p>© 2026 PFE Navigator. EMSI Group. <Link to="/admin-login" style={{ color: '#64748b', marginLeft: '10px', textDecoration: 'underline' }}>Admin Access</Link></p>
-          </div>
+          {/* Footer removed as requested */}
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="success-overlay" 
+            style={{ zIndex: 1100, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="login-wrapper"
+              style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+            >
+              {!isResetSent ? (
+                <>
+                  <div className="form-header">
+                    <h2 style={{ fontSize: '1.75rem' }}>Reset Password</h2>
+                    <p>Enter your email to receive a reset link</p>
+                  </div>
+                  <div className="form-group mb-4">
+                    <label>Email Address</label>
+                    <div className="input-wrapper">
+                      <input
+                        type="email"
+                        className="form-input"
+                        placeholder="your.email@emsi.ma"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                      />
+                      <div className="input-icon">
+                        <Mail size={20} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex gap-3">
+                    <button 
+                      className="submit-btn" 
+                      style={{ background: '#f1f5f9', color: '#64748b', marginTop: 0 }}
+                      onClick={() => setShowForgotModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      className="submit-btn" 
+                      style={{ background: roleConfigs[currentRole].color, marginTop: 0 }}
+                      onClick={() => {
+                        if (forgotEmail) {
+                          setIsResetSent(true);
+                        } else {
+                          setError('Please enter your email first.');
+                          setShowForgotModal(false);
+                        }
+                      }}
+                    >
+                      Send Link
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="success-icon" style={{ width: '80px', height: '80px', marginBottom: '1.5rem', background: '#d1fae5', color: '#10b981' }}>
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <h3 className="fw-bold mb-2">Link Sent!</h3>
+                  <p className="text-muted small">Please check your inbox at <strong>{forgotEmail}</strong> for instructions.</p>
+                  <button 
+                    className="submit-btn mt-4" 
+                    style={{ background: roleConfigs[currentRole].color }}
+                    onClick={() => {
+                      setShowForgotModal(false);
+                      setIsResetSent(false);
+                      setForgotEmail('');
+                    }}
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Success Animation Overlay */}
       <AnimatePresence>
