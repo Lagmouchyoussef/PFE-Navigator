@@ -37,7 +37,7 @@ const SchedulePage = () => {
     setNewEvent({ title: '', date: '', time: '', type: 'Meeting' });
   };
 
-  const [viewDate, setViewDate] = useState(new Date(2026, 4, 1)); // Default to May 2026 as per user projects
+  const [viewDate, setViewDate] = useState(new Date()); // Default to current date
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   
@@ -166,8 +166,11 @@ const SchedulePage = () => {
         <Row className="g-4 mb-5">
           {[
             { label: 'Upcoming Events', value: appointments.length.toString(), icon: <Bell size={24} />, color: 'primary' },
-            { label: 'Pending Deadlines', value: '2', icon: <AlertCircle size={24} />, color: 'danger' },
-            { label: 'This Month', value: appointments.filter(a => a.date.startsWith('2026-05')).length.toString(), icon: <CalendarIcon size={24} />, color: 'info' },
+            { label: 'Pending Deadlines', value: projectMilestones.filter(m => m.status !== 'completed').length.toString(), icon: <AlertCircle size={24} />, color: 'danger' },
+            { label: 'This Month', value: appointments.filter(a => {
+              const d = new Date(a.date);
+              return d.getMonth() === month && d.getFullYear() === year;
+            }).length.toString(), icon: <CalendarIcon size={24} />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} lg={4}>
               <Card className="glass-card border-0 shadow-sm border p-3">
@@ -238,7 +241,7 @@ const SchedulePage = () => {
                       <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextMonth} title="Next Month"><ChevronRight size={20} /></Button>
                       <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextYear} title="Next Year"><ChevronRight size={20} /><ChevronRight size={20} style={{marginLeft: '-12px'}} /></Button>
                     </div>
-                    <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Today</Button>
+                    <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date())}>Today</Button>
                   </div>
                 <div className="p-4">
                   <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden' }}>

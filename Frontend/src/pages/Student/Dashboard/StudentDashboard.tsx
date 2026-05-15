@@ -27,8 +27,9 @@ const StudentDashboard: React.FC = () => {
     projectMilestones,
     finalResultMessage,
     isProjectValidated,
-    appointments
-  } = useApp();
+    appointments,
+    feedbacks = [] // Default to empty array
+  } = useApp() as any;
 
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [docToDelete, setDocToDelete] = React.useState<number | null>(null);
@@ -50,9 +51,12 @@ const StudentDashboard: React.FC = () => {
     status: m.status as any
   }));
 
+  const completedSteps = projectMilestones.filter(m => m.status === 'completed').length;
+  const progressPct = Math.round((completedSteps / projectMilestones.length) * 100) || 0;
+
   const progressData = [
-    { name: 'Done', value: 75, color: 'var(--color-primary)' },
-    { name: 'Todo', value: 25, color: 'var(--color-surface-alt)' },
+    { name: 'Done', value: progressPct, color: 'var(--color-primary)' },
+    { name: 'Todo', value: 100 - progressPct, color: 'var(--color-surface-alt)' },
   ];
 
   return (
@@ -119,18 +123,18 @@ const StudentDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard 
               label="Pending Deadlines" 
-              value="2" 
+              value="0" 
               color="warning" 
               icon={<Clock />} 
-              trend="2 weeks" 
+              trend="No upcoming" 
               onClick={() => navigate('/student/schedule')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Tasks Completed" value="5" color="success" icon={<CheckCircle />} trend="+2" />
+            <StatCard label="Tasks Completed" value={completedSteps.toString()} color="success" icon={<CheckCircle />} trend={`+${completedSteps}`} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Average Score" value="18.5" color="info" icon={<GraduationCap />} />
+            <StatCard label="Average Score" value="0.00" color="info" icon={<GraduationCap />} />
           </Col>
         </Row>
 
@@ -166,7 +170,7 @@ const StudentDashboard: React.FC = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="position-absolute text-center">
-                    <div className="h3 fw-bold mb-0 text-navy">75%</div>
+                    <div className="h3 fw-bold mb-0 text-navy">{progressPct}%</div>
                     <div className="extra-small text-muted fw-bold">COMPLETED</div>
                   </div>
                 </div>
@@ -187,10 +191,10 @@ const StudentDashboard: React.FC = () => {
                   <Calendar size={18} className="opacity-75" />
                 </div>
                 <div className="mb-4">
-                  <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "PFE Defense"}</div>
-                  <div className="small opacity-75">{appointments[0]?.date || "May 15, 2026"}</div>
+                  <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "No defense scheduled"}</div>
+                  <div className="small opacity-75">{appointments[0]?.date || "Pending scheduling"}</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
-                    <Clock size={12} /> {appointments[0]?.time || "09:00"} - {appointments[0]?.location || "Conference Room A"}
+                    <Clock size={12} /> {appointments[0]?.time || "--:--"} - {appointments[0]?.location || "TBD"}
                   </div>
                 </div>
                 <Button 
@@ -203,23 +207,27 @@ const StudentDashboard: React.FC = () => {
                 </Button>
               </Card>
 
-              {/* Recent Feedback Widget */}
-              <Card className="glass-card border p-4 shadow-sm">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-navy">Recent Feedback</h6>
-                  <MessageSquare size={18} className="text-primary" />
-                </div>
-                <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4">
-                  <div className="fw-bold small mb-1 text-navy">Initial Report Revision</div>
-                  <p className="extra-small text-muted mb-2">
-                    "Please revise sections 3.2 and 4.1. Good progress overall!"
-                  </p>
-                  <div className="d-flex justify-content-between align-items-center extra-small mt-2">
-                    <span className="text-primary fw-bold">Dr. Sofia Drissi</span>
-                    <span className="opacity-50">2 days ago</span>
+               {/* Recent Feedback Widget */}
+               <Card className="glass-card border p-4 shadow-sm">
+                 <div className="d-flex justify-content-between align-items-center mb-4">
+                   <h6 className="fw-bold mb-0 text-navy">Recent Feedback</h6>
+                   <MessageSquare size={18} className="text-primary" />
+                 </div>
+                 {feedbacks.length > 0 ? (
+                  <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4">
+                    <div className="fw-bold small mb-1 text-navy">{feedbacks[0].title}</div>
+                    <p className="extra-small text-muted mb-2">"{feedbacks[0].comment}"</p>
+                    <div className="d-flex justify-content-between align-items-center extra-small mt-2">
+                      <span className="text-primary fw-bold">{feedbacks[0].author}</span>
+                      <span className="opacity-50">{feedbacks[0].date}</span>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                 ) : (
+                   <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4 text-center py-4">
+                     <p className="extra-small text-muted mb-0">No feedback received yet.</p>
+                   </div>
+                 )}
+               </Card>
 
               {/* Supervisor Card */}
               <Card className="glass-card border p-4 shadow-sm">

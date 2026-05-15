@@ -21,15 +21,8 @@ interface AdministrativeNote {
 }
 
 const AdministrativeNotesPage: React.FC = () => {
-  const { theme } = useApp();
+  const { administrativeNotes: notes = [] } = useApp() as any;
   const [searchTerm, setSearchTerm] = useState('');
-
-  const notes: AdministrativeNote[] = [
-    { id: 1, title: 'Defense Schedule Update', isNew: true, priority: 'HIGH', category: 'Defense', content: 'Final schedules will be published on May 5, 2026. Please check your portal regularly. Rooms will be assigned 48 hours before.', author: 'PFE Coordination Office', date: '2026-04-28', pinned: true, unread: true },
-    { id: 2, title: 'Reminder: Submission Deadline', isNew: true, priority: 'HIGH', category: 'Deadlines', content: 'Final reports must be submitted by May 15, 2026, at 23:59. Any delay will result in a penalty of 5 points per day.', author: 'Academic Affairs', date: '2026-04-27', pinned: true, unread: true },
-    { id: 3, title: 'Mandatory Workshop: Presentation Techniques', isNew: true, priority: 'HIGH', category: 'Workshops', content: 'Workshop scheduled for May 8 at 14:00 in Auditorium B. Attendance is mandatory for all final-year students.', author: 'Pro Development Center', date: '2026-04-23', pinned: true, unread: true },
-    { id: 4, title: 'New Evaluation Criteria', isNew: false, priority: 'MEDIUM', category: 'Evaluation', content: 'The 2026 evaluation grid has been updated in the Resource Hub. Innovation now accounts for 15% of the final grade.', author: 'Dr. Ahmed Mansouri', date: '2026-04-25', pinned: false, unread: false },
-  ];
 
   return (
     <div className="notes-modern-layout py-4">
@@ -59,16 +52,16 @@ const AdministrativeNotesPage: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Docs" />
+            <StatCard label="Total Notes" value={notes.length.toString()} icon={<FileText />} color="primary" trend="Docs" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Unread" value="3" icon={<Bell />} color="danger" trend="Alert" />
+            <StatCard label="Unread" value={notes.filter((n: any) => n.unread).length.toString()} icon={<Bell />} color="danger" trend="Alert" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pinned" value="3" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="Pinned" value={notes.filter((n: any) => n.pinned).length.toString()} icon={<Pin />} color="warning" trend="Fav" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Priority" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Priority" value={notes.filter((n: any) => n.priority === 'HIGH').length.toString()} icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 

@@ -30,62 +30,24 @@ const EvaluationPage = () => {
     : (supScore !== null) ? supScore : (juryScore !== null) ? juryScore : null;
 
   const performanceData = [
-    { name: 'Proposal', score: 85 },
-    { name: 'Interim', score: 88 },
+    { name: 'Proposal', score: 0 },
+    { name: 'Interim', score: 0 },
     { name: 'Final', score: supScore ? (supScore / 20) * 100 : 0 },
     { name: 'Defense', score: juryScore ? (juryScore / 20) * 100 : 0 },
   ];
 
   const criteriaData = [
-    { subject: 'Technical Quality', A: 90, fullMark: 100 },
-    { subject: 'Innovation', A: 75, fullMark: 100 },
-    { subject: 'Documentation', A: 85, fullMark: 100 },
-    { subject: 'Implementation', A: 95, fullMark: 100 },
-    { subject: 'Presentation', A: 80, fullMark: 100 },
+    { subject: 'Technical Quality', A: 0, fullMark: 100 },
+    { subject: 'Innovation', A: 0, fullMark: 100 },
+    { subject: 'Documentation', A: 0, fullMark: 100 },
+    { subject: 'Implementation', A: 0, fullMark: 100 },
+    { subject: 'Presentation', A: 0, fullMark: 100 },
   ];
 
-  const breakdownData = [
-    { component: 'Proposal', weight: '15%', score: '85/100', points: '12.75', progress: 85, status: 'Completed' },
-    { component: 'Interim Report', weight: '20%', score: '88/100', points: '17.60', progress: 88, status: 'Completed' },
-    { component: 'Final Report', weight: '35%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
-    { component: 'Defense Presentation', weight: '20%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
-    { component: 'Supervisor Evaluation', weight: '10%', score: 'Pending', points: '0.00', progress: 0, status: 'Pending' },
-  ];
+  const breakdownData = [];
 
-  const history = [
-    {
-      title: 'Project Proposal',
-      status: 'Completed',
-      evaluator: 'Dr. Sarah Smith',
-      date: '2026-03-20',
-      score: '85',
-      comments: 'Excellent problem statement and methodology. Good research background.'
-    },
-    {
-      title: 'Interim Report',
-      status: 'Completed',
-      evaluator: 'Dr. Sarah Smith',
-      date: '2026-04-22',
-      score: '88',
-      comments: 'Strong progress on implementation. Technical sections are well-written.'
-    },
-    {
-      title: 'Final Report',
-      status: supScore !== null ? 'Completed' : 'Pending',
-      evaluator: 'Dr. Sofia Drissi',
-      date: '2026-05-15',
-      score: supScore !== null ? (supScore * 5).toString() : '-',
-      comments: studentData?.supervisorRemarks || 'Awaiting submission'
-    },
-    {
-      title: 'Final Defense',
-      status: juryScore !== null ? 'Completed' : 'Pending',
-      evaluator: 'Prof. Youssef Lagmouch',
-      date: '2026-05-20',
-      score: juryScore !== null ? (juryScore * 5).toString() : '-',
-      comments: studentData?.juryRemarks || 'Scheduled for May 20, 2026'
-    }
-  ];
+  const history = [];
+
 
   return (
     <div className="evaluation-page-layout py-4">
@@ -149,10 +111,10 @@ const EvaluationPage = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Current Grade', value: pfeFinalGrade ? pfeFinalGrade.toFixed(1) : '30.4', sub: 'out of 20', icon: <Award size={24} />, color: 'primary' },
-            { label: 'Completed', value: juryScore !== null && supScore !== null ? '4/4' : '2/4', sub: 'Evaluations', icon: <CheckCircle size={24} />, color: 'success' },
-            { label: 'Average Score', value: pfeFinalGrade ? (pfeFinalGrade * 5).toFixed(1) : '86.5', sub: '%', icon: <TrendingUp size={24} />, color: 'info' },
-            { label: 'Class Rank', value: '12th', sub: 'out of 45', icon: <Users size={24} />, color: 'warning' },
+            { label: 'Current Grade', value: pfeFinalGrade ? pfeFinalGrade.toFixed(1) : '0.0', sub: 'out of 20', icon: <Award size={24} />, color: 'primary' },
+            { label: 'Completed', value: juryScore !== null && supScore !== null ? '4/4' : '0/4', sub: 'Evaluations', icon: <CheckCircle size={24} />, color: 'success' },
+            { label: 'Average Score', value: pfeFinalGrade ? (pfeFinalGrade * 5).toFixed(1) : '0.0', sub: '%', icon: <TrendingUp size={24} />, color: 'info' },
+            { label: 'Class Rank', value: 'N/A', sub: 'out of --', icon: <Users size={24} />, color: 'warning' },
           ].map((stat, i) => (
             <Col key={i} lg={3} md={6}>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>

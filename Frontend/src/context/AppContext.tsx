@@ -15,59 +15,14 @@ const ACCOUNTS: User[] = [
 ];
 
 const INITIAL_MILESTONES: Milestone[] = [
-  { id: 1, title: 'Proposal', description: 'Submission of initial report / proposal by student.', status: 'completed', date: '2025-11-10' },
-  { id: 2, title: 'Interim Report', description: 'Verification and validation of progress by supervisor.', status: 'completed', date: '2026-02-15' },
-  { id: 3, title: 'Final Report', description: 'Final validation or rejection of report by jury member.', status: 'current', date: '2026-05-14' },
+  { id: 1, title: 'Proposal', description: 'Submission of initial report / proposal by student.', status: 'current', date: '' },
+  { id: 2, title: 'Interim Report', description: 'Verification and validation of progress by supervisor.', status: 'pending', date: '' },
+  { id: 3, title: 'Final Report', description: 'Final validation or rejection of report by jury member.', status: 'pending', date: '' },
   { id: 4, title: 'Defense', description: 'Defense presentation and publication of final grades by administration.', status: 'pending', date: '' },
 ];
 
 
-const INITIAL_DOCUMENTS: AppDocument[] = [
-  {
-    id: 1,
-    title: 'Final_Report_v1.pdf',
-    student_name: 'Ahmed Khalil',
-    version: 1,
-    date: '2026-04-20T09:30:00',
-    status: 'approved',
-    comment: '',
-    size: '2.4 MB',
-    target: 'jury',
-  },
-  {
-    id: 2,
-    title: 'Defense_Presentation.pptx',
-    student_name: 'Ahmed Khalil',
-    version: 1,
-    date: '2026-04-22T14:15:00',
-    status: 'pending',
-    comment: '',
-    size: '5.1 MB',
-    target: 'jury',
-  },
-  {
-    id: 3,
-    title: 'Requirements_Document.pdf',
-    student_name: 'Sara Bennani',
-    version: 1,
-    date: '2026-04-10T11:00:00',
-    status: 'approved',
-    comment: '',
-    size: '1.2 MB',
-    target: 'supervisor',
-  },
-  {
-    id: 4,
-    title: 'Progress_Report.pdf',
-    student_name: 'Mehdi Alami',
-    version: 2,
-    date: '2026-04-18T16:45:00',
-    status: 'pending',
-    comment: '',
-    size: '3.8 MB',
-    target: 'supervisor',
-  },
-];
+const INITIAL_DOCUMENTS: AppDocument[] = [];
 
 const INITIAL_MESSAGES: Message[] = [];
 
@@ -83,105 +38,9 @@ const INITIAL_DEFENSES: Defense[] = [
   },
 ];
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    type: 'approved',
-    text: 'Your document Final_Report_v1.pdf has been approved by the jury.',
-    date: '2026-04-21T08:00:00',
-    read: true,
-    link: '/student/reports',
-  },
-  {
-    id: 2,
-    type: 'grade',
-    text: 'System Update: Academic year 2026 parameters have been initialized.',
-    date: new Date().toISOString(),
-    read: false,
-    link: '/admin/dashboard',
-  },
-  {
-    id: 3,
-    type: 'message',
-    text: 'New message from Ahmed Khalil (Student) regarding the final submission.',
-    date: new Date().toISOString(),
-    read: false,
-    link: '/jury/messages',
-  },
-];
+const INITIAL_NOTIFICATIONS: Notification[] = [];
 
-const INITIAL_APPOINTMENTS: Appointment[] = [
-  {
-    id: 1,
-    title: "Mid-term Review: AI Project",
-    studentName: "Ahmed Khalil",
-    date: "2026-05-15",
-    time: "10:00 AM",
-    location: "Room 402 / Online",
-    type: "Review",
-    status: "Confirmed"
-  },
-  {
-    id: 2,
-    title: "Technical Workshop: Blockchain",
-    studentName: "Sara Kamali",
-    date: "2026-05-18",
-    time: "02:00 PM",
-    location: "Lab A-12",
-    type: "Meeting",
-    status: "Pending"
-  },
-  {
-    id: 3,
-    title: "Thesis Draft Review",
-    studentName: "Mehdi Alami",
-    date: "2026-05-20",
-    time: "11:30 AM",
-    location: "Office 302",
-    type: "Review",
-    status: "Confirmed"
-  },
-  {
-    id: 4,
-    title: "Final Presentation Prep",
-    studentName: "Fatima Zahra",
-    date: "2026-05-22",
-    time: "03:00 PM",
-    location: "Auditorium",
-    type: "Workshop",
-    status: "Confirmed"
-  },
-  {
-    id: 5,
-    title: "Jury Coordination Meeting",
-    studentName: "Admin Team",
-    date: "2026-05-25",
-    time: "09:00 AM",
-    location: "Zoom",
-    type: "Meeting",
-    status: "Confirmed"
-  },
-  {
-    id: 6,
-    title: "Prototype Validation",
-    studentName: "Yassine Drissi",
-    date: "2026-05-28",
-    time: "01:30 PM",
-    location: "Lab B-04",
-    type: "Validation",
-    status: "Confirmed"
-  },
-  {
-    id: 7,
-    title: "Project Conclusion",
-    studentName: "Imane Fathi",
-    date: "2026-06-02",
-    time: "10:00 AM",
-    location: "Salle 105",
-    type: "Meeting",
-    status: "Pending"
-  }
-];
+const INITIAL_APPOINTMENTS: Appointment[] = [];
 
 // ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
 
@@ -253,6 +112,7 @@ interface AppContextType {
   // Criteria Weights
   supervisorCriteriaWeights: Record<string, number>;
   updateSupervisorCriteriaWeights: (weights: Record<string, number>) => void;
+  administrativeNotes: AdministrativeNote[];
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -264,14 +124,13 @@ const initialReminders = [
 
 const initialStudents = [];
 
-const INITIAL_ARCHIVES = [
-  { id: 'ARCH-001', name: '5G Network Optimization', desc: 'Analysis and simulation of signal propagation in dense urban environments.', date: '2025-06-15', files: 5, status: 'Completed', type: 'Networks', supervisor: 'Dr. Sofia Drissi' },
-  { id: 'ARCH-002', name: 'AI for Medical Diagnosis', desc: 'Development of a CNN model for early cancer detection.', date: '2025-06-20', files: 8, status: 'Completed', type: 'AI', supervisor: 'Prof. Youssef Lagmouch' },
-];
+const INITIAL_ARCHIVES = [];
 
 const INITIAL_RESOURCES = [
   { id: 'RES-001', title: 'PFE Writing Guide', type: 'PDF', category: 'Documentation', date: '2026-01-10' },
 ];
+
+const INITIAL_NOTES: any[] = [];
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
@@ -350,6 +209,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('pfe-students', JSON.stringify(students));
   }, [students]);
+
+  const [administrativeNotes, setAdministrativeNotes] = useState(() => {
+    const saved = localStorage.getItem('pfe-admin-notes');
+    return saved ? JSON.parse(saved) : INITIAL_NOTES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pfe-admin-notes', JSON.stringify(administrativeNotes));
+  }, [administrativeNotes]);
 
   // Automatic Archiving Logic
   useEffect(() => {
@@ -728,7 +596,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateSupervisorCriteriaWeights: (weights: Record<string, number>) => {
         setSupervisorCriteriaWeights(weights);
         addNotification('grade', "Supervisor criteria scales have been updated by administration.", '/supervisor/evaluation');
-      }
+      },
+      administrativeNotes
     }}>
       {children}
     </AppContext.Provider>

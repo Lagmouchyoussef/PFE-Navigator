@@ -36,7 +36,7 @@ const AnimatedTrash = ({ isDeleting }) => {
 };
 
 const ReportsPage = () => {
-  const { session, documents = [], deleteDocument, uploadDocument } = useApp();
+  const { user, documents = [], deleteDocument, uploadDocument } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const fileInputRef = useRef(null);
@@ -123,12 +123,12 @@ const ReportsPage = () => {
 
   const filteredDocs = documents.filter(doc => {
     // Only show documents for the current logged-in student
-    const isOwner = doc.studentName === session?.name;
+    const isOwner = doc.studentName === user?.name;
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase());
     return isOwner && matchesSearch;
   });
 
-  const userDocs = documents.filter(d => d.studentName === session?.name);
+  const userDocs = documents.filter(d => d.studentName === user?.name);
 
   const categories = [
     { name: 'All', count: userDocs.length, icon: <Folder size={20} />, color: 'blue' },
