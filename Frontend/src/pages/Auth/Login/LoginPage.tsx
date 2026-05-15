@@ -41,8 +41,8 @@ const LoginPage: React.FC = () => {
       color: '#3b82f6',
       badgeBg: '#dbeafe',
       badgeColor: '#1e40af',
-      emailLabel: 'Email Address',
-      emailPlaceholder: 'Enter your student email',
+      emailLabel: 'Email or Student ID',
+      emailPlaceholder: 'Enter your email or student ID',
       showId: true,
       btnText: 'Sign In as Student',
       successRole: 'Student',
@@ -178,6 +178,13 @@ const LoginPage: React.FC = () => {
           <div className="form-header">
             <h2>Welcome Back</h2>
             <p>Select your profile and sign in</p>
+            {import.meta.env.DEV && (
+              <div className="dev-credentials">
+                <strong>Dev login:</strong>
+                <div>Student: student@emsi.ma / password123</div>
+                <div>Admin: admin@emsi.ma / admin123</div>
+              </div>
+            )}
           </div>
 
           {/* Role Selector Grid */}

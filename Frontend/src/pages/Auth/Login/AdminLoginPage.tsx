@@ -116,6 +116,13 @@ const AdminLoginPage: React.FC = () => {
           <div className="form-header">
             <h2 style={{ color: '#0f172a' }}>System Access</h2>
             <p>Administrator Authentication Required</p>
+            {import.meta.env.DEV && (
+              <div className="dev-credentials">
+                <strong>Dev login:</strong>
+                <div>Admin: admin@emsi.ma / admin123</div>
+                <div>Student: student@emsi.ma / password123</div>
+              </div>
+            )}
           </div>
 
           <AnimatePresence>

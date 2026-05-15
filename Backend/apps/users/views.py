@@ -12,28 +12,35 @@ class LoginView(APIView):
     
     def post(self, request):
         """Handle user login."""
-        email = request.data.get('email')
+        identifier = request.data.get('email')
         password = request.data.get('password')
         role = request.data.get('role')
 
-        if not email or not password:
+        if not identifier or not password:
             return Response(
-                {"detail": "Please provide both email and password."},
+                {"detail": "Please provide both email or ID and password."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # In our project, email is used for authentication
+        # Allow login by email, institutional ID, or username
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        
-        try:
-            user_obj = User.objects.get(email=email)
-            username = user_obj.username
-        except User.DoesNotExist:
+
+        user_obj = None
+        if identifier:
+            user_obj = User.objects.filter(email__iexact=identifier).first()
+            if not user_obj:
+                user_obj = User.objects.filter(institutional_id__iexact=identifier).first()
+            if not user_obj:
+                user_obj = User.objects.filter(username__iexact=identifier).first()
+
+        if not user_obj:
             return Response(
                 {"detail": "Invalid credentials."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+        username = user_obj.username
 
         user = authenticate(username=username, password=password)
 

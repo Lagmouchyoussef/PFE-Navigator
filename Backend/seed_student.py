@@ -15,9 +15,12 @@ def seed():
     print("Starting seed with transaction.atomic...")
     try:
         with transaction.atomic():
-            # 1. Clean up
+            # 1. Clean up existing test users
             User.objects.filter(email="student@emsi.ma").delete()
-            print("Cleaned up existing test user.")
+            User.objects.filter(email="admin@emsi.ma").delete()
+            User.objects.filter(username="student_user").delete()
+            User.objects.filter(username="admin_user").delete()
+            print("Cleaned up existing test users.")
 
             # 2. Create Student User
             email = "student@emsi.ma"
@@ -34,9 +37,28 @@ def seed():
             )
             user.set_password(password)
             user.save()
-            print(f"User {email} created with ID {user.id}")
-            
-            # 3. Create Student Profile
+            print(f"Student user {email} created with ID {user.id}")
+
+            # 3. Create Admin User
+            admin_email = "admin@emsi.ma"
+            admin_username = "admin_user"
+            admin_password = "admin123"
+
+            admin_user = User.objects.create(
+                email=admin_email,
+                username=admin_username,
+                first_name="Admin",
+                last_name="User",
+                role="admin",
+                institutional_id="ADM-2026-001"
+            )
+            admin_user.set_password(admin_password)
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.save()
+            print(f"Admin user {admin_email} created with ID {admin_user.id}")
+
+            # 4. Create Student Profile
             student = Student.objects.create(
                 user=user,
                 enrollment_number="20260001",
