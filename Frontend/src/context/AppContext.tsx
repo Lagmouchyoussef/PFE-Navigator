@@ -659,6 +659,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [archives, addNotification]);
 
+  const addToResources = useCallback((fileData: any) => {
+    setResourceCenter(prev => {
+      const updated = [fileData, ...prev];
+      localStorage.setItem('pfe-resources', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const removeFromResources = useCallback((id: string) => {
+    setResourceCenter(prev => {
+      const updated = prev.filter(r => r.id !== id);
+      localStorage.setItem('pfe-resources', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
   // ── COMPUTED ──────────────────────────────────────────────────────────────
@@ -710,7 +726,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setArchives(prev => prev.filter(a => a.id !== id));
       },
       shareToResources,
-      resourceCenter,
+      resourceCenter, addToResources, removeFromResources,
       supervisorCriteriaWeights,
       updateSupervisorCriteriaWeights: (weights: Record<string, number>) => {
         setSupervisorCriteriaWeights(weights);
