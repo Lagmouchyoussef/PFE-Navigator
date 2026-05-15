@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { 
-  Plus, ChevronLeft, ChevronRight, MapPin, Users, Clock
+  Plus, ChevronLeft, ChevronRight, MapPin, Users, Clock,
+  MoreVertical, Calendar, XCircle, Trash2, Edit, AlertTriangle
 } from 'lucide-react';
-import { Container, Row, Col, Button, Badge, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge, Modal, Form, Dropdown } from 'react-bootstrap';
 
 interface JurySession {
   id: number;
@@ -12,6 +13,7 @@ interface JurySession {
   location: string;
   time: string;
   members: string[];
+  status?: 'Active' | 'Cancelled';
 }
 
 const AVAILABLE_JURIES = [
@@ -43,6 +45,53 @@ const JuryPlanning: React.FC = () => {
     time: '09:00',
     selectedMembers: [] as string[]
   });
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [sessionToReschedule, setSessionToReschedule] = useState<JurySession | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<number | null>(null);
+
+  const handleCancelSession = (id: number) => {
+    setJuries(juries.map(j => j.id === id ? { ...j, status: 'Cancelled' as const } : j));
+  };
+
+  const handleDeleteSession = (id: number) => {
+    setSessionToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (sessionToDelete !== null) {
+      setJuries(juries.filter(j => j.id !== sessionToDelete));
+      setShowDeleteModal(false);
+      setSessionToDelete(null);
+    }
+  };
+
+  const openReschedule = (session: JurySession) => {
+    setSessionToReschedule(session);
+    setFormData({
+      title: session.title,
+      day: session.day,
+      location: session.location,
+      time: session.time,
+      selectedMembers: session.members
+    });
+    setShowReschedule(true);
+  };
+
+  const handleConfirmReschedule = () => {
+    if (sessionToReschedule) {
+      setJuries(juries.map(j => j.id === sessionToReschedule.id ? {
+        ...j,
+        day: formData.day,
+        time: formData.time,
+        location: formData.location,
+        members: formData.selectedMembers,
+        status: 'Active' as const
+      } : j));
+      setShowReschedule(false);
+    }
+  };
 
   const toggleMemberSelection = (name: string) => {
     if (formData.selectedMembers.includes(name)) {
@@ -93,10 +142,18 @@ const JuryPlanning: React.FC = () => {
           {/* Main Calendar Grid */}
           <Col lg={8}>
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <div className="d-flex align-items-center gap-2">
-                <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronLeft size={24} /></Button>
-                <h4 className="fw-bold mb-0 mx-2 text-navy">Janvier 2025</h4>
-                <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronRight size={24} /></Button>
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronLeft size={24} /></Button>
+                  <h4 className="fw-bold mb-0 mx-2 text-navy text-nowrap">Janvier 2025</h4>
+                  <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronRight size={24} /></Button>
+                </div>
+                <Form.Control 
+                  type="date" 
+                  defaultValue="2025-01-01"
+                  className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
+                  style={{ maxWidth: '180px', cursor: 'pointer' }}
+                />
               </div>
               <div className="d-flex gap-2 bg-surface p-1 rounded-pill border">
                 {['Mois', 'Semaine'].map(view => (
@@ -128,7 +185,8 @@ const JuryPlanning: React.FC = () => {
                         {dayJuries.map(j => (
                           <div 
                             key={j.id} 
-                            className="p-1 px-2 rounded-2 extra-small fw-bold text-truncate cursor-pointer bg-primary text-white"
+                            className={`p-1 px-2 rounded-2 extra-small fw-bold text-truncate cursor-pointer ${j.status === 'Cancelled' ? 'bg-secondary text-white opacity-50' : 'bg-primary text-white'}`}
+                            onClick={() => openReschedule(j)}
                           >
                             {j.title}
                           </div>
@@ -148,13 +206,32 @@ const JuryPlanning: React.FC = () => {
                 <Clock size={18} className="text-primary" /> Sessions Prochaines
               </h6>
               <div className="d-flex flex-column gap-3">
-                {juries.slice(0, 4).map(j => (
-                  <div key={j.id} className="p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all cursor-pointer shadow-sm-hover">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="small fw-bold text-navy">{j.title}</div>
-                      <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">
-                        {j.day} Jan
-                      </Badge>
+                {juries.filter(j => j.day >= 1).slice(0, 4).map(j => (
+                  <div key={j.id} className={`p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all cursor-pointer shadow-sm-hover ${j.status === 'Cancelled' ? 'opacity-50 grayscale' : ''}`}>
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <div className="flex-grow-1">
+                        <div className="small fw-bold text-navy">{j.title}</div>
+                        <Badge className={`bg-${j.status === 'Cancelled' ? 'secondary' : 'primary'}-soft text-${j.status === 'Cancelled' ? 'secondary' : 'primary'} border border-opacity-10 extra-small px-2 mt-1`}>
+                          {j.day} Jan {j.status === 'Cancelled' && '• ANNULÉ'}
+                        </Badge>
+                      </div>
+                      <Dropdown align="end">
+                        <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none hover-bg-surface rounded-circle">
+                          <MoreVertical size={18} />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
+                          <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => openReschedule(j)}>
+                            <Calendar size={14} className="text-primary" /> Reporter
+                          </Dropdown.Item>
+                          <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-warning" onClick={() => handleCancelSession(j.id)}>
+                            <XCircle size={14} /> Annuler
+                          </Dropdown.Item>
+                          <Dropdown.Divider />
+                          <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-danger" onClick={() => handleDeleteSession(j.id)}>
+                            <Trash2 size={14} /> Supprimer
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     </div>
                     <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold mb-2">
                       <MapPin size={12} className="text-primary" /> {j.location} • <Clock size={12} className="text-primary" /> {j.time}
@@ -270,6 +347,117 @@ const JuryPlanning: React.FC = () => {
           <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowModal(false)}>Annuler</Button>
           <Button className="btn-premium px-4 py-2" onClick={handleAddJury}>Confirmer le Planning</Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* Modal Reporter / Modifier */}
+      <Modal show={showReschedule} onHide={() => setShowReschedule(false)} centered size="lg" className="glass-modal">
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <Modal.Title className="fw-bold fs-5 text-navy">Reporter / Modifier la Session</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <Form>
+            <Row className="g-4 mb-4">
+              <Col lg={8}>
+                <Form.Group className="mb-4">
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre de la session</Form.Label>
+                  <Form.Control 
+                    className="form-control-premium fw-bold py-3"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  />
+                </Form.Group>
+                
+                <Row className="g-3">
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouveau Jour</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      min="1" max="31" 
+                      className="form-control-premium fw-bold"
+                      value={formData.day}
+                      onChange={(e) => setFormData({...formData, day: parseInt(e.target.value)})}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouvelle Heure</Form.Label>
+                    <Form.Control 
+                      type="time" 
+                      className="form-control-premium fw-bold"
+                      value={formData.time}
+                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouvelle Salle</Form.Label>
+                    <Form.Control 
+                      className="form-control-premium fw-bold"
+                      value={formData.location}
+                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    />
+                  </Col>
+                </Row>
+              </Col>
+
+              <Col lg={4}>
+                <div className="p-3 bg-surface-alt rounded-4 border h-100">
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Ajuster le Jury</h6>
+                  <div className="d-flex flex-column gap-2 overflow-auto" style={{ maxHeight: '200px' }}>
+                    {AVAILABLE_JURIES.map(jury => (
+                      <div 
+                        key={jury.id} 
+                        className={`p-2 rounded-3 border cursor-pointer transition-all ${formData.selectedMembers.includes(jury.name) ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-navy'}`}
+                        onClick={() => toggleMemberSelection(jury.name)}
+                      >
+                        <div className="extra-small fw-bold">{jury.name}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="border-0 p-4 pt-0">
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowReschedule(false)}>Annuler</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleConfirmReschedule}>Enregistrer les modifications</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Confirmation Suppression */}
+      <Modal 
+        show={showDeleteModal} 
+        onHide={() => setShowDeleteModal(false)} 
+        centered 
+        className="glass-modal"
+        size="sm"
+      >
+        <Modal.Body className="p-4 text-center">
+          <div className="mb-4 d-flex justify-content-center">
+            <div className="p-3 bg-danger-soft text-danger rounded-circle shadow-sm" style={{ width: 'fit-content' }}>
+              <AlertTriangle size={40} />
+            </div>
+          </div>
+          <h5 className="fw-bold text-navy mb-3">Confirmation</h5>
+          <p className="small text-muted mb-4 fw-bold opacity-75">
+            Êtes-vous sûr de vouloir supprimer cette session ? Cette action est irréversible.
+          </p>
+          <div className="d-flex gap-3 justify-content-center">
+            <Button 
+              variant="link" 
+              className="text-muted fw-bold text-decoration-none border-0 px-4 shadow-none" 
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Annuler
+            </Button>
+            <Button 
+              variant="danger" 
+              className="rounded-pill px-4 fw-bold shadow-sm border-0 bg-danger"
+              onClick={confirmDelete}
+            >
+              Supprimer
+            </Button>
+          </div>
+        </Modal.Body>
       </Modal>
 
       <style>{`

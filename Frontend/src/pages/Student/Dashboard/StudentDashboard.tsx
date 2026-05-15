@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Container, Row, Col, Card, Button 
+  Container, Row, Col, Card, Button, Form 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -171,7 +171,15 @@ const StudentDashboard: React.FC = () => {
               {/* Upcoming Defense Widget */}
               <Card className="glass-card border p-4 shadow-sm bg-primary text-white border-0">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h6 className="fw-bold mb-0 text-white">Prochaine Soutenance</h6>
+                  <div className="d-flex align-items-center gap-2">
+                    <h6 className="fw-bold mb-0 text-white">Prochaine Soutenance</h6>
+                    <Form.Control 
+                      type="date" 
+                      defaultValue="2026-05-15"
+                      className="rounded-4 border-light-soft bg-white bg-opacity-25 py-1 extra-small fw-bold shadow-none text-white border-0"
+                      style={{ maxWidth: '130px', cursor: 'pointer' }}
+                    />
+                  </div>
                   <Calendar size={18} className="opacity-75" />
                 </div>
                 <div className="mb-4">

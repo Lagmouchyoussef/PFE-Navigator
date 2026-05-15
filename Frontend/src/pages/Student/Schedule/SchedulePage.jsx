@@ -191,10 +191,19 @@ const SchedulePage = () => {
             <Card className="glass-card border shadow-sm border mb-5">
               <Card.Body className="p-0">
                 <div className="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="d-flex gap-1">
-                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevYear} title="Année précédente"><ChevronLeft size={20} /><ChevronLeft size={20} style={{marginLeft: '-12px'}} /></Button>
-                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevMonth} title="Mois précédent"><ChevronLeft size={20} /></Button>
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="d-flex gap-1">
+                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevYear} title="Année précédente"><ChevronLeft size={20} /><ChevronLeft size={20} style={{marginLeft: '-12px'}} /></Button>
+                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevMonth} title="Mois précédent"><ChevronLeft size={20} /></Button>
+                      </div>
+
+                      <Form.Control 
+                        type="date" 
+                        className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
+                        style={{ maxWidth: '180px', cursor: 'pointer' }}
+                        onChange={(e) => setViewDate(new Date(e.target.value))}
+                        value={viewDate.toISOString().split('T')[0]}
+                      />
                     </div>
                     
                     <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-surface-alt border cursor-pointer hover-bg-surface transition-all shadow-sm">

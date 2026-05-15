@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Container, Row, Col, Card, Badge, Button, Dropdown
+  Container, Row, Col, Card, Badge, Button, Dropdown, Form
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -58,7 +58,15 @@ const JurySchedulePage = () => {
           <Col lg={7}>
             <Card className="glass-card p-4 rounded-4 shadow-sm h-100 border border-light border-opacity-10">
               <div className="d-flex justify-content-between align-items-center mb-4 border-bottom border-light border-opacity-10 pb-3">
-                <h5 className="fw-bold text-navy mb-0">May 2026</h5>
+                <div className="d-flex align-items-center gap-3">
+                  <h5 className="fw-bold text-navy mb-0">May 2026</h5>
+                  <Form.Control 
+                    type="date" 
+                    defaultValue="2026-05-12"
+                    className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
+                    style={{ maxWidth: '180px', cursor: 'pointer' }}
+                  />
+                </div>
                 <div className="d-flex gap-2">
                   <Button variant="link" className="p-1 text-muted hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"><ChevronLeft size={20} /></Button>
                   <Button variant="link" className="p-1 text-muted hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"><ChevronRight size={20} /></Button>

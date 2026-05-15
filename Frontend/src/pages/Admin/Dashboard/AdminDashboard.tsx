@@ -101,7 +101,15 @@ const AdminDashboard: React.FC = () => {
           <Col lg={5}>
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy d-flex justify-content-between align-items-center">
-                <span>Événements & Rendez-vous</span>
+                <div className="d-flex align-items-center gap-3">
+                  <span>Événements & Rendez-vous</span>
+                  <Form.Control 
+                    type="date" 
+                    defaultValue="2026-05-15"
+                    className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
+                    style={{ maxWidth: '140px', cursor: 'pointer' }}
+                  />
+                </div>
                 <Badge className="bg-primary-soft text-primary extra-small border-0 px-2 py-1 rounded-pill">{appointments.length}</Badge>
               </h5>
               <div className="d-flex flex-column gap-3 overflow-auto" style={{ maxHeight: '400px' }}>
