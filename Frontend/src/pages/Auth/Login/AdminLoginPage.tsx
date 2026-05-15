@@ -19,6 +19,10 @@ const AdminLoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [isResetSent, setIsResetSent] = useState(false);
+
   useEffect(() => {
     // Focus email input on mount
     const timer = setTimeout(() => {
@@ -174,11 +178,22 @@ const AdminLoginPage: React.FC = () => {
               </div>
             </div>
 
+            <div className="form-row mt-2">
+              <div className="flex-grow-1"></div>
+              <button 
+                type="button"
+                className="forgot-link bg-transparent border-0 p-0" 
+                onClick={() => setShowForgotModal(true)}
+              >
+                Forgot key?
+              </button>
+            </div>
+
             <button 
               type="submit" 
               className="submit-btn" 
               disabled={isLoading}
-              style={{ background: '#f43f5e', marginTop: '2rem' }}
+              style={{ background: '#f43f5e', marginTop: '1.5rem' }}
             >
               {isLoading ? (
                 <div className="spinner"></div>
@@ -191,6 +206,91 @@ const AdminLoginPage: React.FC = () => {
           {/* Footer removed as requested */}
         </div>
       </div>
+
+      {/* Forgot Key Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="success-overlay" 
+            style={{ zIndex: 1100, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="login-wrapper"
+              style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
+            >
+              {!isResetSent ? (
+                <>
+                  <div className="form-header">
+                    <h2 style={{ fontSize: '1.75rem', color: '#0f172a' }}>Security Recovery</h2>
+                    <p>Enter your admin email to reset your security key</p>
+                  </div>
+                  <div className="form-group mb-4">
+                    <label>Admin Email</label>
+                    <div className="input-wrapper">
+                      <input
+                        type="email"
+                        className="form-input"
+                        placeholder="admin@emsi.ma"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                      />
+                      <div className="input-icon">
+                        <Mail size={20} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex gap-3">
+                    <button 
+                      className="submit-btn" 
+                      style={{ background: '#f1f5f9', color: '#64748b', marginTop: 0 }}
+                      onClick={() => setShowForgotModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      className="submit-btn" 
+                      style={{ background: '#f43f5e', marginTop: 0 }}
+                      onClick={() => {
+                        if (forgotEmail) {
+                          setIsResetSent(true);
+                        }
+                      }}
+                    >
+                      Send Reset Key
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="success-icon" style={{ width: '80px', height: '80px', marginBottom: '1.5rem', background: '#ffe4e6', color: '#f43f5e' }}>
+                    <ShieldCheck size={40} />
+                  </div>
+                  <h3 className="fw-bold mb-2">Instructions Sent</h3>
+                  <p className="text-muted small">A recovery link has been sent to <strong>{forgotEmail}</strong>.</p>
+                  <button 
+                    className="submit-btn mt-4" 
+                    style={{ background: '#0f172a' }}
+                    onClick={() => {
+                      setShowForgotModal(false);
+                      setIsResetSent(false);
+                      setForgotEmail('');
+                    }}
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Success Animation Overlay */}
       <AnimatePresence>
