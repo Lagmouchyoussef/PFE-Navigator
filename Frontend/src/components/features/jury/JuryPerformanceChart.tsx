@@ -3,13 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
-const PERFORMANCE_DATA = [
-  { name: 'Jan', evaluations: 5, score: 14.2 },
-  { name: 'Feb', evaluations: 8, score: 15.5 },
-  { name: 'Mar', evaluations: 12, score: 14.8 },
-  { name: 'Apr', evaluations: 18, score: 16.4 },
-  { name: 'May', evaluations: 15, score: 17.2 },
-];
+const PERFORMANCE_DATA: any[] = [];
 
 const JuryPerformanceChart: React.FC = () => (
   <div className="glass-card p-4 h-100">

@@ -29,38 +29,7 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
-const INITIAL_PROPOSALS = [
-  {
-    id: 1,
-    title: "AI-Driven Cybersecurity Threat Detection",
-    supervisor: "Dr. Ahmed Mansouri",
-    category: "AI / Security",
-    difficulty: "Advanced",
-    status: "Pending",
-    date: "2026-05-12",
-    description: "Developing a real-time system using LSTM networks to detect network intrusions."
-  },
-  {
-    id: 2,
-    title: "Blockchain for Supply Chain Transparency",
-    supervisor: "Pr. Sara Kamali",
-    category: "Blockchain",
-    difficulty: "Intermediate",
-    status: "Pending",
-    date: "2026-05-13",
-    description: "Implementing a decentralized ledger for tracking pharmaceutical products."
-  },
-  {
-    id: 3,
-    title: "Edge Computing for Smart Cities",
-    supervisor: "Dr. Yassine Alami",
-    category: "IoT / Edge",
-    difficulty: "Advanced",
-    status: "Pending",
-    date: "2026-05-14",
-    description: "Low-latency processing for urban traffic management using Raspberry Pi clusters."
-  }
-];
+const INITIAL_PROPOSALS = [];
 
 const AdminSubjects = () => {
   const [proposals, setProposals] = useState(INITIAL_PROPOSALS);

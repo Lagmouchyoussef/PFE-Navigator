@@ -8,10 +8,10 @@ import { INITIAL_SCORES, COEFFICIENTS, SCORE_LABELS } from '../constants';
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 
 const ACCOUNTS: User[] = [
-  { id: '1', institutionalId: 'STU-2026-00105', email: 'ahmed.khalil@emsi.ma', name: 'Ahmed Khalil', role: 'student', initials: 'AK' },
-  { id: '2', institutionalId: 'JRY-2026-00951', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
-  { id: '3', institutionalId: 'SUP-2026-00842', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
-  { id: '4', institutionalId: 'ADM-2026-00412', email: 'admin@emsi.ma', name: 'PFE Navigator System', role: 'admin', initials: 'SP' },
+  { id: '1', institutionalId: 'STU-2026-001', email: 'etudiant@emsi.ma', name: 'User Student', role: 'student', initials: 'ST' },
+  { id: '2', institutionalId: 'JRY-2026-001', email: 'jury@emsi.ma', name: 'User Jury', role: 'jury', initials: 'JR' },
+  { id: '3', institutionalId: 'SUP-2026-001', email: 'encadrant@emsi.ma', name: 'User Supervisor', role: 'supervisor', initials: 'SP' },
+  { id: '4', institutionalId: 'ADM-2026-001', email: 'admin@emsi.ma', name: 'System Admin', role: 'admin', initials: 'AD' },
 ];
 
 const INITIAL_MILESTONES: Milestone[] = [
@@ -26,17 +26,7 @@ const INITIAL_DOCUMENTS: AppDocument[] = [];
 
 const INITIAL_MESSAGES: Message[] = [];
 
-const INITIAL_DEFENSES: Defense[] = [
-  {
-    id: 1,
-    title: 'Final Project Defense – Ahmed Khalil',
-    date: '2026-05-15',
-    time: '09:00',
-    duration: 45,
-    room: 'Conference Room A',
-    notes: '20 min presentation + 25 min Q&A',
-  },
-];
+const INITIAL_DEFENSES: Defense[] = [];
 
 const INITIAL_NOTIFICATIONS: Notification[] = [];
 
@@ -117,10 +107,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
-const initialReminders = [
-  { id: 1, text: "Submit jury list", time: "17:00", type: "warning" },
-  { id: 2, text: "Department meeting", time: "45 min", type: "primary" }
-];
+const initialReminders: any[] = [];
 
 const initialStudents = [];
 

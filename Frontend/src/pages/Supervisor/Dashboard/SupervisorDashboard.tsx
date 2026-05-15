@@ -21,33 +21,12 @@ import StatusDistribution from '../../../components/features/supervisor/StatusDi
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, students, appointments } = useApp();
-  const [showSuccessCard, setShowSuccessCard] = useState(true);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
 
   // Mock data for charts (can be made dynamic later)
-  const WEEKLY_ACTIVITY = [
-    { day: 'Mon', meetings: 4, feedback: 12 },
-    { day: 'Tue', meetings: 2, feedback: 8 },
-    { day: 'Wed', meetings: 5, feedback: 15 },
-    { day: 'Thu', meetings: 3, feedback: 10 },
-    { day: 'Fri', meetings: 6, feedback: 18 },
-    { day: 'Sat', meetings: 1, feedback: 4 },
-  ];
-
-  const DELIVERABLE_STATUS = [
-    { name: 'Requirements Specifications', value: 90, color: 'var(--color-success)' },
-    { name: 'Interim Report', value: 65, color: 'var(--color-primary)' },
-    { name: 'Final Report', value: 20, color: 'var(--color-warning)' },
-    { name: 'Presentation', value: 10, color: 'var(--color-info)' },
-  ];
-
-  const SKILLS_DISTRIBUTION = [
-    { subject: 'Analysis', A: 120, B: 110, fullMark: 150 },
-    { subject: 'Development', A: 98, B: 130, fullMark: 150 },
-    { subject: 'Design', A: 86, B: 130, fullMark: 150 },
-    { subject: 'Documentation', A: 99, B: 100, fullMark: 150 },
-    { subject: 'Research', A: 85, B: 90, fullMark: 150 },
-    { subject: 'Testing', A: 65, B: 85, fullMark: 150 },
-  ];
+  const WEEKLY_ACTIVITY = [];
+  const DELIVERABLE_STATUS = [];
+  const SKILLS_DISTRIBUTION = [];
 
   return (
     <div className="supervisor-dashboard-layout py-4">
@@ -104,18 +83,18 @@ const SupervisorDashboard: React.FC = () => {
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Avg Progress" value="72%" color="success" icon={<TrendingUp />} trend="+12% this week" />
+            <StatCard label="Avg Progress" value={students.length > 0 ? `${Math.round(students.reduce((acc: any, s: any) => acc + (s.progress || 0), 0) / students.length)}%` : '0%'} color="success" icon={<TrendingUp />} trend="Cohort" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Meeting Hours" value="142h" color="info" icon={<Clock />} trend="Semester" />
+            <StatCard label="Meeting Hours" value="0h" color="info" icon={<Clock />} trend="Semester" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard 
               label="Active Projects" 
-              value="18" 
+              value={students.filter((s: any) => s.status === 'In Progress').length.toString()} 
               color="warning" 
               icon={<Activity />} 
-              trend="4 Ending" 
+              trend="Current" 
               onClick={() => navigate('/supervisor/subjects')}
             />
           </Col>
@@ -316,15 +295,13 @@ const SupervisorDashboard: React.FC = () => {
                   <h6 className="fw-bold mb-0 text-primary">Upcoming Deadlines</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
-                <div className="mb-4 pb-3 border-bottom border-muted">
-                  <div className="extra-small text-warning fw-bold mb-1">MAY 15, 2026</div>
+                  <div className="extra-small text-warning fw-bold mb-1">Upcoming</div>
                   <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small text-muted fw-bold">{students.length} students remaining</div>
-                </div>
+                  <div className="extra-small text-muted fw-bold">{students.filter((s: any) => s.status !== 'Validated').length} students remaining</div>
                 <div className="deadline-item">
-                  <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
-                  <div className="small fw-bold mb-1">Defense Session A</div>
-                  <div className="extra-small text-muted fw-bold">{appointments[0]?.location || "Room 304"} - {appointments[0]?.time || "09:00"}</div>
+                  <div className="extra-small text-warning fw-bold mb-1">Scheduled</div>
+                  <div className="small fw-bold mb-1">Next Defense Session</div>
+                  <div className="extra-small text-muted fw-bold">{appointments.length > 0 ? `${appointments[0].location} - ${appointments[0].time}` : "No upcoming defenses"}</div>
                 </div>
               </Card>
 
@@ -335,20 +312,7 @@ const SupervisorDashboard: React.FC = () => {
                   <MessageSquare size={18} className="text-primary" />
                 </div>
                 <div className="d-flex flex-column gap-3">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="d-flex gap-3 pb-3 border-bottom border-light border-opacity-10">
-                      <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
-                        {i === 1 ? 'AA' : 'SK'}
-                      </div>
-                      <div className="overflow-hidden flex-grow-1">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <div className="extra-small fw-bold text-navy">{i === 1 ? 'Ahmed Ben Ali' : 'Sara Kamali'}</div>
-                          <div className="extra-small text-muted fw-bold">2h ago</div>
-                        </div>
-                        <div className="extra-small text-muted text-truncate fw-medium">I have updated the implementation part...</div>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="text-center py-4 text-muted extra-small fw-bold opacity-50">No recent messages</div>
                 </div>
                 <Button variant="link" className="w-100 text-primary extra-small fw-bold text-decoration-none mt-2" onClick={() => navigate('/supervisor/messages')}>
                   Go to Messages

@@ -4,13 +4,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
-const MONTHLY_PERFORMANCE = [
-  { name: 'Jan', average: 14.5, completion: 65 },
-  { name: 'Feb', average: 15.2, completion: 72 },
-  { name: 'Mar', average: 14.8, completion: 78 },
-  { name: 'Apr', average: 16.1, completion: 85 },
-  { name: 'May', average: 16.5, completion: 92 },
-];
+const MONTHLY_PERFORMANCE: any[] = [];
 
 const PerformanceChart: React.FC = () => (
   <Card className="sv-card-premium border-0">

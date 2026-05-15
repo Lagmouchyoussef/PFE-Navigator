@@ -11,35 +11,26 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext.jsx';
 
-const STATS = [
-  { label: 'PDF Documents', value: '18', icon: <File size={20} />, color: 'danger' },
-  { label: 'Space Used', value: '1.2 GB', icon: <Folder size={20} />, color: 'warning' },
-  { label: 'New Items', value: '4', icon: <TrendingUp size={20} />, color: 'success' },
-  { label: 'Favorites', value: '6', icon: <Star size={20} />, color: 'primary' }
-];
-
-const CATEGORIES = [
-  { label: 'All Documents', icon: <Layers size={18} />, count: 12 },
-  { label: 'PFE Guidelines', icon: <Book size={18} />, count: 3 },
-  { label: 'Models & Templates', icon: <FileText size={18} />, count: 5 },
-  { label: 'Session Archives', icon: <History size={18} />, count: 4 },
-];
-
-const DOCUMENTS = [
-  { name: "PFE Evaluation Guide 2026.pdf", author: "Admin", category: "Guidelines", size: "2.4 MB", dls: 245, date: "2026-01-15" },
-  { name: "Official Grading Grid.xlsx", author: "Admin", category: "Templates", size: "156 KB", dls: 198, date: "2026-01-20" },
-  { name: "Academic Excellence Criteria.pdf", author: "Prof. Martin", category: "Guidelines", size: "1.8 MB", dls: 167, date: "2026-02-10" },
-  { name: "Defense Report Template.docx", author: "Admin", category: "Templates", size: "89 KB", dls: 234, date: "2026-02-15" },
-  { name: "Defense Procedures.pdf", author: "Dr. Chen", category: "Procedures", size: "3.2 MB", dls: 156, date: "2026-03-01" },
-  { name: "Jury FAQ - Frequently Asked Questions.pdf", author: "Admin", category: "Help", size: "1.1 MB", dls: 189, date: "2026-03-10" }
-];
 
 const ResourceHubPage = () => {
+  const { resourceCenter: documents = [] } = useApp();
   const [activeCat, setActiveCat] = useState('All Documents');
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [favorites, setFavorites] = useState([]);
+
+  const stats = [
+    { label: 'Total Documents', value: documents.length.toString(), icon: <File size={20} />, color: 'primary' },
+    { label: 'New Items', value: '0', icon: <TrendingUp size={20} />, color: 'success' },
+    { label: 'Favorites', value: favorites.length.toString(), icon: <Star size={20} />, color: 'warning' }
+  ];
+
+  const categories = [
+    { label: 'All Documents', icon: <Layers size={18} />, count: documents.length },
+    { label: 'Guidelines', icon: <Book size={18} />, count: documents.filter((d) => d.category === 'Guidelines').length },
+    { label: 'Templates', icon: <FileText size={18} />, count: documents.filter((d) => d.category === 'Templates').length },
+  ];
 
   const handleDownload = (name) => {
     setSuccessMsg(`Download of "${name}" started...`);
@@ -103,8 +94,8 @@ const ResourceHubPage = () => {
 
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
-          {STATS.map((stat, i) => (
-            <Col key={i} sm={6} lg={3}>
+          {stats.map((stat, i) => (
+            <Col key={i} sm={6} lg={4}>
               <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
                 <div className="d-flex align-items-center gap-3">
                   <div className={`p-3 rounded-4 bg-${stat.color}-soft text-${stat.color}`}>
@@ -130,7 +121,7 @@ const ResourceHubPage = () => {
                 </h6>
               </Card.Header>
               <div className="d-flex flex-column">
-                {CATEGORIES.map((cat, i) => (
+                {categories.map((cat, i) => (
                   <button 
                     key={i} 
                     className={`p-3 d-flex align-items-center justify-content-between border-0 transition-all text-start bg-transparent ${activeCat === cat.label ? 'bg-primary-soft text-primary' : 'hover-bg-surface-alt text-muted fw-bold opacity-75'}`}
@@ -161,46 +152,41 @@ const ResourceHubPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {DOCUMENTS.map((doc, i) => (
-                      <tr key={i} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
-                        <td className="px-4 py-4">
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="p-3 rounded-4 bg-primary-soft text-primary"><FileText size={20} /></div>
-                            <div>
-                              <div className="small fw-bold text-navy mb-1">{doc.name}</div>
-                              <div className="extra-small text-muted fw-bold opacity-50">By {doc.author}</div>
+                    {documents.length === 0 ? (
+                      <tr><td colSpan="4" className="text-center py-5 opacity-50 fw-bold small">No documents available in the hub</td></tr>
+                    ) : (
+                      documents.map((doc, i) => (
+                        <tr key={i} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                          <td className="px-4 py-4">
+                            <div className="d-flex align-items-center gap-3">
+                              <div className="p-3 rounded-4 bg-primary-soft text-primary"><FileText size={20} /></div>
+                              <div>
+                                <div className="small fw-bold text-navy mb-1">{doc.title}</div>
+                                <div className="extra-small text-muted fw-bold opacity-50">By {doc.author || 'Admin'}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-4">
-                          <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold">
-                            {doc.category}
-                          </Badge>
-                        </td>
-                        <td className="py-4 small text-navy fw-bold opacity-75">{doc.size}</td>
-                        <td className="px-4 py-4 text-end">
-                          <div className="d-flex justify-content-end gap-1">
-                            <Button variant="link" className="p-2 text-muted hover-bg-primary-soft rounded-circle transition-all border-0 shadow-none" onClick={() => handleDownload(doc.name)}><Download size={18}/></Button>
-                            <Button 
-                              variant="link" 
-                              className={`p-2 rounded-circle transition-all border-0 shadow-none hover-bg-primary-soft ${favorites.includes(doc.name) ? 'text-warning' : 'text-muted'}`}
-                              onClick={() => handleFavorite(doc.name)}
-                            >
-                              <Star size={18} fill={favorites.includes(doc.name) ? 'currentColor' : 'none'} />
-                            </Button>
-                            <Dropdown align="end">
-                              <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all"><MoreVertical size={18}/></Dropdown.Toggle>
-                              <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
-                                <Dropdown.Item className="py-2 fw-bold text-navy">Share</Dropdown.Item>
-                                <Dropdown.Item className="py-2 fw-bold text-navy">Rename</Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item className="py-2 fw-bold text-danger">Delete</Dropdown.Item>
-                              </Dropdown.Menu>
-                            </Dropdown>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="py-4">
+                            <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold">
+                              {doc.category}
+                            </Badge>
+                          </td>
+                          <td className="py-4 small text-navy fw-bold opacity-75">{doc.size || '0 KB'}</td>
+                          <td className="px-4 py-4 text-end">
+                            <div className="d-flex justify-content-end gap-1">
+                              <Button variant="link" className="p-2 text-muted hover-bg-primary-soft rounded-circle transition-all border-0 shadow-none" onClick={() => handleDownload(doc.title)}><Download size={18}/></Button>
+                              <Button 
+                                variant="link" 
+                                className={`p-2 rounded-circle transition-all border-0 shadow-none hover-bg-primary-soft ${favorites.includes(doc.title) ? 'text-warning' : 'text-muted'}`}
+                                onClick={() => handleFavorite(doc.title)}
+                              >
+                                <Star size={18} fill={favorites.includes(doc.title) ? 'currentColor' : 'none'} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </Table>
               </div>

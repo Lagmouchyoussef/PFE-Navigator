@@ -50,55 +50,7 @@ interface UserData {
   };
 }
 
-const INITIAL_USERS: UserData[] = [
-  { 
-    id: 1, 
-    institutionalId: 'ADM-2026-00412', 
-    name: 'Mary Smith', 
-    email: 'mary.smith@email.com', 
-    role: 'Admin', 
-    status: 'Active', 
-    lastLogin: '2 min ago', 
-    avatar: 'https://ui-avatars.com/api/?name=Mary+Smith&background=3b82f6&color=fff',
-    confirmationStatus: 'Confirmed'
-  },
-  { 
-    id: 4, 
-    institutionalId: 'STU-2026-00105', 
-    name: 'Luke Small', 
-    email: 'luke.small@email.com', 
-    role: 'Student', 
-    status: 'Active', 
-    lastLogin: '3 days ago', 
-    avatar: 'https://ui-avatars.com/api/?name=Luke+Small&background=3b82f6&color=fff',
-    confirmationStatus: 'Reported',
-    reportDetails: {
-      message: "My address has changed, I am now at 45 Hassan II Street, Rabat. And I would like to change my photo.",
-      date: "2026-05-14",
-      suggestedPhoto: "https://ui-avatars.com/api/?name=LS&background=random"
-    },
-    activeSessions: [
-      { device: 'Windows 11 - Chrome', ip: '196.200.14.52', lastActive: '2 mins ago' },
-      { device: 'iPhone 15 - Safari', ip: '105.158.102.1', lastActive: '1 day ago' }
-    ]
-  },
-  { 
-    id: 2, 
-    institutionalId: 'JRY-2026-00951', 
-    name: 'John Martin', 
-    email: 'john.martin@email.com', 
-    role: 'Jury Member', 
-    status: 'Active', 
-    lastLogin: '1 hour ago', 
-    avatar: 'https://ui-avatars.com/api/?name=John+Martin&background=10b981&color=fff', 
-    confirmationStatus: 'None',
-    activeSessions: [
-      { device: 'macOS - Firefox', ip: '197.252.33.10', lastActive: 'Active now' }
-    ]
-  },
-  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Miller', email: 'sophie.miller@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Miller&background=f59e0b&color=fff', confirmationStatus: 'None' },
-  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma King', email: 'emma.king@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+King&background=64748b&color=fff', confirmationStatus: 'None' },
-];
+const INITIAL_USERS: UserData[] = [];
 
 const UserManagement: React.FC = () => {
   const { sendMessage: globalSendMessage } = useApp();

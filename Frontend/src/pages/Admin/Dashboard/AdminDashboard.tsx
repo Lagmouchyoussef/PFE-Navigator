@@ -18,27 +18,15 @@ import StatCard from '../../../components/shared/StatCard';
 import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 
-const USER_DATA = [
-  { id: 1, name: 'Alice Johnson', email: 'alice.j@emsi.ma', role: 'Student', status: 'Active', color: 'primary' },
-  { id: 2, name: 'Dr. Robert Smith', email: 'r.smith@emsi.ma', role: 'Supervisor', status: 'Active', color: 'success' },
-  { id: 3, name: 'Jean Dupont', email: 'j.dupont@jury.fr', role: 'Jury', status: 'Active', color: 'warning' },
-  { id: 4, name: 'Admin Sarah', email: 'admin@emsi.ma', role: 'Admin', status: 'Active', color: 'info' },
-];
+const USER_DATA: any[] = [];
 
-const SUBMISSION_DATA = [
-  { name: 'Jan', count: 45 }, { name: 'Feb', count: 52 }, { name: 'Mar', count: 85 }, { name: 'Apr', count: 120 }, { name: 'May', count: 98 },
-];
+const SUBMISSION_DATA: any[] = [];
 
-const STATUS_DATA = [
-  { name: 'Pending', value: 15, color: '#f59e0b' },
-  { name: 'Approved', value: 45, color: '#10b981' },
-  { name: 'In Progress', value: 25, color: '#3b82f6' },
-  { name: 'Completed', value: 10, color: '#6366f1' },
-];
+const STATUS_DATA: any[] = [];
 
 const AdminDashboard: React.FC = () => {
-  const { appointments, deleteAppointment } = useApp();
-  const [users, setUsers] = React.useState(USER_DATA);
+  const { appointments, deleteAppointment, students, archives } = useApp();
+  const [users, setUsers] = React.useState(students);
   const [visibleCount, setVisibleCount] = React.useState(5);
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = React.useState(false);
@@ -47,9 +35,9 @@ const AdminDashboard: React.FC = () => {
   const generateReport = (format: 'pdf' | 'csv' | 'word') => {
     const data = [
       ["Statistic", "Value"],
-      ["Users", "1248"],
-      ["Active Projects", "842"],
-      ["Validation Rate", "85%"],
+      ["Users", students.length.toString()],
+      ["Active Projects", students.filter((s: any) => s.status === 'In Progress').length.toString()],
+      ["Validation Rate", "0%"],
       ["Last Update", new Date().toLocaleDateString()]
     ];
     
@@ -139,16 +127,16 @@ const AdminDashboard: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Users" value="1,248" icon={<Users />} color="primary" trend="+12%" />
+            <StatCard label="Users" value={students.length.toString()} icon={<Users />} color="primary" trend="Global" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Active Projects" value="842" icon={<Briefcase />} color="info" trend="92%" />
+            <StatCard label="Active Projects" value={students.filter((s: any) => s.status === 'In Progress').length.toString()} icon={<Briefcase />} color="info" trend="Live" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pending Actions" value="24" icon={<Clock />} color="warning" trend="Urgent" />
+            <StatCard label="Pending Actions" value={students.filter((s: any) => s.status === 'Pending').length.toString()} icon={<Clock />} color="warning" trend="Action Required" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="System Storage" value="64.2%" icon={<Database />} color="danger" trend="420GB" />
+            <StatCard label="System Storage" value="0.0%" icon={<Database />} color="danger" trend="0GB" />
           </Col>
         </Row>
 
@@ -185,7 +173,7 @@ const AdminDashboard: React.FC = () => {
                   <span>Events & Meetings</span>
                   <Form.Control 
                     type="date" 
-                    defaultValue="2026-05-15"
+                    defaultValue={new Date().toISOString().split('T')[0]}
                     className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
                     style={{ maxWidth: '140px', cursor: 'pointer' }}
                   />
@@ -278,37 +266,41 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, idx) => (
-                  <tr key={idx}>
-                    <td className="px-4 py-3">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className={`avatar-sm bg-${user.color}-soft text-${user.color} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px' }}>
-                          {user.name.charAt(0)}
+                {users.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-5 opacity-50 fw-bold small">No users registered in the system</td></tr>
+                ) : (
+                  users.map((user, idx) => (
+                    <tr key={idx}>
+                      <td className="px-4 py-3">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className={`avatar-sm bg-${user.color || 'primary'}-soft text-${user.color || 'primary'} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px' }}>
+                            {user.name.charAt(0)}
+                          </div>
+                          <div className="small fw-bold text-navy">{user.name}</div>
                         </div>
-                        <div className="small fw-bold text-navy">{user.name}</div>
-                      </div>
-                    </td>
-                    <td className="small text-muted fw-bold">{user.email}</td>
-                    <td>
-                      <Badge className={`bg-${user.color}-soft text-${user.color} border border-${user.color} border-opacity-10 extra-small`}>
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
-                        <span className="extra-small fw-bold text-muted">{user.status}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 text-end">
-                      <div className="d-flex justify-content-end gap-1">
-                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('edit', user)}><Edit size={16}/></Button>
-                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('lock', user)}><Lock size={16}/></Button>
-                        <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3" onClick={() => handleAction('delete', user)}><Trash2 size={16}/></Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="small text-muted fw-bold">{user.email}</td>
+                      <td>
+                        <Badge className={`bg-${user.color || 'primary'}-soft text-${user.color || 'primary'} border border-${user.color || 'primary'} border-opacity-10 extra-small`}>
+                          {user.role}
+                        </Badge>
+                      </td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
+                          <span className="extra-small fw-bold text-muted">{user.status}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 text-end">
+                        <div className="d-flex justify-content-end gap-1">
+                          <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('edit', user)}><Edit size={16}/></Button>
+                          <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('lock', user)}><Lock size={16}/></Button>
+                          <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3" onClick={() => handleAction('delete', user)}><Trash2 size={16}/></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </Table>
           </div>
