@@ -95,7 +95,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
+      const success = await login(email, password, currentRole);
       if (success) {
         setShowSuccess(true);
         // Navigation is handled by App.tsx when user state changes

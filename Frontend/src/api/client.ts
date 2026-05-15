@@ -20,7 +20,7 @@ async function request(endpoint: string, options: any = {}) {
   
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(token ? { 'Authorization': `Token ${token}` } : {}),
     ...options.headers,
   };
 
