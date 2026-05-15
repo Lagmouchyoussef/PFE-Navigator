@@ -60,22 +60,7 @@ const PortalSettings: React.FC = () => {
               </Nav>
             </div>
 
-            <div className="glass-card p-4 rounded-4 border-primary border-opacity-10 bg-primary-soft">
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-2 bg-primary-soft rounded-circle text-primary border border-primary border-opacity-10">
-                  <Server size={20} />
-                </div>
-                <h6 className="fw-bold mb-0 text-navy">État Système</h6>
-              </div>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span className="extra-small text-muted fw-bold">Version</span>
-                <Badge className="bg-primary-soft text-primary border border-primary border-opacity-10 extra-small px-2">v2.4.1</Badge>
-              </div>
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="extra-small text-muted fw-bold">Uptime</span>
-                <span className="extra-small fw-bold text-success">99.9%</span>
-              </div>
-            </div>
+
           </Col>
 
           {/* Settings Content */}
@@ -105,11 +90,10 @@ const PortalSettings: React.FC = () => {
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted text-uppercase">Langue d'Interface</Form.Label>
-                        <Form.Select className="form-control-premium fw-bold">
-                          <option>Français (FR)</option>
-                          <option>English (US)</option>
-                          <option>Arabe (MA)</option>
-                        </Form.Select>
+                        <div className="form-control-premium fw-bold d-flex align-items-center justify-content-between bg-surface-alt">
+                          <span>{navigator.language === 'fr-FR' || navigator.language === 'fr' ? 'Français (FR)' : navigator.language === 'en-US' || navigator.language === 'en' ? 'English (US)' : navigator.language}</span>
+                          <Badge className="bg-success-soft text-success border-0 extra-small px-2">Système Connecté</Badge>
+                        </div>
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted text-uppercase">Format de Date</Form.Label>

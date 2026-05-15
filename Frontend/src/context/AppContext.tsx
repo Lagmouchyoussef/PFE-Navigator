@@ -69,35 +69,10 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
   },
 ];
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: 1,
-    sender: 'jury',
-    text: 'Bonjour Ahmed, votre rapport initial a bien été reçu et est en cours de révision.',
-    time: '2026-04-20T10:00:00',
-    readByStudent: true,
-    readByJury: true,
-  },
-  {
-    id: 2,
-    sender: 'student',
-    text: 'Merci Prof. Lagmouch ! Je prépare actuellement la présentation pour la soutenance.',
-    time: '2026-04-20T10:15:00',
-    readByStudent: true,
-    readByJury: true,
-  },
-  {
-    id: 3,
-    sender: 'student',
-    text: 'Admin, j\'ai une question concernant la date limite de dépôt du rapport final.',
-    time: new Date().toISOString(),
-    readByStudent: true,
-    readByJury: false,
-  },
-];
+const INITIAL_MESSAGES: Message[] = [];
+const INITIAL_NOTIFICATIONS: AppNotification[] = [];
 
-const INITIAL_DEFENSES: Defense[] = [
-  {
+const INITIAL_DEFENSES: Defense[] = [];
     id: 1,
     title: 'Soutenance de PFE – Ahmed Khalil',
     date: '2026-05-15',

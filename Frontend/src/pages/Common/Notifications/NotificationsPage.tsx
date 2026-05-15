@@ -7,17 +7,15 @@ import {
 import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 
-const NOTIFICATIONS_DATA = [
-  { id: 1, title: 'New evaluation assigned', time: '2 hours ago', desc: 'The project "Blockchain Certificate Verification" requires your evaluation', type: 'eval', unread: true, icon: <Activity size={20} />, color: 'primary' as const },
-  { id: 2, title: 'Defense scheduled', time: '5 hours ago', desc: 'Defense scheduled for May 5th at 9:00 in Room A-204', type: 'sched', unread: true, icon: <Calendar size={20} />, color: 'info' as const },
-  { id: 3, title: 'New message', time: 'Yesterday', desc: 'Prof. Martin sent you a message regarding the evaluation grid', type: 'msg', unread: false, icon: <MessageSquare size={20} />, color: 'success' as const },
-  { id: 4, title: 'System Update', time: '2 days ago', desc: 'New predictive analysis features available', type: 'system', unread: false, icon: <RefreshCcw size={20} />, color: 'warning' as const },
-  { id: 5, title: 'Evaluation completed', time: '3 days ago', desc: 'Your evaluation for Mohamed Alaoui has been submitted successfully', type: 'eval', unread: false, icon: <CheckCircle size={20} />, color: 'success' as const },
-  { id: 6, title: 'Deadline approaching', time: '3 days ago', desc: 'The evaluation for Fatima Zahra must be completed by May 7th', type: 'urgent', unread: false, icon: <AlertCircle size={20} />, color: 'danger' as const },
-];
-
 const NotificationsPage: React.FC = () => {
-  const { session } = useApp();
+  const { 
+    notifications, 
+    markNotificationRead, 
+    deleteNotification, 
+    markAllNotificationsRead,
+    user,
+    unreadNotificationsCount
+  } = useApp();
   const [loading, setLoading] = React.useState(false);
   const [hasMore, setHasMore] = React.useState(true);
 
@@ -37,8 +35,8 @@ const NotificationsPage: React.FC = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Notification Center</h2>
-            <p className="text-muted small mb-0">Stay informed about all important activities on your platform, {session?.name}.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Centre de Notifications</h2>
+            <p className="text-muted small mb-0">Restez informé de toutes les activités importantes sur votre plateforme, {user?.name}.</p>
           </div>
           <div className="d-flex gap-2">
             <InputGroup size="sm" className="bg-surface rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
@@ -57,47 +55,79 @@ const NotificationsPage: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} sm={6}>
-            <StatCard label="Unread" value="2" color="primary" icon={<Bell />} trend="Now" />
+            <StatCard label="Non lues" value={unreadNotificationsCount.toString()} color="primary" icon={<Bell />} trend="Nouveau" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Total" value="7" color="info" icon={<Activity />} trend="Overall" />
+            <StatCard label="Total" value={notifications.length.toString()} color="info" icon={<Activity />} trend="Global" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="This Week" value="24" color="success" icon={<RefreshCcw />} trend="+5" />
+            <StatCard label="Messages" value={notifications.filter(n => n.type === 'message').length.toString()} color="success" icon={<MessageSquare />} trend="Chat" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Urgent" value="3" color="danger" icon={<AlertCircle />} trend="Critical" />
+            <StatCard label="Urgent" value={notifications.filter(n => n.type === 'rejected').length.toString()} color="danger" icon={<AlertCircle />} trend="Critique" />
           </Col>
         </Row>
 
         {/* Notifications List */}
         <div className="glass-card overflow-hidden mb-5">
-          <div className="p-4 border-bottom d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold mb-0">Recent Notifications</h5>
-            <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none">Mark all as read</Button>
+          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+            <h5 className="fw-bold mb-0 text-navy">Notifications Récentes</h5>
+            <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none shadow-none" onClick={markAllNotificationsRead}>
+              Tout marquer comme lu
+            </Button>
           </div>
           <div className="d-flex flex-column">
-            {NOTIFICATIONS_DATA.map((notif) => (
-              <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${notif.unread ? 'border-start border-primary border-3 bg-surface-alt' : 'hover-bg-surface'}`}>
-                <div className={`p-3 rounded-4 bg-${notif.color}-soft text-${notif.color} flex-shrink-0`} style={{ height: 'fit-content' }}>
-                  {notif.icon}
-                </div>
-                <div className="flex-grow-1 overflow-hidden">
-                  <div className="d-flex justify-content-between align-items-start mb-1">
-                    <h6 className={`mb-0 small ${notif.unread ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>{notif.title}</h6>
-                    <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>{notif.time}</span>
-                  </div>
-                  <p className={`extra-small mb-0 lh-base ${notif.unread ? 'text-navy' : 'text-muted'}`}>{notif.desc}</p>
-                </div>
-                <Dropdown align="end">
-                  <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
-                  <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small bg-surface">
-                    <Dropdown.Item className="fw-bold">Mark as read</Dropdown.Item>
-                    <Dropdown.Item className="fw-bold text-danger">Delete</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+            {notifications.length === 0 && (
+              <div className="p-5 text-center text-muted fw-bold extra-small opacity-50">
+                Vous n'avez aucune notification pour le moment.
               </div>
-            ))}
+            )}
+            {notifications.map((notif) => {
+              const getIcon = () => {
+                switch(notif.type) {
+                  case 'approved': return <CheckCircle size={20} />;
+                  case 'rejected': return <AlertCircle size={20} />;
+                  case 'message': return <MessageSquare size={20} />;
+                  case 'defense': return <Calendar size={20} />;
+                  default: return <Bell size={20} />;
+                }
+              };
+              const getColor = () => {
+                switch(notif.type) {
+                  case 'approved': return 'success';
+                  case 'rejected': return 'danger';
+                  case 'message': return 'primary';
+                  case 'defense': return 'info';
+                  default: return 'warning';
+                }
+              };
+
+              return (
+                <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${!notif.read ? 'border-start border-primary border-3 bg-primary-soft' : 'hover-bg-surface'}`}>
+                  <div className={`p-3 rounded-4 bg-${getColor()}-soft text-${getColor()} flex-shrink-0`} style={{ height: 'fit-content' }}>
+                    {getIcon()}
+                  </div>
+                  <div className="flex-grow-1 overflow-hidden" onClick={() => markNotificationRead(notif.id)}>
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <h6 className={`mb-0 small ${!notif.read ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>
+                        {notif.type === 'message' ? 'Nouveau Message' : notif.type === 'approved' ? 'Document Approuvé' : notif.type === 'rejected' ? 'Action Requise' : 'Notification'}
+                      </h6>
+                      <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>
+                        {new Date(notif.time).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
+                    <p className={`extra-small mb-0 lh-base ${!notif.read ? 'text-navy fw-bold' : 'text-muted fw-bold opacity-75'}`}>{notif.text}</p>
+                  </div>
+                  <Dropdown align="end">
+                    <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
+                    <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small glass-card">
+                      {!notif.read && <Dropdown.Item className="fw-bold" onClick={() => markNotificationRead(notif.id)}>Marquer comme lu</Dropdown.Item>}
+                      <Dropdown.Item className="fw-bold text-danger" onClick={() => deleteNotification(notif.id)}>Supprimer</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
+              );
+            })}
           </div>
           <div className="p-3 text-center bg-surface-alt">
             <Button 

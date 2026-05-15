@@ -147,7 +147,7 @@ const AdminLayout: React.FC = () => {
               >
                 <SidebarLink to="/admin/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Ressources"} />
                 <SidebarLink to="/admin/messages" icon={<MessageSquare size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Messages"} badge={adminUnreadMsgCount > 0 ? adminUnreadMsgCount : null} />
-                <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={2} />
+                <SidebarLink to="/admin/notifications" icon={<Bell size={20} />} iconClassName="icon-rose" label={!isSidebarCollapsed && "Notifications"} badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null} />
                 <SidebarLink to="/admin/notes" icon={<FileEdit size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Notes"} />
               </motion.nav>
             )}

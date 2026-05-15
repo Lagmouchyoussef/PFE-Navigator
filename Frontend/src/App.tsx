@@ -276,7 +276,7 @@ function App() {
               icon={<Bell size={20} />}
               iconClassName="icon-rose"
               label={!isSidebarCollapsed && "Notifications"}
-              badge={localUnreadNotifs > 0 ? localUnreadNotifs : null}
+              badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null}
             />
             <SidebarLink to={user.role === 'student' ? '/student/notes' : user.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
           </nav>
