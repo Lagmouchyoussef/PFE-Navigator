@@ -7,10 +7,12 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Button, Form, Badge, Nav } from 'react-bootstrap';
+import { useApp } from '../../../context/AppContext';
 
-type SettingsTab = 'general' | 'appearance' | 'profile' | 'notifications' | 'security' | 'integrations';
+type SettingsTab = 'general' | 'appearance' | 'profile' | 'notifications' | 'security';
 
 const PortalSettings: React.FC = () => {
+  const { user, setTheme, theme } = useApp();
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,7 +22,6 @@ const PortalSettings: React.FC = () => {
     { id: 'profile', label: 'Mon Profil', icon: <User size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { id: 'security', label: 'Sécurité', icon: <Shield size={18} /> },
-    { id: 'integrations', label: 'Intégrations', icon: <Puzzle size={18} /> },
   ];
 
   return (
@@ -182,34 +183,66 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'profile' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations Personnelles</h6>
-                    <div className="d-flex align-items-center gap-4 mb-5">
+                    <div className="d-flex align-items-center gap-4 mb-5 p-4 rounded-4 bg-surface-alt border">
                       <div className="position-relative">
-                        <div className="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-primary border-opacity-10" style={{ width: '100px', height: '100px' }}>
-                          AS
+                        <div className="rounded-circle bg-primary shadow-lg text-white d-flex align-items-center justify-content-center fw-bold border border-4 border-white" style={{ width: '120px', height: '120px', fontSize: '2.5rem' }}>
+                          {user?.name?.charAt(0) || 'A'}
                         </div>
-                        <Button size="sm" variant="light" className="position-absolute bottom-0 end-0 p-1 rounded-circle shadow border border-primary border-opacity-20 text-primary">
-                          <Upload size={14}/>
+                        <Button size="sm" variant="primary" className="position-absolute bottom-0 end-0 p-2 rounded-circle shadow-lg border border-2 border-white translate-middle-x mb-1">
+                          <Upload size={16}/>
                         </Button>
                       </div>
-                      <div>
-                        <h5 className="fw-bold mb-1 text-navy">Administrateur Système</h5>
-                        <p className="extra-small text-muted mb-0 fw-bold opacity-75">Rôle : Super Administrateur</p>
+                      <div className="flex-grow-1">
+                        <h4 className="fw-bold mb-1 text-navy">{user?.name || 'Administrateur'}</h4>
+                        <div className="d-flex align-items-center gap-2 mb-2">
+                          <Badge className="bg-primary-soft text-primary border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Rôle : {user?.role || 'Admin'}</Badge>
+                          <Badge className="bg-success-soft text-success border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Compte Vérifié</Badge>
+                        </div>
+                        <p className="extra-small text-muted mb-0 fw-bold opacity-75">ID Utilisateur : #AD-2026-991</p>
                       </div>
                     </div>
 
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy d-flex align-items-center gap-2">
+                      <User size={18} className="text-primary" /> Détails du Compte
+                    </h6>
                     <Row className="g-4">
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
-                        <Form.Control defaultValue="Admin" className="form-control-premium fw-bold" />
+                        <Form.Control defaultValue={user?.name?.split(' ')[0] || 'Admin'} className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
                         <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom</Form.Label>
-                        <Form.Control defaultValue="System" className="form-control-premium fw-bold" />
+                        <Form.Control defaultValue={user?.name?.split(' ')[1] || 'System'} className="form-control-premium fw-bold" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Professionnel</Form.Label>
+                        <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium fw-bold" readOnly />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Numéro de Téléphone</Form.Label>
+                        <Form.Control defaultValue="+212 6 00 00 00 00" className="form-control-premium fw-bold" />
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Département</Form.Label>
+                        <Form.Select className="form-control-premium fw-bold">
+                          <option>Ingénierie Informatique</option>
+                          <option>Génie Civil</option>
+                          <option>Management</option>
+                        </Form.Select>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Poste / Fonction</Form.Label>
+                        <Form.Control defaultValue="Responsable des Portails" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={12}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Poste Administratif</Form.Label>
-                        <Form.Control defaultValue="Responsable Portails Académiques" className="form-control-premium fw-bold" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Biographie / Description</Form.Label>
+                        <Form.Control 
+                          as="textarea" 
+                          rows={3} 
+                          className="form-control-premium fw-bold" 
+                          placeholder="Parlez-nous de vous..."
+                          defaultValue="Responsable de la coordination des projets de fin d'études à l'EMSI."
+                        />
                       </Col>
                     </Row>
                   </motion.div>

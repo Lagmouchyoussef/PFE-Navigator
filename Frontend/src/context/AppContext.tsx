@@ -70,9 +70,9 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
 ];
 
 const INITIAL_MESSAGES: Message[] = [];
-const INITIAL_NOTIFICATIONS: AppNotification[] = [];
 
-const INITIAL_DEFENSES: Defense[] = [];
+const INITIAL_DEFENSES: Defense[] = [
+  {
     id: 1,
     title: 'Soutenance de PFE – Ahmed Khalil',
     date: '2026-05-15',
