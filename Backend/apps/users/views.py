@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, viewsets
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from .serializers import UserSerializer
+
+User = get_user_model()
 
 
 class LoginView(APIView):
@@ -84,3 +86,28 @@ class LogoutView(APIView):
         except:
             pass
         return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """ViewSet for user management (admin only)."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        # Only admins can see all users
+        if self.request.user.role == 'admin':
+            return User.objects.all()
+        # Other users can only see their own profile
+        return User.objects.filter(id=self.request.user.id)
+    
+    def list(self, request):
+        """List users - only available to admins."""
+        if request.user.role != 'admin':
+            return Response(
+                {"detail": "Only admins can view all users."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        users = self.get_queryset()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)

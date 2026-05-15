@@ -170,7 +170,7 @@ const AnalyticsCenter: React.FC = () => {
             <div className="glass-card p-4 rounded-4 shadow-sm h-100 border">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Submission Trends</h5>
               <div style={{ height: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <AreaChart data={monthlySubmissions}>
                     <defs>
                       <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">

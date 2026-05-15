@@ -31,7 +31,7 @@ const StatusDistribution: React.FC = () => {
         <h5 className="sv-card-title">Project Status</h5>
       </div>
       <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '250px' }}>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <PieChart>
             <Pie 
               data={data} 

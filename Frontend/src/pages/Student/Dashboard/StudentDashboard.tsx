@@ -174,7 +174,7 @@ const StudentDashboard: React.FC = () => {
                   <Activity size={18} className="text-primary" />
                 </div>
                 <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '160px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie data={progressData} innerRadius={55} outerRadius={75} paddingAngle={4} dataKey="value" stroke="none">
                         {progressData.map((entry, index) => <Cell key={index} fill={entry.color} />)}

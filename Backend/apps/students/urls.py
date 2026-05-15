@@ -1,10 +1,14 @@
 """URL routing for the students application."""
 
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import StudentViewSet
 
 app_name = 'students'
 
+router = DefaultRouter()
+router.register(r'', StudentViewSet, basename='student')
+
 urlpatterns = [
-    # Add student endpoints here
+    path('', include(router.urls)),
 ]

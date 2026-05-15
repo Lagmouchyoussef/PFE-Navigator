@@ -1,4 +1,4 @@
-"""Data models for the students application."""
+"""Models for the students application."""
 
 from django.db import models
 from django.conf import settings

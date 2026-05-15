@@ -1,4 +1,4 @@
-from rest_framework import views, status, permissions
+from rest_framework import views, status, permissions, authentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -61,6 +61,7 @@ class LoginView(views.APIView):
 
 class UserMeView(views.APIView):
     """Returns the currently authenticated user details."""
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):

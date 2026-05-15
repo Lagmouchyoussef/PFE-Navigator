@@ -147,7 +147,7 @@ const EvaluationPage = () => {
                   <Activity size={18} className="text-primary" /> Performance Overview
                 </h6>
                 <div style={{ height: '300px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={performanceData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
@@ -169,7 +169,7 @@ const EvaluationPage = () => {
                   <Star size={18} className="text-warning" /> Criteria Assessment
                 </h6>
                 <div style={{ height: '300px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={criteriaData}>
                       <PolarGrid stroke="var(--color-border)" opacity={0.5} />
                       <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700 }} />

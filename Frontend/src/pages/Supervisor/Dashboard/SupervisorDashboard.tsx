@@ -140,7 +140,7 @@ const SupervisorDashboard: React.FC = () => {
                 </div>
               </div>
               <div style={{ height: '250px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <BarChart data={WEEKLY_ACTIVITY}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
@@ -164,7 +164,7 @@ const SupervisorDashboard: React.FC = () => {
                 </div>
               </div>
               <div style={{ height: '250px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DISTRIBUTION}>
                     <PolarGrid strokeOpacity={0.1} />
                     <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: 'var(--color-text-muted)'}} />
@@ -187,7 +187,7 @@ const SupervisorDashboard: React.FC = () => {
                 </div>
               </div>
               <div style={{ height: '200px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie
                       data={DELIVERABLE_STATUS}

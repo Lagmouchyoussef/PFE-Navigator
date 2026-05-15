@@ -3,6 +3,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import Project, ProjectMilestone, Document, Appointment, Evaluation, Feedback
 from .serializers import (
@@ -102,3 +103,33 @@ class EvaluationViewSet(viewsets.ReadOnlyModelViewSet):
             # Only show published evaluations to students
             return Evaluation.objects.filter(project__student=user.student_profile, is_published=True)
         return super().get_queryset()
+
+
+class ProjectSubjectsView(APIView):
+    """API view to list all project subjects/topics."""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Return list of project subjects."""
+        subjects = [
+            {"id": 1, "name": "Artificial Intelligence"},
+            {"id": 2, "name": "Web Development"},
+            {"id": 3, "name": "Mobile Development"},
+            {"id": 4, "name": "Cloud Computing"},
+            {"id": 5, "name": "Data Science"},
+            {"id": 6, "name": "Cybersecurity"},
+            {"id": 7, "name": "IoT & Embedded Systems"},
+            {"id": 8, "name": "Software Engineering"},
+        ]
+        return Response(subjects)
+
+
+class ProjectRepositoryView(APIView):
+    """API view to list project documents/repository."""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Return list of project documents from repository."""
+        documents = Document.objects.all()
+        serializer = DocumentSerializer(documents, many=True)
+        return Response(serializer.data)

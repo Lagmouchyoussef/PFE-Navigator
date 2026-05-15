@@ -9,7 +9,7 @@ const JuryPerformanceChart: React.FC = () => (
   <div className="glass-card p-4 h-100">
     <h5 className="fw-bold mb-4 border-bottom pb-2">Evaluation Activity</h5>
     <div style={{ height: '350px' }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <AreaChart data={PERFORMANCE_DATA}>
           <defs>
             <linearGradient id="colorScoreJury" x1="0" y1="0" x2="0" y2="1">

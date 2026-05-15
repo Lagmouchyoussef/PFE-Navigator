@@ -164,7 +164,7 @@ const AdminDashboard: React.FC = () => {
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Submission Trends</h5>
               <div style={{ height: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <AreaChart data={SUBMISSION_DATA}>
                     <defs>
                       <linearGradient id="adminColor" x1="0" y1="0" x2="0" y2="1">
@@ -244,7 +244,7 @@ const AdminDashboard: React.FC = () => {
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Status Distribution</h5>
               <div style={{ height: '240px' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie data={STATUS_DATA} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
                       {STATUS_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
