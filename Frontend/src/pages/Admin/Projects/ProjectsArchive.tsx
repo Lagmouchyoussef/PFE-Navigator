@@ -3,10 +3,11 @@ import {
   Search, Filter, Download, 
   FileText, Calendar, 
   ChevronRight, Briefcase, 
-  CheckCircle, XCircle
+  CheckCircle, XCircle, MoreVertical, Share2, Edit2, Trash2, X
 } from 'lucide-react';
-import { Container, Row, Col, Button, Badge, Form, InputGroup } from 'react-bootstrap';
-import { motion } from 'framer-motion';
+import { Container, Row, Col, Button, Badge, Form, InputGroup, Dropdown, Modal } from 'react-bootstrap';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../../../context/AppContext';
 
 interface ArchiveItem {
   id: string;
@@ -19,22 +20,44 @@ interface ArchiveItem {
   supervisor: string;
 }
 
-const ARCHIVE_DATA: ArchiveItem[] = [
-  { id: 'A', name: 'Projet Alpha', desc: 'Développement d\'une application mobile pour la gestion des ressources.', date: '15 Avr 2026', files: 12, status: 'Completed', type: 'Mobile', supervisor: 'Dr. Mansouri' },
-  { id: 'B', name: 'Projet Beta', desc: 'Interface web de visualisation de données en temps réel.', date: '28 Mar 2026', files: 8, status: 'Completed', type: 'Web', supervisor: 'Mme. Alami' },
-  { id: 'G', name: 'Projet Gamma', desc: 'Système automatique d\'analyse de performance.', date: '10 Mar 2026', files: 15, status: 'Completed', type: 'System', supervisor: 'Mr. Tazi' },
-  { id: 'D', name: 'Projet Delta', desc: 'Plateforme e-learning interactive avec IA.', date: '22 Fév 2026', files: 20, status: 'Completed', type: 'AI', supervisor: 'Dr. Mansouri' },
-  { id: 'E', name: 'Projet Epsilon', desc: 'Solution de cybersécurité pour entreprise.', date: '5 Fév 2026', files: 6, status: 'Cancelled', type: 'Security', supervisor: 'Mme. Alami' },
-  { id: 'Z', name: 'Projet Zeta', desc: 'Optimisation énergétique pour bâtiments intelligents.', date: '18 Jan 2026', files: 9, status: 'Completed', type: 'IoT', supervisor: 'Mr. Tazi' },
-];
-
 const ProjectsArchive: React.FC = () => {
+  const { archives, deleteArchiveProject, updateArchiveProject, shareToResources } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
 
-  const filteredProjects = ARCHIVE_DATA.filter(p => 
+  const toggleSelect = (id: string) => {
+    setSelectedProjects(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
+
+  const handleExport = (format: string) => {
+    alert(`Exportation de ${selectedProjects.length} projets en format ${format}...`);
+    setSelectedProjects([]);
+  };
+
+  const filteredProjects = archives.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.desc.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleEdit = (project: any) => {
+    setEditingProject({ ...project });
+    setShowEditModal(true);
+  };
+
+  const saveEdit = () => {
+    if (editingProject) {
+      updateArchiveProject(editingProject.id, editingProject);
+      setShowEditModal(false);
+    }
+  };
+
+  const handleCancel = (id: string) => {
+    updateArchiveProject(id, { status: 'Cancelled' });
+  };
 
   return (
     <div className="py-2">
@@ -81,17 +104,45 @@ const ProjectsArchive: React.FC = () => {
                 whileHover={{ y: -5 }}
                 className="h-100"
               >
-                <div className="glass-card rounded-4 overflow-hidden h-100 shadow-sm d-flex flex-column transition-all border">
+                <div className={`glass-card rounded-4 overflow-hidden h-100 shadow-sm d-flex flex-column transition-all border ${selectedProjects.includes(project.id) ? 'border-primary border-2 ring-2 ring-primary ring-opacity-10' : ''}`}>
+                  <div className="position-absolute top-0 end-0 p-3" style={{ zIndex: 10 }}>
+                    <Form.Check 
+                      type="checkbox"
+                      className="custom-checkbox-premium"
+                      checked={selectedProjects.includes(project.id)}
+                      onChange={() => toggleSelect(project.id)}
+                    />
+                  </div>
                   <div className="p-4 flex-grow-1">
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-                      <div className="p-2 bg-primary-soft text-primary rounded-3">
-                        <Briefcase size={20} />
+                      <div className="d-flex align-items-center gap-2">
+                        <div className="p-2 bg-primary-soft text-primary rounded-3">
+                          <Briefcase size={20} />
+                        </div>
+                        <Dropdown align="end">
+                          <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none hover-bg-surface rounded-circle">
+                            <MoreVertical size={18} />
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
+                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => shareToResources(project.id)}>
+                              <Share2 size={14} className="text-primary" /> Partager dans Ressources
+                            </Dropdown.Item>
+                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => handleEdit(project)}>
+                              <Edit2 size={14} className="text-info" /> Modifier
+                            </Dropdown.Item>
+                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-warning" onClick={() => handleCancel(project.id)}>
+                              <XCircle size={14} /> Annuler / Masquer
+                            </Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-danger" onClick={() => deleteArchiveProject(project.id)}>
+                              <Trash2 size={14} /> Supprimer définitivement
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
                       </div>
-                      <Badge className={`bg-${project.status === 'Completed' ? 'success' : 'danger'}-soft text-${project.status === 'Completed' ? 'success' : 'danger'} border border-${project.status === 'Completed' ? 'success' : 'danger'} border-opacity-10 extra-small px-2`}>
+                    <Badge className={`bg-${project.status === 'Completed' ? 'success' : 'danger'}-soft text-${project.status === 'Completed' ? 'success' : 'danger'} border border-${project.status === 'Completed' ? 'success' : 'danger'} border-opacity-10 extra-small px-2`}>
                         {project.status === 'Completed' ? <CheckCircle size={12} className="me-1" /> : <XCircle size={12} className="me-1" />}
                         {project.status === 'Completed' ? 'Terminé' : 'Annulé'}
                       </Badge>
-                    </div>
                     
                     <h5 className="fw-bold mb-2 text-navy">{project.name}</h5>
                     <p className="text-muted extra-small mb-4 fw-bold opacity-75 line-clamp-2" style={{ minHeight: '40px' }}>
@@ -122,7 +173,117 @@ const ProjectsArchive: React.FC = () => {
             </Col>
           ))}
         </Row>
+
+        {/* Floating Export Bar */}
+        <AnimatePresence>
+          {selectedProjects.length > 0 && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className="fixed-bottom d-flex justify-content-center pb-4"
+              style={{ zIndex: 1050 }}
+            >
+              <div className="glass-card bg-navy text-white px-4 py-3 rounded-pill shadow-lg d-flex align-items-center gap-4 border-0">
+                <div className="d-flex align-items-center gap-2 border-end pe-4 border-white border-opacity-10">
+                  <div className="p-2 bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
+                    <span className="fw-bold small">{selectedProjects.length}</span>
+                  </div>
+                  <span className="extra-small fw-bold text-uppercase tracking-wider">Projets Sélectionnés</span>
+                </div>
+
+                <div className="d-flex gap-3">
+                  <Button 
+                    variant="link" 
+                    className="text-white p-0 d-flex align-items-center gap-2 extra-small fw-bold text-decoration-none hover-opacity-75"
+                    onClick={() => handleExport('PDF')}
+                  >
+                    <FileText size={16} className="text-danger" /> PDF
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    className="text-white p-0 d-flex align-items-center gap-2 extra-small fw-bold text-decoration-none hover-opacity-75"
+                    onClick={() => handleExport('Word')}
+                  >
+                    <Briefcase size={16} className="text-info" /> Word
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    className="text-white p-0 d-flex align-items-center gap-2 extra-small fw-bold text-decoration-none hover-opacity-75"
+                    onClick={() => handleExport('CSV')}
+                  >
+                    <Download size={16} className="text-success" /> CSV
+                  </Button>
+                </div>
+
+                <Button 
+                  variant="link" 
+                  className="text-white p-1 border-0 shadow-none ms-2"
+                  onClick={() => setSelectedProjects([])}
+                >
+                  <X size={18} />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Container>
+
+      {/* Modal Modification Projet */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered className="glass-modal">
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <Modal.Title className="fw-bold fs-5 text-navy">Modifier le Dossier Archivé</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {editingProject && (
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre du Projet</Form.Label>
+                <Form.Control 
+                  className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                  value={editingProject.name}
+                  onChange={(e) => setEditingProject({...editingProject, name: e.target.value})}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Description</Form.Label>
+                <Form.Control 
+                  as="textarea" rows={3}
+                  className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                  value={editingProject.desc}
+                  onChange={(e) => setEditingProject({...editingProject, desc: e.target.value})}
+                />
+              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Type</Form.Label>
+                    <Form.Control 
+                      className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                      value={editingProject.type}
+                      onChange={(e) => setEditingProject({...editingProject, type: e.target.value})}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Encadrant</Form.Label>
+                    <Form.Control 
+                      className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
+                      value={editingProject.supervisor}
+                      onChange={(e) => setEditingProject({...editingProject, supervisor: e.target.value})}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0 p-4 pt-0">
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowEditModal(false)}>Annuler</Button>
+          <Button className="btn-premium px-4 py-2" onClick={saveEdit}>Enregistrer les modifications</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

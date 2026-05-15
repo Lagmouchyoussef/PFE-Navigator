@@ -238,9 +238,8 @@ const SchedulePage = () => {
                       <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextMonth} title="Mois suivant"><ChevronRight size={20} /></Button>
                       <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextYear} title="Année suivante"><ChevronRight size={20} /><ChevronRight size={20} style={{marginLeft: '-12px'}} /></Button>
                     </div>
+                    <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Aujourd'hui</Button>
                   </div>
-                  <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Aujourd'hui</Button>
-                </div>
                 <div className="p-4">
                   <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden' }}>
                     {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (

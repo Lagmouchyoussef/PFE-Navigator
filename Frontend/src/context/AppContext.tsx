@@ -269,6 +269,12 @@ interface AppContextType {
   reminders: any[];
   students: any[];
   updateStudentEvaluation: (studentId: number, data: any) => void;
+  // Archives & Resources
+  archives: any[];
+  updateArchiveProject: (id: string, updates: any) => void;
+  deleteArchiveProject: (id: string) => void;
+  shareToResources: (projectId: string) => void;
+  resourceCenter: any[];
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -303,6 +309,15 @@ const initialStudents = [
     juryScore: null, supervisorScore: null, juryRemarks: '', 
     isJuryEvaluated: false, isSupervisorEvaluated: false 
   },
+];
+
+const INITIAL_ARCHIVES = [
+  { id: 'ARCH-001', name: 'Optimisation de Réseau 5G', desc: 'Analyse et simulation de la propagation du signal en milieu urbain dense.', date: '2025-06-15', files: 5, status: 'Completed', type: 'Réseaux', supervisor: 'Dr. Sofia Drissi' },
+  { id: 'ARCH-002', name: 'IA pour Diagnostic Médical', desc: 'Développement d\'un modèle CNN pour la détection précoce du cancer.', date: '2025-06-20', files: 8, status: 'Completed', type: 'IA', supervisor: 'Pr. Youssef Lagmouch' },
+];
+
+const INITIAL_RESOURCES = [
+  { id: 'RES-001', title: 'Guide de Rédaction PFE', type: 'PDF', category: 'Documentation', date: '2026-01-10' },
 ];
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -343,10 +358,52 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : initialStudents;
   });
 
+  const [archives, setArchives] = useState(() => {
+    const saved = localStorage.getItem('pfe-archives');
+    return saved ? JSON.parse(saved) : INITIAL_ARCHIVES;
+  });
+
+  const [resourceCenter, setResourceCenter] = useState(() => {
+    const saved = localStorage.getItem('pfe-resources');
+    return saved ? JSON.parse(saved) : INITIAL_RESOURCES;
+  });
+
+  // Persist archives & resources
+  useEffect(() => {
+    localStorage.setItem('pfe-archives', JSON.stringify(archives));
+  }, [archives]);
+
+  useEffect(() => {
+    localStorage.setItem('pfe-resources', JSON.stringify(resourceCenter));
+  }, [resourceCenter]);
+
   // Persist students
   useEffect(() => {
     localStorage.setItem('pfe-students', JSON.stringify(students));
   }, [students]);
+
+  // Automatic Archiving Logic
+  useEffect(() => {
+    students.forEach((s: any) => {
+      if (s.status === 'Validé') {
+        const exists = archives.find(a => a.studentId === s.id);
+        if (!exists) {
+          const newArchive = {
+            id: `ARCH-${s.id}`,
+            studentId: s.id,
+            name: s.project,
+            desc: `Projet de fin d'études validé par ${s.name}.`,
+            date: s.date || new Date().toISOString().split('T')[0],
+            files: 3,
+            status: 'Completed',
+            type: 'PFE',
+            supervisor: 'Dr. Sofia Drissi'
+          };
+          setArchives(prev => [...prev, newArchive]);
+        }
+      }
+    });
+  }, [students, archives]);
 
   useEffect(() => {
     localStorage.setItem('pfe-jury-weights', JSON.stringify(juryCriteriaWeights));
@@ -629,7 +686,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       students,
       updateStudentEvaluation: (id: number, data: any) => {
         setStudents(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
-      }
+      },
+      archives,
+      updateArchiveProject: (id: string, updates: any) => {
+        setArchives(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+      },
+      deleteArchiveProject: (id: string) => {
+        setArchives(prev => prev.filter(a => a.id !== id));
+      },
+      shareToResources: (projectId: string) => {
+        const project = archives.find(a => a.id === projectId);
+        if (project) {
+          const newResource = {
+            id: `RES-${Date.now()}`,
+            title: `Archive: ${project.name}`,
+            type: 'Folder',
+            category: 'Projets Archivés',
+            date: new Date().toISOString().split('T')[0]
+          };
+          setResourceCenter(prev => [newResource, ...prev]);
+          addNotification('approved', `Le projet "${project.name}" a été partagé dans le Centre de Ressources.`, '/admin/resources');
+        }
+      },
+      resourceCenter
     }}>
       {children}
     </AppContext.Provider>
