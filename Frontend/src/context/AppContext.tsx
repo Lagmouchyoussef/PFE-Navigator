@@ -275,6 +275,9 @@ interface AppContextType {
   deleteArchiveProject: (id: string) => void;
   shareToResources: (projectId: string) => void;
   resourceCenter: any[];
+  // Criteria Weights
+  supervisorCriteriaWeights: Record<string, number>;
+  updateSupervisorCriteriaWeights: (weights: Record<string, number>) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -284,32 +287,7 @@ const initialReminders = [
   { id: 2, text: "Réunion de département", time: "45 min", type: "primary" }
 ];
 
-const initialStudents = [
-  { 
-    id: 1, name: 'Ahmed Khalil', project: 'Système de Gestion PFE avec IA', progress: 85, 
-    status: 'Validé', date: '2026-05-15',
-    juryScore: null, supervisorScore: null, juryRemarks: '', 
-    isJuryEvaluated: false, isSupervisorEvaluated: false 
-  },
-  { 
-    id: 2, name: 'Sara Bennani', project: 'Vérification de Diplômes via Blockchain', progress: 60, 
-    status: 'En Cours', date: '2026-05-18',
-    juryScore: null, supervisorScore: null, juryRemarks: '', 
-    isJuryEvaluated: false, isSupervisorEvaluated: false 
-  },
-  { 
-    id: 3, name: 'Mehdi Alami', project: 'Solution IoT pour Smart Campus', progress: 40, 
-    status: 'En Attente', date: '2026-05-20',
-    juryScore: null, supervisorScore: null, juryRemarks: '', 
-    isJuryEvaluated: false, isSupervisorEvaluated: false 
-  },
-  { 
-    id: 4, name: 'Fatima Zahra Mansouri', project: 'Outil d\'Audit de Cybersécurité', progress: 95, 
-    status: 'Validé', date: '2026-05-12',
-    juryScore: null, supervisorScore: null, juryRemarks: '', 
-    isJuryEvaluated: false, isSupervisorEvaluated: false 
-  },
-];
+const initialStudents = [];
 
 const INITIAL_ARCHIVES = [
   { id: 'ARCH-001', name: 'Optimisation de Réseau 5G', desc: 'Analyse et simulation de la propagation du signal en milieu urbain dense.', date: '2025-06-15', files: 5, status: 'Completed', type: 'Réseaux', supervisor: 'Dr. Sofia Drissi' },
@@ -405,9 +383,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   }, [students, archives]);
 
+
+
+  const [supervisorCriteriaWeights, setSupervisorCriteriaWeights] = useState(() => {
+    const saved = localStorage.getItem('pfe-supervisor-weights');
+    return saved ? JSON.parse(saved) : {
+      report: 5,
+      progress: 5,
+      autonomy: 5,
+      professionalism: 5
+    };
+  });
+
+  // Persist weights
   useEffect(() => {
     localStorage.setItem('pfe-jury-weights', JSON.stringify(juryCriteriaWeights));
   }, [juryCriteriaWeights]);
+
+  useEffect(() => {
+    localStorage.setItem('pfe-supervisor-weights', JSON.stringify(supervisorCriteriaWeights));
+  }, [supervisorCriteriaWeights]);
 
   // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
   const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
@@ -644,6 +639,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
+  const shareToResources = useCallback((projectId: string) => {
+    console.log("Sharing project to resources:", projectId);
+    const project = archives.find(a => a.id === projectId);
+    if (project) {
+      const newResource = {
+        id: `RES-${Date.now()}`,
+        title: `Archive: ${project.name}`,
+        type: 'Folder',
+        category: 'Projets Archivés',
+        date: new Date().toISOString().split('T')[0]
+      };
+      setResourceCenter(prev => {
+        const updated = [newResource, ...prev];
+        localStorage.setItem('pfe-resources', JSON.stringify(updated));
+        return updated;
+      });
+      addNotification('approved', `Le projet "${project.name}" a été partagé dans le Centre de Ressources.`, '/admin/resources');
+    }
+  }, [archives, addNotification]);
+
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
   // ── COMPUTED ──────────────────────────────────────────────────────────────
@@ -694,21 +709,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       deleteArchiveProject: (id: string) => {
         setArchives(prev => prev.filter(a => a.id !== id));
       },
-      shareToResources: (projectId: string) => {
-        const project = archives.find(a => a.id === projectId);
-        if (project) {
-          const newResource = {
-            id: `RES-${Date.now()}`,
-            title: `Archive: ${project.name}`,
-            type: 'Folder',
-            category: 'Projets Archivés',
-            date: new Date().toISOString().split('T')[0]
-          };
-          setResourceCenter(prev => [newResource, ...prev]);
-          addNotification('approved', `Le projet "${project.name}" a été partagé dans le Centre de Ressources.`, '/admin/resources');
-        }
-      },
-      resourceCenter
+      shareToResources,
+      resourceCenter,
+      supervisorCriteriaWeights,
+      updateSupervisorCriteriaWeights: (weights: Record<string, number>) => {
+        setSupervisorCriteriaWeights(weights);
+        addNotification('grade', "Les barèmes des critères de l'encadrant ont été mis à jour par l'administration.", '/supervisor/evaluation');
+      }
     }}>
       {children}
     </AppContext.Provider>

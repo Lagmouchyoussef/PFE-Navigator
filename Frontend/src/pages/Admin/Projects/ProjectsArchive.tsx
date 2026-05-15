@@ -26,11 +26,25 @@ const ProjectsArchive: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [showShareToast, setShowShareToast] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [viewingProject, setViewingProject] = useState<any>(null);
 
   const toggleSelect = (id: string) => {
     setSelectedProjects(prev => 
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
+  };
+
+  const handleShare = (id: string) => {
+    shareToResources(id);
+    setShowShareToast(true);
+    setTimeout(() => setShowShareToast(false), 3000);
+  };
+
+  const handleViewDetails = (project: any) => {
+    setViewingProject(project);
+    setShowDetailsModal(true);
   };
 
   const handleExport = (format: string) => {
@@ -123,7 +137,7 @@ const ProjectsArchive: React.FC = () => {
                             <MoreVertical size={18} />
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
-                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => shareToResources(project.id)}>
+                            <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => handleShare(project.id)}>
                               <Share2 size={14} className="text-primary" /> Partager dans Ressources
                             </Dropdown.Item>
                             <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => handleEdit(project)}>
@@ -166,7 +180,13 @@ const ProjectsArchive: React.FC = () => {
                       </div>
                       <span className="extra-small fw-bold text-navy opacity-75">{project.supervisor}</span>
                     </div>
-                    <Button variant="link" className="p-0 text-primary extra-small fw-bold text-decoration-none border-0 shadow-none">Détails <ChevronRight size={14}/></Button>
+                    <Button 
+                      variant="link" 
+                      className="p-0 text-primary extra-small fw-bold text-decoration-none border-0 shadow-none"
+                      onClick={() => handleViewDetails(project)}
+                    >
+                      Détails <ChevronRight size={14}/>
+                    </Button>
                   </div>
                 </div>
               </motion.div>
@@ -284,6 +304,139 @@ const ProjectsArchive: React.FC = () => {
           <Button className="btn-premium px-4 py-2" onClick={saveEdit}>Enregistrer les modifications</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal Détails Projet */}
+      <Modal 
+        show={showDetailsModal} 
+        onHide={() => setShowDetailsModal(false)} 
+        centered 
+        size="lg" 
+        className="glass-modal"
+      >
+        <Modal.Header closeButton className="border-0 p-4 pb-0">
+          <div className="d-flex align-items-center gap-3">
+            <div className="p-3 bg-primary-soft text-primary rounded-4">
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <Modal.Title className="fw-bold text-navy h5 mb-0">{viewingProject?.name}</Modal.Title>
+              <div className="extra-small text-muted fw-bold mt-1 opacity-75">ID: {viewingProject?.id}</div>
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {viewingProject && (
+            <Row className="g-4">
+              <Col lg={7}>
+                <div className="mb-4">
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Description du Projet</h6>
+                  <p className="small text-navy lh-base opacity-75 fw-medium bg-surface-alt p-3 rounded-4 border">
+                    {viewingProject.desc}
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Documents Archivés</h6>
+                  <div className="d-flex flex-column gap-2">
+                    {[
+                      { name: 'Rapport_Final.pdf', size: '2.4 MB' },
+                      { name: 'Presentation.pptx', size: '5.1 MB' },
+                      { name: 'Cahier_des_charges.pdf', size: '1.2 MB' }
+                    ].map((doc, idx) => (
+                      <div key={idx} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-white border border-light-soft hover-bg-surface-alt transition-all">
+                        <div className="d-flex align-items-center gap-3">
+                          <FileText size={18} className="text-primary" />
+                          <span className="small fw-bold text-navy">{doc.name}</span>
+                        </div>
+                        <div className="d-flex align-items-center gap-3">
+                          <span className="extra-small text-muted fw-bold">{doc.size}</span>
+                          <Button variant="link" className="p-0 text-primary border-0 shadow-none"><Download size={16} /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+              
+              <Col lg={5}>
+                <div className="p-4 rounded-4 bg-surface-alt border h-100">
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-4 tracking-wider">Métadonnées Académiques</h6>
+                  
+                  <div className="d-flex flex-column gap-4">
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-2 bg-white rounded-3 shadow-sm text-primary">
+                        <Calendar size={18} />
+                      </div>
+                      <div>
+                        <div className="extra-small text-muted fw-bold opacity-50">DATE D'ARCHIVAGE</div>
+                        <div className="small fw-bold text-navy">{viewingProject.date}</div>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-2 bg-white rounded-3 shadow-sm text-info">
+                        <FileText size={18} />
+                      </div>
+                      <div>
+                        <div className="extra-small text-muted fw-bold opacity-50">TYPE DE PROJET</div>
+                        <Badge className="bg-info-soft text-info border-0 extra-small px-2 py-1 mt-1">{viewingProject.type}</Badge>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-2 bg-white rounded-3 shadow-sm text-success">
+                        <CheckCircle size={18} />
+                      </div>
+                      <div>
+                        <div className="extra-small text-muted fw-bold opacity-50">STATUT FINAL</div>
+                        <Badge className="bg-success-soft text-success border-0 extra-small px-2 py-1 mt-1">Validé / Terminé</Badge>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-top">
+                      <div className="extra-small text-muted fw-bold opacity-50 mb-3">ENCADRANT RESPONSABLE</div>
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
+                          {viewingProject.supervisor.split('. ')[1]?.charAt(0) || viewingProject.supervisor.charAt(0)}
+                        </div>
+                        <div className="fw-bold text-navy small">{viewingProject.supervisor}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0 p-4 pt-0">
+          <Button 
+            className="btn-premium w-100 py-3 rounded-4 shadow-sm border-0" 
+            onClick={() => setShowDetailsModal(false)}
+          >
+            Fermer l'aperçu
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Toast de Succès Partage */}
+      <AnimatePresence>
+        {showShareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            className="position-fixed bottom-0 start-50 mb-5 pb-5"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="glass-card bg-success text-white px-4 py-3 rounded-pill shadow-lg d-flex align-items-center gap-3 border-0">
+              <div className="bg-white text-success rounded-circle p-1">
+                <CheckCircle size={20} />
+              </div>
+              <span className="fw-bold extra-small">Le dossier a été partagé avec succès dans le Centre de Ressources !</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

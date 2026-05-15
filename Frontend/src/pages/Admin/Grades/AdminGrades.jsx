@@ -11,7 +11,13 @@ import { useApp } from '../../../context/AppContext';
 // Student list fetched from context
 
 const AdminGrades = () => {
-  const { scores, saveScore, isGradesPublished, publishGrades, pfeWeights, updatePfeWeights, juryCriteriaWeights, updateJuryCriteriaWeights, students, updateStudentEvaluation } = useApp();
+  const { 
+    scores, saveScore, isGradesPublished, publishGrades, 
+    pfeWeights, updatePfeWeights, 
+    juryCriteriaWeights, updateJuryCriteriaWeights, 
+    supervisorCriteriaWeights, updateSupervisorCriteriaWeights,
+    students, updateStudentEvaluation 
+  } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showWeightModal, setShowWeightModal] = useState(false);
@@ -20,6 +26,7 @@ const AdminGrades = () => {
   const [editForm, setEditForm] = useState({ supervisor: '', jury: '' });
   const [weightForm, setWeightForm] = useState({ supervisor: 50, jury: 50 });
   const [juryCriteriaWeightForm, setJuryCriteriaWeightForm] = useState({});
+  const [supervisorCriteriaWeightForm, setSupervisorCriteriaWeightForm] = useState({});
   const [selectedGrades, setSelectedGrades] = useState([]);
 
   const toggleSelectAll = () => {
@@ -61,6 +68,7 @@ const AdminGrades = () => {
     }
     updatePfeWeights(parseInt(weightForm.supervisor), parseInt(weightForm.jury));
     updateJuryCriteriaWeights(juryCriteriaWeightForm);
+    updateSupervisorCriteriaWeights(supervisorCriteriaWeightForm);
     setShowWeightModal(false);
   };
 
@@ -113,6 +121,7 @@ const AdminGrades = () => {
               onClick={() => {
                 setWeightForm({ ...pfeWeights });
                 setJuryCriteriaWeightForm({ ...juryCriteriaWeights });
+                setSupervisorCriteriaWeightForm({ ...supervisorCriteriaWeights });
                 setShowWeightModal(true);
               }}
             >
@@ -220,8 +229,8 @@ const AdminGrades = () => {
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Encadrant ({pfeWeights.supervisor}%)</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Jury ({pfeWeights.jury}%)</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Remarques Jury</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note Finale</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Statut</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note Générale</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Décision</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
@@ -267,13 +276,19 @@ const AdminGrades = () => {
                     </td>
                     <td className="text-center">
                       <div className="h5 fw-bold text-navy mb-0">
-                        {calculateFinal(student.supervisorScore || '', student.juryScore || '')}
+                        {calculateFinal(student.supervisorScore ?? '', student.juryScore ?? '')}
                       </div>
                     </td>
                     <td className="text-center">
-                      <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${isGradesPublished ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
-                        {isGradesPublished ? 'Publié' : 'Brouillon'}
-                      </Badge>
+                      {student.supervisorScore !== null && student.juryScore !== null ? (
+                        Number(calculateFinal(student.supervisorScore, student.juryScore)) >= 10 ? (
+                          <Badge className="bg-success text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">ADMIS</Badge>
+                        ) : (
+                          <Badge className="bg-danger text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">AJOURNÉ</Badge>
+                        )
+                      ) : (
+                        <Badge className="bg-surface-alt text-muted border-0 px-3 py-1 rounded-pill extra-small fw-bold">EN ATTENTE</Badge>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-end">
                       <div className="d-flex justify-content-end gap-1">
@@ -300,10 +315,9 @@ const AdminGrades = () => {
           </div>
         </Card>
 
-        {/* Summary Info */}
         <Row className="mt-4 g-4">
-          <Col md={6}>
-            <Card className="glass-card border-0 shadow-sm border p-4 bg-primary text-white">
+          <Col lg={6}>
+            <Card className="glass-card border-0 shadow-sm border p-4 bg-primary text-white h-100">
               <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
                 <AlertCircle size={18} /> Règle de Publication
               </h6>
@@ -311,6 +325,37 @@ const AdminGrades = () => {
                 Une fois les notes publiées, les étudiants pourront consulter leurs résultats détaillés. 
                 <strong> Attention :</strong> Cette action est irréversible pour la session en cours.
               </p>
+            </Card>
+          </Col>
+          <Col lg={6}>
+            <Card className="glass-card border shadow-sm border p-4 h-100">
+              <h6 className="fw-bold mb-4 d-flex align-items-center gap-2 text-navy">
+                <Filter size={18} className="text-primary" /> Barème des Critères Actuels
+              </h6>
+              <Row>
+                <Col xs={6} className="border-end">
+                  <div className="extra-small fw-bold text-muted text-uppercase mb-3 opacity-50">Jury ({pfeWeights.jury}%)</div>
+                  <div className="d-flex flex-column gap-2">
+                    {Object.entries(juryCriteriaWeights).map(([key, val]) => (
+                      <div key={key} className="d-flex justify-content-between extra-small">
+                        <span className="text-navy fw-bold text-capitalize">{key}</span>
+                        <span className="text-primary fw-bold">{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="extra-small fw-bold text-muted text-uppercase mb-3 opacity-50">Encadrant ({pfeWeights.supervisor}%)</div>
+                  <div className="d-flex flex-column gap-2">
+                    {Object.entries(supervisorCriteriaWeights).map(([key, val]) => (
+                      <div key={key} className="d-flex justify-content-between extra-small">
+                        <span className="text-navy fw-bold text-capitalize">{key}</span>
+                        <span className="text-success fw-bold">{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Col>
+              </Row>
             </Card>
           </Col>
         </Row>
@@ -365,7 +410,7 @@ const AdminGrades = () => {
       </Modal>
 
       {/* Weight Management Modal */}
-      <Modal show={showWeightModal} onHide={() => setShowWeightModal(false)} centered className="glass-modal">
+      <Modal show={showWeightModal} onHide={() => setShowWeightModal(false)} centered className="glass-modal" size="lg">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
           <Modal.Title className="fw-bold text-navy h5">Configuration des Coefficients</Modal.Title>
         </Modal.Header>
@@ -406,7 +451,7 @@ const AdminGrades = () => {
 
             <hr className="my-4 opacity-10" />
             
-            <h6 className="fw-bold text-navy mb-3">Barème des Critères Jury (Coefficient par critère)</h6>
+            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Barème des Critères Jury</h6>
             <Row className="g-3 mb-4">
               {[
                 { id: 'innovation', label: 'Innovation' },
@@ -423,6 +468,30 @@ const AdminGrades = () => {
                       className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none"
                       value={juryCriteriaWeightForm[crit.id] || 0}
                       onChange={(e) => setJuryCriteriaWeightForm({...juryCriteriaWeightForm, [crit.id]: Number(e.target.value)})}
+                    />
+                  </Form.Group>
+                </Col>
+              ))}
+            </Row>
+
+            <hr className="my-4 opacity-10" />
+            
+            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Barème des Critères Encadrant</h6>
+            <Row className="g-3 mb-4">
+              {[
+                { id: 'report', label: 'Qualité du Rapport' },
+                { id: 'progress', label: 'Avancement' },
+                { id: 'autonomy', label: 'Autonomie' },
+                { id: 'professionalism', label: 'Professionnalisme' },
+              ].map(crit => (
+                <Col sm={6} key={crit.id}>
+                  <Form.Group>
+                    <Form.Label className="extra-small fw-bold text-muted opacity-75">{crit.label}</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none"
+                      value={supervisorCriteriaWeightForm[crit.id] || 0}
+                      onChange={(e) => setSupervisorCriteriaWeightForm({...supervisorCriteriaWeightForm, [crit.id]: Number(e.target.value)})}
                     />
                   </Form.Group>
                 </Col>
@@ -467,10 +536,27 @@ const AdminGrades = () => {
               </Card>
             </Col>
           </Row>
-          <div className="p-3 bg-primary-soft rounded-4 text-center border border-primary border-opacity-10">
-            <span className="extra-small text-primary fw-bold">Note finale consolidée : </span>
-            <span className="fw-bold text-navy ms-1">{calculateFinal(selectedStudent?.supervisorScore || '', selectedStudent?.juryScore || '')} / 20</span>
-          </div>
+          <Card className="rounded-4 border-primary border-opacity-25 bg-primary-soft p-4 shadow-none mt-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 className="extra-small fw-bold text-primary text-uppercase mb-1">Résultat Général Final</h6>
+                <p className="extra-small text-muted mb-0 fw-bold opacity-75">Calcul : ({pfeWeights.jury}% Jury) + ({pfeWeights.supervisor}% Encadrant)</p>
+              </div>
+              <div className="text-end">
+                <div className="h2 fw-bold text-navy mb-0">
+                  {selectedStudent?.juryScore !== null && selectedStudent?.supervisorScore !== null 
+                    ? calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)
+                    : '--'}
+                  <small className="h6 text-muted ms-1 opacity-50">/20</small>
+                </div>
+                {selectedStudent?.juryScore !== null && selectedStudent?.supervisorScore !== null && (
+                  <Badge className={`mt-1 border-0 extra-small fw-bold ${Number(calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)) >= 10 ? 'bg-success text-white' : 'bg-danger text-white'}`}>
+                    {Number(calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)) >= 10 ? 'ADMIS' : 'AJOURNÉ'}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </Card>
         </Modal.Body>
       </Modal>
     </div>

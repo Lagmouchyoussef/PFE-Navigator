@@ -11,19 +11,36 @@ import {
 // Data will be fetched from context
 
 const Evaluations = () => {
-  const { saveScore, isGradesPublished, scores, pfeWeights, students, updateStudentEvaluation } = useApp();
+  const { 
+    saveScore, isGradesPublished, scores, 
+    pfeWeights, supervisorCriteriaWeights,
+    students, updateStudentEvaluation 
+  } = useApp();
   const [filter, setFilter] = useState('All');
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [msgVariant, setMsgVariant] = useState('success');
   const [showEvalModal, setShowEvalModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedViewSubmission, setSelectedViewSubmission] = useState(null);
   const [pfeNote, setPfeNote] = useState('');
+  const [criteriaScores, setCriteriaScores] = useState({
+    report: 0,
+    progress: 0,
+    autonomy: 0,
+    professionalism: 0
+  });
 
   const handleOpenEval = (student) => {
     setSelectedStudent(student);
-    setPfeNote(student.supervisorScore !== null ? student.supervisorScore.toString() : '0');
+    if (student.supervisorCriteriaScores) {
+      setCriteriaScores({ ...student.supervisorCriteriaScores });
+      setPfeNote(student.supervisorScore?.toString() || '0');
+    } else {
+      setCriteriaScores({ report: 0, progress: 0, autonomy: 0, professionalism: 0 });
+      setPfeNote(student.supervisorScore !== null ? student.supervisorScore.toString() : '0');
+    }
     setShowEvalModal(true);
   };
 
@@ -36,24 +53,26 @@ const Evaluations = () => {
     e.preventDefault();
     if (!selectedStudent) return;
     updateStudentEvaluation(selectedStudent.id, { 
-      supervisorScore: pfeNote === '' ? 0 : Number(pfeNote),
+      supervisorScore: Number(calculatedTotal),
+      supervisorCriteriaScores: { ...criteriaScores },
       isSupervisorEvaluated: true 
     });
     setShowEvalModal(false);
-    setSuccessMsg(`Confirmation : Les notes pour ${selectedStudent.name} ont été enregistrées avec succès.`);
+    setSuccessMsg(`Félicitations : Les notes pour ${selectedStudent.name} ont été enregistrées avec succès dans le système.`);
+    setMsgVariant('success');
     setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
   const handleDraft = () => {
     if (!selectedStudent) return;
     updateStudentEvaluation(selectedStudent.id, { 
-      supervisorScore: pfeNote === '' ? 0 : Number(pfeNote)
+      supervisorScore: Number(calculatedTotal),
+      supervisorCriteriaScores: { ...criteriaScores }
     });
     setShowEvalModal(false);
-    setSuccessMsg(`Info : Brouillon pour ${selectedStudent.name} mis à jour.`);
+    setSuccessMsg(`Succès : Le brouillon pour ${selectedStudent.name} a été mis à jour.`);
+    setMsgVariant('warning');
     setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
   const handleExport = (format) => {
@@ -68,32 +87,56 @@ const Evaluations = () => {
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
 
+  const calculateTotalScore = () => {
+    let weightedSum = 0;
+    let weightTotal = 0;
+    
+    Object.keys(criteriaScores).forEach(key => {
+      const weight = supervisorCriteriaWeights[key] || 0;
+      const score = criteriaScores[key] || 0;
+      weightedSum += (score * weight);
+      weightTotal += weight;
+    });
+
+    if (weightTotal === 0) return "0.00";
+    return (weightedSum / weightTotal).toFixed(2);
+  };
+
+  const calculatedTotal = calculateTotalScore();
+
   const filteredData = filter === 'All' ? students : students.filter(item => item.status === filter);
 
   return (
     <div className="supervisor-evaluations-layout py-4">
       <Container fluid className="px-4">
         
-        {/* Success Alert */}
+        {/* Success Alert (Jury Style) */}
         <AnimatePresence>
           {showSuccessCard && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="glass-card mb-4 p-4 rounded-4 shadow-sm border-start-4 border-success d-flex justify-content-between align-items-center bg-white"
-            >
-              <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-circle bg-success-soft text-success">
-                  <CheckCircle size={24} />
+            <div className="notification-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 9999, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(4px)' }}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className={`glass-card p-5 rounded-5 shadow-lg border-top-5 border-${msgVariant} bg-white d-flex flex-column align-items-center text-center`}
+                style={{ maxWidth: '500px', width: '90%' }}
+              >
+                <div className={`p-4 rounded-circle bg-${msgVariant}-soft text-${msgVariant} mb-4`}>
+                  {msgVariant === 'success' ? <CheckCircle size={48} /> : <AlertCircle size={48} />}
                 </div>
-                <div>
-                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
-                  <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
-                </div>
-              </div>
-              <Button variant="link" className="p-0 text-muted shadow-none border-0 hover-bg-surface-alt rounded-circle" onClick={() => setShowSuccessCard(false)}><X size={20}/></Button>
-            </motion.div>
+                <h4 className="fw-bold mb-2 text-navy">
+                  {msgVariant === 'success' ? 'Évaluation Enregistrée' : 'Brouillon Mis à Jour'}
+                </h4>
+                <p className="text-muted fw-bold mb-4 px-3">{successMsg}</p>
+                <Button 
+                  variant={msgVariant === 'success' ? 'success' : 'warning'} 
+                  className="px-5 py-2 rounded-pill fw-bold shadow-sm border-0 text-white"
+                  onClick={() => setShowSuccessCard(false)}
+                >
+                  Continuer
+                </Button>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -321,51 +364,62 @@ const Evaluations = () => {
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={handleEvalSubmit}>
-            <div className="p-3 bg-primary-soft rounded-4 mb-4 border border-primary border-opacity-10">
-              <p className="extra-small text-primary fw-bold mb-0">
-                Projet : <span className="text-navy">{selectedStudent?.project}</span>
-              </p>
-            </div>
+
             
             <Row className="g-4">
               <Col lg={8}>
+                <h6 className="extra-small fw-bold text-navy mb-3 opacity-75">DÉTAIL DU BARÈME ADMINISTRATIF</h6>
+                <div className="d-flex flex-column gap-2 mb-4">
+                  {[
+                    { id: 'report', label: 'Qualité du Rapport' },
+                    { id: 'progress', label: 'Avancement' },
+                    { id: 'autonomy', label: 'Autonomie' },
+                    { id: 'professionalism', label: 'Professionnalisme' },
+                  ].map(crit => (
+                    <div key={crit.id} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-white border border-light-soft shadow-sm">
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="p-2 bg-surface-alt rounded-3 text-primary">
+                          <FileText size={16} />
+                        </div>
+                        <div>
+                          <div className="small fw-bold text-navy">{crit.label}</div>
+                          <div className="extra-small text-muted opacity-50">Coef: {supervisorCriteriaWeights[crit.id] || 0}</div>
+                        </div>
+                      </div>
+                      <Form.Control 
+                        type="number" 
+                        max={20} min={0}
+                        className="bg-surface-alt border-0 rounded-4 text-center fw-bold text-navy shadow-none" 
+                        style={{ width: '70px', height: '40px' }}
+                        value={criteriaScores[crit.id]}
+                        onChange={(e) => {
+                          const val = Math.min(20, Math.max(0, Number(e.target.value)));
+                          setCriteriaScores({...criteriaScores, [crit.id]: val});
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Préparation du projet & Suivi</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Observations & Remarques Globales</Form.Label>
                   <Form.Control 
                     as="textarea" 
                     rows={3} 
                     className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
-                    placeholder="L'étudiant a-t-il bien préparé son projet ? Comment jugez-vous son assiduité ?"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Respect des consignes de l'encadrant</Form.Label>
-                  <Form.Control 
-                    as="textarea" 
-                    rows={3} 
-                    className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
-                    placeholder="L'étudiant a-t-il respecté vos consignes techniques et méthodologiques ?"
+                    placeholder="Synthèse de votre évaluation sur le semestre..."
                     required
                   />
                 </Form.Group>
               </Col>
               <Col lg={4}>
                 <div className="h-100 p-4 rounded-4 bg-surface-alt border border-light-soft d-flex flex-column align-items-center justify-content-center text-center">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note de l'Encadrant</Form.Label>
-                  <Form.Control 
-                    type="number" 
-                    max={20} min={0} 
-                    step="0.25"
-                    className="h1 fw-bold text-center border-0 bg-transparent text-primary shadow-none mb-0" 
-                    style={{ fontSize: '3rem' }}
-                    placeholder="00"
-                    value={pfeNote}
-                    onChange={(e) => setPfeNote(e.target.value)}
-                    required
-                  />
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Finale Encadrant</Form.Label>
+                  <div className="h1 fw-bold text-center border-0 bg-transparent text-primary shadow-none mb-0" style={{ fontSize: '3rem' }}>
+                    {calculatedTotal}
+                  </div>
                   <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
-                  <div className="extra-small text-muted fw-bold mt-3 opacity-50">(Coef: 50%)</div>
+                  <div className="extra-small text-muted fw-bold mt-3 opacity-50">(Part finale: {pfeWeights.supervisor}%)</div>
                 </div>
               </Col>
             </Row>

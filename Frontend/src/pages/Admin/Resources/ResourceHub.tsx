@@ -7,6 +7,7 @@ import {
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
+import { useApp } from '../../../context/AppContext';
 
 interface ResourceFile {
   name: string;
@@ -24,7 +25,13 @@ const FILES: ResourceFile[] = [
 ];
 
 const ResourceHub: React.FC = () => {
+  const { resourceCenter } = useApp();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredResources = resourceCenter.filter(res => 
+    res.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="resources-modern-layout py-4">
@@ -71,7 +78,12 @@ const ResourceHub: React.FC = () => {
             <div className="d-flex gap-2">
               <InputGroup className="bg-surface rounded-pill border px-2 overflow-hidden d-none d-md-flex">
                 <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted"/></InputGroup.Text>
-                <Form.Control placeholder="Rechercher..." className="bg-transparent border-0 shadow-none extra-small text-navy" />
+                <Form.Control 
+                  placeholder="Rechercher..." 
+                  className="bg-transparent border-0 shadow-none extra-small text-navy" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </InputGroup>
               <Button variant="outline-secondary" size="sm" className="border rounded-pill px-3"><ListIcon size={16} /></Button>
               <Button variant="primary" size="sm" className="btn-premium border-0 rounded-pill px-3"><Grid size={16} /></Button>
@@ -90,22 +102,22 @@ const ResourceHub: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {FILES.map((file, i) => (
-                  <tr key={i} className="border-bottom border-light border-opacity-10 transition-all">
+                {filteredResources.map((file, i) => (
+                  <tr key={file.id || i} className="border-bottom border-light border-opacity-10 transition-all">
                     <td className="ps-4 py-3">
                       <div className="d-flex align-items-center gap-3">
                         <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
                           <FileText size={18} />
                         </div>
-                        <span className="small fw-bold text-navy">{file.name}</span>
+                        <span className="small fw-bold text-navy">{file.title}</span>
                       </div>
                     </td>
                     <td className="py-3">
                       <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
-                        {file.type}
+                        {file.type || 'FILE'}
                       </Badge>
                     </td>
-                    <td className="py-3 small text-muted fw-bold">{file.size}</td>
+                    <td className="py-3 small text-muted fw-bold">{file.size || '—'}</td>
                     <td className="py-3 small text-muted fw-bold">{file.date}</td>
                     <td className="pe-4 py-3 text-end">
                       <Dropdown align="end">
