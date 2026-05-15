@@ -1,22 +1,15 @@
 /* BLUEPRINT-JS-START */
-// 🚀 Auto-generado para typescript: 5/15/2026, 1:12:48 PM
+// 🚀 Auto-generado para typescript: 5/15/2026, 1:35:51 PM
 
 'use strict';
 
-console.log('✅ 2 funciones y 1 clases detectadas');
+console.log('✅ 1 funciones y 0 clases detectadas');
 
 // Funciones interactivas
-function demo_request() {
-    console.log('▶️ Ejecutando: request()');
-    alert('Función request() ejecutada');
+function demo_API_ENDPOINTS() {
+    console.log('▶️ Ejecutando: API_ENDPOINTS()');
+    alert('Función API_ENDPOINTS() ejecutada');
 }
 
-function demo_fetchClient() {
-    console.log('▶️ Ejecutando: fetchClient()');
-    alert('Función fetchClient() ejecutada');
-}
-
-// Clases detectadas
-console.log('📦 Clase: ApiError');
 
 /* BLUEPRINT-JS-END */
