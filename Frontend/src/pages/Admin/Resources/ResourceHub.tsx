@@ -33,6 +33,7 @@ const ResourceHub: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [pendingFile, setPendingFile] = useState<any>(null);
 
   const filteredResources = resourceCenter.filter(res => 
     res.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,10 +56,19 @@ const ResourceHub: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
+  const confirmUpload = () => {
+    addToResources(pendingFile);
+    setShowUploadModal(false);
+    setSuccessMsg(`Fichier "${pendingFile.title}" téléversé avec succès !`);
+    setPendingFile(null);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+
   const handleFileProcess = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
-    const newResource = {
+    const fileData = {
       id: `RES-${Date.now()}`,
       title: file.name,
       type: file.name.split('.').pop()?.toUpperCase() || 'FILE',
@@ -67,11 +77,7 @@ const ResourceHub: React.FC = () => {
       category: 'Supports',
       downloadUrl: '#'
     };
-    addToResources(newResource);
-    setShowUploadModal(false);
-    setSuccessMsg(`Fichier "${file.name}" téléversé avec succès !`);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    setPendingFile(fileData);
   };
 
   const handleDownloadAll = () => {
@@ -250,43 +256,81 @@ const ResourceHub: React.FC = () => {
       )}
 
       {/* Upload Modal (Basic) */}
-      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)} centered className="glass-modal">
+      <Modal 
+        show={showUploadModal} 
+        onHide={() => {
+          setShowUploadModal(false);
+          setPendingFile(null);
+        }} 
+        centered 
+        className="glass-modal"
+      >
         <Modal.Header closeButton className="border-0 p-4">
           <Modal.Title className="fw-bold text-navy h5">Téléverser des Documents</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4 text-center">
-          <div 
-            className="p-5 border-2 border-dashed rounded-4 bg-surface-alt mb-4 d-flex flex-column align-items-center gap-3 transition-all"
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.add('border-primary', 'bg-primary-soft');
-            }}
-            onDragLeave={(e) => {
-              e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
-              handleFileProcess(e.dataTransfer.files);
-            }}
-            onClick={() => fileInputRef.current?.click()}
-            style={{ cursor: 'pointer' }}
-          >
-            <input 
-              type="file" 
-              hidden 
-              ref={fileInputRef} 
-              onChange={(e) => handleFileProcess(e.target.files)}
-            />
-            <HardDrive size={48} className="text-primary opacity-25" />
-            <div>
-              <div className="fw-bold text-navy">Glissez vos fichiers ici</div>
-              <div className="extra-small text-muted fw-bold">ou cliquez pour parcourir vos dossiers</div>
+          {!pendingFile ? (
+            <div 
+              className="p-5 border-2 border-dashed rounded-4 bg-surface-alt mb-4 d-flex flex-column align-items-center gap-3 transition-all"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.add('border-primary', 'bg-primary-soft');
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
+                handleFileProcess(e.dataTransfer.files);
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              style={{ cursor: 'pointer' }}
+            >
+              <input 
+                type="file" 
+                hidden 
+                ref={fileInputRef} 
+                onChange={(e) => handleFileProcess(e.target.files)}
+              />
+              <HardDrive size={48} className="text-primary opacity-25" />
+              <div>
+                <div className="fw-bold text-navy">Glissez vos fichiers ici</div>
+                <div className="extra-small text-muted fw-bold">ou cliquez pour parcourir vos dossiers</div>
+              </div>
             </div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-4 rounded-4 border border-primary border-opacity-10 bg-primary-soft mb-4 text-start"
+            >
+              <div className="d-flex align-items-center gap-3 mb-3">
+                <div className="p-3 bg-white rounded-3 shadow-sm text-primary">
+                  <FileText size={32} />
+                </div>
+                <div>
+                  <div className="fw-bold text-navy text-truncate" style={{ maxWidth: '250px' }}>{pendingFile.title}</div>
+                  <div className="extra-small text-muted fw-bold">{pendingFile.size} • {pendingFile.type}</div>
+                </div>
+              </div>
+              <div className="extra-small text-primary fw-bold opacity-75">Voulez-vous confirmer le téléversement de ce fichier ?</div>
+            </motion.div>
+          )}
+
+          <div className="d-flex gap-2">
+            {pendingFile && (
+              <Button variant="outline-secondary" className="flex-fill py-3 rounded-pill fw-bold border-2" onClick={() => setPendingFile(null)}>
+                Annuler
+              </Button>
+            )}
+            <Button 
+              className="btn-premium flex-fill py-3 rounded-pill fw-bold border-0 shadow-sm" 
+              onClick={pendingFile ? confirmUpload : () => fileInputRef.current?.click()}
+            >
+              {pendingFile ? 'Confirmer le téléversement' : 'Sélectionner un fichier'}
+            </Button>
           </div>
-          <Button className="btn-premium w-100 py-3 rounded-pill fw-bold border-0 shadow-sm" onClick={() => fileInputRef.current?.click()}>
-            Sélectionner un fichier
-          </Button>
         </Modal.Body>
       </Modal>
     </div>
