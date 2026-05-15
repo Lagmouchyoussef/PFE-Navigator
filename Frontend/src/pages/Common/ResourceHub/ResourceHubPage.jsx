@@ -26,12 +26,12 @@ const CATEGORIES = [
 ];
 
 const DOCUMENTS = [
-  { name: "Guide d'Évaluation PFE 2026.pdf", author: "Admin", category: "Guidelines", size: "2.4 MB", dls: 245, date: "2026-01-15" },
-  { name: "Grille de Notation Officielle.xlsx", author: "Admin", category: "Templates", size: "156 KB", dls: 198, date: "2026-01-20" },
-  { name: "Critères d'Excellence Académique.pdf", author: "Prof. Martin", category: "Guidelines", size: "1.8 MB", dls: 167, date: "2026-02-10" },
-  { name: "Modèle Rapport de Soutenance.docx", author: "Admin", category: "Templates", size: "89 KB", dls: 234, date: "2026-02-15" },
-  { name: "Procédures de Défense.pdf", author: "Dr. Chen", category: "Procedures", size: "3.2 MB", dls: 156, date: "2026-03-01" },
-  { name: "FAQ Jury - Questions Fréquentes.pdf", author: "Admin", category: "Help", size: "1.1 MB", dls: 189, date: "2026-03-10" }
+  { name: "PFE Evaluation Guide 2026.pdf", author: "Admin", category: "Guidelines", size: "2.4 MB", dls: 245, date: "2026-01-15" },
+  { name: "Official Grading Grid.xlsx", author: "Admin", category: "Templates", size: "156 KB", dls: 198, date: "2026-01-20" },
+  { name: "Academic Excellence Criteria.pdf", author: "Prof. Martin", category: "Guidelines", size: "1.8 MB", dls: 167, date: "2026-02-10" },
+  { name: "Defense Report Template.docx", author: "Admin", category: "Templates", size: "89 KB", dls: 234, date: "2026-02-15" },
+  { name: "Defense Procedures.pdf", author: "Dr. Chen", category: "Procedures", size: "3.2 MB", dls: 156, date: "2026-03-01" },
+  { name: "Jury FAQ - Frequently Asked Questions.pdf", author: "Admin", category: "Help", size: "1.1 MB", dls: 189, date: "2026-03-10" }
 ];
 
 const ResourceHubPage = () => {

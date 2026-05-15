@@ -27,9 +27,9 @@ const CHART_DATA = [
 
 const CRITERIA = [
   { id: 'innovation', label: 'Innovation' },
-  { id: 'methodology', label: 'Méthodologie' },
-  { id: 'quality', label: 'Qualité Technique' },
-  { id: 'presentation', label: 'Présentation' },
+  { id: 'methodology', label: 'Methodology' },
+  { id: 'quality', label: 'Technical Quality' },
+  { id: 'presentation', label: 'Presentation' },
   { id: 'docs', label: 'Documentation' },
 ];
 
@@ -114,13 +114,13 @@ const JuryEvaluationPage = () => {
   };
 
   const getStatus = (score) => {
-    if (score === '' || score === null) return { label: 'En attente', color: 'primary', opacity: '50' };
+    if (score === '' || score === null) return { label: 'Pending', color: 'primary', opacity: '50' };
     const n = parseFloat(score);
-    if (n < 10) return { label: 'Médiocre', color: 'danger' };
+    if (n < 10) return { label: 'Poor', color: 'danger' };
     if (n < 12) return { label: 'Passable', color: 'warning' };
-    if (n < 14) return { label: 'Assez Bien', color: 'info' };
-    if (n < 16) return { label: 'Bien', color: 'primary' };
-    if (n < 18) return { label: 'Très Bien', color: 'success' };
+    if (n < 14) return { label: 'Fairly Good', color: 'info' };
+    if (n < 16) return { label: 'Good', color: 'primary' };
+    if (n < 18) return { label: 'Very Good', color: 'success' };
     return { label: 'Excellent', color: 'success' };
   };
 
@@ -130,7 +130,7 @@ const JuryEvaluationPage = () => {
     if (!activeStudent) return;
     
     if (Number(calculatedFinalScore) === 0) {
-      setSuccessMsg(`Erreur : Impossible d'enregistrer un brouillon vide pour ${activeStudent.name}.`);
+      setSuccessMsg(`Error: Cannot save an empty draft for ${activeStudent.name}.`);
       setMsgVariant('danger');
       setShowSuccessCard(true);
       setTimeout(() => setShowSuccessCard(false), 5000);
@@ -141,11 +141,11 @@ const JuryEvaluationPage = () => {
       juryScore: Number(calculatedFinalScore),
       juryCriteriaScores: { ...scores },
       isDraft: true,
-      juryRemarks: 'Brouillon - Notes en cours de saisie',
+      juryRemarks: 'Draft - Scores in progress',
       juryRespectInstructions: respectInstructions,
       juryObservations: observations
     });
-    setSuccessMsg(`Succès : Le brouillon pour ${activeStudent.name} a été enregistré.`);
+    setSuccessMsg(`Success: Draft for ${activeStudent.name} has been saved.`);
     setMsgVariant('success');
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
@@ -155,7 +155,7 @@ const JuryEvaluationPage = () => {
     if (!activeStudent) return;
     
     if (Number(calculatedFinalScore) === 0) {
-      setSuccessMsg(`Erreur : Vous n'avez pas encore entré les notes pour ${activeStudent.name}.`);
+      setSuccessMsg(`Error: You haven't entered scores for ${activeStudent.name} yet.`);
       setMsgVariant('danger');
       setShowSuccessCard(true);
       setTimeout(() => setShowSuccessCard(false), 5000);
@@ -170,14 +170,14 @@ const JuryEvaluationPage = () => {
       juryCriteriaScores: { ...scores }, // Persist the individual scores
       isJuryEvaluated: true,
       isDraft: false,
-      juryRemarks: isUpdating ? 'Évaluation mise à jour par le jury.' : 'Évaluation finale confirmée et enregistrée.',
+      juryRemarks: isUpdating ? 'Evaluation updated by the jury.' : 'Final evaluation confirmed and recorded.',
       juryRespectInstructions: respectInstructions,
       juryObservations: observations
     });
     
     setSuccessMsg(isUpdating 
-      ? `Succès : Les modifications pour ${activeStudent.name} ont été faites avec succès.`
-      : `Félicitations : L'évaluation finale pour ${activeStudent.name} a été enregistrée avec succès. Les notes sont bien entrées dans le système.`
+      ? `Success: Modifications for ${activeStudent.name} have been made successfully.`
+      : `Congratulations: The final evaluation for ${activeStudent.name} has been successfully recorded. Scores are entered in the system.`
     );
     setMsgVariant('success');
     setShowSuccessCard(true);
@@ -223,7 +223,7 @@ const JuryEvaluationPage = () => {
 
     setShowResetConfirm(false);
     setResetStudentId(null);
-    setSuccessMsg("L'évaluation a été réinitialisée avec succès.");
+    setSuccessMsg("Evaluation has been successfully reset.");
     setMsgVariant('success');
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
@@ -248,30 +248,30 @@ const JuryEvaluationPage = () => {
   const handleExport = (format) => {
     const dataToExport = students.filter(s => selectedStudents.includes(s.id));
     if (dataToExport.length === 0) {
-      alert("Veuillez sélectionner au moins un étudiant à exporter.");
+      alert("Please select at least one student to export.");
       return;
     }
 
     if (format === 'csv') {
-      const headers = ['Etudiant', 'Projet', 'Note Jury', 'Note Encadrant', 'Status'];
+      const headers = ['Student', 'Project', 'Jury Score', 'Supervisor Score', 'Status'];
       const rows = dataToExport.map(s => [
         s.name, 
         s.project, 
         s.juryScore || 'N/A', 
         s.supervisorScore || 'N/A',
-        s.isJuryEvaluated ? 'Evalué' : 'À évaluer'
+        s.isJuryEvaluated ? 'Evaluated' : 'To evaluate'
       ]);
       const csvContent = "data:text/csv;charset=utf-8," 
         + [headers, ...rows].map(e => e.join(",")).join("\n");
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", "evaluations_jury.csv");
+      link.setAttribute("download", "jury_evaluations.csv");
       document.body.appendChild(link);
       link.click();
     } else if (format === 'pdf') {
       window.print();
     } else if (format === 'word') {
-      const headers = ['Etudiant', 'Projet', 'Note Jury', 'Note Encadrant'];
+      const headers = ['Student', 'Project', 'Jury Score', 'Supervisor Score'];
       let html = "<html><body><table border='1'><tr>" + headers.map(h => `<th>${h}</th>`).join('') + "</tr>";
       dataToExport.forEach(s => {
         html += `<tr><td>${s.name}</td><td>${s.project}</td><td>${s.juryScore || 'N/A'}</td><td>${s.supervisorScore || 'N/A'}</td></tr>`;
@@ -280,7 +280,7 @@ const JuryEvaluationPage = () => {
       const blob = new Blob([html], { type: 'application/msword' });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "evaluations_jury.doc";
+      link.download = "jury_evaluations.doc";
       link.click();
     }
   };
@@ -303,7 +303,7 @@ const JuryEvaluationPage = () => {
                   {msgVariant === 'success' ? <CheckCircle size={48} /> : <AlertCircle size={48} />}
                 </div>
                 <h4 className="fw-bold mb-2 text-navy">
-                  {msgVariant === 'success' ? 'Évaluation Enregistrée' : 'Échec de Soumission'}
+                  {msgVariant === 'success' ? 'Evaluation Recorded' : 'Submission Failed'}
                 </h4>
                 <p className="text-muted fw-bold mb-4 px-3">{successMsg}</p>
                 <Button 
@@ -311,7 +311,7 @@ const JuryEvaluationPage = () => {
                   className="px-5 py-2 rounded-pill fw-bold shadow-sm border-0"
                   onClick={() => setShowSuccessCard(false)}
                 >
-                  Continuer
+                  Continue
                 </Button>
               </motion.div>
             </div>
@@ -332,9 +332,9 @@ const JuryEvaluationPage = () => {
                 <div className="p-4 rounded-circle bg-danger-soft text-danger mb-4">
                   <RotateCcw size={48} />
                 </div>
-                <h4 className="fw-bold mb-3 text-navy">Confirmer la Réinitialisation</h4>
+                <h4 className="fw-bold mb-3 text-navy">Confirm Reset</h4>
                 <p className="text-muted fw-bold mb-5 px-3">
-                  Voulez-vous vraiment réinitialiser cette évaluation ? Toutes les notes seront remises à zéro.
+                  Do you really want to reset this evaluation? All scores will be reset to zero.
                 </p>
                 <div className="d-flex gap-3 w-100">
                   <Button 
@@ -342,14 +342,14 @@ const JuryEvaluationPage = () => {
                     className="flex-grow-1 py-3 rounded-pill fw-bold border-2"
                     onClick={() => setShowResetConfirm(false)}
                   >
-                    Annuler
+                    Cancel
                   </Button>
                   <Button 
                     variant="danger" 
                     className="flex-grow-1 py-3 rounded-pill fw-bold shadow-sm border-0"
                     onClick={executeReset}
                   >
-                    Réinitialiser
+                    Reset
                   </Button>
                 </div>
               </motion.div>
@@ -361,7 +361,7 @@ const JuryEvaluationPage = () => {
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h2 className="fw-bold mb-1 text-navy text-gradient">Evaluation Center</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Gérez les soutenances et le suivi académique en temps réel.</p>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Manage defenses and academic monitoring in real time.</p>
           </motion.div>
         </header>
 
@@ -376,7 +376,7 @@ const JuryEvaluationPage = () => {
               <h5 className="fw-bold text-navy mb-0">Project List</h5>
               {selectedStudents.length > 0 && (
                 <Badge className="bg-primary-soft text-primary border-0 px-2 py-1 extra-small fw-bold">
-                  {selectedStudents.length} sélectionnés
+                  {selectedStudents.length} selected
                 </Badge>
               )}
             </div>
@@ -384,17 +384,17 @@ const JuryEvaluationPage = () => {
             <div className="d-flex align-items-center gap-2">
               <Dropdown>
                 <Dropdown.Toggle variant="light" className="btn-surface-alt extra-small fw-bold d-flex align-items-center gap-2 border-0 rounded-pill px-4 shadow-none">
-                  <Download size={16} className="text-primary" /> Exporter
+                  <Download size={16} className="text-primary" /> Export
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="border-0 shadow-lg rounded-4 p-2">
                   <Dropdown.Item onClick={() => handleExport('pdf')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
-                    <Printer size={16} className="text-danger" /> Exporter en PDF (Imprimer)
+                    <Printer size={16} className="text-danger" /> Export to PDF (Print)
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => handleExport('csv')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
-                    <FileSpreadsheet size={16} className="text-success" /> Exporter en CSV (Excel)
+                    <FileSpreadsheet size={16} className="text-success" /> Export to CSV (Excel)
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => handleExport('word')} className="rounded-3 extra-small fw-bold d-flex align-items-center gap-2 py-2">
-                    <FileText size={16} className="text-primary" /> Exporter en Word
+                    <FileText size={16} className="text-primary" /> Export to Word
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -435,7 +435,7 @@ const JuryEvaluationPage = () => {
                     <td className="py-3 small text-muted text-truncate fw-bold opacity-75" style={{maxWidth: '300px'}}>{p.project}</td>
                     <td className="py-3 small">
                       <Badge className={`bg-${p.isJuryEvaluated ? 'success' : 'warning'}-soft text-${p.isJuryEvaluated ? 'success' : 'warning'} border-0 px-2 py-1 extra-small fw-bold`}>
-                        {p.isJuryEvaluated ? 'Évalué' : 'À Évaluer'}
+                        {p.isJuryEvaluated ? 'Evaluated' : 'To Evaluate'}
                       </Badge>
                     </td>
                     <td className="py-3 small">
@@ -445,7 +445,7 @@ const JuryEvaluationPage = () => {
                           <span className="fw-bold text-navy">{p.juryScore !== null ? `${p.juryScore}/20` : '--'}</span>
                         </div>
                         <div className="d-flex align-items-center gap-2">
-                          <span className="extra-small text-muted fw-bold opacity-50">Encadrant:</span>
+                          <span className="extra-small text-muted fw-bold opacity-50">Supervisor:</span>
                           <span className={`fw-bold ${isGradesPublished ? 'text-primary' : 'text-muted opacity-25'}`}>
                             {isGradesPublished ? (p.supervisorScore !== null ? `${p.supervisorScore}/20` : '--') : '??'}
                           </span>
@@ -455,8 +455,8 @@ const JuryEvaluationPage = () => {
                     <td className="px-4 py-3 text-end">
                       <div className="d-flex justify-content-end align-items-center gap-3">
                         {p.isDraft && !p.isJuryEvaluated && (
-                          <Badge className="bg-warning-soft text-warning border-0 px-2 py-1 extra-small fw-bold" title="Brouillon enregistré">
-                            <FileText size={12} className="me-1" /> Brouillon
+                          <Badge className="bg-warning-soft text-warning border-0 px-2 py-1 extra-small fw-bold" title="Draft saved">
+                            <FileText size={12} className="me-1" /> Draft
                           </Badge>
                         )}
                         {p.isJuryEvaluated && (
@@ -464,7 +464,7 @@ const JuryEvaluationPage = () => {
                             variant="link" 
                             className="p-0 text-danger hover-opacity-100 opacity-50 transition-all shadow-none border-0"
                             onClick={() => handleReset(p.id)}
-                            title="Réinitialiser l'évaluation"
+                            title="Reset evaluation"
                           >
                             <RotateCcw size={16} />
                           </Button>
@@ -474,7 +474,7 @@ const JuryEvaluationPage = () => {
                           className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-end gap-1 hover-gap-2 transition-all shadow-none border-0"
                           onClick={() => handleOpenEvaluation(p)}
                         >
-                          {p.isJuryEvaluated ? 'Réviser' : 'Évaluer'} <ChevronRight size={14} />
+                          {p.isJuryEvaluated ? 'Revise' : 'Evaluate'} <ChevronRight size={14} />
                         </Button>
                       </div>
                     </td>
@@ -495,7 +495,7 @@ const JuryEvaluationPage = () => {
                 <p className="text-muted small mb-0 fw-bold opacity-75">{activeStudent?.title}</p>
               </div>
               <div className="p-4 rounded-4 bg-surface-alt border border-light border-opacity-10 text-center shadow-sm" style={{ minWidth: '160px' }}>
-                <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Note Finale Soutenance</div>
+                <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Final Defense Grade</div>
                 <div className="h2 fw-bold mb-0 text-primary">{calculatedFinalScore}<small className="h6 text-muted ms-1 fw-bold opacity-50">/20</small></div>
               </div>
             </div>
@@ -508,10 +508,10 @@ const JuryEvaluationPage = () => {
               <Table borderless className="align-middle">
                 <thead className="bg-surface-alt">
                   <tr className="border-bottom opacity-50">
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Critère</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Coefficient (Barème)</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note (0-20)</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-end">Statut</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Criterion</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Coefficient (Scale)</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Score (0-20)</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase text-end">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -519,7 +519,7 @@ const JuryEvaluationPage = () => {
                     <tr key={item.id} className="border-bottom border-light border-opacity-10">
                       <td className="py-4">
                         <div className="fw-bold small text-navy">{item.label}</div>
-                        <div className="extra-small text-muted fw-bold opacity-50">Évaluation de la pertinence et de la rigueur du critère.</div>
+                        <div className="extra-small text-muted fw-bold opacity-50">Assessment of relevance and rigor of the criterion.</div>
                       </td>
                       <td className="py-4 text-center">
                         <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold rounded-pill">
@@ -550,28 +550,28 @@ const JuryEvaluationPage = () => {
 
             <div className="bg-surface-alt rounded-4 p-4 mb-5 border border-light border-opacity-10 shadow-sm">
               <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
-                <Award size={20} className="text-success" /> Évaluation Soutenance PFE (50%)
+                <Award size={20} className="text-success" /> PFE Defense Evaluation (50%)
               </h6>
               <Row className="g-4">
                 <Col md={6}>
                   <Form.Group className="mb-4">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Respect des consignes de présentation</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Respect for presentation guidelines</Form.Label>
                     <Form.Control 
                       as="textarea" 
                       rows={3} 
                       className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
-                      placeholder="L'étudiant a-t-il respecté les consignes du PFE devant le jury ?"
+                      placeholder="Did the student respect the PFE guidelines before the jury?"
                       value={respectInstructions}
                       onChange={(e) => setRespectInstructions(e.target.value)}
                     />
                   </Form.Group>
                   <Form.Group>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Observations générales du Jury</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">General Jury Observations</Form.Label>
                     <Form.Control 
                       as="textarea" 
                       rows={2} 
                       className="rounded-4 border-light-soft bg-white py-3 extra-small fw-bold shadow-none" 
-                      placeholder="Forces, points à améliorer..."
+                      placeholder="Strengths, areas for improvement..."
                       value={observations}
                       onChange={(e) => setObservations(e.target.value)}
                     />
@@ -579,17 +579,17 @@ const JuryEvaluationPage = () => {
                 </Col>
                 <Col md={3}>
                   <div className="h-100 p-4 rounded-4 bg-white border border-light-soft d-flex flex-column align-items-center justify-content-center text-center shadow-sm">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Finale Calculée</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Final Calculated Grade</Form.Label>
                     <div className="h1 fw-bold text-center border-0 bg-transparent text-success shadow-none mb-0" style={{ fontSize: '3rem' }}>
                       {calculatedFinalScore}
                     </div>
                     <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
-                    <div className="extra-small text-muted fw-bold mt-2 opacity-50">Générée par le programme</div>
+                    <div className="extra-small text-muted fw-bold mt-2 opacity-50">Generated by the program</div>
                   </div>
                 </Col>
                 <Col md={3}>
                   <div className="h-100 p-4 rounded-4 bg-surface-alt border border-light-soft d-flex flex-column align-items-center justify-content-center text-center opacity-75">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Note Encadrant</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Supervisor Grade</Form.Label>
                     <div className="h1 fw-bold text-navy mb-0">
                       {isGradesPublished 
                         ? (activeStudent?.supervisorScore !== null ? activeStudent?.supervisorScore : '--')
@@ -597,7 +597,7 @@ const JuryEvaluationPage = () => {
                     </div>
                     <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
                     <Badge className={`mt-2 border-0 extra-small fw-bold ${isGradesPublished ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
-                      {isGradesPublished ? 'Public' : 'Confidentiel'}
+                      {isGradesPublished ? 'Public' : 'Confidential'}
                     </Badge>
                   </div>
                 </Col>
@@ -610,13 +610,13 @@ const JuryEvaluationPage = () => {
                 className="px-4 py-2 fw-bold extra-small rounded-pill border-2 opacity-50 hover-opacity-100 transition-all shadow-none"
                 onClick={handleDraft}
               >
-                Brouillon
+                Draft
               </Button>
               <Button 
                 className="btn-premium px-5 py-3 d-flex align-items-center gap-2 fw-bold rounded-pill shadow-sm border-0" 
                 onClick={handleSubmit}
               >
-                <Send size={18} /> Soumettre l'Évaluation Finale
+                <Send size={18} /> Submit Final Evaluation
               </Button>
             </div>
           </div>
@@ -633,10 +633,10 @@ const JuryStatsRow = ({ students }) => {
   const drafts = students.filter(s => s.isDraft && !s.isJuryEvaluated).length;
 
   const stats = [
-    { label: 'Total Projets', value: total, icon: <FileText />, color: 'primary' },
-    { label: 'Évalués', value: completed, icon: <CheckCircle />, color: 'success' },
-    { label: 'Brouillons', value: drafts, icon: <Edit3 />, color: 'warning' },
-    { label: 'À Évaluer', value: pending, icon: <Clock />, color: 'danger' },
+    { label: 'Total Projects', value: total, icon: <FileText />, color: 'primary' },
+    { label: 'Evaluated', value: completed, icon: <CheckCircle />, color: 'success' },
+    { label: 'Drafts', value: drafts, icon: <Edit3 />, color: 'warning' },
+    { label: 'To Evaluate', value: pending, icon: <Clock />, color: 'danger' },
   ];
 
   return (

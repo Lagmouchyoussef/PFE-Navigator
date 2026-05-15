@@ -16,9 +16,9 @@ const SupervisorMessages = () => {
   const fileRef = useRef(null);
 
   const channels = [
-    { id: 'student', name: 'Étudiants PFE', avatar: 'ST', color: '#10b981', desc: 'Suivi de vos étudiants' },
-    { id: 'admin', name: 'Administration', avatar: 'AD', color: '#f59e0b', desc: 'Coordination admin' },
-    { id: 'jury', name: 'Membres Jury', avatar: 'JU', color: '#6366f1', desc: 'Évaluations' },
+    { id: 'student', name: 'PFE Students', avatar: 'ST', color: '#10b981', desc: 'Monitor your students' },
+    { id: 'admin', name: 'Administration', avatar: 'AD', color: '#f59e0b', desc: 'Admin coordination' },
+    { id: 'jury', name: 'Jury Members', avatar: 'JU', color: '#6366f1', desc: 'Evaluations' },
   ];
 
   const filteredMessages = (messages || []).filter(m => 
@@ -47,7 +47,7 @@ const SupervisorMessages = () => {
             {/* Sidebar Header */}
             <div className="p-4 bg-white border-bottom shadow-sm">
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="fw-bold text-navy mb-0">Messagerie</h5>
+                <h5 className="fw-bold text-navy mb-0">Messaging</h5>
                 <Button variant="link" className="p-2 rounded-circle border-0 text-primary hover-bg-surface-alt transition-all">
                   <UserPlus size={20} />
                 </Button>
@@ -58,7 +58,7 @@ const SupervisorMessages = () => {
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Rechercher..." 
+                  placeholder="Search..." 
                   className="bg-transparent border-0 shadow-none extra-small py-2 fw-bold"
                 />
               </InputGroup>
@@ -88,7 +88,7 @@ const SupervisorMessages = () => {
                     </div>
                     <div className="extra-small text-primary fw-bold mb-1 opacity-75">{conv.desc}</div>
                     <p className="extra-small text-muted mb-0 text-truncate opacity-75 fw-bold">
-                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "Aucun message récent"}
+                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "No recent messages"}
                     </p>
                   </div>
                 </motion.div>
@@ -111,7 +111,7 @@ const SupervisorMessages = () => {
                   <h6 className="fw-bold text-navy mb-0">{channels.find(c => c.id === activeTab)?.name}</h6>
                   <div className="d-flex align-items-center gap-2 mt-1">
                     <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
-                    <span className="extra-small text-success fw-bold">Connecté</span>
+                    <span className="extra-small text-success fw-bold">Online</span>
                   </div>
                 </div>
               </div>
@@ -123,9 +123,9 @@ const SupervisorMessages = () => {
                     <MoreVertical size={20} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="shadow-lg border-0 rounded-4 extra-small p-2">
-                    <Dropdown.Item className="rounded-3 py-2 fw-bold text-navy">Profil</Dropdown.Item>
+                    <Dropdown.Item className="rounded-3 py-2 fw-bold text-navy">Profile</Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item className="rounded-3 py-2 fw-bold text-danger">Archiver</Dropdown.Item>
+                    <Dropdown.Item className="rounded-3 py-2 fw-bold text-danger">Archive</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -151,7 +151,7 @@ const SupervisorMessages = () => {
               ))}
               {filteredMessages.length === 0 && (
                 <div className="text-center p-5 text-muted extra-small fw-bold opacity-50">
-                  Aucun message dans cette discussion.
+                  No messages in this discussion.
                 </div>
               )}
             </div>
@@ -165,7 +165,7 @@ const SupervisorMessages = () => {
                 </Button>
                 <div className="flex-grow-1">
                   <Form.Control 
-                    placeholder="Tapez votre message..." 
+                    placeholder="Type your message..." 
                     className="rounded-pill border-0 shadow-none px-4 py-2 bg-surface-alt text-navy extra-small fw-bold"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
@@ -176,7 +176,7 @@ const SupervisorMessages = () => {
                   className="btn-premium rounded-pill px-4 d-flex align-items-center gap-2 shadow-sm border-0"
                   onClick={handleSend}
                 >
-                  <span className="d-none d-md-inline extra-small fw-bold text-uppercase">Envoyer</span>
+                  <span className="d-none d-md-inline extra-small fw-bold text-uppercase">Send</span>
                   <Send size={18}/>
                 </Button>
               </div>

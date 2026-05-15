@@ -296,7 +296,7 @@ const Planning = () => {
               <Form.Label className="extra-small fw-bold text-navy opacity-75">NEW TIME SLOT</Form.Label>
               <Form.Control 
                 type="text" 
-                placeholder="ex: 14:00 - 15:30"
+                placeholder="example: 14:00 - 15:30"
                 value={newTime}
                 onChange={(e) => setNewTime(e.target.value)}
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
@@ -325,7 +325,7 @@ const Planning = () => {
               <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TITLE</Form.Label>
               <Form.Control 
                 type="text" 
-                placeholder="ex: Follow-up Meeting"
+                placeholder="example: Follow-up Meeting"
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                 required
                 onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}

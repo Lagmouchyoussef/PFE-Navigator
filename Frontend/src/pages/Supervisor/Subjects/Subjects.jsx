@@ -108,7 +108,7 @@ const Subjects = () => {
   };
   
   const toggleObjective = (obj) => {
-    if (obj === 'Autre') {
+    if (obj === 'Other') {
       setShowOtherObjective(!showOtherObjective);
     }
     setSelectedObjectives(prev => 

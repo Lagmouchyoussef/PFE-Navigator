@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 
 const PROJECTS_DATA = [
-  { id: 'STU-2024-001', student: 'Ahmed Benali', title: 'Système de Gestion Intelligent basé sur l\'IA', supervisor: 'Prof. Martin', defenseDate: '2026-05-05', progress: 85, status: 'Ready for Review', score: null, avatar: 'AB', color: 'primary' },
-  { id: 'STU-2024-002', student: 'Sara Kamali', title: 'Vérification de Certificats par Blockchain', supervisor: 'Dr. Chen', defenseDate: '2026-05-06', progress: 60, status: 'Pending', score: null, avatar: 'SK', color: 'info' },
-  { id: 'STU-2024-003', student: 'Mohamed Alaoui', title: 'Solution IoT pour Campus Intelligent', supervisor: 'Prof. Smith', defenseDate: '2026-04-28', progress: 100, status: 'Evaluated', score: '17.5/20', avatar: 'MA', color: 'success' },
-  { id: 'STU-2024-004', student: 'Fatima Zahra', title: 'Application Mobile pour Inscription aux Cours', supervisor: 'Dr. Johnson', defenseDate: '2026-05-07', progress: 90, status: 'Ready for Review', score: null, avatar: 'FZ', color: 'warning' },
-  { id: 'STU-2024-005', student: 'Youssef Idrissi', title: 'Modèles de Prédiction Machine Learning', supervisor: 'Prof. Garcia', defenseDate: '2026-04-30', progress: 100, status: 'Evaluated', score: '16.8/20', avatar: 'YI', color: 'danger' }
+  { id: 'STU-2024-001', student: 'Ahmed Benali', title: 'AI-based Intelligent Management System', supervisor: 'Prof. Martin', defenseDate: '2026-05-05', progress: 85, status: 'Ready for Review', score: null, avatar: 'AB', color: 'primary' },
+  { id: 'STU-2024-002', student: 'Sara Kamali', title: 'Blockchain-based Certificate Verification', supervisor: 'Dr. Chen', defenseDate: '2026-05-06', progress: 60, status: 'Pending', score: null, avatar: 'SK', color: 'info' },
+  { id: 'STU-2024-003', student: 'Mohamed Alaoui', title: 'IoT Solution for Smart Campus', supervisor: 'Prof. Smith', defenseDate: '2026-04-28', progress: 100, status: 'Evaluated', score: '17.5/20', avatar: 'MA', color: 'success' },
+  { id: 'STU-2024-004', student: 'Fatima Zahra', title: 'Mobile App for Course Enrollment', supervisor: 'Dr. Johnson', defenseDate: '2026-05-07', progress: 90, status: 'Ready for Review', score: null, avatar: 'FZ', color: 'warning' },
+  { id: 'STU-2024-005', student: 'Youssef Idrissi', title: 'Machine Learning Prediction Models', supervisor: 'Prof. Garcia', defenseDate: '2026-04-30', progress: 100, status: 'Evaluated', score: '16.8/20', avatar: 'YI', color: 'danger' }
 ];
 
 const JuryProjectsPage = () => {

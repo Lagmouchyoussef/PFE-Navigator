@@ -145,7 +145,7 @@ const ResourceHub: React.FC = () => {
         {/* Categories Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Documents PDF" value="18" icon={<FileText />} color="primary" trend="Fichiers" />
+            <StatCard label="Documents PDF" value="18" icon={<FileText />} color="primary" trend="Files" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Space Used" value="1.2 GB" icon={<HardDrive />} color="info" trend="Out of 10 GB" />

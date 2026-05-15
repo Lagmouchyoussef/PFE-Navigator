@@ -463,13 +463,13 @@ const StudentsList = () => {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-bold text-muted extra-small">Last Name</Form.Label>
-                  <Form.Control type="text" placeholder="Ex: Dupont" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+                  <Form.Control type="text" placeholder="Example: Smith" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-bold text-muted extra-small">First Name</Form.Label>
-                  <Form.Control type="text" placeholder="Ex: Jean" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+                  <Form.Control type="text" placeholder="Example: John" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
                 </Form.Group>
               </Col>
             </Row>
