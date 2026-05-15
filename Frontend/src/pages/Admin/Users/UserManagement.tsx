@@ -53,8 +53,7 @@ interface UserData {
 const INITIAL_USERS: UserData[] = [];
 
 const UserManagement: React.FC = () => {
-  const { sendMessage: globalSendMessage } = useApp();
-  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
+  const { allUsers: users, createUser, updateUser, deleteUser, sendMessage: globalSendMessage } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
@@ -136,16 +135,15 @@ const UserManagement: React.FC = () => {
   };
 
   const handleProcessReport = (userId: number) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, confirmationStatus: 'None', reportDetails: undefined } as UserData : u));
+    updateUser(userId, { confirmationStatus: 'None', reportDetails: null });
   };
 
   const handleApplyPhoto = (userId: number, photo: string) => {
-    setUsers(users.map(u => u.id === userId ? { 
-      ...u, 
+    updateUser(userId, { 
       avatar: photo, 
       confirmationStatus: 'None', 
-      reportDetails: undefined 
-    } as UserData : u));
+      reportDetails: null 
+    });
   };
 
   const generateInstitutionalId = (role: string) => {
@@ -158,15 +156,14 @@ const UserManagement: React.FC = () => {
     return `${prefix}-${year}-${randomNum}`;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const now = new Date().toLocaleString();
     if (editingUser) {
       const newHistory = [...(editingUser.history || []), { action: 'Profile modification by Admin', date: now }];
-      setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData, history: newHistory } as UserData : u));
+      await updateUser(editingUser.id, { ...formData, history: newHistory });
     } else {
       const role = formData.role || 'Student';
-      const newUser: UserData = {
-        id: Math.max(...users.map(u => u.id)) + 1,
+      const userData = {
         institutionalId: generateInstitutionalId(role),
         name: formData.name || '',
         email: formData.email || '',
@@ -178,7 +175,7 @@ const UserManagement: React.FC = () => {
         history: [{ action: 'Account creation', date: now }],
         confirmationStatus: 'None'
       };
-      setUsers([...users, newUser]);
+      await createUser(userData);
     }
     closeModal();
   };
@@ -188,9 +185,9 @@ const UserManagement: React.FC = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      setUsers(users.filter(u => u.id !== userToDelete.id));
+      await deleteUser(userToDelete.id);
       setShowDeleteModal(false);
       setUserToDelete(null);
     }

@@ -16,23 +16,8 @@ interface JurySession {
   status?: 'Active' | 'Cancelled';
 }
 
-const AVAILABLE_JURIES = [
-  { id: 'j1', name: 'Dr. Sofia Drissi', dept: 'Computer Science' },
-  { id: 'j2', name: 'Pr. Youssef Lagmouch', dept: 'Software Engineering' },
-  { id: 'j3', name: 'Dr. Ahmed Mansouri', dept: 'Cybersecurity' },
-  { id: 'j4', name: 'Pr. Sara Kamali', dept: 'Artificial Intelligence' },
-  { id: 'j5', name: 'Dr. Karim Tazi', dept: 'Networks & Telecoms' },
-];
-
-const INITIAL_JURIES: JurySession[] = [
-  { id: 1, title: 'Jury Introduction', day: 1, date: '1 Jan 2025', location: 'Room A', time: '09:00', members: ['Dr. Sofia Drissi', 'Dr. Ahmed Mansouri'] },
-  { id: 2, title: 'Technical Session', day: 3, date: '3 Jan 2025', location: 'Room B', time: '14:00', members: ['Pr. Youssef Lagmouch'] },
-  { id: 3, title: 'Project Review', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00', members: ['Pr. Sara Kamali', 'Dr. Karim Tazi'] },
-  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Room D', time: '10:30', members: ['Dr. Sofia Drissi'] },
-  { id: 5, title: 'Final Audit', day: 12, date: '12 Jan 2025', location: 'Room A', time: '15:00', members: ['Dr. Ahmed Mansouri', 'Pr. Youssef Lagmouch'] },
-  { id: 6, title: 'Oral Defense', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '09:30', members: ['Pr. Sara Kamali'] },
-  { id: 7, title: 'Session Closing', day: 17, date: '17 Jan 2025', location: 'Room C', time: '16:30', members: ['Dr. Karim Tazi', 'Dr. Sofia Drissi'] },
-];
+const AVAILABLE_JURIES: any[] = [];
+const INITIAL_JURIES: JurySession[] = [];
 
 const JuryPlanning: React.FC = () => {
   const [activeView, setActiveView] = useState('Month');

@@ -83,7 +83,7 @@ function App() {
   const {
     user, logout, theme, setTheme, unreadCountForRole,
     notifications, markNotificationRead, markAllNotificationsRead, deleteNotification, unreadNotificationsCount,
-    messages, deleteMessage
+    messages, deleteMessage, markMessagesRead, isLoading, error, refreshData
   } = useApp();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -137,6 +137,22 @@ function App() {
     }
   };
 
+  if (isLoading && !user) {
+    return (
+      <div className="d-flex align-items-center justify-content-center vh-100 bg-background overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="spinner-border text-primary border-4 mb-4" style={{ width: '3rem', height: '3rem' }} role="status"></div>
+          <h5 className="fw-bold text-navy">Initializing Portal...</h5>
+          <p className="text-muted extra-small fw-bold opacity-75">Secure Production Session</p>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <Routes>
@@ -183,10 +199,12 @@ function App() {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
 
-  const unreadMsgCount = unreadCountForRole ? unreadCountForRole(user.role) : 0;
-  const localUnreadNotifs = notifications ? notifications.filter(n => !n.read).length : 0;
-  const recentNotifs = notifications ? notifications.slice(0, 4) : [];
-  const unreadMessages = messages ? messages.filter(m => m.sender !== user.role && (user.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) : [];
+  const unreadMsgCount = typeof unreadCountForRole === 'function' ? unreadCountForRole(user.role) : 0;
+  const localUnreadNotifs = Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0;
+  const recentNotifs = Array.isArray(notifications) ? notifications.slice(0, 4) : [];
+  const unreadMessages = (Array.isArray(messages) && user) 
+    ? messages.filter(m => m.sender !== user.role && (user.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) 
+    : [];
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
@@ -492,9 +510,9 @@ function App() {
                 <div className="p-2 text-center border-top bg-light-soft">
                   <Link
                     to={
-                      user.role === 'student' ? '/student/notifications' :
-                        user.role === 'supervisor' ? '/supervisor/notifications' :
-                          user.role === 'admin' ? '/admin/notifications' :
+                      (user.role as string) === 'student' ? '/student/notifications' :
+                        (user.role as string) === 'supervisor' ? '/supervisor/notifications' :
+                          (user.role as string) === 'admin' ? '/admin/notifications' :
                             '/jury/notifications'
                     }
                     className="text-decoration-none small text-secondary-custom fw-bold p-0"
@@ -522,7 +540,7 @@ function App() {
                       {user.role === 'jury' ? 'Jury Member' : user.role === 'supervisor' ? 'Supervisor Prof.' : 'PFE Student'}
                     </span>
                   </div>
-                  <div className="avatar-circle">{user.name.charAt(0)}</div>
+                  <div className="avatar-circle">{user?.name?.charAt(0) || 'U'}</div>
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
@@ -543,6 +561,24 @@ function App() {
             </Dropdown>
           </div>
         </header>
+
+        {error && (
+          <div className="px-4 mt-3">
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="alert alert-danger border-0 shadow-sm d-flex justify-content-between align-items-center rounded-4 py-3"
+            >
+              <div className="d-flex align-items-center gap-3">
+                <Activity size={20} />
+                <span className="extra-small fw-bold">{error}</span>
+              </div>
+              <Button variant="outline-danger" size="sm" className="rounded-pill px-3 border-2 fw-bold" onClick={refreshData}>
+                Retry Connection
+              </Button>
+            </motion.div>
+          </div>
+        )}
 
         <div className="content-area flex-grow-1" style={{ minHeight: 'calc(100vh - 80px)', position: 'relative' }}>
           <Routes>

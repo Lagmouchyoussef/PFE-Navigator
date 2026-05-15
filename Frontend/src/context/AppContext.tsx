@@ -5,38 +5,21 @@ import {
 } from '../types';
 import { INITIAL_SCORES, COEFFICIENTS, SCORE_LABELS } from '../constants';
 
-// ─── INITIAL DATA ────────────────────────────────────────────────────────────
+// ─── PRODUCTION STATE INITIALIZATION ──────────────────────────────────────────
+// All data is fetched from the backend on mount or login.
 
-const ACCOUNTS: User[] = [
-  { id: '1', institutionalId: 'STU-2026-001', email: 'etudiant@emsi.ma', name: 'User Student', role: 'student', initials: 'ST' },
-  { id: '2', institutionalId: 'JRY-2026-001', email: 'jury@emsi.ma', name: 'User Jury', role: 'jury', initials: 'JR' },
-  { id: '3', institutionalId: 'SUP-2026-001', email: 'encadrant@emsi.ma', name: 'User Supervisor', role: 'supervisor', initials: 'SP' },
-  { id: '4', institutionalId: 'ADM-2026-001', email: 'admin@emsi.ma', name: 'System Admin', role: 'admin', initials: 'AD' },
-];
-
-const INITIAL_MILESTONES: Milestone[] = [
-  { id: 1, title: 'Proposal', description: 'Submission of initial report / proposal by student.', status: 'current', date: '' },
-  { id: 2, title: 'Interim Report', description: 'Verification and validation of progress by supervisor.', status: 'pending', date: '' },
-  { id: 3, title: 'Final Report', description: 'Final validation or rejection of report by jury member.', status: 'pending', date: '' },
-  { id: 4, title: 'Defense', description: 'Defense presentation and publication of final grades by administration.', status: 'pending', date: '' },
-];
-
-
+const INITIAL_MILESTONES: Milestone[] = [];
 const INITIAL_DOCUMENTS: AppDocument[] = [];
-
 const INITIAL_MESSAGES: Message[] = [];
-
 const INITIAL_DEFENSES: Defense[] = [];
-
 const INITIAL_NOTIFICATIONS: Notification[] = [];
-
 const INITIAL_APPOINTMENTS: Appointment[] = [];
 
 // ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
 
 interface AppContextType {
   user: Session | null;
-  login: (emailOrRole: string, password?: string, role?: UserRole) => boolean;
+  login: (emailOrRole: string, password?: string, role?: UserRole) => Promise<boolean>;
   logout: () => void;
   scores: Scores;
   saveScore: (criterion: keyof Scores, value: string | number) => void;
@@ -99,10 +82,22 @@ interface AppContextType {
   deleteArchiveProject: (id: string) => void;
   shareToResources: (projectId: string) => void;
   resourceCenter: any[];
+  addToResources: (fileData: any) => void;
+  removeFromResources: (id: string) => void;
   // Criteria Weights
   supervisorCriteriaWeights: Record<string, number>;
   updateSupervisorCriteriaWeights: (weights: Record<string, number>) => void;
-  administrativeNotes: AdministrativeNote[];
+  isLoading: boolean;
+  error: string | null;
+  refreshData: () => Promise<void>;
+  administrativeNotes: any[];
+  subjects: any[];
+  allUsers: any[];
+  updateSubjectStatus: (id: number, status: string) => void;
+  deleteSubject: (id: number) => void;
+  deleteUser: (id: number) => void;
+  createUser: (data: any) => void;
+  updateUser: (id: number, data: any) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -121,158 +116,115 @@ const INITIAL_NOTES: any[] = [];
 const DATA_VERSION = 'v2_zero_data';
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // AUTH
-  const [user, setUser] = useState<Session | null>(() => {
-    const saved = localStorage.getItem('pfe-user-session');
-    try {
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      console.error('Failed to parse user session', e);
-      return null;
-    }
-  });
+  const [user, setUser] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // DATA STORE
-  const [scores, setScores] = useState<Scores>(() => {
-    const saved = localStorage.getItem('pfe-scores');
-    return saved ? JSON.parse(saved) : INITIAL_SCORES;
-  });
+  // DATA ENTITIES
+  const [scores, setScores] = useState<Scores>(INITIAL_SCORES);
+  const [documents, setDocuments] = useState<AppDocument[]>(INITIAL_DOCUMENTS);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [defenses, setDefenses] = useState<Defense[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [archives, setArchives] = useState<any[]>([]);
+  const [resourceCenter, setResourceCenter] = useState<any[]>([]);
+  const [administrativeNotes, setAdministrativeNotes] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [reminders, setReminders] = useState<any[]>([]);
   
-  // Persist scores
-  useEffect(() => {
-    localStorage.setItem('pfe-scores', JSON.stringify(scores));
-  }, [scores]);
-  const [documents, setDocuments] = useState<AppDocument[]>(() => {
-    const saved = localStorage.getItem('pfe-documents');
-    return saved ? JSON.parse(saved) : INITIAL_DOCUMENTS;
-  });
-  
-  // Persist documents
-  useEffect(() => {
-    localStorage.setItem('pfe-documents', JSON.stringify(documents));
-  }, [documents]);
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
-  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [juryComment, setJuryComment] = useState('');
   const [isGradesPublished, setIsGradesPublished] = useState(false);
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
-  const [juryCriteriaWeights, setJuryCriteriaWeights] = useState(() => {
-    const saved = localStorage.getItem('pfe-jury-weights');
-    return saved ? JSON.parse(saved) : {
-      innovation: 4,
-      methodology: 4,
-      quality: 4,
-      presentation: 4,
-      docs: 4
-    };
+  
+  const [juryCriteriaWeights, setJuryCriteriaWeights] = useState<Record<string, number>>({
+    innovation: 4, methodology: 4, quality: 4, presentation: 4, docs: 4
   });
-  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
-  const [reminders, setReminders] = useState(initialReminders);
-  const [students, setStudents] = useState(() => {
-    const saved = localStorage.getItem('pfe-students');
-    return saved ? JSON.parse(saved) : initialStudents;
+  const [supervisorCriteriaWeights, setSupervisorCriteriaWeights] = useState<Record<string, number>>({
+    report: 5, progress: 5, autonomy: 5, professionalism: 5
   });
 
-  const [archives, setArchives] = useState(() => {
-    const saved = localStorage.getItem('pfe-archives');
-    return saved ? JSON.parse(saved) : INITIAL_ARCHIVES;
-  });
-
-  const [resourceCenter, setResourceCenter] = useState(() => {
-    const saved = localStorage.getItem('pfe-resources');
-    return saved ? JSON.parse(saved) : INITIAL_RESOURCES;
-  });
-
-  // Persist archives & resources
-  useEffect(() => {
-    localStorage.setItem('pfe-archives', JSON.stringify(archives));
-  }, [archives]);
-
-  useEffect(() => {
-    localStorage.setItem('pfe-resources', JSON.stringify(resourceCenter));
-  }, [resourceCenter]);
-
-  // Persist students
-  const [administrativeNotes, setAdministrativeNotes] = useState(() => {
-    const saved = localStorage.getItem('pfe-admin-notes');
-    return saved ? JSON.parse(saved) : INITIAL_NOTES;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('pfe-students', JSON.stringify(students));
-  }, [students]);
-
-  useEffect(() => {
-    // Reset localStorage if it's the first time running this version
-    const currentVersion = localStorage.getItem('pfe_app_data_version');
-    if (currentVersion !== DATA_VERSION) {
-      localStorage.removeItem('pfe-students');
-      localStorage.removeItem('pfe-documents');
-      localStorage.removeItem('pfe-archives');
-      localStorage.removeItem('pfe-resources');
-      localStorage.removeItem('pfe-admin-notes');
-      localStorage.removeItem('pfe-scores');
-      localStorage.setItem('pfe_app_data_version', DATA_VERSION);
+  // ── AUTH ────────────────────────────────────────────────────────────────────
+  const refreshData = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const { projectsApi } = await import('../api/projects');
+      const { studentsApi } = await import('../api/students');
       
-      // Also update state to reflect the wipe
-      setStudents([]);
-      setDocuments([]);
-      setArchives([]);
-      setResourceCenter([]);
-      setAdministrativeNotes([]);
+      const [docs, stud, subjs] = await Promise.all([
+        projectsApi.getRepository(),
+        studentsApi.getAll(),
+        projectsApi.getSubjects()
+      ]);
+      
+      setDocuments(docs || []);
+      setStudents(stud || []);
+      setSubjects(subjs || []);
+
+      if (user.role === 'admin') {
+        const { usersApi } = await import('../api/users');
+        const users = await usersApi.getAll();
+        setAllUsers(users || []);
+      }
+      setError(null);
+    } catch (err: any) {
+      console.error("Data fetch error:", err);
+      setError("Server connection issue.");
+    } finally {
+      setIsLoading(false);
     }
+  }, [user]);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('pfe_access_token');
+      if (token) {
+        try {
+          const { authApi } = await import('../api/auth');
+          const userData = await authApi.me();
+          setUser(userData);
+        } catch (e) {
+          localStorage.removeItem('pfe_access_token');
+        }
+      }
+      setIsLoading(false);
+    };
+    initAuth();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('pfe-admin-notes', JSON.stringify(administrativeNotes));
-  }, [administrativeNotes]);
+    if (user) refreshData();
+  }, [user, refreshData]);
 
-  // Automatic Archiving Logic
-  useEffect(() => {
-    students.forEach((s: any) => {
-      if (s.status === 'Validated') {
-        const exists = archives.find(a => a.studentId === s.id);
-        if (!exists) {
-          const newArchive = {
-            id: `ARCH-${s.id}`,
-            studentId: s.id,
-            name: s.project,
-            desc: `Final project validated by ${s.name}.`,
-            date: s.date || new Date().toISOString().split('T')[0],
-            files: 3,
-            status: 'Completed',
-            type: 'PFE',
-            supervisor: 'Dr. Sofia Drissi'
-          };
-          setArchives(prev => [...prev, newArchive]);
-        }
-      }
-    });
-  }, [students, archives]);
+  const login = useCallback(async (emailOrRole: string, password?: string, role?: UserRole) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { authApi } = await import('../api/auth');
+      const userSession = await authApi.login({ email: emailOrRole, password: password || '', role });
+      setUser(userSession);
+      return true;
+    } catch (err: any) {
+      setError(err.data?.detail || "Invalid credentials.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-
-
-  const [supervisorCriteriaWeights, setSupervisorCriteriaWeights] = useState(() => {
-    const saved = localStorage.getItem('pfe-supervisor-weights');
-    return saved ? JSON.parse(saved) : {
-      report: 5,
-      progress: 5,
-      autonomy: 5,
-      professionalism: 5
-    };
-  });
-
-  // Persist weights
-  useEffect(() => {
-    localStorage.setItem('pfe-jury-weights', JSON.stringify(juryCriteriaWeights));
-  }, [juryCriteriaWeights]);
-
-  useEffect(() => {
-    localStorage.setItem('pfe-supervisor-weights', JSON.stringify(supervisorCriteriaWeights));
-  }, [supervisorCriteriaWeights]);
-
-  // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+  const logout = useCallback(async () => {
+    try {
+      const { authApi } = await import('../api/auth');
+      await authApi.logout();
+    } finally {
+      setUser(null);
+      localStorage.removeItem('pfe_access_token');
+      localStorage.removeItem('pfe_refresh_token');
+    }
+  }, []);
   const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
     setNotifications(prev => [
       {
@@ -318,28 +270,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [theme, applyTheme]);
-
-  // ── AUTH ────────────────────────────────────────────────────────────────────
-  const login = useCallback((emailOrRole: string, password?: string, role?: UserRole) => {
-    let account;
-    if (password === undefined && role === undefined) {
-      account = ACCOUNTS.find(a => a.role === emailOrRole);
-    } else {
-      // In a real app, we would use email and password. For mock, we just check role if role is provided.
-      account = ACCOUNTS.find(a => a.email === emailOrRole && (role === undefined || a.role === role));
-    }
-
-    if (!account) return false;
-    const session = { ...account };
-    setUser(session);
-    localStorage.setItem('pfe-user-session', JSON.stringify(session));
-    return true;
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('pfe-user-session');
-  }, []);
 
   // ── NOTE CALCULATION ────────────────────────────────────────────────────────
   const computeGlobalGrade = useCallback(() => {
@@ -606,7 +536,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setSupervisorCriteriaWeights(weights);
         addNotification('grade', "Supervisor criteria scales have been updated by administration.", '/supervisor/evaluation');
       },
-      administrativeNotes
+      isLoading, error, refreshData,
+      administrativeNotes,
+      subjects,
+      allUsers,
+      updateSubjectStatus: (id: number, status: string) => {
+        setSubjects(prev => prev.map(s => s.id === id ? { ...s, status } : s));
+      },
+      deleteSubject: (id: number) => {
+        setSubjects(prev => prev.filter(s => s.id !== id));
+      },
+      createUser: async (data: any) => {
+        const { usersApi } = await import('../api/users');
+        const newUser = await usersApi.create(data);
+        setAllUsers(prev => [...prev, newUser]);
+      },
+      updateUser: async (id: number, data: any) => {
+        const { usersApi } = await import('../api/users');
+        const updatedUser = await usersApi.update(id, data);
+        setAllUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+      },
+      deleteUser: async (id: number) => {
+        const { usersApi } = await import('../api/users');
+        await usersApi.delete(id);
+        setAllUsers(prev => prev.filter(u => u.id !== id));
+      }
     }}>
       {children}
     </AppContext.Provider>

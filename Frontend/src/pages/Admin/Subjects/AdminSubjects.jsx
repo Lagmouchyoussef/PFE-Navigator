@@ -29,10 +29,10 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
-const INITIAL_PROPOSALS = [];
+import { useApp } from '../../../context/AppContext';
 
 const AdminSubjects = () => {
-  const [proposals, setProposals] = useState(INITIAL_PROPOSALS);
+  const { subjects: proposals, updateSubjectStatus, deleteSubject } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [viewModalSubject, setViewModalSubject] = useState(null);
   const [editModalSubject, setEditModalSubject] = useState(null);
@@ -66,11 +66,11 @@ const AdminSubjects = () => {
   };
 
   const handleAction = (id, newStatus) => {
-    const statusLabel = newStatus === 'Approved' ? 'approved' : 'rejected';
+    updateSubjectStatus(id, newStatus);
     const sub = proposals.find(p => p.id === id);
+    const statusLabel = newStatus === 'Approved' ? 'approved' : 'rejected';
     
-    setProposals(proposals.map(p => p.id === id ? { ...p, status: newStatus } : p));
-    setSuccessMsg(`The subject "${sub.title}" has been ${statusLabel} successfully.`);
+    setSuccessMsg(`The subject "${sub?.title}" has been ${statusLabel} successfully.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -86,8 +86,8 @@ const AdminSubjects = () => {
   const handleDeleteSubject = () => {
     setIsDeleting(true);
     setTimeout(() => {
-      setSuccessMsg(`The subject "${deleteModalSubject.title}" has been permanently deleted.`);
-      setProposals(proposals.filter(p => p.id !== deleteModalSubject.id));
+      setSuccessMsg(`The subject "${deleteModalSubject?.title}" has been permanently deleted.`);
+      deleteSubject(deleteModalSubject.id);
       setDeleteModalSubject(null);
       setIsDeleting(false);
       setShowSuccessCard(true);

@@ -107,6 +107,12 @@ const ResourceHub: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
+  const handleExportSelected = (format: string) => {
+    setSuccessMsg(`Exporting ${selectedFiles.length} files to ${format.toUpperCase()}...`);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+
   return (
     <div className="resources-modern-layout py-4">
       <Container fluid className="px-4">

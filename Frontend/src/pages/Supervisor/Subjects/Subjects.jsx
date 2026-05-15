@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../../context/AppContext';
 
 // Custom Animated Trash Icon Component
 const AnimatedTrash = ({ isDeleting, size = 32 }) => {

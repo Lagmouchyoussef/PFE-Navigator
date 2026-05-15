@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Container, Row, Col, Card, Button, Form, Modal 
+  Container, Row, Col, Card, Button, Form, Modal, Badge 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
@@ -20,16 +20,22 @@ import DocumentsList from '../../../components/features/student/DocumentsList';
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const context = useApp();
+  
+  // Safe destructuring with defaults
   const { 
-    user,
-    documents: globalDocs, 
-    deleteDocument, 
-    projectMilestones,
-    finalResultMessage,
-    isProjectValidated,
-    appointments,
-    feedbacks = [] // Default to empty array
-  } = useApp() as any;
+    user = null,
+    documents = [], 
+    deleteDocument = () => {}, 
+    projectMilestones = [],
+    finalResultMessage = "",
+    isProjectValidated = false,
+    appointments = [],
+    feedbacks = [],
+    pfeFinalGrade = null
+  } = (context || {}) as any;
+
+  const globalDocs = Array.isArray(documents) ? documents : [];
 
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [docToDelete, setDocToDelete] = React.useState<number | null>(null);
@@ -46,17 +52,18 @@ const StudentDashboard: React.FC = () => {
     alert(`Downloading ${doc.title}...`);
   };
 
-  const steps: Step[] = projectMilestones.map(m => ({
-    name: m.title,
-    status: m.status as any
+  const steps: Step[] = (projectMilestones || []).map((m: any) => ({
+    name: m?.title || "Step",
+    status: (m?.status as any) || 'pending'
   }));
 
-  const completedSteps = projectMilestones.filter(m => m.status === 'completed').length;
-  const progressPct = Math.round((completedSteps / projectMilestones.length) * 100) || 0;
+  const completedSteps = (projectMilestones || []).filter((m: any) => m.status === 'completed').length;
+  const totalSteps = (projectMilestones || []).length || 1;
+  const progressPct = Math.round((completedSteps / totalSteps) * 100);
 
   const progressData = [
     { name: 'Done', value: progressPct, color: 'var(--color-primary)' },
-    { name: 'Todo', value: 100 - progressPct, color: 'var(--color-surface-alt)' },
+    { name: 'Todo', value: Math.max(0, 100 - progressPct), color: 'var(--color-surface-alt)' },
   ];
 
   return (
@@ -136,7 +143,7 @@ const StudentDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard 
               label="Average Score" 
-              value={(useApp() as any).pfeFinalGrade !== null ? (useApp() as any).pfeFinalGrade.toFixed(2) : "0.00"} 
+              value={pfeFinalGrade !== null ? pfeFinalGrade.toFixed(2) : "0.00"} 
               color="info" 
               icon={<GraduationCap />} 
             />
@@ -234,18 +241,25 @@ const StudentDashboard: React.FC = () => {
               {/* Supervisor Card */}
               <Card className="glass-card border p-4 shadow-sm">
                 <h6 className="fw-bold mb-4 text-navy">Academic Supervisor</h6>
-                <div className="d-flex align-items-center gap-3 mb-4">
-                  <div className="avatar-md bg-primary text-white rounded-4 d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '48px', height: '48px' }}>
-                    SD
+                {user?.supervisor ? (
+                  <div className="d-flex align-items-center gap-3 mb-4">
+                    <div className="avatar-md bg-primary text-white rounded-4 d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '48px', height: '48px' }}>
+                      {user.supervisor.name?.charAt(0) || 'S'}
+                    </div>
+                    <div>
+                      <h6 className="fw-bold mb-0 text-navy">{user.supervisor.name}</h6>
+                      <div className="extra-small text-muted fw-bold">{user.supervisor.department || 'Faculty'}</div>
+                    </div>
                   </div>
-                  <div>
-                    <h6 className="fw-bold mb-0 text-navy">Dr. Sofia Drissi</h6>
-                    <div className="extra-small text-muted fw-bold">IT Department</div>
+                ) : (
+                  <div className="text-center py-4 mb-3">
+                    <div className="extra-small text-muted fw-bold opacity-50">No supervisor assigned yet</div>
                   </div>
-                </div>
+                )}
                 <Button 
                   className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2 border-2"
                   onClick={() => navigate('/student/messages')}
+                  disabled={!user?.supervisor}
                 >
                   <Mail size={16} /> Send Message
                 </Button>

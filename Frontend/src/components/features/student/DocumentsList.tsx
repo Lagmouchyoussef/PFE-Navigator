@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Button, Table, Badge, Dropdown } from 'react-bootstrap';
 import { FileText, MoreHorizontal, Eye, Download, Plus } from 'lucide-react';
 import { Document as AppDocument } from '../../../types';
+import EmptyState from '../../shared/EmptyState';
 
 interface DocumentsListProps {
   documents: AppDocument[];
@@ -43,15 +44,15 @@ const DocumentsList: React.FC<DocumentsListProps> = ({ documents, onView, onDown
                   </div>
                   <div>
                     <div className="fw-bold small text-navy">{doc.title}</div>
-                    <div className="extra-small text-muted fw-bold">{doc.size}</div>
+                    <div className="extra-small text-muted fw-bold">{doc.size || 'Unknown size'}</div>
                   </div>
                 </div>
               </td>
               <td>
-                <Badge className="bg-danger-soft text-danger border-0 px-3 py-1 extra-small fw-bold">PDF Document</Badge>
+                <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold">Project File</Badge>
               </td>
               <td className="small text-muted fw-bold">
-                {new Date(doc.date).toLocaleDateString('fr-FR')}
+                {doc.date ? new Date(doc.date).toLocaleDateString() : 'N/A'}
               </td>
               <td className="px-4 py-3 text-end">
                 <Dropdown align="end">
@@ -75,8 +76,12 @@ const DocumentsList: React.FC<DocumentsListProps> = ({ documents, onView, onDown
             </tr>
           )) : (
             <tr>
-              <td colSpan={4} className="text-center py-5 text-muted extra-small fw-bold opacity-50">
-                No recent documents found.
+              <td colSpan={4} className="text-center py-5">
+                <EmptyState 
+                  title="No documents yet" 
+                  message="Submit your reports or resources to see them listed here." 
+                  icon={<FileText size={48} />}
+                />
               </td>
             </tr>
           )}

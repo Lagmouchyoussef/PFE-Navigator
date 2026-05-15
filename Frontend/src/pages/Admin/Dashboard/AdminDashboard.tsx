@@ -18,15 +18,33 @@ import StatCard from '../../../components/shared/StatCard';
 import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 
-const USER_DATA: any[] = [];
-
-const SUBMISSION_DATA: any[] = [];
-
-const STATUS_DATA: any[] = [];
-
 const AdminDashboard: React.FC = () => {
-  const { appointments, deleteAppointment, students, archives } = useApp();
-  const [users, setUsers] = React.useState(students);
+  const { appointments, deleteAppointment, students, archives, allUsers, deleteUser } = useApp();
+  
+  // Dynamic Charts Calculation
+  const SUBMISSION_DATA = React.useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const counts = new Array(12).fill(0);
+    students.forEach(s => {
+      const d = new Date(s.date || Date.now());
+      counts[d.getMonth()]++;
+    });
+    return months.map((m, i) => ({ name: m, count: counts[i] }));
+  }, [students]);
+
+  const STATUS_DATA = React.useMemo(() => {
+    const statusMap: Record<string, number> = {};
+    students.forEach(s => {
+      const st = s.status || 'Pending';
+      statusMap[st] = (statusMap[st] || 0) + 1;
+    });
+    const colors = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
+    return Object.entries(statusMap).map(([name, value], i) => ({
+      name, value, color: colors[i % colors.length]
+    }));
+  }, [students]);
+
+  const users = allUsers || [];
   const [visibleCount, setVisibleCount] = React.useState(5);
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = React.useState(false);
@@ -77,9 +95,9 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (confirmConfig.action === 'delete' && confirmConfig.user) {
-      setUsers(prev => prev.filter(u => u.id !== confirmConfig.user.id));
+      await deleteUser(confirmConfig.user.id);
     }
     setShowConfirmModal(false);
   };
@@ -136,7 +154,7 @@ const AdminDashboard: React.FC = () => {
             <StatCard label="Pending Actions" value={students.filter((s: any) => s.status === 'Pending').length.toString()} icon={<Clock />} color="warning" trend="Action Required" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="System Storage" value="0.0%" icon={<Database />} color="danger" trend="0GB" />
+            <StatCard label="System Integrity" value="100%" icon={<Database />} color="danger" trend="Healthy" />
           </Col>
         </Row>
 

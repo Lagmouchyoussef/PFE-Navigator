@@ -113,7 +113,7 @@ const NotificationsPage: React.FC = () => {
                         {notif.type === 'message' ? 'New Message' : notif.type === 'approved' ? 'Document Approved' : notif.type === 'rejected' ? 'Action Required' : 'Notification'}
                       </h6>
                       <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>
-                        {new Date(notif.time).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                        {new Date(notif.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
                     <p className={`extra-small mb-0 lh-base ${!notif.read ? 'text-navy fw-bold' : 'text-muted fw-bold opacity-75'}`}>{notif.text}</p>

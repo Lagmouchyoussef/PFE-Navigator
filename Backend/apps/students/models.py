@@ -1,14 +1,14 @@
 """Data models for the students application."""
 
 from django.db import models
+from django.conf import settings
 from apps.core.models import Timestamp
-from apps.users.models import User
 
 
 class Student(Timestamp):
     """Student model representing a student in the research portal."""
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_profile')
     enrollment_number = models.CharField(max_length=50, unique=True)
     specialization = models.CharField(max_length=255, blank=True)
     academic_year = models.CharField(max_length=20)

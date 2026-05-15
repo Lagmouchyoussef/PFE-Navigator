@@ -8,6 +8,7 @@ import {
   Activity, Target, Shield, Briefcase
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApp } from '../../../context/AppContext';
 
 const StudentDetail = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const StudentDetail = () => {
     status: currentStudent.status || 'In Progress',
     progress: currentStudent.progress || 0,
     projectTitle: currentStudent.project || 'Project Title TBD',
-    supervisor: currentStudent.supervisor || 'Dr. Sofia Drissi',
+    supervisor: currentStudent.supervisor || 'Unassigned',
     institution: 'EMSI - Moroccan School of Engineering Sciences',
     startDate: '2025-10-15',
     endDate: '2026-06-30',

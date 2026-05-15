@@ -67,7 +67,7 @@ const AdministrativeNotesPage: React.FC = () => {
 
         {/* Notes Grid */}
         <Row className="g-4 mb-5">
-          {notes.map((note) => (
+          {notes.map((note: AdministrativeNote) => (
             <Col key={note.id} lg={4} md={6}>
               <div className={`glass-card p-4 rounded-4 shadow-sm h-100 position-relative transition-all hover-translate ${note.pinned ? 'border-primary' : ''}`}>
                 {note.pinned && (

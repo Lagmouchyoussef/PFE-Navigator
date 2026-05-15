@@ -90,7 +90,7 @@ const SettingsPage: React.FC = () => {
                 {navItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => setActiveTab(item.id as SettingsTab)}
                     className={`settings-nav-btn p-3 d-flex align-items-center gap-3 border-0 transition-all text-start bg-transparent ${activeTab === item.id ? 'active-nav' : 'hover-bg-surface'}`}
                   >
                     <div className={`${activeTab === item.id ? 'text-primary' : 'text-muted'}`}>{item.icon}</div>

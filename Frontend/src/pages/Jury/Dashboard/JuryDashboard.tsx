@@ -5,11 +5,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { 
   Star, Calendar, GraduationCap, ArrowRightCircle, MoreVertical, Briefcase,
-  CheckCircle, Clock, MessageSquare, Activity, Bell
+  CheckCircle, Clock, MessageSquare, Activity, Bell, AlertCircle
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 import JuryPerformanceChart from '../../../components/features/jury/JuryPerformanceChart';
+
+import EmptyState from '../../../components/shared/EmptyState';
 
 const JuryDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -189,55 +191,69 @@ const JuryDashboard: React.FC = () => {
             <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none transition-all hover-opacity-75" onClick={() => navigate('/jury/projects')}>Manage all projects</Button>
           </Card.Header>
           <div className="table-responsive">
-            <Table borderless hover className="align-middle mb-0">
-              <thead className="bg-surface-alt">
-                <tr className="border-bottom opacity-50">
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student / Project</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Deadline</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.filter(s => !s.isJuryEvaluated).slice(0, 5).map((row, idx) => (
-                  <tr key={row.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
-                    <td className="px-4 py-3">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>
-                          {row.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="small fw-bold text-navy">{row.name}</div>
-                          <div className="extra-small text-muted text-truncate fw-bold opacity-50" style={{maxWidth: '180px'}}>{row.project}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 extra-small text-navy fw-bold opacity-75">{row.date || 'To define'}</td>
-                    <td className="py-3">
-                      <Badge className={`bg-${row.isDraft ? 'warning' : 'primary'}-soft text-${row.isDraft ? 'warning' : 'primary'} border-0 extra-small fw-bold px-3 py-1`}>
-                        {row.isDraft ? 'Draft' : 'Pending'}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-end">
-                      <Button 
-                        variant="link" 
-                        className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 justify-content-end hover-opacity-75 transition-all"
-                        onClick={() => navigate('/jury/evaluation', { state: { openStudentId: row.id } })}
-                      >
-                        Details <ArrowRightCircle size={14} />
-                      </Button>
-                    </td>
+            {students.length > 0 ? (
+              <Table borderless hover className="align-middle mb-0">
+                <thead className="bg-surface-alt">
+                  <tr className="border-bottom opacity-50">
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student / Project</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Deadline</th>
+                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
                   </tr>
-                ))}
-                {students.filter(s => !s.isJuryEvaluated).length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-5 text-center text-muted extra-small fw-bold opacity-50">
-                      All evaluations are completed!
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {students.filter(s => !s.isJuryEvaluated).slice(0, 5).map((row, idx) => (
+                    <tr key={row.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                      <td className="px-4 py-3">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>
+                            {row.name?.charAt(0) || 'U'}
+                          </div>
+                          <div>
+                            <div className="small fw-bold text-navy">{row.name}</div>
+                            <div className="extra-small text-muted text-truncate fw-bold opacity-50" style={{maxWidth: '180px'}}>{row.project}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 extra-small text-navy fw-bold opacity-75">{row.date || 'To define'}</td>
+                      <td className="py-3">
+                        <Badge className={`bg-${row.isDraft ? 'warning' : 'primary'}-soft text-${row.isDraft ? 'warning' : 'primary'} border-0 extra-small fw-bold px-3 py-1`}>
+                          {row.isDraft ? 'Draft' : 'Pending'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-end">
+                        <Button 
+                          variant="link" 
+                          className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 justify-content-end hover-opacity-75 transition-all"
+                          onClick={() => navigate('/jury/evaluation', { state: { openStudentId: row.id } })}
+                        >
+                          Details <ArrowRightCircle size={14} />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {students.filter(s => !s.isJuryEvaluated).length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-5 text-center">
+                        <EmptyState 
+                          title="All Evaluations Completed" 
+                          message="You have no pending project evaluations at this time. Great job!" 
+                          icon={<CheckCircle size={48} />}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            ) : (
+              <div className="py-5">
+                <EmptyState 
+                  title="No Assigned Projects" 
+                  message="You are not currently assigned to any jury committees. Check back later for your assignment schedule." 
+                  icon={<Briefcase size={48} />}
+                />
+              </div>
+            )}
           </div>
         </Card>
       </Container>

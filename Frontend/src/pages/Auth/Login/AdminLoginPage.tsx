@@ -32,7 +32,7 @@ const AdminLoginPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -43,22 +43,19 @@ const AdminLoginPage: React.FC = () => {
 
     setIsLoading(true);
 
-    // Simulate API call for Admin
-    setTimeout(() => {
-      const success = login('admin'); // Using the mock login logic for admin
+    try {
+      const success = await login(email, password);
       if (success) {
-        setIsLoading(false);
         setShowSuccess(true);
-        
-        // Navigate after success animation
-        setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 2000);
+        // Navigation is handled by App.tsx
       } else {
-        setIsLoading(false);
-        setError('Invalid administrator credentials.');
+        // Error message is set inside AppContext.login
       }
-    }, 1500);
+    } catch (err: any) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

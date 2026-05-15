@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     
     # Project applications
@@ -68,7 +69,13 @@ INSTALLED_APPS = [
     'apps.supervisors',
     'apps.juries',
     'apps.projects',
+    'apps.student',
+    'apps.supervisor',
+    'apps.jury',
+    'apps.administration',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

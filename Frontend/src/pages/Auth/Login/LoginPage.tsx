@@ -69,10 +69,21 @@ const LoginPage: React.FC = () => {
       btnText: 'Sign In as Jury Member',
       successRole: 'Jury Member',
       icon: <UserCog size={24} />
+    },
+    admin: {
+      color: '#0f172a',
+      badgeBg: '#e2e8f0',
+      badgeColor: '#0f172a',
+      emailLabel: 'Admin Email',
+      emailPlaceholder: 'Enter administrator email',
+      showId: false,
+      btnText: 'Sign In as Admin',
+      successRole: 'Administrator',
+      icon: <Shield size={24} />
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -83,16 +94,19 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const success = await login(email, password);
+      if (success) {
+        setShowSuccess(true);
+        // Navigation is handled by App.tsx when user state changes
+      } else {
+        // Error message is set inside AppContext.login
+      }
+    } catch (err: any) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      setShowSuccess(true);
-      
-      // Navigate after success animation
-      setTimeout(() => {
-        login(currentRole);
-      }, 2000);
-    }, 1500);
+    }
   };
 
   return (
@@ -168,7 +182,7 @@ const LoginPage: React.FC = () => {
 
           {/* Role Selector Grid */}
           <div className="role-selector">
-            {(['student', 'supervisor', 'jury'] as UserRole[]).map((role) => (
+            {(['student', 'supervisor', 'jury', 'admin'] as UserRole[]).map((role) => (
               <button 
                 key={role}
                 type="button"
@@ -184,7 +198,7 @@ const LoginPage: React.FC = () => {
                 </div>
                 <div className="role-label">{role.charAt(0).toUpperCase() + role.slice(1)}</div>
                 <div className="role-desc">
-                  {role === 'student' ? 'Undergrad' : role === 'supervisor' ? 'Faculty' : 'Committee'}
+                  {role === 'student' ? 'Undergrad' : role === 'supervisor' ? 'Faculty' : role === 'jury' ? 'Committee' : 'Coordination'}
                 </div>
               </button>
             ))}
@@ -222,8 +236,6 @@ const LoginPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Student ID field removed as requested */}
 
             <div className="form-group">
               <label>Password</label>
@@ -278,8 +290,6 @@ const LoginPage: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Footer removed as requested */}
         </div>
       </div>
 
@@ -421,5 +431,3 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
-
-

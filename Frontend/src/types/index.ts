@@ -1,5 +1,11 @@
 export type UserRole = 'admin' | 'supervisor' | 'jury' | 'student';
 
+export interface LoginCredentials {
+  email: string;
+  password?: string;
+  role?: UserRole;
+}
+
 export interface User {
   id: string;
   institutionalId?: string;
