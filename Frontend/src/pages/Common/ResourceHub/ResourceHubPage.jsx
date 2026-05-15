@@ -27,9 +27,11 @@ const ResourceHubPage = () => {
   ];
 
   const categories = [
-    { label: 'All Documents', icon: <Layers size={18} />, count: documents.length },
-    { label: 'Guidelines', icon: <Book size={18} />, count: documents.filter((d) => d.category === 'Guidelines').length },
-    { label: 'Templates', icon: <FileText size={18} />, count: documents.filter((d) => d.category === 'Templates').length },
+    { label: 'All Documents', icon: <Layers size={18} />,  count: documents.length,                                                   type: null },
+    { label: 'Reports',       icon: <History size={18} />, count: documents.filter((d) => d.type === 'report').length,                 type: 'report' },
+    { label: 'Templates',     icon: <FileText size={18} />, count: documents.filter((d) => d.type === 'template').length,              type: 'template' },
+    { label: 'Guides',        icon: <Book size={18} />,    count: documents.filter((d) => d.type === 'guide').length,                  type: 'guide' },
+    { label: 'Projects',      icon: <Folder size={18} />,  count: documents.filter((d) => d.type === 'project').length,               type: 'project' },
   ];
 
   const handleDownload = (name) => {
@@ -146,37 +148,54 @@ const ResourceHubPage = () => {
                   <thead className="bg-surface-alt">
                     <tr className="border-bottom opacity-50">
                       <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
-                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
-                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Type</th>
+                      <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date</th>
                       <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {documents.length === 0 ? (
-                      <tr><td colSpan="4" className="text-center py-5 opacity-50 fw-bold small">No documents available in the hub</td></tr>
-                    ) : (
-                      documents.map((doc, i) => (
-                        <tr key={i} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                    {(() => {
+                      const activeCatObj = categories.find(c => c.label === activeCat);
+                      const visible = documents.filter(doc => {
+                        const matchCat = !activeCatObj?.type || doc.type === activeCatObj.type;
+                        const matchSearch = !searchTerm || doc.title?.toLowerCase().includes(searchTerm.toLowerCase());
+                        return matchCat && matchSearch;
+                      });
+                      if (visible.length === 0) {
+                        return <tr><td colSpan="4" className="text-center py-5 opacity-50 fw-bold small">No documents available in the hub</td></tr>;
+                      }
+                      return visible.map(doc => (
+                        <tr key={doc.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
                           <td className="px-4 py-4">
                             <div className="d-flex align-items-center gap-3">
                               <div className="p-3 rounded-4 bg-primary-soft text-primary"><FileText size={20} /></div>
                               <div>
                                 <div className="small fw-bold text-navy mb-1">{doc.title}</div>
-                                <div className="extra-small text-muted fw-bold opacity-50">By {doc.author || 'Admin'}</div>
+                                <div className="extra-small text-muted fw-bold opacity-50">
+                                  By {doc.uploaded_by_name || 'Admin'} {doc.year ? `• ${doc.year}` : ''}
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td className="py-4">
-                            <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold">
-                              {doc.category}
+                            <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 extra-small fw-bold text-capitalize">
+                              {doc.type || 'file'}
                             </Badge>
                           </td>
-                          <td className="py-4 small text-navy fw-bold opacity-75">{doc.size || '0 KB'}</td>
+                          <td className="py-4 small text-navy fw-bold opacity-75">
+                            {doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                          </td>
                           <td className="px-4 py-4 text-end">
                             <div className="d-flex justify-content-end gap-1">
-                              <Button variant="link" className="p-2 text-muted hover-bg-primary-soft rounded-circle transition-all border-0 shadow-none" onClick={() => handleDownload(doc.title)}><Download size={18}/></Button>
-                              <Button 
-                                variant="link" 
+                              {doc.file_url && (
+                                <a href={doc.file_url} target="_blank" rel="noreferrer"
+                                  className="btn btn-link p-2 text-muted hover-bg-primary-soft rounded-circle transition-all border-0 shadow-none"
+                                  onClick={() => handleDownload(doc.title)}>
+                                  <Download size={18} />
+                                </a>
+                              )}
+                              <Button
+                                variant="link"
                                 className={`p-2 rounded-circle transition-all border-0 shadow-none hover-bg-primary-soft ${favorites.includes(doc.title) ? 'text-warning' : 'text-muted'}`}
                                 onClick={() => handleFavorite(doc.title)}
                               >
@@ -185,8 +204,8 @@ const ResourceHubPage = () => {
                             </div>
                           </td>
                         </tr>
-                      ))
-                    )}
+                      ));
+                    })()}
                   </tbody>
                 </Table>
               </div>

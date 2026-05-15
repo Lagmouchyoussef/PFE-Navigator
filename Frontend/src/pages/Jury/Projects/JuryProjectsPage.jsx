@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Container, Row, Col, Card, Badge, 
-  Form, Button, Table, ProgressBar, Dropdown, Modal, InputGroup
+import {
+  Container, Row, Col, Card, Badge,
+  Form, Button, Table, Dropdown, Modal, InputGroup
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -16,15 +16,35 @@ const PROJECTS_DATA = [];
 
 const JuryProjectsPage = () => {
   const navigate = useNavigate();
-  const { students = [] } = useApp();
+  const { evaluations = [], projects = [] } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
+
+  const rows = evaluations.map(ev => {
+    const proj = projectMap[ev.project] || {};
+    return {
+      id: ev.id,
+      projectId: ev.project,
+      studentName: proj.student?.name || 'Student',
+      title: proj.title || `Project #${ev.project}`,
+      supervisor: proj.supervisor?.name || 'N/A',
+      isEvaluated: ev.jury_score !== null,
+      juryScore: ev.jury_score,
+    };
+  });
+
+  const filtered = rows.filter(r =>
+    r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const stats = [
-    { label: 'Total Assigned', value: students.length.toString(), color: 'primary' },
-    { label: 'Pending Evaluation', value: students.filter((s) => !s.isJuryEvaluated).length.toString(), color: 'warning' },
-    { label: 'Evaluated', value: students.filter((s) => s.isJuryEvaluated).length.toString(), color: 'success' },
+    { label: 'Total Assigned',     value: evaluations.length.toString(),                                    color: 'primary' },
+    { label: 'Pending Evaluation', value: evaluations.filter(e => e.jury_score === null).length.toString(), color: 'warning' },
+    { label: 'Evaluated',          value: evaluations.filter(e => e.jury_score !== null).length.toString(), color: 'success' },
   ];
 
   return (
@@ -79,59 +99,43 @@ const JuryProjectsPage = () => {
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Supervisor</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progress</th>
                   <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {students.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-5 opacity-50 fw-bold small">No projects assigned to your jury</td></tr>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-5 opacity-50 fw-bold small">No projects assigned to your jury</td></tr>
                 ) : (
-                  students.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                    (p.project && p.project.toLowerCase().includes(searchTerm.toLowerCase()))
-                  ).map((proj, idx) => (
-                    <tr key={idx} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                  filtered.map(proj => (
+                    <tr key={proj.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
                       <td className="px-4 py-3">
                         <div className="d-flex align-items-center gap-3">
-                          <div className={`avatar-sm bg-${proj.color || 'primary'}-soft text-${proj.color || 'primary'} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
-                            {proj.name.charAt(0)}
+                          <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '36px', height: '36px', fontSize: '0.75rem' }}>
+                            {proj.studentName.charAt(0)}
                           </div>
                           <div>
-                            <div className="small fw-bold text-navy">{proj.name}</div>
-                            <div className="extra-small text-muted fw-bold opacity-50">{proj.id}</div>
+                            <div className="small fw-bold text-navy">{proj.studentName}</div>
                           </div>
                         </div>
                       </td>
                       <td className="py-3">
-                        <div className="small fw-bold text-navy text-truncate mb-1" style={{maxWidth: '250px'}} title={proj.project}>{proj.project}</div>
-                        <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-50">
-                          <Calendar size={12} className="text-primary" /> Defense: {proj.date || 'TBD'}
-                        </div>
+                        <div className="small fw-bold text-navy text-truncate mb-1" style={{ maxWidth: '250px' }} title={proj.title}>{proj.title}</div>
                       </td>
                       <td className="py-3">
-                        <span className="small fw-bold text-navy opacity-75">{proj.supervisor || 'N/A'}</span>
+                        <span className="small fw-bold text-navy opacity-75">{proj.supervisor}</span>
                       </td>
                       <td className="py-3">
-                        <div className="d-flex align-items-center gap-2" style={{ width: '120px' }}>
-                          <ProgressBar now={proj.progress || 0} className="flex-grow-1" style={{ height: '6px' }} />
-                          <span className="extra-small text-muted fw-bold opacity-75">{proj.progress || 0}%</span>
-                        </div>
-                      </td>
-                      <td className="py-3">
-                        <Badge className={`bg-${proj.isJuryEvaluated ? 'success' : 'warning'}-soft text-${proj.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small fw-bold px-3 py-1`}>
-                          {proj.isJuryEvaluated ? 'Evaluated' : 'Pending'}
+                        <Badge className={`bg-${proj.isEvaluated ? 'success' : 'warning'}-soft text-${proj.isEvaluated ? 'success' : 'warning'} border-0 extra-small fw-bold px-3 py-1`}>
+                          {proj.isEvaluated ? `Evaluated (${proj.juryScore}/20)` : 'Pending'}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-end">
                         <Dropdown align="end">
-                          <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all"><MoreVertical size={18}/></Dropdown.Toggle>
+                          <Dropdown.Toggle variant="link" className="p-2 text-muted no-caret border-0 shadow-none hover-bg-primary-soft rounded-circle transition-all"><MoreVertical size={18} /></Dropdown.Toggle>
                           <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
-                            <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => navigate('/jury/evaluation', { state: { openStudentId: proj.id } })}><Edit size={14} className="me-2 text-primary"/> Evaluate</Dropdown.Item>
-                            <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => { setSelectedProject(proj); setShowModal(true); }}><Eye size={14} className="me-2 text-info"/> Details</Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item className="py-2 fw-bold text-danger"><X size={14} className="me-2"/> Report Issue</Dropdown.Item>
+                            <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => navigate('/jury/evaluation')}><Edit size={14} className="me-2 text-primary" /> Evaluate</Dropdown.Item>
+                            <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => { setSelectedProject(proj); setShowModal(true); }}><Eye size={14} className="me-2 text-info" /> Details</Dropdown.Item>
                           </Dropdown.Menu>
                         </Dropdown>
                       </td>

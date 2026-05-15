@@ -1,259 +1,208 @@
-import React, { useState } from 'react';
-import { 
-  Plus, Search, Download, MoreHorizontal, 
-  FileText, 
-  Grid, List as ListIcon, Share2, HardDrive, Award
+import React, { useState, useRef } from 'react';
+import {
+  Plus, Search, Download,
+  FileText, HardDrive, Award, Trash2, CheckCircle, X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal } from 'react-bootstrap';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Modal, Spinner } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 import { useApp } from '../../../context/AppContext';
 
-interface ResourceFile {
-  name: string;
-  type: string;
-  size: string;
-  date: string;
-  color: string;
-}
-
 const ResourceHub: React.FC = () => {
-  const { resourceCenter, addToResources, removeFromResources } = useApp();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [pendingFile, setPendingFile] = useState<any>(null);
+  const { resourceCenter, uploadResource, deleteResource } = useApp();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredResources = resourceCenter.filter(res => 
-    res.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [searchTerm, setSearchTerm]           = useState('');
+  const [typeFilter, setTypeFilter]           = useState('all');
+  const [uploading, setUploading]             = useState(false);
+  const [successMsg, setSuccessMsg]           = useState('');
+  const [newResource, setNewResource]         = useState({ title: '', description: '', type: 'report', year: new Date().getFullYear() });
+
+  const flash = (msg: string) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(''), 4000);
+  };
+
+  const filtered = resourceCenter.filter(r => {
+    const matchSearch = r.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchType   = typeFilter === 'all' || r.type === typeFilter;
+    return matchSearch && matchType;
+  });
 
   const stats = {
-    total: resourceCenter.length,
-    pdf: resourceCenter.filter(f => f.type === 'PDF').length,
-    others: resourceCenter.filter(f => f.type !== 'PDF').length,
-    favorites: 0 // Could be dynamic if favorites were in context
+    total:   resourceCenter.length,
+    reports: resourceCenter.filter(r => r.type === 'report').length,
+    guides:  resourceCenter.filter(r => r.type === 'guide').length,
+    other:   resourceCenter.filter(r => !['report', 'guide'].includes(r.type)).length,
   };
 
-  const toggleSelect = (id: string) => {
-    setSelectedFiles(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
-    );
+  const typeColor = (type: string) => {
+    if (type === 'report')   return 'primary';
+    if (type === 'template') return 'info';
+    if (type === 'guide')    return 'success';
+    if (type === 'project')  return 'warning';
+    return 'secondary';
   };
 
-  const handleAction = async (action: string, file: any) => {
-    if (action === 'Delete') {
-      removeFromResources(file.id);
-      setSuccessMsg(`File "${file.title}" successfully deleted.`);
-    } else if (action === 'Download') {
-      // Simulate real download
-      const link = document.createElement('a');
-      link.href = '#';
-      link.setAttribute('download', file.title);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setSuccessMsg(`Preparing download for "${file.title}"...`);
-    } else if (action === 'Share') {
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: file.title,
-            text: `Check out this document: ${file.title}`,
-            url: window.location.href
-          });
-        } catch (err) {
-          setSuccessMsg(`Sharing option activated for "${file.title}".`);
-        }
-      } else {
-        setSuccessMsg(`Sharing link copied for "${file.title}".`);
-      }
+  const handleUpload = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const files = fileInputRef.current?.files;
+    if (!files || files.length === 0) { flash('Please select a file.'); return; }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      formData.append('title', newResource.title || files[0].name.replace(/\.[^.]+$/, ''));
+      formData.append('description', newResource.description);
+      formData.append('type', newResource.type);
+      formData.append('year', String(newResource.year));
+      formData.append('is_public', 'true');
+      await uploadResource(formData);
+      setShowUploadModal(false);
+      setNewResource({ title: '', description: '', type: 'report', year: new Date().getFullYear() });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      flash('Resource uploaded successfully!');
+    } catch (err: any) {
+      flash(`Upload failed: ${err?.message || 'Please try again.'}`);
+    } finally {
+      setUploading(false);
     }
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const confirmUpload = () => {
-    addToResources(pendingFile);
-    setShowUploadModal(false);
-    setSuccessMsg(`File "${pendingFile.title}" successfully uploaded!`);
-    setPendingFile(null);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
-
-  const handleFileProcess = (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    const fileData = {
-      id: `RES-${Date.now()}`,
-      title: file.name,
-      type: file.name.split('.').pop()?.toUpperCase() || 'FILE',
-      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
-      category: 'Supports',
-      downloadUrl: '#'
-    };
-    setPendingFile(fileData);
-  };
-
-  const handleDownloadAll = () => {
-    setSuccessMsg("Preparing ZIP archive containing all documents...");
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
-
-  const handleExportSelected = (format: string) => {
-    setSuccessMsg(`Exporting ${selectedFiles.length} files to ${format.toUpperCase()}...`);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+  const handleDelete = async (id: number, title: string) => {
+    try {
+      await deleteResource(id);
+      flash(`"${title}" deleted.`);
+    } catch {
+      flash('Could not delete resource.');
+    }
   };
 
   return (
     <div className="resources-modern-layout py-4">
       <Container fluid className="px-4">
-        {/* Header Section */}
+
+        {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
             <h2 className="fw-bold mb-1 text-gradient">Resource Center</h2>
-            <p className="text-muted small mb-0">Centralized management of documents and work materials.</p>
+            <p className="text-muted small mb-0">Share documents, guides, and old reports with students.</p>
           </div>
-          <div className="d-flex gap-2">
-            <Button 
-              variant="outline-primary" 
-              className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
-              onClick={handleDownloadAll}
-            >
-              <Download size={18} /> Download All
-            </Button>
-            <Button 
-              className="btn-premium d-flex align-items-center gap-2"
-              onClick={() => setShowUploadModal(true)}
-            >
-              <Plus size={18} /> Upload
-            </Button>
-          </div>
+          <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowUploadModal(true)}>
+            <Plus size={18} /> Upload Resource
+          </Button>
         </div>
 
-        {showSuccess && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-success text-white rounded-4 mb-4 text-center extra-small fw-bold shadow-sm"
-          >
-            {successMsg}
-          </motion.div>
-        )}
+        {/* Flash */}
+        <AnimatePresence>
+          {successMsg && (
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="glass-card mb-4 p-3 rounded-4 border-start border-success border-4 d-flex align-items-center gap-3">
+              <CheckCircle size={18} className="text-success shrink-0" />
+              <span className="small fw-bold">{successMsg}</span>
+              <button type="button" className="ms-auto btn btn-sm p-0 border-0 bg-transparent" onClick={() => setSuccessMsg('')}>
+                <X size={16} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        {/* Stats */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="PDF Documents" value={stats.pdf.toString()} icon={<FileText />} color="primary" trend="Files" />
+            <StatCard label="Total Resources" value={stats.total.toString()} icon={<HardDrive />} color="primary" trend="Files" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Total Resources" value={stats.total.toString()} icon={<HardDrive />} color="info" trend="Total" />
+            <StatCard label="Reports" value={stats.reports.toString()} icon={<FileText />} color="info" trend="Type" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Other Formats" value={stats.others.toString()} icon={<Plus />} color="success" trend="Files" />
+            <StatCard label="Guides" value={stats.guides.toString()} icon={<Award />} color="success" trend="Type" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Favorites" value={stats.favorites.toString()} icon={<Award />} color="warning" trend="Access" />
+            <StatCard label="Other" value={stats.other.toString()} icon={<Plus />} color="warning" trend="Files" />
           </Col>
         </Row>
 
-        {/* Repository Table */}
-        <div className="glass-card rounded-4 overflow-hidden shadow-sm mb-5">
-          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-            <h5 className="fw-bold mb-0 text-navy">Recent Files</h5>
-            <div className="d-flex gap-2">
-              <InputGroup className="bg-surface rounded-pill border px-2 overflow-hidden d-none d-md-flex">
-                <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted"/></InputGroup.Text>
-                <Form.Control 
-                  placeholder="Search..." 
-                  className="bg-transparent border-0 shadow-none extra-small text-navy" 
+        {/* Table */}
+        <div className="glass-card rounded-4 overflow-hidden shadow-sm">
+          <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt flex-wrap gap-2">
+            <h5 className="fw-bold mb-0 text-navy">All Resources</h5>
+            <div className="d-flex gap-2 flex-wrap">
+              <InputGroup className="bg-surface rounded-pill border px-2" style={{ width: '220px' }}>
+                <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted" /></InputGroup.Text>
+                <Form.Control
+                  placeholder="Search..."
+                  className="bg-transparent border-0 shadow-none extra-small text-navy"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
               </InputGroup>
-              <Button 
-                variant={viewMode === 'list' ? 'primary' : 'outline-secondary'} 
-                size="sm" 
-                className={`border rounded-pill px-3 shadow-none ${viewMode === 'list' ? 'btn-premium border-0' : ''}`}
-                onClick={() => setViewMode('list')}
-              >
-                <ListIcon size={16} />
-              </Button>
-              <Button 
-                variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'} 
-                size="sm" 
-                className={`border rounded-pill px-3 shadow-none ${viewMode === 'grid' ? 'btn-premium border-0' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                <Grid size={16} />
-              </Button>
+              <Form.Select size="sm" className="rounded-pill border fw-bold extra-small" style={{ width: '130px' }}
+                value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+                <option value="all">All Types</option>
+                <option value="report">Report</option>
+                <option value="template">Template</option>
+                <option value="guide">Guide</option>
+                <option value="project">Project</option>
+                <option value="other">Other</option>
+              </Form.Select>
             </div>
           </div>
-          
+
           <div className="table-responsive">
-            <Table borderless hover className="align-middle mb-0 resources-table">
+            <Table borderless hover className="align-middle mb-0">
               <thead>
                 <tr className="border-bottom opacity-50">
-                  <th className="ps-4 py-3" style={{ width: '40px' }}>
-                    <Form.Check 
-                      type="checkbox"
-                      checked={selectedFiles.length === filteredResources.length && filteredResources.length > 0}
-                      onChange={() => {
-                        if (selectedFiles.length === filteredResources.length) setSelectedFiles([]);
-                        else setSelectedFiles(filteredResources.map(f => f.id));
-                      }}
-                    />
-                  </th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">File Name</th>
+                  <th className="ps-4 py-3 extra-small text-muted text-uppercase fw-bold">Resource</th>
                   <th className="py-3 extra-small text-muted text-uppercase fw-bold">Type</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Size</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Modified on</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Year</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Uploaded by</th>
                   <th className="py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredResources.map((file, i) => (
-                  <tr key={file.id || i} className={`border-bottom border-light border-opacity-10 transition-all ${selectedFiles.includes(file.id) ? 'bg-primary-soft' : ''}`}>
-                    <td className="ps-4 py-3">
-                      <Form.Check 
-                        type="checkbox"
-                        checked={selectedFiles.includes(file.id)}
-                        onChange={() => toggleSelect(file.id)}
-                      />
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-5 text-muted">
+                      <HardDrive size={40} className="mb-2 opacity-25" />
+                      <p className="small fw-bold">No resources found. Upload the first one!</p>
                     </td>
-                    <td className="py-3">
+                  </tr>
+                )}
+                {filtered.map(file => (
+                  <tr key={file.id} className="border-bottom border-light border-opacity-10 transition-all">
+                    <td className="ps-4 py-3">
                       <div className="d-flex align-items-center gap-3">
                         <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
                           <FileText size={18} />
                         </div>
-                        <span className="small fw-bold text-navy">{file.title}</span>
+                        <div>
+                          <div className="small fw-bold text-navy">{file.title}</div>
+                          {file.description && (
+                            <div className="extra-small text-muted text-truncate" style={{ maxWidth: '220px' }}>{file.description}</div>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="py-3">
-                      <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small">
-                        {file.type || 'FILE'}
-                      </Badge>
+                      <Badge bg={typeColor(file.type)} className="extra-small text-capitalize">{file.type || 'file'}</Badge>
                     </td>
-                    <td className="py-3 small text-muted fw-bold">{file.size || '—'}</td>
-                    <td className="py-3 small text-muted fw-bold">{file.date}</td>
+                    <td className="py-3 small text-muted fw-bold">{file.year || '—'}</td>
+                    <td className="py-3 small text-muted fw-bold">{file.uploaded_by_name || 'Admin'}</td>
                     <td className="pe-4 py-3 text-end">
-                      <Dropdown align="end">
-                        <Dropdown.Toggle variant="link" className="text-muted p-0 no-caret shadow-none border-0">
-                          <MoreHorizontal size={18} />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className="border-0 shadow-lg rounded-3 glass-card">
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Download', file)}><Download size={14} className="me-2" /> Download</Dropdown.Item>
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Share', file)}><Share2 size={14} className="me-2" /> Share</Dropdown.Item>
-                          <Dropdown.Divider />
-                          <Dropdown.Item className="extra-small fw-bold text-danger" onClick={() => handleAction('Delete', file)}>Delete</Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
+                      <div className="d-flex gap-2 justify-content-end">
+                        {file.file_url && (
+                          <a href={file.file_url} target="_blank" rel="noreferrer"
+                            className="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center gap-1">
+                            <Download size={14} />
+                          </a>
+                        )}
+                        <Button variant="link" className="p-2 text-danger border-0 shadow-none"
+                          onClick={() => handleDelete(file.id, file.title)}>
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -263,101 +212,64 @@ const ResourceHub: React.FC = () => {
         </div>
       </Container>
 
-      {/* Floating Export Bar */}
-      {selectedFiles.length > 0 && (
-        <motion.div 
-          initial={{ y: 100 }} animate={{ y: 0 }}
-          className="position-fixed bottom-0 start-50 translate-middle-x mb-4 z-index-1000"
-        >
-          <div className="glass-card p-3 rounded-pill shadow-lg border border-primary border-opacity-25 bg-white d-flex align-items-center gap-3">
-            <Badge bg="primary" className="rounded-pill px-3 py-2">{selectedFiles.length} selected</Badge>
-            <div className="vr opacity-10" />
-            <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('pdf')}>PDF</Button>
-            <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('csv')}>CSV</Button>
-            <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('word')}>Word</Button>
-            <div className="vr opacity-10" />
-            <Button variant="link" className="extra-small fw-bold text-danger text-decoration-none shadow-none p-0" onClick={() => setSelectedFiles([])}>Cancel</Button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Upload Modal (Basic) */}
-      <Modal 
-        show={showUploadModal} 
-        onHide={() => {
-          setShowUploadModal(false);
-          setPendingFile(null);
-        }} 
-        centered 
-        className="glass-modal"
-      >
-        <Modal.Header closeButton className="border-0 p-4">
-          <Modal.Title className="fw-bold text-navy h5">Upload Documents</Modal.Title>
+      {/* Upload Modal */}
+      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold fs-6">Upload Resource</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4 text-center">
-          {!pendingFile ? (
-            <div 
-              className="p-5 border-2 border-dashed rounded-4 bg-surface-alt mb-4 d-flex flex-column align-items-center gap-3 transition-all"
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.add('border-primary', 'bg-primary-soft');
-              }}
-              onDragLeave={(e) => {
-                e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove('border-primary', 'bg-primary-soft');
-                handleFileProcess(e.dataTransfer.files);
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              style={{ cursor: 'pointer' }}
-            >
-              <input 
-                type="file" 
-                hidden 
-                ref={fileInputRef} 
-                onChange={(e) => handleFileProcess(e.target.files)}
+        <form onSubmit={handleUpload}>
+          <Modal.Body className="p-4">
+            <Form.Group className="mb-3">
+              <Form.Label className="small fw-bold">Title</Form.Label>
+              <Form.Control
+                placeholder="Resource title (optional — defaults to filename)"
+                value={newResource.title}
+                onChange={e => setNewResource(p => ({ ...p, title: e.target.value }))}
               />
-              <HardDrive size={48} className="text-primary opacity-25" />
-              <div>
-                <div className="fw-bold text-navy">Drag your files here</div>
-                <div className="extra-small text-muted fw-bold">or click to browse your folders</div>
-              </div>
-            </div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-4 rounded-4 border border-primary border-opacity-10 bg-primary-soft mb-4 text-start"
-            >
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="p-3 bg-white rounded-3 shadow-sm text-primary">
-                  <FileText size={32} />
-                </div>
-                <div>
-                  <div className="fw-bold text-navy text-truncate" style={{ maxWidth: '250px' }}>{pendingFile.title}</div>
-                  <div className="extra-small text-muted fw-bold">{pendingFile.size} • {pendingFile.type}</div>
-                </div>
-              </div>
-              <div className="extra-small text-primary fw-bold opacity-75">Do you want to confirm the upload of this file??</div>
-            </motion.div>
-          )}
-
-          <div className="d-flex gap-2">
-            {pendingFile && (
-              <Button variant="outline-secondary" className="flex-fill py-3 rounded-pill fw-bold border-2" onClick={() => setPendingFile(null)}>
-                Cancel
-              </Button>
-            )}
-            <Button 
-              className="btn-premium flex-fill py-3 rounded-pill fw-bold border-0 shadow-sm" 
-              onClick={pendingFile ? confirmUpload : () => fileInputRef.current?.click()}
-            >
-              {pendingFile ? 'Confirm upload' : 'Select a file'}
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="small fw-bold">Description (optional)</Form.Label>
+              <Form.Control
+                as="textarea" rows={2}
+                placeholder="Brief description..."
+                value={newResource.description}
+                onChange={e => setNewResource(p => ({ ...p, description: e.target.value }))}
+              />
+            </Form.Group>
+            <Row className="g-3 mb-3">
+              <Col>
+                <Form.Label className="small fw-bold">Type</Form.Label>
+                <Form.Select value={newResource.type} onChange={e => setNewResource(p => ({ ...p, type: e.target.value }))}>
+                  <option value="report">Report</option>
+                  <option value="template">Template</option>
+                  <option value="guide">Guide</option>
+                  <option value="project">Project</option>
+                  <option value="other">Other</option>
+                </Form.Select>
+              </Col>
+              <Col>
+                <Form.Label className="small fw-bold">Year</Form.Label>
+                <Form.Control
+                  type="number" min={2000} max={2100}
+                  value={newResource.year}
+                  onChange={e => setNewResource(p => ({ ...p, year: Number(e.target.value) }))}
+                />
+              </Col>
+            </Row>
+            <Form.Group>
+              <Form.Label className="small fw-bold">File</Form.Label>
+              <Form.Control type="file" ref={fileInputRef} accept=".pdf,.docx,.pptx,.zip" required />
+              <Form.Text className="text-muted extra-small">PDF, DOCX, PPTX, ZIP accepted</Form.Text>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button variant="outline-secondary" onClick={() => setShowUploadModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={uploading} className="d-flex align-items-center gap-2">
+              {uploading ? <Spinner size="sm" /> : <Plus size={16} />}
+              {uploading ? 'Uploading…' : 'Upload'}
             </Button>
-          </div>
-        </Modal.Body>
+          </Modal.Footer>
+        </form>
       </Modal>
     </div>
   );

@@ -1,201 +1,251 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Badge, Form, InputGroup, Button, Dropdown } from 'react-bootstrap';
-import { 
-  Search, Pin, AlertCircle, FileText, 
-  Bell, MoreVertical, Clock, Plus
+import { Container, Row, Col, Badge, Form, InputGroup, Button, Modal, Spinner } from 'react-bootstrap';
+import {
+  Search, Pin, AlertCircle, FileText,
+  Bell, Clock, Plus, CheckCircle, X, Trash2
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 
-interface Note {
-  id: number;
-  title: string;
-  isNew: boolean;
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  category: string;
-  content: string;
-  author: string;
-  date: string;
-  pinned: boolean;
-  unread: boolean;
-}
-
 const AdminNotes: React.FC = () => {
-  const { theme } = useApp();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { administrativeNotes, createAdminNote, deleteAdminNote } = useApp();
+
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [audienceFilter, setAudienceFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [saving, setSaving]             = useState(false);
+  const [successMsg, setSuccessMsg]     = useState('');
+  const [newNote, setNewNote]           = useState({
+    title: '', content: '', audience: 'all', is_pinned: false,
+  });
 
-  const notes: Note[] = [
-    {
-      id: 1,
-      title: 'Publication of Defense Schedule',
-      isNew: true,
-      priority: 'HIGH',
-      category: 'Defense',
-      content: 'Final schedules for all students will be published on May 5, 2026. Please check your portal regularly. Room assignments will be sent 48h before.',
-      author: 'PFE Office',
-      date: '2026-04-28',
-      pinned: true,
-      unread: true
-    },
-    {
-      id: 2,
-      title: 'Submission Deadline Reminder',
-      isNew: true,
-      priority: 'HIGH',
-      category: 'Deadlines',
-      content: 'Final reports must be submitted before May 15, 2026 at 23:59. Any delay will result in a penalty of 5 points per day.',
-      author: 'Academic Affairs',
-      date: '2026-04-27',
-      pinned: true,
-      unread: true
-    },
-    {
-      id: 3,
-      title: 'Mandatory Presentation Workshop',
-      isNew: true,
-      priority: 'HIGH',
-      category: 'Workshops',
-      content: 'All students must attend the workshop on presentation techniques on May 8 at 14:00 in Auditorium B.',
-      author: 'Professional Development',
-      date: '2026-04-23',
-      pinned: true,
-      unread: true
-    },
-    {
-      id: 4,
-      title: 'New Evaluation Criteria',
-      isNew: false,
-      priority: 'MEDIUM',
-      category: 'Evaluation',
-      content: 'The 2026 evaluation grid has been updated in the Resource Center. Innovation now counts for 15%.',
-      author: 'Dr. Ahmed Mansouri',
-      date: '2026-04-25',
-      pinned: false,
-      unread: false
-    }
-  ];
+  const flash = (msg: string) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(''), 4000);
+  };
 
-  const getPriorityBadge = (priority: Note['priority']) => {
-    switch (priority) {
-      case 'HIGH': return <Badge bg="danger" className="bg-opacity-10 text-danger border border-danger border-opacity-25 extra-small fw-bold">HIGH</Badge>;
-      case 'MEDIUM': return <Badge bg="warning" className="bg-opacity-10 text-warning border border-warning border-opacity-25 extra-small fw-bold">MEDIUM</Badge>;
-      case 'LOW': return <Badge bg="success" className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small fw-bold">LOW</Badge>;
-      default: return null;
+  const filtered = administrativeNotes.filter(n => {
+    const matchSearch   = n.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          n.content?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchAudience = audienceFilter === 'all' || n.audience === audienceFilter;
+    return matchSearch && matchAudience;
+  });
+
+  const pinned = administrativeNotes.filter(n => n.is_pinned).length;
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await createAdminNote(newNote);
+      setShowAddModal(false);
+      setNewNote({ title: '', content: '', audience: 'all', is_pinned: false });
+      flash('Note published successfully!');
+    } catch (err: any) {
+      flash(`Error: ${err?.message || 'Could not create note.'}`);
+    } finally {
+      setSaving(false);
     }
+  };
+
+  const handleDelete = async (id: number, title: string) => {
+    try {
+      await deleteAdminNote(id);
+      flash(`"${title}" deleted.`);
+    } catch {
+      flash('Could not delete note.');
+    }
+  };
+
+  const audienceColor = (audience: string) => {
+    if (audience === 'students')    return 'primary';
+    if (audience === 'supervisors') return 'info';
+    if (audience === 'juries')      return 'warning';
+    return 'secondary';
   };
 
   return (
     <div className="admin-notes-modern-layout py-4">
       <Container fluid className="px-4">
+
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Notes & Announcements</h2>
-            <p className="text-muted small mb-0">Tracking updates and important communications.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Notes &amp; Announcements</h2>
+            <p className="text-muted small mb-0">Manage important communications for all users.</p>
           </div>
-          <Button 
-            className="btn-premium d-flex align-items-center gap-2" 
-            onClick={() => setShowAddModal(true)}
-          >
+          <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
             <Plus size={18} /> New Note
           </Button>
         </div>
 
-        {/* Stats Row */}
+        {/* Flash */}
+        <AnimatePresence>
+          {successMsg && (
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="glass-card mb-4 p-3 rounded-4 border-start border-success border-4 d-flex align-items-center gap-3">
+              <CheckCircle size={18} className="text-success shrink-0" />
+              <span className="small fw-bold">{successMsg}</span>
+              <button type="button" className="ms-auto btn btn-sm p-0 border-0 bg-transparent" onClick={() => setSuccessMsg('')}>
+                <X size={16} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Stats */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Overall" />
+            <StatCard label="Total Notes" value={administrativeNotes.length.toString()} icon={<FileText />} color="primary" trend="Overall" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Unread" value="3" icon={<Bell />} color="danger" trend="Action" />
+            <StatCard label="Pinned" value={pinned.toString()} icon={<Pin />} color="warning" trend="Important" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pinned" value="3" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="For Students" value={administrativeNotes.filter(n => n.audience === 'students' || n.audience === 'all').length.toString()} icon={<Bell />} color="info" trend="Visible" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="High Priority" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="For All" value={administrativeNotes.filter(n => n.audience === 'all').length.toString()} icon={<AlertCircle />} color="success" trend="Global" />
           </Col>
         </Row>
 
-        {/* Search & Filter */}
+        {/* Filters */}
         <div className="glass-card p-4 rounded-4 mb-5">
           <Row className="g-3 align-items-center">
             <Col lg={4}>
               <InputGroup className="bg-surface-alt rounded-pill border px-2">
-                <InputGroup.Text className="bg-transparent border-0 text-muted">
-                  <Search size={18} />
-                </InputGroup.Text>
-                <Form.Control 
-                  placeholder="Search for a note..." 
-                  className="bg-transparent border-0 shadow-none small py-2 text-primary-custom"
+                <InputGroup.Text className="bg-transparent border-0 text-muted"><Search size={18} /></InputGroup.Text>
+                <Form.Control
+                  placeholder="Search for a note..."
+                  className="bg-transparent border-0 shadow-none small py-2"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
               </InputGroup>
             </Col>
             <Col lg={8}>
-              <div className="d-flex gap-2 justify-content-lg-end">
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">All</Button>
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Pinned</Button>
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">High Priority</Button>
+              <div className="d-flex gap-2 justify-content-lg-end flex-wrap">
+                {['all', 'students', 'supervisors', 'juries'].map(aud => (
+                  <Button
+                    key={aud}
+                    variant={audienceFilter === aud ? 'primary' : 'outline-secondary'}
+                    className="rounded-pill extra-small fw-bold px-4"
+                    onClick={() => setAudienceFilter(aud)}
+                  >
+                    {aud.charAt(0).toUpperCase() + aud.slice(1)}
+                  </Button>
+                ))}
               </div>
             </Col>
           </Row>
         </div>
 
         {/* Notes Feed */}
-        <div className="notes-feed">
-          <Row className="g-4">
-            {notes.map((note) => (
-              <Col key={note.id} lg={6}>
-                <div className={`glass-card p-4 rounded-4 shadow-sm h-100 border-start-4 ${note.pinned ? 'border-warning' : 'border-primary'}`}>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div className="d-flex align-items-center gap-2">
-                      {getPriorityBadge(note.priority)}
-                      <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-25 extra-small fw-bold">{note.category}</Badge>
-                      {note.pinned && <Pin size={14} className="text-warning fill-warning" />}
-                    </div>
-                    <Dropdown align="end">
-                      <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
-                      <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                        <Dropdown.Item className="extra-small fw-bold">Edit</Dropdown.Item>
-                        <Dropdown.Item className="extra-small fw-bold">Pin</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item className="extra-small fw-bold text-danger">Delete</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+        {filtered.length === 0 && (
+          <div className="text-center py-5 text-muted">
+            <FileText size={48} className="mb-3 opacity-30" />
+            <h5 className="fw-bold">No notes found</h5>
+            <p className="small">Create your first announcement using the button above.</p>
+          </div>
+        )}
+        <Row className="g-4">
+          {filtered.map(note => (
+            <Col key={note.id} lg={6}>
+              <div className={`glass-card p-4 rounded-4 shadow-sm h-100 border-start border-4 border-${note.is_pinned ? 'warning' : 'primary'}`}>
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <Badge bg={audienceColor(note.audience)} className="extra-small fw-bold text-capitalize">
+                      {note.audience}
+                    </Badge>
+                    {note.is_pinned && <Pin size={14} className="text-warning" />}
                   </div>
-                  
-                  <h5 className="fw-bold mb-3 text-navy">{note.title}</h5>
-                  <p className="small text-muted mb-4 lh-base fw-bold opacity-75">{note.content}</p>
-                  
-                  <div className="p-3 bg-surface-alt rounded-4 border d-flex justify-content-between align-items-center">
-                    <div className="d-flex align-items-center gap-2">
-                      <div className="avatar-xs bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
-                        {note.author.charAt(0)}
-                      </div>
-                      <span className="extra-small fw-bold text-navy opacity-75">{note.author}</span>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger rounded-circle p-1 border-0"
+                    onClick={() => handleDelete(note.id, note.title)}
+                    title="Delete note"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                <h5 className="fw-bold mb-3 text-navy">{note.title}</h5>
+                <p className="small text-muted mb-4 lh-base fw-bold opacity-75">{note.content}</p>
+
+                <div className="p-3 bg-surface-alt rounded-4 border d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="avatar-xs bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                      style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
+                      {note.author_name?.charAt(0) || 'A'}
                     </div>
-                    <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                      <Clock size={14} className="text-primary" /> {note.date}
-                    </div>
+                    <span className="extra-small fw-bold text-navy opacity-75">{note.author_name || 'Admin'}</span>
+                  </div>
+                  <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
+                    <Clock size={14} className="text-primary" />
+                    {note.created_at ? new Date(note.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                   </div>
                 </div>
-              </Col>
-            ))}
-          </Row>
-        </div>
+              </div>
+            </Col>
+          ))}
+        </Row>
       </Container>
-      <style>{`
-        .border-start-4 {
-          border-left: 4px solid !important;
-        }
-        .border-primary { border-left-color: var(--color-primary) !important; }
-        .border-danger { border-left-color: var(--color-danger) !important; }
-        .border-warning { border-left-color: var(--color-warning) !important; }
-        .fill-warning { fill: var(--color-warning); }
-      `}</style>
+
+      {/* Add Note Modal */}
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold fs-6">Create Announcement</Modal.Title>
+        </Modal.Header>
+        <form onSubmit={handleCreate}>
+          <Modal.Body className="p-4">
+            <Form.Group className="mb-3">
+              <Form.Label className="small fw-bold">Title</Form.Label>
+              <Form.Control
+                placeholder="Announcement title"
+                value={newNote.title}
+                onChange={e => setNewNote(p => ({ ...p, title: e.target.value }))}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="small fw-bold">Content</Form.Label>
+              <Form.Control
+                as="textarea" rows={4}
+                placeholder="Write your announcement..."
+                value={newNote.content}
+                onChange={e => setNewNote(p => ({ ...p, content: e.target.value }))}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="small fw-bold">Audience</Form.Label>
+              <Form.Select
+                value={newNote.audience}
+                onChange={e => setNewNote(p => ({ ...p, audience: e.target.value }))}
+              >
+                <option value="all">All Users</option>
+                <option value="students">Students Only</option>
+                <option value="supervisors">Supervisors Only</option>
+                <option value="juries">Jury Members Only</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Check
+              type="checkbox"
+              label="Pin this note"
+              checked={newNote.is_pinned}
+              onChange={e => setNewNote(p => ({ ...p, is_pinned: e.target.checked }))}
+              className="small fw-bold"
+            />
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button variant="outline-secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={saving}>
+              {saving ? <Spinner size="sm" /> : 'Publish Note'}
+            </Button>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </div>
   );
 };

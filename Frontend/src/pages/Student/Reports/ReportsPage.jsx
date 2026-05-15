@@ -1,560 +1,318 @@
 import React, { useState, useRef } from 'react';
-import { 
-  Container, Row, Col, Card, Badge, 
-  Button, Table, Form, InputGroup, Modal 
+import {
+  Container, Row, Col, Card, Badge,
+  Button, Form, InputGroup, Modal, Spinner
 } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, Upload, Download, CheckCircle, Clock, 
-  Search, Trash2, Eye, Folder, Filter, ChevronDown,
-  FilePlus, MoreVertical, X, GraduationCap, Users
+import {
+  FileText, Upload, Download, CheckCircle, Clock,
+  Search, Trash2, Eye, Filter, FilePlus, X,
+  MessageSquare, AlertCircle
 } from 'lucide-react';
-import { Dropdown } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext.jsx';
 
-// Custom Animated Trash Icon Component
-const AnimatedTrash = ({ isDeleting }) => {
-  return (
-    <svg 
-      width="32" height="32" viewBox="0 0 24 24" fill="none" 
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    >
-      {/* Lid & Handle */}
-      <motion.g
-        animate={isDeleting ? { y: -4, rotate: -20, originX: '20px', originY: '6px' } : { y: 0, rotate: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <path d="M3 6h18" />
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-      </motion.g>
-      {/* Body */}
-      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-      <line x1="10" y1="11" x2="10" y2="17" />
-      <line x1="14" y1="11" x2="14" y2="17" />
-    </svg>
-  );
+const statusConfig = {
+  approved: { color: 'success', icon: <CheckCircle size={14} />, label: 'Approved' },
+  pending:  { color: 'warning', icon: <Clock size={14} />,        label: 'Pending'  },
+  rejected: { color: 'danger',  icon: <AlertCircle size={14} />,  label: 'Rejected' },
 };
 
 const ReportsPage = () => {
   const { user, documents = [], deleteDocument, uploadDocument } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-  const fileInputRef = useRef(null);
-  const [showSuccessCard, setShowSuccessCard] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-  const [pendingFiles, setPendingFiles] = useState([]);
+  const [targetFilter, setTargetFilter] = useState('All');
   const [uploadTarget, setUploadTarget] = useState('supervisor');
-  const [deleteModalDoc, setDeleteModalDoc] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const dragCounter = useRef(0);
-  // Map docId -> object URL for real file preview/download
-  const fileUrlMap = useRef({});
+  const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [showRemarkModal, setShowRemarkModal] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+  const fileInputRef = useRef(null);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
+  const flash = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(''), 4000);
   };
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  // ── Upload ────────────────────────────────────────────────────────────────
+  const ALLOWED_TYPES = new Set([
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ]);
+
+  const targetLabel = (t) => {
+    if (t === 'supervisor') return 'the supervisor';
+    if (t === 'jury') return 'the jury';
+    return 'administration';
   };
 
-  const processFiles = (files) => {
-    if (!files || files.length === 0) return;
-    files.forEach(file => {
-      const allowed = ['application/pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
-      if (allowed.includes(file.type) || file.name.match(/\.(pdf|docx|pptx)$/i)) {
-        const doc = uploadDocument(file.name, file, uploadTarget);
-        // Store a real browser object URL so we can view/download this file
-        const url = URL.createObjectURL(file);
-        fileUrlMap.current[doc.id] = { url, name: file.name };
+  const handleFiles = async (files) => {
+    const validFiles = Array.from(files).filter(
+      f => ALLOWED_TYPES.has(f.type) || /\.(pdf|docx|pptx)$/i.test(f.name)
+    );
+    if (validFiles.length === 0) {
+      flash('Only PDF, DOCX and PPTX files are accepted.');
+      return;
+    }
+    setUploading(true);
+    try {
+      for (const file of validFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', file.name.replace(/\.[^.]+$/, ''));
+        formData.append('target', uploadTarget);
+        await uploadDocument(formData);
       }
-    });
-    setSuccessMsg(`${files.length} file(s) sent to ${uploadTarget === 'supervisor' ? "the supervisor" : "the jury"}!`);
-    setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
+      flash(`${validFiles.length} file(s) sent to ${targetLabel(uploadTarget)}!`);
+    } catch (uploadErr) {
+      flash(`Upload failed: ${uploadErr?.message || 'Please try again.'}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
-    processFiles(Array.from(e.dataTransfer.files));
+    handleFiles(e.dataTransfer.files);
   };
 
-  const handleUploadClick = () => fileInputRef.current.click();
+  const handleFileInput = (e) => handleFiles(e.target.files);
 
-  const handleFileChange = (e) => {
-    processFiles(Array.from(e.target.files));
-    e.target.value = null;
-  };
-
-  const handleView = (doc) => {
-    const entry = fileUrlMap.current[doc.id];
-    if (entry) {
-      window.open(entry.url, '_blank');
-    } else {
-      alert('Preview unavailable: the file is no longer in memory. Please re-upload the file.');
+  // ── Delete ────────────────────────────────────────────────────────────────
+  const confirmDelete = async () => {
+    if (!docToDelete) return;
+    setDeleting(true);
+    try {
+      await deleteDocument(docToDelete.id);
+      flash(`"${docToDelete.title}" deleted.`);
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+      setDocToDelete(null);
     }
   };
 
-  const handleDownload = (doc) => {
-    const entry = fileUrlMap.current[doc.id];
-    if (entry) {
-      const link = document.createElement('a');
-      link.href = entry.url;
-      link.download = entry.name;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setSuccessMsg(`Download of "${doc.title}" started...`);
-    } else {
-      setSuccessMsg(`"${doc.title}" — file not available locally.`);
-    }
-    setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
-  };
-
-  const filteredDocs = documents.filter(doc => {
-    // Only show documents for the current logged-in student
-    const isOwner = doc.studentName === user?.name;
-    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return isOwner && matchesSearch;
+  // ── Filter ────────────────────────────────────────────────────────────────
+  const filtered = documents.filter(d => {
+    const matchSearch = d.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchTarget = targetFilter === 'All' || d.target === targetFilter.toLowerCase();
+    return matchSearch && matchTarget;
   });
 
-  const userDocs = documents.filter(d => d.studentName === user?.name);
-
-  const categories = [
-    { name: 'All', count: userDocs.length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'PDF', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pdf')).length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'DOCX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.docx')).length, icon: <Folder size={20} />, color: 'blue' },
-    { name: 'PPTX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pptx')).length, icon: <Folder size={20} />, color: 'blue' },
-  ];
+  const statusCounts = {
+    approved: documents.filter(d => d.status === 'approved').length,
+    pending:  documents.filter(d => d.status === 'pending').length,
+    rejected: documents.filter(d => d.status === 'rejected').length,
+  };
 
   return (
     <div className="reports-page-layout py-4">
       <Container fluid className="px-4">
-        
-        {/* Success Notification Card */}
+
+        {/* Header */}
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+          <div>
+            <h2 className="fw-bold mb-1 text-gradient">My Documents</h2>
+            <p className="text-muted small mb-0">Upload and track your project documents — {user?.name}</p>
+          </div>
+          <div className="d-flex gap-2">
+            <InputGroup size="sm" className="rounded-pill border px-3" style={{ width: '260px' }}>
+              <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16} /></InputGroup.Text>
+              <Form.Control
+                placeholder="Search documents..."
+                className="bg-transparent border-0 shadow-none py-2 small"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+            <Form.Select size="sm" className="rounded-pill border fw-bold small" style={{ width: '140px' }}
+              value={targetFilter} onChange={e => setTargetFilter(e.target.value)}>
+              <option>All</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="jury">Jury</option>
+              <option value="administration">Admin</option>
+            </Form.Select>
+          </div>
+        </div>
+
+        {/* Success */}
         <AnimatePresence>
-          {showSuccessCard && (
-            <motion.div 
-              initial={{ opacity: 0, y: -50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="p-3 mb-4 d-flex align-items-center justify-content-between shadow-lg bg-success-soft text-success border border-success border-opacity-25 rounded-4"
-              style={{ zIndex: 1000 }}
-            >
-              <div className="d-flex align-items-center gap-3">
-                <div className="p-2 rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                  <CheckCircle size={24} />
-                </div>
-                <div>
-                  <h6 className="mb-0 fw-bold">Document Ready</h6>
-                  <p className="extra-small mb-0 opacity-75 fw-bold">{successMsg}</p>
-                </div>
-              </div>
-              <Button size="sm" variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Close</Button>
+          {successMsg && (
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+              className="glass-card mb-4 p-3 rounded-4 shadow-sm border-start border-success border-4 d-flex align-items-center gap-3">
+              <CheckCircle size={20} className="text-success shrink-0" />
+              <span className="small fw-bold">{successMsg}</span>
+              <button type="button" className="ms-auto btn btn-sm p-0 border-0 bg-transparent" onClick={() => setSuccessMsg('')}><X size={16} /></button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Hidden File Input */}
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          style={{ display: 'none' }} 
-          onChange={handleFileChange}
-          accept=".pdf,.docx,.pptx"
-        />
-
-        {/* Header Section */}
-        <header className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <h2 className="fw-bold mb-1 text-navy">Documents Repository</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Manage all your PFE project documents and submissions</p>
-          </motion.div>
-          <Button 
-            className="btn-premium d-flex align-items-center gap-2 px-4 shadow-sm"
-            onClick={handleUploadClick}
-          >
-            <Upload size={18} /> Upload Document
-          </Button>
-        </header>
-
-        {/* Stats Grid */}
+        {/* Stats */}
         <Row className="g-4 mb-5">
-          {categories.map((cat, i) => (
-            <Col key={i} lg={3} md={6}>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="glass-card border-0 shadow-sm border p-3">
-                  <Card.Body className="p-2 d-flex justify-content-between align-items-center">
-                    <div>
-                      <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-75 tracking-wider">{cat.name}</div>
-                      <h3 className="fw-bold mb-0 text-navy">{cat.count}</h3>
-                    </div>
-                    <div className="p-3 bg-primary-soft text-primary rounded-4">
-                      <Folder size={24} />
-                    </div>
-                  </Card.Body>
-                </Card>
-              </motion.div>
+          {[
+            { label: 'Total', value: documents.length, color: 'primary', icon: <FileText size={20}/> },
+            { label: 'Approved', value: statusCounts.approved, color: 'success', icon: <CheckCircle size={20}/> },
+            { label: 'Pending', value: statusCounts.pending, color: 'warning', icon: <Clock size={20}/> },
+            { label: 'Rejected', value: statusCounts.rejected, color: 'danger', icon: <AlertCircle size={20}/> },
+          ].map(s => (
+            <Col lg={3} sm={6} key={s.label}>
+              <Card className="glass-card border-0 shadow-sm p-4 text-center">
+                <div className={`text-${s.color} mb-2`}>{s.icon}</div>
+                <div className={`fs-2 fw-bold text-${s.color}`}>{s.value}</div>
+                <div className="small text-muted fw-bold">{s.label}</div>
+              </Card>
             </Col>
           ))}
         </Row>
 
-        {/* Dropzone Area */}
-        <div
-          className="mb-5"
-          onDragEnter={e => { e.preventDefault(); e.stopPropagation(); dragCounter.current++; setIsDragging(true); }}
-          onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
-          onDragLeave={e => { e.preventDefault(); e.stopPropagation(); dragCounter.current--; if (dragCounter.current === 0) setIsDragging(false); }}
-          onDrop={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current = 0;
-            setIsDragging(false);
-            const files = Array.from(e.dataTransfer.files).filter(f =>
-              f.name.match(/\.(pdf|docx|pptx)$/i)
-            );
-            if (files.length > 0) {
-              setPendingFiles(files);
-            }
-          }}
-        >
-          <div
-            className="rounded-4 overflow-hidden cursor-pointer"
-            style={{
-              background: isDragging
-                ? 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.06) 100%)'
-                : 'linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(37,99,235,0.02) 100%)',
-              border: isDragging
-                ? '2px dashed rgba(37,99,235,0.75)'
-                : '2px dashed rgba(37,99,235,0.25)',
-              transform: isDragging ? 'scale(1.015)' : 'scale(1)',
-              transition: 'all 0.25s ease',
-            }}
-            onClick={handleUploadClick}
-          >
-            <div className="p-5 text-center">
-              {/* Animated icon */}
-              <motion.div
-                animate={{ y: isDragging ? [-4, 4, -4] : [0, -6, 0] }}
-                transition={{ repeat: Infinity, duration: isDragging ? 0.6 : 2.5, ease: 'easeInOut' }}
-                className="d-inline-flex align-items-center justify-content-center mb-4"
-                style={{
-                  width: '72px', height: '72px',
-                  background: isDragging
-                    ? 'linear-gradient(135deg, #16a34a, #22c55e)'
-                    : 'linear-gradient(135deg, #2563eb, #818cf8)',
-                  borderRadius: '20px',
-                  boxShadow: isDragging
-                    ? '0 8px 24px rgba(22,163,74,0.35)'
-                    : '0 8px 24px rgba(37,99,235,0.25)',
-                }}
-              >
-                <Upload size={32} color="white" strokeWidth={1.8} />
-              </motion.div>
-
-              <h5 className="fw-bold text-navy mb-1" style={{ fontSize: '1.05rem' }}>
-                {isDragging ? '✓ Release to import' : 'Drag and drop your files here'}
-              </h5>
-              <div className="mt-4 mb-4" />
-              <p className="text-muted mb-4 fw-bold" style={{ fontSize: '0.82rem' }}>
-                {isDragging ? (
-                  "Files will be assigned to the selected target"
-                ) : (
-                  "Click to browse or drop your documents (PDF, Word, PPT)"
-                )}
-              </p>
-
-              {!isDragging && (
+        {/* Upload Zone */}
+        <Card className="glass-card border-0 shadow-sm mb-5">
+          <Card.Body className="p-4">
+            <h6 className="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
+              <Upload size={18} className="text-primary" /> Upload New Document
+            </h6>
+            <div className="d-flex gap-3 mb-3 flex-wrap">
+              {['supervisor', 'jury', 'administration'].map(t => (
+                <Form.Check key={t} type="radio" id={`target-${t}`} label={t.charAt(0).toUpperCase() + t.slice(1)}
+                  checked={uploadTarget === t} onChange={() => setUploadTarget(t)} className="fw-bold small" />
+              ))}
+            </div>
+            <label
+              htmlFor="doc-file-upload"
+              className={`d-block rounded-4 border-2 border-dashed p-5 text-center transition-all ${isDragging ? 'border-primary bg-primary-soft' : 'border-secondary'}`}
+              style={{ cursor: 'pointer' }}
+              onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+            >
+              {uploading ? (
+                <><Spinner size="sm" className="mb-2" /><div className="small text-muted fw-bold">Uploading…</div></>
+              ) : (
                 <>
-                  <div className="d-flex justify-content-center gap-2 mb-4">
-                    {[
-                      { label: 'PDF', color: '#ef4444', bg: '#fef2f2' },
-                      { label: 'DOCX', color: '#2563eb', bg: '#eff6ff' },
-                      { label: 'PPTX', color: '#f97316', bg: '#fff7ed' },
-                    ].map(type => (
-                      <span key={type.label} className="fw-bold rounded-pill px-3 py-1 d-flex align-items-center gap-1"
-                        style={{ fontSize: '0.7rem', background: type.bg, color: type.color, letterSpacing: '0.5px' }}>
-                        <FileText size={11} /> {type.label}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold"
-                    style={{ background: 'rgba(0,0,0,0.04)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                    <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%', display: 'inline-block' }} />
-                    Maximum size: 10 MB per file
-                  </div>
+                  <FilePlus size={36} className="text-primary mb-3 opacity-75" />
+                  <div className="fw-bold text-navy small mb-1">Drag &amp; drop files here or click to browse</div>
+                  <div className="extra-small text-muted">PDF, DOCX, PPTX accepted</div>
                 </>
               )}
-            </div>
-          </div>
+              <input ref={fileInputRef} id="doc-file-upload" type="file" multiple accept=".pdf,.docx,.pptx" className="d-none" onChange={handleFileInput} />
+            </label>
+          </Card.Body>
+        </Card>
 
-          {/* Pending files preview */}
-          {pendingFiles.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-3 p-4 rounded-4 border"
-              style={{ background: 'var(--color-surface-alt)' }}
-            >
-              <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <div>
-                  <span className="fw-bold small text-navy d-block mb-1">{pendingFiles.length} file(s) ready to be imported</span>
-                  <span className="extra-small text-muted fw-bold">Please choose the destination below:</span>
-                </div>
-                <div className="d-flex gap-2">
-                  <button className="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold extra-small"
-                    onClick={e => { e.stopPropagation(); setPendingFiles([]); }}>
-                    Cancel
-                  </button>
-                  <button className="btn btn-sm btn-premium rounded-pill px-4 fw-bold extra-small shadow-sm"
-                    onClick={e => { e.stopPropagation(); processFiles(pendingFiles); setPendingFiles([]); }}>
-                    ✓ Import for {uploadTarget === 'supervisor' ? "the Supervisor" : "the Jury"}
-                  </button>
-                </div>
+        {/* Documents List */}
+        <Card className="glass-card border-0 shadow-sm">
+          <Card.Header className="bg-transparent border-bottom p-4 d-flex align-items-center justify-content-between">
+            <h6 className="fw-bold text-navy mb-0">Uploaded Documents ({filtered.length})</h6>
+            <Filter size={16} className="text-muted" />
+          </Card.Header>
+          <Card.Body className="p-0">
+            {filtered.length === 0 && (
+              <div className="text-center py-5 text-muted">
+                <FileText size={48} className="mb-3 opacity-30" />
+                <p className="fw-bold">No documents found.</p>
               </div>
-
-              <div className="d-flex gap-2 mb-4 p-2 bg-white rounded-4 border shadow-sm w-fit-content mx-auto mx-md-0" onClick={e => e.stopPropagation()}>
-                <Button 
-                  variant={uploadTarget === 'supervisor' ? 'primary' : 'outline-light text-muted'} 
-                  className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'supervisor' ? 'shadow-sm' : ''}`}
-                  onClick={() => setUploadTarget('supervisor')}
-                >
-                  <Users size={14} className="me-2" /> To Supervisor
-                </Button>
-                <Button 
-                  variant={uploadTarget === 'jury' ? 'primary' : 'outline-light text-muted'} 
-                  className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'jury' ? 'shadow-sm' : ''}`}
-                  onClick={() => setUploadTarget('jury')}
-                >
-                  <GraduationCap size={14} className="me-2" /> To Jury
-                </Button>
-              </div>
-              <div className="d-flex flex-column gap-2">
-                {pendingFiles.map((f, i) => (
-                  <div key={i} className="d-flex align-items-center gap-3 p-2 rounded-3 bg-surface border">
-                    <div className="p-2 rounded-3 flex-shrink-0"
-                      style={{ background: f.name.endsWith('.pdf') ? '#fef2f2' : f.name.endsWith('.pptx') ? '#fff7ed' : '#eff6ff' }}>
-                      <FileText size={16} style={{ color: f.name.endsWith('.pdf') ? '#ef4444' : f.name.endsWith('.pptx') ? '#f97316' : '#2563eb' }} />
+            )}
+            {filtered.map(doc => {
+              const st = statusConfig[doc.status] || statusConfig.pending;
+              return (
+                <div key={doc.id} className="p-4 border-bottom d-flex align-items-center gap-3 hover-bg-surface">
+                  <div className="p-2 bg-primary-soft rounded-3 text-primary shrink-0">
+                    <FileText size={20} />
+                  </div>
+                  <div className="grow overflow-hidden">
+                    <div className="fw-bold small text-navy text-truncate">{doc.title}</div>
+                    <div className="extra-small text-muted fw-bold">
+                      Target: <span className="text-capitalize">{doc.target}</span> •
+                      v{doc.version} •
+                      {new Date(doc.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                     </div>
-                    <div className="flex-grow-1 overflow-hidden">
-                      <div className="extra-small fw-bold text-navy text-truncate">{f.name}</div>
-                      <div className="extra-small text-muted fw-bold">{(f.size / 1024 / 1024).toFixed(2)} MB</div>
-                    </div>
-                    <CheckCircle size={16} className="text-success flex-shrink-0" />
+                    {doc.rejection_reason && (
+                      <div className="extra-small text-danger mt-1 fw-bold">
+                        Reason: {doc.rejection_reason}
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Tables Section */}
-        <Row className="g-4">
-          <Col lg={12}>
-            <div className="d-flex flex-column gap-5">
-              
-              {/* Supervisor Table */}
-              <div className="document-section">
-                <div className="d-flex align-items-center gap-2 mb-3">
-                  <div className="p-2 rounded-3 bg-primary-soft text-primary"><Users size={20} /></div>
-                  <h5 className="fw-bold text-navy mb-0">Documents for the Supervisor</h5>
+                  <Badge bg={st.color} className="d-flex align-items-center gap-1 px-2 py-1">
+                    {st.icon} {st.label}
+                  </Badge>
+                  {doc.remarks?.length > 0 && (
+                    <Button size="sm" variant="outline-info" className="rounded-pill d-flex align-items-center gap-1"
+                      onClick={() => { setSelectedDoc(doc); setShowRemarkModal(true); }}>
+                      <MessageSquare size={14} /> {doc.remarks.length}
+                    </Button>
+                  )}
+                  {doc.file_url && (
+                    <a href={doc.file_url} target="_blank" rel="noreferrer"
+                      className="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center gap-1">
+                      <Eye size={14} /> View
+                    </a>
+                  )}
+                  {doc.file_url && (
+                    <a href={doc.file_url} download={doc.title}
+                      className="btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center gap-1">
+                      <Download size={14} />
+                    </a>
+                  )}
+                  <Button size="sm" variant="outline-danger" className="rounded-pill"
+                    onClick={() => { setDocToDelete(doc); setShowDeleteModal(true); }}>
+                    <Trash2 size={14} />
+                  </Button>
                 </div>
-                <Card className="glass-card border-0 shadow-sm border overflow-hidden">
-                  <div className="table-responsive">
-                    <Table hover className="mb-0 align-middle">
-                      <thead className="bg-surface-alt">
-                        <tr>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredDocs.filter(d => d.target === 'supervisor').length > 0 ? (
-                          filteredDocs.filter(d => d.target === 'supervisor').map((doc) => (
-                            <tr key={doc.id} className="border-bottom border-light border-opacity-10">
-                              <td className="px-4 py-4">
-                                <div className="d-flex align-items-center gap-3">
-                                  <div className="avatar-sm bg-primary-soft text-primary rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
-                                    <FileText size={18} />
-                                  </div>
-                                  <div className="fw-bold small text-navy">{doc.title}</div>
-                                </div>
-                              </td>
-                              <td className="text-center"><Badge bg="light" className="text-navy border extra-small fw-bold px-3 py-1">v{doc.version}</Badge></td>
-                              <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toLocaleDateString()}</span></td>
-                              <td><span className="extra-small fw-bold text-muted">{doc.size}</span></td>
-                              <td>
-                                <Badge className={`bg-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'}-soft text-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'} border-0 px-3 py-1 extra-small fw-bold`}>
-                                  {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                                </Badge>
-                              </td>
-                              <td className="px-4 text-end">
-                                <Dropdown align="end">
-                                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                                    <MoreVertical size={18} />
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> View</Dropdown.Item>
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Download</Dropdown.Item>
-                                    <Dropdown.Divider />
-                                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
-                                      <Trash2 size={14} /> Delete
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">No documents for the supervisor</td></tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Jury Table */}
-              <div className="document-section">
-                <div className="d-flex align-items-center gap-2 mb-3">
-                  <div className="p-2 rounded-3 bg-warning-soft text-warning"><GraduationCap size={20} /></div>
-                  <h5 className="fw-bold text-navy mb-0">Documents for the Jury</h5>
-                </div>
-                <Card className="glass-card border-0 shadow-sm border overflow-hidden">
-                  <div className="table-responsive">
-                    <Table hover className="mb-0 align-middle">
-                      <thead className="bg-surface-alt">
-                        <tr>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredDocs.filter(d => d.target === 'jury').length > 0 ? (
-                          filteredDocs.filter(d => d.target === 'jury').map((doc) => (
-                            <tr key={doc.id} className="border-bottom border-light border-opacity-10">
-                              <td className="px-4 py-4">
-                                <div className="d-flex align-items-center gap-3">
-                                  <div className="avatar-sm bg-warning-soft text-warning rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
-                                    <FileText size={18} />
-                                  </div>
-                                  <div className="fw-bold small text-navy">{doc.title}</div>
-                                </div>
-                              </td>
-                              <td className="text-center"><Badge bg="light" className="text-navy border extra-small fw-bold px-3 py-1">v{doc.version}</Badge></td>
-                              <td><span className="extra-small fw-bold text-muted">{new Date(doc.date).toLocaleDateString()}</span></td>
-                              <td><span className="extra-small fw-bold text-muted">{doc.size}</span></td>
-                              <td>
-                                <Badge className={`bg-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'}-soft text-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'} border-0 px-3 py-1 extra-small fw-bold`}>
-                                  {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                                </Badge>
-                              </td>
-                              <td className="px-4 text-end">
-                                <Dropdown align="end">
-                                  <Dropdown.Toggle variant="link" className="p-0 text-muted shadow-none border-0 no-caret">
-                                    <MoreVertical size={18} />
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> View</Dropdown.Item>
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Download</Dropdown.Item>
-                                    <Dropdown.Divider />
-                                    <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
-                                      <Trash2 size={14} /> Delete
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">No documents for the jury</td></tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                </Card>
-              </div>
-
-            </div>
-          </Col>
-        </Row>
+              );
+            })}
+          </Card.Body>
+        </Card>
       </Container>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={!!deleteModalDoc} onHide={() => setDeleteModalDoc(null)} centered>
-        <div className="glass-card border-0 shadow-lg rounded-4 overflow-hidden">
-          <div className="p-4 text-center">
-            <motion.div 
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="d-inline-flex align-items-center justify-content-center mb-4 p-3 rounded-circle bg-danger-soft text-danger" 
-              style={{ width: '64px', height: '64px' }}
-            >
-              <AnimatedTrash isDeleting={isDeleting} />
-            </motion.div>
-            <h5 className="fw-bold text-navy mb-3">Delete document?</h5>
-            <p className="text-muted small mb-4 fw-bold px-3">
-              Are you sure you want to delete <span className="text-danger">"{deleteModalDoc?.title}"</span>? This action is irreversible.
-            </p>
-            <div className="d-flex gap-2 p-2">
-              <Button 
-                variant="outline-secondary" 
-                className="flex-grow-1 rounded-pill fw-bold extra-small border-2 py-2"
-                onClick={() => setDeleteModalDoc(null)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="danger" 
-                className="flex-grow-1 rounded-pill fw-bold extra-small border-0 shadow-sm py-2"
-                disabled={isDeleting}
-                onClick={() => {
-                  setIsDeleting(true);
-                  // Wait for animation to finish before closing and deleting
-                  setTimeout(() => {
-                    deleteDocument(deleteModalDoc.id);
-                    setDeleteModalDoc(null);
-                    setIsDeleting(false);
-                    setSuccessMsg(`"${deleteModalDoc.title}" has been deleted.`);
-                    setShowSuccessCard(true);
-                    setTimeout(() => setShowSuccessCard(false), 5000);
-                  }, 600);
-                }}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
+      {/* Delete Confirm Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Body className="p-4 text-center">
+          <div className="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex p-3 mb-3">
+            <Trash2 size={28} />
           </div>
-        </div>
+          <h5 className="fw-bold mb-2">Delete Document?</h5>
+          <p className="text-muted small mb-4">
+            Are you sure you want to delete <strong>"{docToDelete?.title}"</strong>? This action cannot be undone.
+          </p>
+          <div className="d-flex gap-2 justify-content-center">
+            <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+            <Button variant="danger" onClick={confirmDelete} disabled={deleting}>
+              {deleting ? <Spinner size="sm" /> : 'Delete'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Remarks Modal */}
+      <Modal show={showRemarkModal} onHide={() => setShowRemarkModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold fs-6">Remarks on "{selectedDoc?.title}"</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {selectedDoc?.remarks?.map(r => (
+            <div key={r.id} className="mb-3 p-3 glass-card rounded-3">
+              <div className="d-flex justify-content-between mb-1">
+                <span className="small fw-bold text-navy">{r.author_name}</span>
+                <Badge bg="secondary" className="extra-small">{r.author_role}</Badge>
+              </div>
+              <p className="small mb-1">{r.comment}</p>
+              {r.score !== null && r.score !== undefined && (
+                <div className="extra-small text-muted fw-bold">Score: {r.score}/20</div>
+              )}
+            </div>
+          ))}
+          {(!selectedDoc?.remarks || selectedDoc.remarks.length === 0) && (
+            <p className="text-muted small text-center">No remarks yet.</p>
+          )}
+        </Modal.Body>
       </Modal>
     </div>
   );
 };
 
 export default ReportsPage;
-

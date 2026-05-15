@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Planning = () => {
   const navigate = useNavigate();
-  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder, students } = useApp();
+  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder, projects } = useApp();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -46,7 +46,7 @@ const Planning = () => {
     e.preventDefault();
     rescheduleAppointment(selectedEvent.id, newDate, newTime);
     setShowRescheduleModal(false);
-    handleAction(`The appointment with ${selectedEvent.studentName} has been rescheduled to ${newDate} at ${newTime}.`);
+    handleAction(`The appointment with ${selectedEvent.student_name || selectedEvent.created_by_name || 'Student'} has been rescheduled to ${newDate} at ${newTime}.`);
   };
 
   const filteredAppointments = appointments.filter(app => {
@@ -190,7 +190,7 @@ const Planning = () => {
                   filteredAppointments.slice(0, visibleCount).map((event, index) => (
                     <div 
                       key={event.id}
-                      className={`p-4 border-bottom hover-bg-light transition-all ${event.status === 'Cancelled' ? 'bg-light opacity-50' : ''}`}
+                      className={`p-4 border-bottom hover-bg-light transition-all ${event.status === 'cancelled' ? 'bg-light opacity-50' : ''}`}
                     >
                       <Row className="align-items-center">
                         <Col md={2} className="text-center text-md-start border-md-end mb-3 mb-md-0">
@@ -207,7 +207,7 @@ const Planning = () => {
                           <h6 className="fw-bold text-navy mb-2">{event.title}</h6>
                           <div className="d-flex align-items-center gap-3">
                             <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-75">
-                              <Users size={12} className="text-primary" /> {event.studentName}
+                              <Users size={12} className="text-primary" /> {event.student_name || event.created_by_name || 'Student'}
                             </div>
                             <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-75">
                               <MapPin size={12} className="text-danger" /> {event.location}
@@ -215,8 +215,8 @@ const Planning = () => {
                           </div>
                         </Col>
                         <Col md={3} className="text-md-end mt-3 mt-md-0">
-                          <Badge className={`bg-${event.status === 'Confirmed' ? 'success' : event.status === 'Rescheduled' ? 'info' : event.status === 'Cancelled' ? 'danger' : 'warning'}-soft text-${event.status === 'Confirmed' ? 'success' : event.status === 'Rescheduled' ? 'info' : event.status === 'Cancelled' ? 'danger' : 'warning'} border-0 px-3 py-1 extra-small fw-bold`}>
-                            {event.status}
+                          <Badge className={`bg-${event.status === 'confirmed' ? 'success' : event.status === 'rescheduled' ? 'info' : event.status === 'cancelled' ? 'danger' : 'warning'}-soft text-${event.status === 'confirmed' ? 'success' : event.status === 'rescheduled' ? 'info' : event.status === 'cancelled' ? 'danger' : 'warning'} border-0 px-3 py-1 extra-small fw-bold`}>
+                            {event.status ? event.status.charAt(0).toUpperCase() + event.status.slice(1) : 'Pending'}
                           </Badge>
                         </Col>
                         <Col md={1} className="text-end">
@@ -228,16 +228,16 @@ const Planning = () => {
                               <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => navigate(`/supervisor/student/${event.id || 1}`)}>
                                 <ChevronRight size={14} className="text-primary" /> Timeline
                               </Dropdown.Item>
-                              {event.status !== 'Cancelled' && (
+                              {event.status !== 'cancelled' && (
                                 <>
                                   <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => openReschedule(event)}>
                                     <Clock size={14} className="text-info me-2" /> Reschedule
                                   </Dropdown.Item>
-                                  <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { cancelAppointment(event.id); handleAction(`The appointment with ${event.studentName} has been cancelled.`); }}>
+                                  <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { cancelAppointment(event.id); handleAction(`The appointment with ${event.student_name || event.created_by_name || 'Student'} has been cancelled.`); }}>
                                     <X size={14} className="text-danger me-2" /> Cancel appointment
                                   </Dropdown.Item>
                                   <Dropdown.Divider />
-                                  <Dropdown.Item className="py-2 text-primary fw-bold" onClick={() => { sendReminder(event.id); handleAction(`A reminder has been sent to the student ${event.studentName}.`); }}>
+                                  <Dropdown.Item className="py-2 text-primary fw-bold" onClick={() => { sendReminder(event.id); handleAction(`A reminder has been sent to the student ${event.student_name || event.created_by_name || 'Student'}.`); }}>
                                     <Bell size={14} className="text-primary me-2" /> Send reminder
                                   </Dropdown.Item>
                                 </>
@@ -333,8 +333,8 @@ const Planning = () => {
                 onChange={(e) => setNewEvent({...newEvent, target: e.target.value})}
               >
                 <option value="all">All supervised students</option>
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
+                {projects.filter(p => p.student).map(p => (
+                  <option key={p.student.id} value={p.student.id}>{p.student.name}</option>
                 ))}
                 <option value="group">Specific Group...</option>
               </Form.Select>
@@ -348,20 +348,20 @@ const Planning = () => {
               >
                 <Form.Label className="extra-small fw-bold text-navy opacity-75 mb-3">SELECT STUDENTS</Form.Label>
                 <div className="d-flex flex-column gap-2">
-                  {students.map(s => (
-                    <Form.Check 
-                      key={s.id}
+                  {projects.filter(p => p.student).map(p => (
+                    <Form.Check
+                      key={p.student.id}
                       type="checkbox"
-                      id={`student-${s.id}`}
-                      label={s.name}
+                      id={`student-${p.student.id}`}
+                      label={p.student.name}
                       className="extra-small fw-bold text-navy custom-checkbox"
                       onChange={(e) => {
                         const checked = e.target.checked;
                         setNewEvent(prev => ({
                           ...prev,
-                          selectedStudents: checked 
-                            ? [...prev.selectedStudents, s.id]
-                            : prev.selectedStudents.filter(id => id !== s.id)
+                          selectedStudents: checked
+                            ? [...prev.selectedStudents, p.student.id]
+                            : prev.selectedStudents.filter(id => id !== p.student.id)
                         }));
                       }}
                     />

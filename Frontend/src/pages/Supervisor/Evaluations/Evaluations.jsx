@@ -1,514 +1,225 @@
 import React, { useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { Container, Row, Col, Card, Badge, Button, Table, ProgressBar, Form, Dropdown, Modal } from 'react-bootstrap';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, CheckCircle, AlertCircle, Clock, 
-  MessageSquare, Star, Download, Eye, 
-  Filter, ChevronRight, Award, Edit3, X
+import {
+  Container, Row, Col, Card, Badge, Button,
+  Form, Modal, Spinner, ProgressBar
+} from 'react-bootstrap';
+import { motion } from 'framer-motion';
+import {
+  CheckCircle, Clock, Award, Star, X, Edit3
 } from 'lucide-react';
 
-// Data will be fetched from context
+const CRITERIA = [
+  { key: 'report',          label: 'Report Quality',   max: 5 },
+  { key: 'progress',        label: 'Progress',          max: 5 },
+  { key: 'autonomy',        label: 'Autonomy',          max: 5 },
+  { key: 'professionalism', label: 'Professionalism',   max: 5 },
+];
 
 const Evaluations = () => {
-  const { 
-    saveScore, isGradesPublished, scores, 
-    pfeWeights, supervisorCriteriaWeights,
-    students, updateStudentEvaluation 
-  } = useApp();
-  const [filter, setFilter] = useState('All');
-  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const { evaluations, projects, submitSupervisorScore, user } = useApp();
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEval, setSelectedEval] = useState(null);
+  const [score, setScore] = useState('');
+  const [comment, setComment] = useState('');
+  const [criteria, setCriteria] = useState({ report: 0, progress: 0, autonomy: 0, professionalism: 0 });
+  const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
-  const [msgVariant, setMsgVariant] = useState('success');
-  const [showEvalModal, setShowEvalModal] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedViewSubmission, setSelectedViewSubmission] = useState(null);
-  const [pfeNote, setPfeNote] = useState('');
-  const [criteriaScores, setCriteriaScores] = useState({
-    report: 0,
-    progress: 0,
-    autonomy: 0,
-    professionalism: 0
-  });
 
-  const handleOpenEval = (student) => {
-    setSelectedStudent(student);
-    if (student.supervisorCriteriaScores) {
-      setCriteriaScores({ ...student.supervisorCriteriaScores });
-      setPfeNote(student.supervisorScore?.toString() || '0');
-    } else {
-      setCriteriaScores({ report: 0, progress: 0, autonomy: 0, professionalism: 0 });
-      setPfeNote(student.supervisorScore !== null ? student.supervisorScore.toString() : '0');
-    }
-    setShowEvalModal(true);
+  const flash = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
+
+  const openEval = (ev) => {
+    setSelectedEval(ev);
+    setScore(ev.supervisor_score?.toString() ?? '');
+    setComment(ev.supervisor_comment ?? '');
+    setCriteria({ report: 0, progress: 0, autonomy: 0, professionalism: 0,
+      ...(ev.supervisor_criteria || {}) });
+    setShowModal(true);
   };
 
-  const handleViewSubmission = (sub) => {
-    setSelectedViewSubmission(sub);
-    setShowViewModal(true);
-  };
-
-  const handleEvalSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedStudent) return;
-    updateStudentEvaluation(selectedStudent.id, { 
-      supervisorScore: Number(calculatedTotal),
-      supervisorCriteriaScores: { ...criteriaScores },
-      isSupervisorEvaluated: true 
-    });
-    setShowEvalModal(false);
-    setSuccessMsg(`Congratulations: The grades for ${selectedStudent.name} have been successfully recorded in the system.`);
-    setMsgVariant('success');
-    setShowSuccessCard(true);
+    if (!selectedEval) return;
+    setSaving(true);
+    try {
+      await submitSupervisorScore(selectedEval.id, Number(score), comment, criteria);
+      flash('Evaluation submitted successfully!');
+      setShowModal(false);
+    } catch (err) {
+      flash(`Error: ${err?.message || 'Could not submit evaluation.'}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDraft = () => {
-    if (!selectedStudent) return;
-    updateStudentEvaluation(selectedStudent.id, { 
-      supervisorScore: Number(calculatedTotal),
-      supervisorCriteriaScores: { ...criteriaScores }
-    });
-    setShowEvalModal(false);
-    setSuccessMsg(`Success: The draft for ${selectedStudent.name} has been updated.`);
-    setMsgVariant('warning');
-    setShowSuccessCard(true);
-  };
+  // Map evaluation → project for title/student name
+  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
 
-  const handleExport = (format) => {
-    setSuccessMsg(`Export in ${format} format has been started. Your file will be ready in a few seconds.`);
-    setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
-  };
-
-  const handleFinalGrades = () => {
-    setSuccessMsg("Final grades have been consolidated and sent to the academic department for validation.");
-    setShowSuccessCard(true);
-    setTimeout(() => setShowSuccessCard(false), 5000);
-  };
-
-  const calculateTotalScore = () => {
-    let weightedSum = 0;
-    let weightTotal = 0;
-    
-    Object.keys(criteriaScores).forEach(key => {
-      const weight = supervisorCriteriaWeights[key] || 0;
-      const score = criteriaScores[key] || 0;
-      weightedSum += (score * weight);
-      weightTotal += weight;
-    });
-
-    if (weightTotal === 0) return "0.00";
-    return (weightedSum / weightTotal).toFixed(2);
-  };
-
-  const calculatedTotal = calculateTotalScore();
-
-  const filteredData = filter === 'All' ? students : students.filter(item => item.status === filter);
+  const evaluated  = evaluations.filter(e => e.supervisor_score !== null);
+  const pending    = evaluations.filter(e => e.supervisor_score === null);
 
   return (
-    <div className="supervisor-evaluations-layout py-4">
+    <div className="evaluations-page-layout py-4">
       <Container fluid className="px-4">
-        
-        {/* Success Alert (Jury Style) */}
-        <AnimatePresence>
-          {showSuccessCard && (
-            <div className="notification-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 9999, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(4px)' }}>
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className={`glass-card p-5 rounded-5 shadow-lg border-top-5 border-${msgVariant} bg-white d-flex flex-column align-items-center text-center`}
-                style={{ maxWidth: '500px', width: '90%' }}
-              >
-                <div className={`p-4 rounded-circle bg-${msgVariant}-soft text-${msgVariant} mb-4`}>
-                  {msgVariant === 'success' ? <CheckCircle size={48} /> : <AlertCircle size={48} />}
-                </div>
-                <h4 className="fw-bold mb-2 text-navy">
-                  {msgVariant === 'success' ? 'Evaluation Recorded' : 'Draft Updated'}
-                </h4>
-                <p className="text-muted fw-bold mb-4 px-3">{successMsg}</p>
-                <Button 
-                  variant={msgVariant === 'success' ? 'success' : 'warning'} 
-                  className="px-5 py-2 rounded-pill fw-bold shadow-sm border-0 text-white"
-                  onClick={() => setShowSuccessCard(false)}
-                >
-                  Continue
-                </Button>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
 
         {/* Header */}
-        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy text-gradient">Evaluations & Feedback</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">
-              Review student submissions and manage project grades
-            </p>
+            <h2 className="fw-bold mb-1 text-navy">Student Evaluations</h2>
+            <p className="text-muted small mb-0">Submit and manage your evaluations — {user?.name}</p>
           </motion.div>
-          <div className="d-flex gap-2">
-            <Dropdown>
-              <Dropdown.Toggle 
-                variant="outline-primary" 
-                className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
-              >
-                <Download size={18} /> Export
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Excel')}>
-                  <FileText size={14} className="text-success" /> Excel Format (.xlsx)
-                </Dropdown.Item>
-                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Word')}>
-                  <FileText size={14} className="text-primary" /> Word Format (.docx)
-                </Dropdown.Item>
-                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('PDF')}>
-                  <FileText size={14} className="text-danger" /> PDF Format (.pdf)
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Button 
-              className="btn-premium d-flex align-items-center gap-2 shadow-sm"
-              onClick={handleFinalGrades}
-            >
-              <Award size={18} /> Final Grades
-            </Button>
-          </div>
-        </header>
+        </div>
 
-        {/* Evaluation Summary Cards */}
+        {successMsg && (
+          <div className="glass-card mb-4 p-3 rounded-4 border-start border-success border-4 d-flex align-items-center gap-3">
+            <CheckCircle size={18} className="text-success shrink-0" />
+            <span className="small fw-bold">{successMsg}</span>
+            <button type="button" className="ms-auto btn btn-sm p-0 border-0 bg-transparent" onClick={() => setSuccessMsg('')}>
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Stats */}
         <Row className="g-4 mb-5">
-          <Col lg={7}>
-            <Card className="glass-card border-0 shadow-sm border p-4 h-100">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h6 className="fw-bold text-navy mb-0">Grading Progress</h6>
-                <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">Semester 2</Badge>
-              </div>
-              <Row className="text-center g-4">
-                <Col xs={4}>
-                  <div className="h2 fw-bold text-navy mb-1">{students.length}</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Submissions</div>
-                </Col>
-                <Col xs={4} className="border-start border-end">
-                  <div className="h2 fw-bold text-success mb-1">{students.filter(s => s.isSupervisorEvaluated).length}</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Evaluated</div>
-                </Col>
-                <Col xs={4}>
-                  <div className="h2 fw-bold text-warning mb-1">{students.filter(s => !s.isSupervisorEvaluated).length}</div>
-                  <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Remaining</div>
-                </Col>
-              </Row>
-              <div className="mt-4">
-                <div className="d-flex justify-content-between extra-small fw-bold text-navy mb-2">
-                  <span className="opacity-75">Overall Progress</span>
-                  <span className="text-primary">57%</span>
-                </div>
-                <ProgressBar now={57} variant="primary" style={{ height: '8px' }} className="rounded-pill bg-surface-alt border-0" />
-              </div>
+          <Col lg={4} sm={6}>
+            <Card className="glass-card border-0 shadow-sm p-4 text-center">
+              <Award size={28} className="text-primary mx-auto mb-2" />
+              <div className="fs-2 fw-bold text-primary">{evaluations.length}</div>
+              <div className="small text-muted fw-bold">Total Assigned</div>
             </Card>
           </Col>
-          <Col lg={5}>
-            <Card className="glass-card border-0 shadow-sm border-start-4 border-primary p-4 h-100 bg-surface-alt">
-              <h6 className="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
-                <Star size={18} className="text-warning" /> PFE Grade Consolidation
-              </h6>
-              <div className="p-3 bg-white rounded-4 shadow-sm mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="extra-small text-muted fw-bold">Jury Grade (Defense)</span>
-                  <Badge className={`extra-small fw-bold ${isGradesPublished ? 'text-navy' : 'text-danger bg-danger-soft border-0'}`}>
-                    {isGradesPublished ? `Jury Part: ${pfeWeights.jury}%` : 'Hidden (Secret)'}
-                  </Badge>
-                </div>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="extra-small text-muted fw-bold">Supervisor Grade (Follow-up)</span>
-                  <span className="extra-small fw-bold text-navy">
-                    {students.find(s => s.isSupervisorEvaluated)?.supervisorScore ? 'Grades assigned' : 'Pending'} 
-                    <span className="opacity-50 ms-1">({pfeWeights.supervisor}%)</span>
-                  </span>
-                </div>
-                <hr className="my-2 opacity-10" />
-                <div className="d-flex justify-content-between align-items-center pt-1">
-                  <span className="small fw-bold text-navy">Final Calculation</span>
-                  <span className={`small fw-bold ${isGradesPublished ? 'text-primary' : 'text-muted opacity-50'}`}>
-                    {isGradesPublished ? 'Weighted Average Applied' : 'Awaiting publication'}
-                  </span>
-                </div>
-              </div>
-              <p className="extra-small text-muted fw-bold mb-0 opacity-75">
-                {isGradesPublished 
-                  ? "Grades are now public and visible to the student."
-                  : "The jury grade remains secret until the official publication by the administration."}
-              </p>
+          <Col lg={4} sm={6}>
+            <Card className="glass-card border-0 shadow-sm p-4 text-center">
+              <CheckCircle size={28} className="text-success mx-auto mb-2" />
+              <div className="fs-2 fw-bold text-success">{evaluated.length}</div>
+              <div className="small text-muted fw-bold">Evaluated</div>
+            </Card>
+          </Col>
+          <Col lg={4} sm={6}>
+            <Card className="glass-card border-0 shadow-sm p-4 text-center">
+              <Clock size={28} className="text-warning mx-auto mb-2" />
+              <div className="fs-2 fw-bold text-warning">{pending.length}</div>
+              <div className="small text-muted fw-bold">Pending</div>
             </Card>
           </Col>
         </Row>
 
-        {/* Submissions List */}
-        <Card className="glass-card border shadow-sm border overflow-hidden">
-          <Card.Header className="p-4 bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-0">
-            <h6 className="mb-0 fw-bold text-navy">Recent Submissions Queue</h6>
-            <div className="d-flex gap-2">
-              <Form.Select 
-                className="bg-surface-alt border-0 shadow-none extra-small fw-bold py-2 rounded-pill border" 
-                style={{ width: '150px' }}
-                onChange={(e) => setFilter(e.target.value)}
-              >
-                <option value="All">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Reviewing">Reviewing</option>
-                <option value="Graded">Graded</option>
-              </Form.Select>
-            </div>
-          </Card.Header>
-          <div className="table-responsive">
-            <Table hover className="mb-0 align-middle">
-              <thead className="bg-surface-alt">
-                <tr>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Deliverable</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">My Grade</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Jury Grade</th>
-                  <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence mode='popLayout'>
-                  {filteredData.map((item, index) => (
-                    <motion.tr 
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="border-bottom border-light border-opacity-10"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="d-flex align-items-center gap-2">
-                          <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '11px' }}>
-                            {item.name.charAt(0)}
-                          </div>
-                          <span className="fw-bold text-navy small">{item.name}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <FileText size={16} className="text-primary" />
-                          <span className="extra-small text-muted fw-bold opacity-75">{item.project}</span>
-                        </div>
-                      </td>
-                      <td><span className="extra-small text-muted fw-bold opacity-75">{item.submissionDate}</span></td>
-                      <td>
-                        <Badge className={`bg-${item.status === 'Graded' ? 'success' : item.status === 'Reviewing' ? 'primary' : 'warning'}-soft text-${item.status === 'Graded' ? 'success' : item.status === 'Reviewing' ? 'primary' : 'warning'} border-0 extra-small px-3 py-1 fw-bold`}>
-                          {item.status}
-                        </Badge>
-                      </td>
-                      <td>
-                        {item.supervisorScore !== null ? (
-                          <span className="extra-small fw-bold text-navy">{item.supervisorScore}/20</span>
-                        ) : (
-                          <span className="extra-small text-muted opacity-50 fw-bold">Not graded</span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="d-flex flex-column gap-1">
-                          <Badge className={`bg-${item.isJuryEvaluated ? 'success' : 'warning'}-soft text-${item.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold w-fit`}>
-                            {item.isJuryEvaluated ? 'Jury Evaluated' : 'Jury Pending'}
-                          </Badge>
-                          <span className={`extra-small fw-bold ${isGradesPublished ? 'text-primary' : 'text-muted opacity-25'}`}>
-                            {isGradesPublished 
-                              ? (item.juryScore !== null ? `${item.juryScore}/20` : '--')
-                              : 'Confidential'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-end">
-                        <div className="d-flex justify-content-end gap-1">
-                          <Button 
-                            variant="link" 
-                            className="p-2 text-primary hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
-                            onClick={() => handleViewSubmission(item)}
-                          >
-                            <Eye size={18} />
-                          </Button>
-                          <Button 
-                             variant="link" 
-                             className="p-2 text-success hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
-                             onClick={() => handleOpenEval(item)}
-                           >
-                            <Edit3 size={18} />
-                          </Button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </Table>
+        {/* Evaluations List */}
+        {evaluations.length === 0 && (
+          <div className="text-center py-5 text-muted">
+            <Star size={48} className="mb-3 opacity-30" />
+            <h5 className="fw-bold">No evaluations assigned yet</h5>
+            <p className="small">Projects will appear here once assigned to you.</p>
           </div>
-        </Card>
+        )}
+
+        <Row className="g-4">
+          {evaluations.map(ev => {
+            const project = projectMap[ev.project] || projects.find(p => p.evaluation?.id === ev.id);
+            const studentName = project?.student?.name || 'Unknown Student';
+            const projectTitle = project?.title || `Project #${ev.project}`;
+            const isEvaluated = ev.supervisor_score !== null;
+            return (
+              <Col lg={6} key={ev.id}>
+                <Card className="glass-card border-0 shadow-sm p-4 h-100">
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h6 className="fw-bold text-navy mb-1">{projectTitle}</h6>
+                      <div className="small text-muted">{studentName}</div>
+                    </div>
+                    <Badge bg={isEvaluated ? 'success' : 'warning'}>
+                      {isEvaluated ? 'Evaluated' : 'Pending'}
+                    </Badge>
+                  </div>
+
+                  {isEvaluated && (
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between mb-1">
+                        <span className="small fw-bold">Score</span>
+                        <span className="small text-primary fw-bold">{ev.supervisor_score}/20</span>
+                      </div>
+                      <ProgressBar now={(parseFloat(ev.supervisor_score) / 20) * 100} variant="primary" className="rounded-pill" style={{ height: '6px' }} />
+                      {ev.supervisor_comment && (
+                        <p className="extra-small text-muted mt-2 mb-0">{ev.supervisor_comment}</p>
+                      )}
+                    </div>
+                  )}
+
+                  <Button
+                    variant={isEvaluated ? 'outline-primary' : 'primary'}
+                    size="sm"
+                    className="rounded-pill d-flex align-items-center gap-2 mt-auto"
+                    onClick={() => openEval(ev)}
+                  >
+                    <Edit3 size={14} />
+                    {isEvaluated ? 'Update Evaluation' : 'Submit Evaluation'}
+                  </Button>
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
       </Container>
-      {/* Supervisor Final PFE Evaluation Modal */}
-      <Modal 
-        show={showEvalModal} 
-        onHide={() => setShowEvalModal(false)}
-        centered
-        size="lg"
-        className="glass-modal"
-      >
-        <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5 d-flex align-items-center gap-2">
-            <Award className="text-primary" /> Supervisor PFE Evaluation: {selectedStudent?.name}
+
+      {/* Evaluation Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold fs-6">
+            Submit Supervisor Evaluation
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
-          <Form onSubmit={handleEvalSubmit}>
-
-            
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body className="p-4">
             <Row className="g-4">
-              <Col lg={8}>
-                <h6 className="extra-small fw-bold text-navy mb-3 opacity-75">ADMINISTRATIVE GRADING DETAIL</h6>
-                <div className="d-flex flex-column gap-2 mb-4">
-                  {[
-                    { id: 'report', label: 'Report Quality' },
-                    { id: 'progress', label: 'Progress' },
-                    { id: 'autonomy', label: 'Autonomy' },
-                    { id: 'professionalism', label: 'Professionalism' },
-                  ].map(crit => (
-                    <div key={crit.id} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-white border border-light-soft shadow-sm">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="p-2 bg-surface-alt rounded-3 text-primary">
-                          <FileText size={16} />
-                        </div>
-                        <div>
-                          <div className="small fw-bold text-navy">{crit.label}</div>
-                          <div className="extra-small text-muted opacity-50">Coef: {supervisorCriteriaWeights[crit.id] || 0}</div>
-                        </div>
-                      </div>
-                      <Form.Control 
-                        type="number" 
-                        max={20} min={0}
-                        className="bg-surface-alt border-0 rounded-4 text-center fw-bold text-navy shadow-none" 
-                        style={{ width: '70px', height: '40px' }}
-                        value={criteriaScores[crit.id]}
-                        onChange={(e) => {
-                          const val = Math.min(20, Math.max(0, Number(e.target.value)));
-                          setCriteriaScores({...criteriaScores, [crit.id]: val});
-                        }}
-                      />
+              <Col md={6}>
+                <h6 className="fw-bold text-navy mb-3">Criteria Scores</h6>
+                {CRITERIA.map(c => (
+                  <div key={c.key} className="mb-3">
+                    <div className="d-flex justify-content-between mb-1">
+                      <label className="small fw-bold">{c.label}</label>
+                      <span className="small text-primary fw-bold">{criteria[c.key]}/{c.max}</span>
                     </div>
-                  ))}
-                </div>
-
-                <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Global Observations & Remarks</Form.Label>
-                  <Form.Control 
-                    as="textarea" 
-                    rows={3} 
-                    className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
-                    placeholder="Summary of your evaluation over the semester..."
+                    <Form.Range
+                      min={0} max={c.max} step={0.5}
+                      value={criteria[c.key]}
+                      onChange={e => setCriteria(prev => ({ ...prev, [c.key]: Number(e.target.value) }))}
+                    />
+                  </div>
+                ))}
+              </Col>
+              <Col md={6}>
+                <h6 className="fw-bold text-navy mb-3">Overall Score</h6>
+                <Form.Group className="mb-3">
+                  <Form.Label className="small fw-bold">Score (0–20)</Form.Label>
+                  <Form.Control
+                    type="number" min="0" max="20" step="0.5"
+                    value={score}
+                    onChange={e => setScore(e.target.value)}
                     required
+                    placeholder="e.g. 15.5"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label className="small fw-bold">Comment</Form.Label>
+                  <Form.Control
+                    as="textarea" rows={4}
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    placeholder="Add your evaluation comments..."
                   />
                 </Form.Group>
               </Col>
-              <Col lg={4}>
-                <div className="h-100 p-4 rounded-4 bg-surface-alt border border-light-soft d-flex flex-column align-items-center justify-content-center text-center">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Final Supervisor Grade</Form.Label>
-                  <div className="h1 fw-bold text-center border-0 bg-transparent text-primary shadow-none mb-0" style={{ fontSize: '3rem' }}>
-                    {calculatedTotal}
-                  </div>
-                  <div className="h5 text-muted opacity-25 fw-bold mt-n2">/ 20</div>
-                  <div className="extra-small text-muted fw-bold mt-3 opacity-50">(Final part: {pfeWeights.supervisor}%)</div>
-                </div>
-              </Col>
             </Row>
-
-            <div className="mt-4 pt-4 border-top border-light border-opacity-10 d-flex gap-3">
-              <Button 
-                variant="outline-secondary" 
-                className="flex-grow-1 py-3 rounded-pill fw-bold border-2 extra-small shadow-none"
-                onClick={handleDraft}
-              >
-                Save Draft
-              </Button>
-              <Button 
-                type="submit" 
-                className="btn-premium flex-grow-1 py-3 rounded-pill fw-bold shadow-sm border-0"
-              >
-                Save Final Evaluation
-              </Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      {/* View Submission Details Modal */}
-      <Modal 
-        show={showViewModal} 
-        onHide={() => setShowViewModal(false)}
-        centered
-        className="glass-modal"
-      >
-        <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Submission Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-4">
-          <div className="mb-4">
-            <h6 className="extra-small fw-bold text-muted text-uppercase opacity-50 mb-3">Student Information</h6>
-            <div className="p-3 bg-surface-alt rounded-4 border border-light-soft d-flex align-items-center gap-3">
-              <div className="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '45px', height: '45px' }}>
-                {selectedViewSubmission?.name.charAt(0)}
-              </div>
-              <div>
-                <div className="fw-bold text-navy">{selectedViewSubmission?.name}</div>
-                <div className="extra-small text-muted fw-bold opacity-75">ID: STU-2026-{selectedViewSubmission?.id}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <h6 className="extra-small fw-bold text-muted text-uppercase opacity-50 mb-3">Deliverable Details</h6>
-            <Card className="border-light-soft rounded-4 shadow-none bg-surface-alt">
-              <Card.Body className="p-3">
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="extra-small text-muted fw-bold">Project Name :</span>
-                  <span className="extra-small fw-bold text-navy">{selectedViewSubmission?.project}</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="extra-small text-muted fw-bold">Submission Date :</span>
-                  <span className="extra-small fw-bold text-navy">{selectedViewSubmission?.submissionDate}</span>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <span className="extra-small text-muted fw-bold">Current Status :</span>
-                  <Badge className={`bg-${selectedViewSubmission?.status === 'Graded' ? 'success' : 'primary'}-soft text-${selectedViewSubmission?.status === 'Graded' ? 'success' : 'primary'} border-0 extra-small fw-bold`}>
-                    {selectedViewSubmission?.status}
-                  </Badge>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-
-          <div className="mb-4">
-            <h6 className="extra-small fw-bold text-muted text-uppercase opacity-50 mb-3">Project Progress</h6>
-            <div className="p-3 bg-surface-alt rounded-4 border border-light-soft">
-              <div className="d-flex justify-content-between extra-small fw-bold text-navy mb-2">
-                <span>Progress</span>
-                <span>{selectedViewSubmission?.progress}%</span>
-              </div>
-              <ProgressBar now={selectedViewSubmission?.progress} variant="primary" style={{ height: '6px' }} className="rounded-pill bg-white border-0" />
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 d-flex gap-2">
-            <Button variant="outline-primary" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-2 d-flex align-items-center justify-content-center gap-2 shadow-none" onClick={() => handleExport('PDF')}>
-              <Download size={16} /> Download
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button variant="outline-secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={saving}>
+              {saving ? <Spinner size="sm" /> : 'Submit Evaluation'}
             </Button>
-            <Button variant="primary" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0 shadow-sm" onClick={() => { setShowViewModal(false); handleOpenEval(selectedViewSubmission); }}>
-              Evaluate now
-            </Button>
-          </div>
-        </Modal.Body>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </div>
   );

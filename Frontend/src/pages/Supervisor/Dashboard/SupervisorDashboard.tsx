@@ -20,32 +20,26 @@ import EmptyState from '../../../components/shared/EmptyState';
 
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, students, appointments } = useApp();
+  const { user, projects, appointments } = useApp();
   const [showSuccessCard, setShowSuccessCard] = useState(false);
 
-  // Derive dynamic chart data from actual students
+  // Derive dynamic chart data from real projects
   const DELIVERABLE_STATUS = [
-    { name: 'Completed', value: students.filter((s: any) => s.status === 'Validated').length, color: 'var(--color-success)' },
-    { name: 'In Progress', value: students.filter((s: any) => s.status === 'In Progress').length, color: 'var(--color-primary)' },
-    { name: 'Pending', value: students.filter((s: any) => !s.status || s.status === 'Draft').length, color: 'var(--color-warning)' },
+    { name: 'Completed',   value: projects.filter((p: any) => p.status === 'completed').length,   color: 'var(--color-success)' },
+    { name: 'In Progress', value: projects.filter((p: any) => p.status === 'in_progress').length,  color: 'var(--color-primary)' },
+    { name: 'Pending',     value: projects.filter((p: any) => p.status === 'pending').length,       color: 'var(--color-warning)' },
+    { name: 'Submitted',   value: projects.filter((p: any) => p.status === 'submitted').length,     color: 'var(--color-info)' },
   ].filter(d => d.value > 0);
 
-  // Mock structures that stay empty if no students
-  const WEEKLY_ACTIVITY = students.length > 0 ? [
-    { day: 'Mon', meetings: 2, feedback: 4 },
-    { day: 'Tue', meetings: 1, feedback: 3 },
-    { day: 'Wed', meetings: 4, feedback: 2 },
-    { day: 'Thu', meetings: 3, feedback: 5 },
-    { day: 'Fri', meetings: 2, feedback: 3 },
+  const WEEKLY_ACTIVITY = projects.length > 0 ? [
+    { day: 'Mon', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 1).length, feedback: 0 },
+    { day: 'Tue', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 2).length, feedback: 0 },
+    { day: 'Wed', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 3).length, feedback: 0 },
+    { day: 'Thu', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 4).length, feedback: 0 },
+    { day: 'Fri', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 5).length, feedback: 0 },
   ] : [];
 
-  const SKILLS_DISTRIBUTION = students.length > 0 ? [
-    { subject: 'Coding', A: 80, B: 90 },
-    { subject: 'Analysis', A: 70, B: 85 },
-    { subject: 'Design', A: 90, B: 80 },
-    { subject: 'Planning', A: 60, B: 75 },
-    { subject: 'Documentation', A: 85, B: 90 },
-  ] : [];
+  const SKILLS_DISTRIBUTION: any[] = [];
 
   return (
     <div className="supervisor-dashboard-layout py-4">
@@ -92,28 +86,40 @@ const SupervisorDashboard: React.FC = () => {
         {/* Global Statistics Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Supervised Students" 
-              value={students.length.toString()} 
-              color="primary" 
-              icon={<Users />} 
-              trend="+3 months" 
+            <StatCard
+              label="Supervised Projects"
+              value={projects.length.toString()}
+              color="primary"
+              icon={<Users />}
+              trend="Total"
               onClick={() => navigate('/supervisor/students')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Avg Progress" value={students.length > 0 ? `${Math.round(students.reduce((acc: any, s: any) => acc + (s.progress || 0), 0) / students.length)}%` : '0%'} color="success" icon={<TrendingUp />} trend="Cohort" />
+            <StatCard
+              label="In Progress"
+              value={projects.filter((p: any) => p.status === 'in_progress').length.toString()}
+              color="success"
+              icon={<TrendingUp />}
+              trend="Active"
+            />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Meeting Hours" value="0h" color="info" icon={<Clock />} trend="Semester" />
+            <StatCard
+              label="Appointments"
+              value={appointments.filter((a: any) => a.status !== 'cancelled').length.toString()}
+              color="info"
+              icon={<Clock />}
+              trend="Scheduled"
+            />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Active Projects" 
-              value={students.filter((s: any) => s.status === 'In Progress').length.toString()} 
-              color="warning" 
-              icon={<Activity />} 
-              trend="Current" 
+            <StatCard
+              label="Completed"
+              value={projects.filter((p: any) => p.status === 'completed').length.toString()}
+              color="warning"
+              icon={<Activity />}
+              trend="Done"
               onClick={() => navigate('/supervisor/subjects')}
             />
           </Col>
@@ -229,82 +235,67 @@ const SupervisorDashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="table-responsive">
-                {students.length > 0 ? (
+                {projects.length > 0 ? (
                   <Table hover className="mb-0 align-middle">
                     <thead className="bg-surface-alt">
                       <tr>
                         <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
                         <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
-                        <th className="py-3 extra-small fw-bold text-muted text-uppercase">Progression</th>
                         <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                         <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {students.map((student) => (
-                        <tr key={student.id} className="border-bottom border-light border-opacity-10">
-                          <td className="px-4 py-3">
-                            <div className="d-flex align-items-center gap-3">
-                              <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
-                                 {student.name?.charAt(0) || 'U'}
+                      {projects.map((proj: any) => {
+                        const statusColor = proj.status === 'completed' ? 'success' : proj.status === 'in_progress' ? 'primary' : 'warning';
+                        return (
+                          <tr key={proj.id} className="border-bottom border-light border-opacity-10">
+                            <td className="px-4 py-3">
+                              <div className="d-flex align-items-center gap-3">
+                                <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
+                                  {proj.student?.name?.charAt(0) || 'S'}
+                                </div>
+                                <div>
+                                  <div className="fw-bold small text-navy">{proj.student?.name || 'Student'}</div>
+                                  <div className="extra-small text-muted opacity-75 fw-bold">PFE CANDIDATE</div>
+                                </div>
                               </div>
-                              <div>
-                                <div className="fw-bold small text-navy">{student.name}</div>
-                                <div className="extra-small text-muted opacity-75 fw-bold">PFE CANDIDATE</div>
+                            </td>
+                            <td>
+                              <div className="extra-small fw-bold text-navy opacity-75 text-wrap" style={{ maxWidth: '220px', lineHeight: '1.4' }}>
+                                {proj.title}
                               </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="extra-small fw-bold text-navy opacity-75 text-wrap" style={{ maxWidth: '220px', lineHeight: '1.4' }}>
-                              {student.project}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="d-flex align-items-center gap-3" style={{ width: '140px' }}>
-                              <div className="flex-grow-1 bg-surface-alt rounded-pill overflow-hidden" style={{ height: '8px' }}>
-                                <motion.div 
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${student.progress || 0}%` }}
-                                  transition={{ duration: 1 }}
-                                  className={`h-100 rounded-pill bg-${(student.progress || 0) > 80 ? 'success' : 'primary'}`}
-                                />
-                              </div>
-                              <span className="extra-small fw-bold text-navy">{student.progress || 0}%</span>
-                            </div>
-                          </td>
-                          <td>
-                            <Badge className={`bg-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'}-soft text-${student.status === 'Validated' ? 'success' : student.status === 'In Progress' ? 'primary' : 'warning'} border-0 extra-small px-3 py-1 fw-bold`}>
-                              {student.status || 'Draft'}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 text-end">
-                            <Dropdown align="end">
-                              <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-surface rounded-circle no-caret shadow-none border-0">
-                                <MoreHorizontal size={20} />
-                              </Dropdown.Toggle>
-                              <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
-                                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
-                                  <ChevronRight size={14} className="text-primary" /> View Details
-                                </Dropdown.Item>
-                                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/messages')}>
-                                  <MessageSquare size={14} className="text-info" /> Send Message
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2">
-                                  <Activity size={14} /> Edit Progress
-                                </Dropdown.Item>
-                              </Dropdown.Menu>
-                            </Dropdown>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td>
+                              <Badge className={`bg-${statusColor}-soft text-${statusColor} border-0 extra-small px-3 py-1 fw-bold text-capitalize`}>
+                                {proj.status?.replace('_', ' ') || 'Pending'}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3 text-end">
+                              <Dropdown align="end">
+                                <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-surface rounded-circle no-caret shadow-none border-0">
+                                  <MoreHorizontal size={20} />
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
+                                  <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/students')}>
+                                    <ChevronRight size={14} className="text-primary" /> View Details
+                                  </Dropdown.Item>
+                                  <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/messages')}>
+                                    <MessageSquare size={14} className="text-info" /> Send Message
+                                  </Dropdown.Item>
+                                </Dropdown.Menu>
+                              </Dropdown>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </Table>
                 ) : (
                   <div className="py-5">
-                    <EmptyState 
-                      title="No Supervised Students" 
-                      message="You are not currently supervising any end-of-studies projects. New assignments will appear here." 
+                    <EmptyState
+                      title="No Supervised Projects"
+                      message="You are not currently supervising any end-of-studies projects. New assignments will appear here."
                       icon={<Users size={48} />}
                     />
                   </div>

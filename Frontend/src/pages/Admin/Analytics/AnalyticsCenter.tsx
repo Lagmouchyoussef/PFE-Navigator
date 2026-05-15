@@ -15,27 +15,27 @@ import StatCard from '../../../components/shared/StatCard';
 import { useApp } from '../../../context/AppContext';
 
 const AnalyticsCenter: React.FC = () => {
-  const { students, archives, pfeWeights } = useApp();
+  const { evaluations, pfeWeights } = useApp();
   const [timePeriod, setTimePeriod] = React.useState('All');
   const [showExportSuccess, setShowExportSuccess] = React.useState(false);
 
-  // Helper to calculate final grade
   const getFinalGrade = (s: number | null, j: number | null) => {
     if (s === null || j === null) return null;
     return (s * pfeWeights.supervisor / 100) + (j * pfeWeights.jury / 100);
   };
 
-  // Apply period filtering
-  const filteredStudents = students.filter(s => {
+  const filteredEvals = evaluations.filter((ev: any) => {
     if (timePeriod === 'All') return true;
-    const month = new Date(s.date || '').getMonth();
+    const month = new Date(ev.created_at || '').getMonth();
     if (timePeriod === 'S1') return month < 6;
     if (timePeriod === 'S2') return month >= 6;
     return true;
   });
 
-  const gradedStudents = filteredStudents.filter(s => s.supervisorScore !== null && s.juryScore !== null);
-  const finalGrades = gradedStudents.map(s => getFinalGrade(s.supervisorScore, s.juryScore)).filter(g => g !== null) as number[];
+  const gradedEvals = filteredEvals.filter((ev: any) => ev.supervisor_score !== null && ev.jury_score !== null);
+  const finalGrades = gradedEvals.map((ev: any) =>
+    getFinalGrade(Number.parseFloat(ev.supervisor_score), Number.parseFloat(ev.jury_score))
+  ).filter((g): g is number => g !== null);
 
   // 1. Success Rate
   const successCount = finalGrades.filter(g => g >= 10).length;
@@ -58,18 +58,18 @@ const AnalyticsCenter: React.FC = () => {
     percentage: Math.round((d.count / totalEvaluated) * 100)
   }));
 
-  // 4. Monthly Submissions (from archives)
+  // 4. Monthly Submissions (from evaluations)
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthlySubmissions = months.map((m, i) => {
-    const count = archives.filter(a => {
-      const date = new Date(a.date);
+    const count = evaluations.filter((ev: any) => {
+      const date = new Date(ev.created_at || '');
       return date.getMonth() === i;
     }).length;
-    return { month: m, count: count + (i < 5 ? (i + 1) * 2 : 0) }; 
+    return { month: m, count };
   });
 
   // 5. Participation
-  const participation = filteredStudents.length > 0 ? Math.round((gradedStudents.length / filteredStudents.length) * 100) : 0;
+  const participation = filteredEvals.length > 0 ? Math.round((gradedEvals.length / filteredEvals.length) * 100) : 0;
 
   const handleExport = (format: string) => {
     if (format === 'pdf') {
@@ -132,7 +132,7 @@ const AnalyticsCenter: React.FC = () => {
             <StatCard label="Success Rate" value={`${successRate}%`} icon={<Target />} color="primary" trend={Number(successRate) > 80 ? "+2%" : "-1%"} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Evaluated Students" value={`${gradedStudents.length}/${students.length}`} icon={<Clock />} color="info" trend="Live" />
+            <StatCard label="Evaluated Students" value={`${gradedEvals.length}/${evaluations.length}`} icon={<Clock />} color="info" trend="Live" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Overall Average" value={`${averageGrade}/20`} icon={<Award />} color="warning" trend={Number(averageGrade) > 12 ? "+0.5" : "-0.2"} />

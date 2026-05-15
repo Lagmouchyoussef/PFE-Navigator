@@ -4,10 +4,10 @@ import {
   Container, Row, Col, Badge, Button, Table, 
   Form, InputGroup
 } from 'react-bootstrap';
-import { 
-  Users, Briefcase, Plus, Search, 
-  Database, Download, Edit, Trash2, Lock,
-  Clock, Trash, FileText, FileSpreadsheet, File, AlertCircle, ShieldAlert
+import {
+  Users, Briefcase, Plus, Search,
+  Database, Download, Edit, Trash2,
+  Clock, Trash, FileText, FileSpreadsheet, File, ShieldAlert
 } from 'lucide-react';
 import { Dropdown, Modal } from 'react-bootstrap';
 import { 
@@ -19,30 +19,30 @@ import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
 
 const AdminDashboard: React.FC = () => {
-  const { appointments, deleteAppointment, students, archives, allUsers, deleteUser } = useApp();
-  
+  const { appointments, deleteAppointment, projects, allUsers, deleteUser } = useApp();
+
   // Dynamic Charts Calculation
   const SUBMISSION_DATA = React.useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const counts = new Array(12).fill(0);
-    students.forEach(s => {
-      const d = new Date(s.date || Date.now());
+    projects.forEach((p: any) => {
+      const d = new Date(p.created_at || Date.now());
       counts[d.getMonth()]++;
     });
     return months.map((m, i) => ({ name: m, count: counts[i] }));
-  }, [students]);
+  }, [projects]);
 
   const STATUS_DATA = React.useMemo(() => {
     const statusMap: Record<string, number> = {};
-    students.forEach(s => {
-      const st = s.status || 'Pending';
+    projects.forEach((p: any) => {
+      const st = p.status || 'pending';
       statusMap[st] = (statusMap[st] || 0) + 1;
     });
     const colors = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
     return Object.entries(statusMap).map(([name, value], i) => ({
       name, value, color: colors[i % colors.length]
     }));
-  }, [students]);
+  }, [projects]);
 
   const users = allUsers || [];
   const [visibleCount, setVisibleCount] = React.useState(5);
@@ -53,9 +53,9 @@ const AdminDashboard: React.FC = () => {
   const generateReport = (format: 'pdf' | 'csv' | 'word') => {
     const data = [
       ["Statistic", "Value"],
-      ["Users", students.length.toString()],
-      ["Active Projects", students.filter((s: any) => s.status === 'In Progress').length.toString()],
-      ["Validation Rate", "0%"],
+      ["Total Users", users.length.toString()],
+      ["Total Projects", projects.length.toString()],
+      ["Active Projects", projects.filter((p: any) => p.status === 'in_progress').length.toString()],
       ["Last Update", new Date().toLocaleDateString()]
     ];
     
@@ -145,16 +145,16 @@ const AdminDashboard: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Users" value={students.length.toString()} icon={<Users />} color="primary" trend="Global" />
+            <StatCard label="Total Users" value={users.length.toString()} icon={<Users />} color="primary" trend="Global" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Active Projects" value={students.filter((s: any) => s.status === 'In Progress').length.toString()} icon={<Briefcase />} color="info" trend="Live" />
+            <StatCard label="Active Projects" value={projects.filter((p: any) => p.status === 'in_progress').length.toString()} icon={<Briefcase />} color="info" trend="Live" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Pending Actions" value={students.filter((s: any) => s.status === 'Pending').length.toString()} icon={<Clock />} color="warning" trend="Action Required" />
+            <StatCard label="Pending Projects" value={projects.filter((p: any) => p.status === 'pending').length.toString()} icon={<Clock />} color="warning" trend="Action Required" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="System Integrity" value="100%" icon={<Database />} color="danger" trend="Healthy" />
+            <StatCard label="Total Projects" value={projects.length.toString()} icon={<Database />} color="danger" trend="All" />
           </Col>
         </Row>
 
@@ -199,31 +199,37 @@ const AdminDashboard: React.FC = () => {
                 <Badge className="bg-primary-soft text-primary extra-small border-0 px-2 py-1 rounded-pill">{appointments.length}</Badge>
               </h5>
               <div className="d-flex flex-column gap-3 overflow-auto" style={{ maxHeight: '400px' }}>
-                {appointments.slice(0, visibleCount).map((appt, i) => (
-                  <motion.div 
-                    key={appt.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className={`p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all ${appt.status === 'Cancelled' ? 'opacity-50' : ''}`}
-                  >
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <div className="small fw-bold text-navy">{appt.title}</div>
-                      <div className="d-flex align-items-center gap-2">
-                        <Badge className={`bg-${appt.status === 'Confirmed' ? 'success' : appt.status === 'Rescheduled' ? 'info' : appt.status === 'Cancelled' ? 'danger' : 'warning'}-soft text-${appt.status === 'Confirmed' ? 'success' : appt.status === 'Rescheduled' ? 'info' : appt.status === 'Cancelled' ? 'danger' : 'warning'} border-0 extra-small px-2`}>
-                          {appt.status}
-                        </Badge>
-                        <Button variant="link" className="p-0 text-danger border-0 shadow-none hover-bg-danger-soft rounded-circle" onClick={() => deleteAppointment(appt.id)}>
-                          <Trash size={12} />
-                        </Button>
+                {appointments.slice(0, visibleCount).map((appt: any, i: number) => {
+                  const statusColor = appt.status === 'confirmed' ? 'success'
+                    : appt.status === 'rescheduled' ? 'info'
+                    : appt.status === 'cancelled' ? 'danger'
+                    : 'warning';
+                  return (
+                    <motion.div
+                      key={appt.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className={`p-3 rounded-3 border bg-surface-alt hover-bg-surface transition-all ${appt.status === 'cancelled' ? 'opacity-50' : ''}`}
+                    >
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <div className="small fw-bold text-navy">{appt.title}</div>
+                        <div className="d-flex align-items-center gap-2">
+                          <Badge className={`bg-${statusColor}-soft text-${statusColor} border-0 extra-small px-2 text-capitalize`}>
+                            {appt.status}
+                          </Badge>
+                          <Button variant="link" className="p-0 text-danger border-0 shadow-none" onClick={() => deleteAppointment(appt.id)}>
+                            <Trash size={12} />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="d-flex align-items-center gap-3 extra-small text-muted fw-bold">
-                      <span className="d-flex align-items-center gap-1"><Users size={12}/> {appt.studentName}</span>
-                      <span className="d-flex align-items-center gap-1"><Clock size={12}/> {appt.date} • {appt.time}</span>
-                    </div>
-                  </motion.div>
-                ))}
+                      <div className="d-flex align-items-center gap-3 extra-small text-muted fw-bold">
+                        <span className="d-flex align-items-center gap-1"><Users size={12} /> {appt.student_name || appt.created_by_name || 'Student'}</span>
+                        <span className="d-flex align-items-center gap-1"><Clock size={12} /> {appt.date} • {appt.time}</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
                 {visibleCount < appointments.length && (
                   <Button 
                     variant="link" 
@@ -287,37 +293,39 @@ const AdminDashboard: React.FC = () => {
                 {users.length === 0 ? (
                   <tr><td colSpan={5} className="text-center py-5 opacity-50 fw-bold small">No users registered in the system</td></tr>
                 ) : (
-                  users.map((user, idx) => (
-                    <tr key={idx}>
-                      <td className="px-4 py-3">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className={`avatar-sm bg-${user.color || 'primary'}-soft text-${user.color || 'primary'} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px' }}>
-                            {user.name.charAt(0)}
+                  users.map((u: any) => {
+                    const roleColor = u.role === 'admin' ? 'danger' : u.role === 'supervisor' ? 'info' : u.role === 'jury' ? 'warning' : 'primary';
+                    return (
+                      <tr key={u.id}>
+                        <td className="px-4 py-3">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className={`avatar-sm bg-${roleColor}-soft text-${roleColor} rounded-circle d-flex align-items-center justify-content-center fw-bold`} style={{ width: '36px', height: '36px' }}>
+                              {u.name?.charAt(0) || '?'}
+                            </div>
+                            <div className="small fw-bold text-navy">{u.name}</div>
                           </div>
-                          <div className="small fw-bold text-navy">{user.name}</div>
-                        </div>
-                      </td>
-                      <td className="small text-muted fw-bold">{user.email}</td>
-                      <td>
-                        <Badge className={`bg-${user.color || 'primary'}-soft text-${user.color || 'primary'} border border-${user.color || 'primary'} border-opacity-10 extra-small`}>
-                          {user.role}
-                        </Badge>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
-                          <span className="extra-small fw-bold text-muted">{user.status}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 text-end">
-                        <div className="d-flex justify-content-end gap-1">
-                          <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('edit', user)}><Edit size={16}/></Button>
-                          <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('lock', user)}><Lock size={16}/></Button>
-                          <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3" onClick={() => handleAction('delete', user)}><Trash2 size={16}/></Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="small text-muted fw-bold">{u.email}</td>
+                        <td>
+                          <Badge className={`bg-${roleColor}-soft text-${roleColor} border border-${roleColor} border-opacity-10 extra-small text-capitalize`}>
+                            {u.role}
+                          </Badge>
+                        </td>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }} />
+                            <span className="extra-small fw-bold text-muted">Active</span>
+                          </div>
+                        </td>
+                        <td className="px-4 text-end">
+                          <div className="d-flex justify-content-end gap-1">
+                            <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('edit', u)}><Edit size={16} /></Button>
+                            <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3" onClick={() => handleAction('delete', u)}><Trash2 size={16} /></Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </Table>

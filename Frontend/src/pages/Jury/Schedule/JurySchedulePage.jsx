@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 const JurySchedulePage = () => {
   const navigate = useNavigate();
-  const { user, appointments, cancelAppointment, students } = useApp();
+  const { user, appointments, cancelAppointment } = useApp();
   const [selectedDay, setSelectedDay] = useState(12);
   const [openMenuId, setOpenMenuId] = useState(null);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -112,7 +112,7 @@ const JurySchedulePage = () => {
                       <div className="extra-small fw-bold opacity-75 uppercase">MAY</div>
                     </div>
                     <div className="flex-grow-1 overflow-hidden">
-                      <div className="small fw-bold text-navy text-truncate mb-1">{item.studentName}</div>
+                      <div className="small fw-bold text-navy text-truncate mb-1">{item.student_name || item.created_by_name || item.title}</div>
                       <p className="extra-small text-muted fw-bold opacity-75 text-truncate mb-2">{item.title}</p>
                       <div className="d-flex gap-3 extra-small text-muted fw-bold opacity-50">
                         <span className="d-flex align-items-center gap-1"><Clock size={12} className="text-primary"/> {item.time}</span>
@@ -127,10 +127,7 @@ const JurySchedulePage = () => {
                       <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small p-2">
                         <Dropdown.Item 
                           className="py-2 fw-bold text-navy"
-                          onClick={() => {
-                            const student = students.find(s => s.name === item.studentName);
-                            navigate('/jury/evaluation', { state: { openStudentId: student?.id } });
-                          }}
+                          onClick={() => navigate('/jury/evaluation')}
                         >
                           View Details
                         </Dropdown.Item>

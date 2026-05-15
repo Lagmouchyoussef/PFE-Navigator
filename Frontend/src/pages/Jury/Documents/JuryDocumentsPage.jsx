@@ -129,12 +129,14 @@ const JuryDocumentsPage = () => {
                     <td className="py-4">
                       <div className="d-flex align-items-center gap-2">
                         <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
-                          {doc.studentName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'S'}
+                          {(doc.student_name || doc.uploaded_by_name || 'S').split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                         </div>
-                        <span className="extra-small fw-bold text-navy opacity-75">{doc.studentName}</span>
+                        <span className="extra-small fw-bold text-navy opacity-75">{doc.student_name || doc.uploaded_by_name || 'Student'}</span>
                       </div>
                     </td>
-                    <td className="py-4 small text-navy fw-bold opacity-75">{new Date(doc.date).toLocaleDateString()}</td>
+                    <td className="py-4 small text-navy fw-bold opacity-75">
+                      {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '—'}
+                    </td>
                     <td className="py-4">
                       <Badge className={`bg-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'}-soft text-${doc.status === 'approved' ? 'success' : doc.status === 'pending' ? 'warning' : 'danger'} border-0 px-3 py-1 extra-small fw-bold`}>
                          {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
@@ -187,8 +189,8 @@ const JuryDocumentsPage = () => {
              />
           </Modal.Body>
           <div className="p-4 border-top bg-surface-alt d-flex gap-2">
-            <Button variant="outline-secondary" className="flex-grow-1 rounded-pill fw-bold extra-small border-2 opacity-50 hover-opacity-100 transition-all" onClick={() => setRejectModal(null)}>Cancel</Button>
-            <Button variant="danger" className="flex-grow-1 rounded-pill fw-bold extra-small border-0 shadow-sm" disabled={!rejectReason.trim()} onClick={handleRejectConfirm}>Confirm Flagging</Button>
+            <Button variant="outline-secondary" className="grow rounded-pill fw-bold extra-small border-2 opacity-50 hover-opacity-100 transition-all" onClick={() => setRejectModal(null)}>Cancel</Button>
+            <Button variant="danger" className="grow rounded-pill fw-bold extra-small border-0 shadow-sm" disabled={!rejectReason.trim()} onClick={handleRejectConfirm}>Confirm Flagging</Button>
           </div>
         </div>
       </Modal>

@@ -15,55 +15,46 @@ import EmptyState from '../../../components/shared/EmptyState';
 
 const JuryDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, notifications, students, appointments } = useApp();
+  const { user, notifications, evaluations, appointments } = useApp();
 
-  // Map notifications to the activity UI structure
-  const recentNotifs = (Array.isArray(notifications) ? notifications : []).slice(0, 4).map(n => {
-    let icon = <Activity size={16} />;
-    let color: 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'primary';
+  const typeIcon = (type: string): JSX.Element => {
+    if (type === 'grade')    return <Clock size={16} />;
+    if (type === 'defense')  return <Calendar size={16} />;
+    if (type === 'message')  return <MessageSquare size={16} />;
+    if (type === 'approved') return <CheckCircle size={16} />;
+    if (type === 'rejected') return <AlertCircle size={16} />;
+    return <Activity size={16} />;
+  };
 
-    switch (n.type) {
-      case 'grade': 
-        icon = <Clock size={16} />; 
-        color = 'warning'; 
-        break;
-      case 'defense': 
-        icon = <Calendar size={16} />; 
-        color = 'primary'; 
-        break;
-      case 'message': 
-        icon = <MessageSquare size={16} />; 
-        color = 'info'; 
-        break;
-      case 'approved': 
-        icon = <CheckCircle size={16} />; 
-        color = 'success'; 
-        break;
-      case 'rejected': 
-        icon = <AlertCircle size={16} />; 
-        color = 'danger'; 
-        break;
-    }
+  const typeColor = (type: string): 'primary' | 'success' | 'warning' | 'danger' | 'info' => {
+    if (type === 'grade')    return 'warning';
+    if (type === 'defense')  return 'primary';
+    if (type === 'message')  return 'info';
+    if (type === 'approved') return 'success';
+    if (type === 'rejected') return 'danger';
+    return 'primary';
+  };
 
-    // Format time ago (rough approximation)
-    const time = new Date(n.date);
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - time.getTime()) / 1000 / 60); // minutes
-    let timeLabel = "Just now";
-    if (diff >= 1440) timeLabel = `${Math.floor(diff/1440)}d ago`;
-    else if (diff >= 60) timeLabel = `${Math.floor(diff/60)}h ago`;
-    else if (diff > 0) timeLabel = `${diff}m ago`;
+  const timeAgo = (dateStr: string) => {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff < 1)    return 'Just now';
+    if (diff < 60)   return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+  };
 
-    return {
-      id: n.id,
-      title: n.type.charAt(0).toUpperCase() + n.type.slice(1), // Fallback title
-      desc: n.text,
-      time: timeLabel,
-      icon,
-      color,
-      link: n.link
-    };
-  });
+  const recentNotifs = (Array.isArray(notifications) ? notifications : []).slice(0, 4).map(n => ({
+    id: n.id,
+    title: n.title || (n.type ? n.type.charAt(0).toUpperCase() + n.type.slice(1) : 'Notification'),
+    desc: n.message,
+    time: timeAgo(n.created_at),
+    icon: typeIcon(n.type),
+    color: typeColor(n.type),
+    link: n.link || '/jury/notifications',
+  }));
+
+  const evaluatedCount = evaluations.filter((e: any) => e.jury_score !== null).length;
+  const pendingEvals   = evaluations.filter((e: any) => e.jury_score === null);
 
   return (
     <div className="jury-modern-layout py-4">
@@ -94,46 +85,46 @@ const JuryDashboard: React.FC = () => {
         {/* Top Stats Row */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Assigned Projects" 
-              value={students.length.toString()} 
-              icon={<Briefcase />} 
-              color="primary" 
-              trend={`Total Students`}
+            <StatCard
+              label="Assigned Projects"
+              value={evaluations.length.toString()}
+              icon={<Briefcase />}
+              color="primary"
+              trend="Total Projects"
               onClick={() => navigate('/jury/projects')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Evaluations Done" 
-              value={students.filter(s => s.isJuryEvaluated).length.toString()} 
-              icon={<CheckCircle />} 
-              color="success" 
-              trend={`${Math.round((students.filter(s => s.isJuryEvaluated).length / (students.length || 1)) * 100)}% completed`}
+            <StatCard
+              label="Evaluations Done"
+              value={evaluatedCount.toString()}
+              icon={<CheckCircle />}
+              color="success"
+              trend={`${Math.round((evaluatedCount / (evaluations.length || 1)) * 100)}% completed`}
               onClick={() => navigate('/jury/evaluation')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Defenses" 
-              value={appointments.filter(a => (a.type === 'Defense' || a.type === 'Review') && a.status !== 'Cancelled').length.toString()} 
-              icon={<Calendar />} 
-              color="warning" 
-              trend="Total Planning" 
+            <StatCard
+              label="Defenses"
+              value={appointments.filter((a: any) => (a.type === 'defense' || a.type === 'Defense') && a.status !== 'cancelled').length.toString()}
+              icon={<Calendar />}
+              color="warning"
+              trend="Total Planning"
               onClick={() => navigate('/jury/schedule')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard 
-              label="Avg Grade Given" 
+            <StatCard
+              label="Avg Grade Given"
               value={
-                students.filter(s => s.isJuryEvaluated).length > 0
-                  ? (students.filter(s => s.isJuryEvaluated).reduce((acc, s) => acc + (s.juryScore || 0), 0) / students.filter(s => s.isJuryEvaluated).length).toFixed(1)
+                evaluatedCount > 0
+                  ? (evaluations.filter((e: any) => e.jury_score !== null).reduce((acc: number, e: any) => acc + Number.parseFloat(e.jury_score), 0) / evaluatedCount).toFixed(1)
                   : '--'
-              } 
-              icon={<Star />} 
-              color="info" 
-              trend="Average / 20" 
+              }
+              icon={<Star />}
+              color="info"
+              trend="Average / 20"
             />
           </Col>
         </Row>
@@ -191,53 +182,54 @@ const JuryDashboard: React.FC = () => {
             <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none transition-all hover-opacity-75" onClick={() => navigate('/jury/projects')}>Manage all projects</Button>
           </Card.Header>
           <div className="table-responsive">
-            {students.length > 0 ? (
+            {evaluations.length > 0 ? (
               <Table borderless hover className="align-middle mb-0">
                 <thead className="bg-surface-alt">
                   <tr className="border-bottom opacity-50">
-                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student / Project</th>
-                    <th className="py-3 extra-small fw-bold text-muted text-uppercase">Deadline</th>
+                    <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Project</th>
                     <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                     <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.filter(s => !s.isJuryEvaluated).slice(0, 5).map((row, idx) => (
-                    <tr key={row.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
-                      <td className="px-4 py-3">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>
-                            {row.name?.charAt(0) || 'U'}
+                  {pendingEvals.slice(0, 5).map((ev: any) => {
+                    const proj = ev.project_detail || {};
+                    const studentName  = proj.student?.name || `Student`;
+                    const projectTitle = proj.title || `Project #${ev.project}`;
+                    return (
+                      <tr key={ev.id} className="border-bottom border-light border-opacity-10 transition-all hover-bg-surface-alt cursor-pointer">
+                        <td className="px-4 py-3">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px', fontSize: '0.7rem' }}>
+                              {studentName.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="small fw-bold text-navy">{studentName}</div>
+                              <div className="extra-small text-muted text-truncate fw-bold opacity-50" style={{ maxWidth: '180px' }}>{projectTitle}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="small fw-bold text-navy">{row.name}</div>
-                            <div className="extra-small text-muted text-truncate fw-bold opacity-50" style={{maxWidth: '180px'}}>{row.project}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 extra-small text-navy fw-bold opacity-75">{row.date || 'To define'}</td>
-                      <td className="py-3">
-                        <Badge className={`bg-${row.isDraft ? 'warning' : 'primary'}-soft text-${row.isDraft ? 'warning' : 'primary'} border-0 extra-small fw-bold px-3 py-1`}>
-                          {row.isDraft ? 'Draft' : 'Pending'}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-end">
-                        <Button 
-                          variant="link" 
-                          className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 justify-content-end hover-opacity-75 transition-all"
-                          onClick={() => navigate('/jury/evaluation', { state: { openStudentId: row.id } })}
-                        >
-                          Details <ArrowRightCircle size={14} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                  {students.filter(s => !s.isJuryEvaluated).length === 0 && (
+                        </td>
+                        <td className="py-3">
+                          <Badge className="bg-warning-soft text-warning border-0 extra-small fw-bold px-3 py-1">Pending</Badge>
+                        </td>
+                        <td className="px-4 py-3 text-end">
+                          <Button
+                            variant="link"
+                            className="p-0 text-primary extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 justify-content-end hover-opacity-75 transition-all"
+                            onClick={() => navigate('/jury/evaluation')}
+                          >
+                            Evaluate <ArrowRightCircle size={14} />
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {pendingEvals.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-5 text-center">
-                        <EmptyState 
-                          title="All Evaluations Completed" 
-                          message="You have no pending project evaluations at this time. Great job!" 
+                      <td colSpan={3} className="py-5 text-center">
+                        <EmptyState
+                          title="All Evaluations Completed"
+                          message="You have no pending project evaluations at this time. Great job!"
                           icon={<CheckCircle size={48} />}
                         />
                       </td>
@@ -247,9 +239,9 @@ const JuryDashboard: React.FC = () => {
               </Table>
             ) : (
               <div className="py-5">
-                <EmptyState 
-                  title="No Assigned Projects" 
-                  message="You are not currently assigned to any jury committees. Check back later for your assignment schedule." 
+                <EmptyState
+                  title="No Assigned Projects"
+                  message="You are not currently assigned to any jury committees. Check back later for your assignment schedule."
                   icon={<Briefcase size={48} />}
                 />
               </div>
