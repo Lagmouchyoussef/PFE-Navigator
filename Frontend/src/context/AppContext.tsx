@@ -1,214 +1,236 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { 
-  User, Session, Document as AppDocument, Message, Defense, 
-  Notification, Scores, UserRole, Milestone, Appointment
-} from '../types';
-import { INITIAL_SCORES, COEFFICIENTS, SCORE_LABELS } from '../constants';
+import { UserRole } from '../types';
 
-// ─── PRODUCTION STATE INITIALIZATION ──────────────────────────────────────────
-// All data is fetched from the backend on mount or login.
+// ─── TYPES ────────────────────────────────────────────────────────────────────
 
-const INITIAL_MILESTONES: Milestone[] = [];
-const INITIAL_DOCUMENTS: AppDocument[] = [];
-const INITIAL_MESSAGES: Message[] = [];
-const INITIAL_DEFENSES: Defense[] = [];
-const INITIAL_NOTIFICATIONS: Notification[] = [];
-const INITIAL_APPOINTMENTS: Appointment[] = [];
+export interface Session {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  institutionalId?: string;
+  phone_number?: string;
+  first_name?: string;
+  last_name?: string;
+}
 
-// ─── CONTEXT INTERFACE ───────────────────────────────────────────────────────
+// ─── CONTEXT INTERFACE ────────────────────────────────────────────────────────
 
 interface AppContextType {
   user: Session | null;
-  login: (emailOrRole: string, password?: string, role?: UserRole) => Promise<boolean>;
+  login: (email: string, password: string, role?: UserRole) => Promise<boolean>;
   logout: () => void;
-  scores: Scores;
-  saveScore: (criterion: keyof Scores, value: string | number) => void;
+  isLoading: boolean;
+  error: string | null;
+
+  // Projects
+  projects: any[];
+  currentProject: any | null;
+  refreshProject: () => Promise<void>;
+
+  // Documents
+  documents: any[];
+  uploadDocument: (formData: FormData) => Promise<any>;
+  deleteDocument: (id: number) => Promise<void>;
+  approveDocument: (id: number) => Promise<void>;
+  rejectDocument: (id: number, reason: string) => Promise<void>;
+  addDocumentRemark: (documentId: number, comment: string, score?: number) => Promise<void>;
+
+  // Evaluations
+  evaluations: any[];
+  submitSupervisorScore: (evaluationId: number, score: number, comment: string, criteria?: any) => Promise<void>;
+  submitJuryScore: (evaluationId: number, score: number, comment: string, criteria?: any) => Promise<void>;
+  publishEvaluation: (evaluationId: number) => Promise<void>;
+  updateEvaluationWeights: (evaluationId: number, supervisorWeight: number, juryWeight: number) => Promise<void>;
+
+  // Appointments
+  appointments: any[];
+  createAppointment: (data: any) => Promise<any>;
+  updateAppointment: (id: number, data: any) => Promise<any>;
+  cancelAppointment: (id: number) => Promise<void>;
+  deleteAppointment: (id: number) => Promise<void>;
+
+  // Milestones
+  milestones: any[];
+  updateMilestone: (id: number, data: any) => Promise<void>;
+
+  // Messages
+  messages: any[];
+  sendMessage: (recipientId: number, content: string, subject?: string) => Promise<void>;
+  markMessageRead: (id: number) => Promise<void>;
+  markAllMessagesRead: () => Promise<void>;
+  deleteMessage: (id: number) => Promise<void>;
+  contactableUsers: any[];
+
+  // Notifications
+  notifications: any[];
+  unreadNotificationsCount: number;
+  markNotificationRead: (id: number) => Promise<void>;
+  markAllNotificationsRead: () => Promise<void>;
+  deleteNotification: (id: number) => Promise<void>;
+  sendNotification: (data: any) => Promise<void>;
+
+  // Administrative Notes
+  administrativeNotes: any[];
+  createAdminNote: (data: any) => Promise<void>;
+  deleteAdminNote: (id: number) => Promise<void>;
+
+  // Resources
+  resourceCenter: any[];
+  uploadResource: (formData: FormData) => Promise<void>;
+  deleteResource: (id: number) => Promise<void>;
+
+  // Users (admin)
+  allUsers: any[];
+  createUser: (data: any) => Promise<void>;
+  updateUser: (id: number, data: any) => Promise<void>;
+  deleteUser: (id: number) => Promise<void>;
+
+  // Students (for supervisor/admin)
+  students: any[];
+  subjects: any[];
+
+  // Feedbacks
+  feedbacks: any[];
+  createFeedback: (projectId: number, title: string, comment: string) => Promise<void>;
+
+  // Jury Assignments (admin)
+  juryAssignments: any[];
+  assignJury: (projectId: number, juryMemberId: number, role?: string) => Promise<void>;
+  removeJuryAssignment: (id: number) => Promise<void>;
+
+  // Theme
+  theme: string;
+  setTheme: (theme: string) => void;
+
+  // Refresh
+  refreshData: () => Promise<void>;
+
+  // Legacy compatibility
+  scores: any;
+  saveScore: (criterion: string, value: any) => void;
   submitEvaluation: (comment: string) => void;
   globalGrade: number | null;
   pfeFinalGrade: number | null;
-  coefficients: Record<keyof Scores, number>;
   juryComment: string;
-  SCORE_LABELS: Record<keyof Scores, string>;
-  documents: AppDocument[];
-  uploadDocument: (title: string, file: File | null) => AppDocument;
-  deleteDocument: (id: number) => void;
-  approveDocument: (id: number) => void;
-  rejectDocument: (id: number, reason: string) => void;
-  pendingDocsCount: number;
-  messages: Message[];
-  sendMessage: (text: string, senderRole: UserRole) => void;
-  markMessagesRead: (role: UserRole) => void;
-  unreadCountForRole: (role: UserRole) => number;
-  deleteMessage: (id: number) => void;
-  defenses: Defense[];
-  createDefense: (defense: Omit<Defense, 'id'>) => void;
-  updateDefense: (id: number, updates: Partial<Defense>) => void;
-  deleteDefense: (id: number) => void;
-  notifications: Notification[];
-  markNotificationRead: (id: number) => void;
-  markAllNotificationsRead: () => void;
-  unreadNotificationsCount: number;
-  deleteNotification: (id: number) => void;
-  progressPct: number;
-  approvedDocs: number;
-  totalRequired: number;
   isGradesPublished: boolean;
   publishGrades: () => void;
   pfeWeights: { supervisor: number; jury: number };
-  updatePfeWeights: (supervisor: number, jury: number) => void;
+  updatePfeWeights: (s: number, j: number) => void;
   juryCriteriaWeights: Record<string, number>;
-  updateJuryCriteriaWeights: (weights: Record<string, number>) => void;
-  theme: string;
-  setTheme: (theme: string) => void;
-  // Milestones
-  projectMilestones: Milestone[];
-  updateMilestone: (id: number, status: 'completed' | 'current' | 'pending') => void;
-  // Validation Results
+  updateJuryCriteriaWeights: (w: Record<string, number>) => void;
+  supervisorCriteriaWeights: Record<string, number>;
+  updateSupervisorCriteriaWeights: (w: Record<string, number>) => void;
+  SCORE_LABELS: Record<string, string>;
+  coefficients: Record<string, number>;
+  progressPct: number;
+  approvedDocs: number;
+  totalRequired: number;
+  pendingDocsCount: number;
   isProjectValidated: boolean;
   finalResultMessage: string;
-  // Appointments
-  appointments: Appointment[];
-  addAppointment: (appointment: Omit<Appointment, 'id'>) => void;
-  rescheduleAppointment: (id: number, newDate: string, newTime: string) => void;
-  cancelAppointment: (id: number) => void;
-  deleteAppointment: (id: number) => void;
-  sendReminder: (id: number) => void;
+  defenses: any[];
+  createDefense: (d: any) => void;
+  updateDefense: (id: number, d: any) => void;
+  deleteDefense: (id: number) => void;
   reminders: any[];
-  students: any[];
-  updateStudentEvaluation: (studentId: number, data: any) => void;
-  // Archives & Resources
+  sendReminder: (id: number) => void;
   archives: any[];
-  updateArchiveProject: (id: string, updates: any) => void;
+  updateArchiveProject: (id: string, d: any) => void;
   deleteArchiveProject: (id: string) => void;
-  shareToResources: (projectId: string) => void;
-  resourceCenter: any[];
-  addToResources: (fileData: any) => void;
+  shareToResources: (id: string) => void;
+  addToResources: (d: any) => void;
   removeFromResources: (id: string) => void;
-  // Criteria Weights
-  supervisorCriteriaWeights: Record<string, number>;
-  updateSupervisorCriteriaWeights: (weights: Record<string, number>) => void;
-  isLoading: boolean;
-  error: string | null;
-  refreshData: () => Promise<void>;
-  administrativeNotes: any[];
-  subjects: any[];
-  allUsers: any[];
-  updateSubjectStatus: (id: number, status: string) => void;
+  projectMilestones: any[];
+  unreadCountForRole: (role: UserRole) => number;
+  markMessagesRead: (role: UserRole) => void;
+  updateStudentEvaluation: (id: number, d: any) => void;
+  updateSubjectStatus: (id: number, s: string) => void;
   deleteSubject: (id: number) => void;
-  deleteUser: (id: number) => void;
-  createUser: (data: any) => void;
-  updateUser: (id: number, data: any) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
 
-const initialReminders: any[] = [];
+const SCORE_LABELS: Record<string, string> = {
+  pfeSupervisor: 'Supervisor Score',
+  pfeJury: 'Jury Score',
+};
 
-const initialStudents = [];
-
-const INITIAL_ARCHIVES = [];
-
-const INITIAL_RESOURCES: any[] = [];
-
-const INITIAL_NOTES: any[] = [];
-
-// Data version for tracking schema/state changes
-const DATA_VERSION = 'v2_zero_data';
+const COEFFICIENTS: Record<string, number> = {
+  pfeSupervisor: 1,
+  pfeJury: 1,
+};
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // DATA ENTITIES
-  const [scores, setScores] = useState<Scores>(INITIAL_SCORES);
-  const [documents, setDocuments] = useState<AppDocument[]>(INITIAL_DOCUMENTS);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [defenses, setDefenses] = useState<Defense[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [archives, setArchives] = useState<any[]>([]);
-  const [resourceCenter, setResourceCenter] = useState<any[]>([]);
+  // Data state
+  const [projects, setProjects] = useState<any[]>([]);
+  const [currentProject, setCurrentProject] = useState<any | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [evaluations, setEvaluations] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [contactableUsers, setContactableUsers] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [administrativeNotes, setAdministrativeNotes] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [resourceCenter, setResourceCenter] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
-  const [reminders, setReminders] = useState<any[]>([]);
-  
+  const [students, setStudents] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [juryAssignments, setJuryAssignments] = useState<any[]>([]);
+  const [archives] = useState<any[]>([]);
+  const [defenses, setDefenses] = useState<any[]>([]);
+  const [reminders] = useState<any[]>([]);
+
+  // Legacy state
+  const [scores, setScores] = useState<any>({ pfeSupervisor: null, pfeJury: null });
   const [juryComment, setJuryComment] = useState('');
   const [isGradesPublished, setIsGradesPublished] = useState(false);
   const [pfeWeights, setPfeWeights] = useState({ supervisor: 50, jury: 50 });
-  
   const [juryCriteriaWeights, setJuryCriteriaWeights] = useState<Record<string, number>>({
-    innovation: 4, methodology: 4, quality: 4, presentation: 4, docs: 4
+    innovation: 4, methodology: 4, quality: 4, presentation: 4, docs: 4,
   });
   const [supervisorCriteriaWeights, setSupervisorCriteriaWeights] = useState<Record<string, number>>({
-    report: 5, progress: 5, autonomy: 5, professionalism: 5
+    report: 5, progress: 5, autonomy: 5, professionalism: 5,
   });
+  const [theme, setThemeState] = useState(() => localStorage.getItem('app-theme') || 'system');
 
-  // ── AUTH ────────────────────────────────────────────────────────────────────
-  const refreshData = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const { projectsApi } = await import('../api/projects');
-      const { studentsApi } = await import('../api/students');
-      
-      const [docs, stud, subjs] = await Promise.all([
-        projectsApi.getRepository(),
-        studentsApi.getAll(),
-        projectsApi.getSubjects()
-      ]);
-      
-      setDocuments(docs || []);
-      setStudents(stud || []);
-      setSubjects(subjs || []);
-
-      if (user.role === 'admin') {
-        const { usersApi } = await import('../api/users');
-        const users = await usersApi.getAll();
-        setAllUsers(users || []);
-      }
-      setError(null);
-    } catch (err: any) {
-      console.error("Data fetch error:", err);
-      setError("Server connection issue.");
-    } finally {
-      setIsLoading(false);
+  // ── THEME ──────────────────────────────────────────────────────────────────
+  const applyTheme = useCallback((t: string) => {
+    let resolved = t;
+    if (t === 'system') {
+      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-  }, [user]);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('pfe_access_token');
-      if (token) {
-        try {
-          const { authApi } = await import('../api/auth');
-          const userData = await authApi.me();
-          setUser(userData);
-        } catch (e) {
-          localStorage.removeItem('pfe_access_token');
-        }
-      }
-      setIsLoading(false);
-    };
-    initAuth();
+    document.documentElement.setAttribute('data-theme', resolved);
+    localStorage.setItem('app-theme', t);
   }, []);
 
-  useEffect(() => {
-    if (user) refreshData();
-  }, [user, refreshData]);
+  const setTheme = useCallback((t: string) => {
+    setThemeState(t);
+    applyTheme(t);
+  }, [applyTheme]);
 
-  const login = useCallback(async (emailOrRole: string, password?: string, role?: UserRole) => {
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme, applyTheme]);
+
+  // ── AUTH ───────────────────────────────────────────────────────────────────
+  const login = useCallback(async (email: string, password: string, role?: UserRole) => {
     setIsLoading(true);
     setError(null);
     try {
       const { authApi } = await import('../api/auth');
-      const userSession = await authApi.login({ email: emailOrRole, password: password || '', role });
-      setUser(userSession);
+      const session = await authApi.login({ email, password, role });
+      setUser(session);
       return true;
     } catch (err: any) {
-      setError(err.data?.detail || "Invalid credentials.");
+      setError(err.data?.detail || 'Invalid credentials.');
       return false;
     } finally {
       setIsLoading(false);
@@ -223,344 +245,469 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setUser(null);
       localStorage.removeItem('pfe_access_token');
       localStorage.removeItem('pfe_refresh_token');
+      setProjects([]);
+      setCurrentProject(null);
+      setDocuments([]);
+      setEvaluations([]);
+      setAppointments([]);
+      setMilestones([]);
+      setMessages([]);
+      setNotifications([]);
+      setAdministrativeNotes([]);
+      setResourceCenter([]);
+      setAllUsers([]);
     }
   }, []);
-  const addNotification = useCallback((type: Notification['type'], text: string, link: string) => {
-    setNotifications(prev => [
-      {
-        id: Date.now(),
-        type,
-        text,
-        date: new Date().toISOString(),
-        read: false,
-        link,
-      },
-      ...prev,
-    ]);
-  }, []);
 
-  
-  // THEME MANAGEMENT
-  const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'system');
-  const [projectMilestones, setProjectMilestones] = useState<Milestone[]>(INITIAL_MILESTONES);
-
-  const updateMilestone = useCallback((id: number, status: 'completed' | 'current' | 'pending') => {
-    setProjectMilestones(prev => prev.map(m => m.id === id ? { 
-      ...m, 
-      status, 
-      date: status === 'completed' ? new Date().toISOString().split('T')[0] : m.date 
-    } : m));
-  }, []);
-
-  const applyTheme = useCallback((targetTheme: string) => {
-    let resolvedTheme = targetTheme;
-    if (targetTheme === 'system') {
-      resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // ── DATA REFRESH ───────────────────────────────────────────────────────────
+  const refreshProject = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { projectsApi } = await import('../api/projects');
+      if (user.role === 'student') {
+        const data = await projectsApi.getDashboard();
+        if (data && data.id) {
+          setCurrentProject(data);
+          setDocuments(data.documents || []);
+          setMilestones(data.milestones || []);
+          setAppointments(data.appointments || []);
+          setFeedbacks(data.feedbacks || []);
+          if (data.evaluation) {
+            setEvaluations([data.evaluation]);
+            // Sync legacy scores
+            if (data.evaluation.supervisor_score) {
+              setScores((prev: any) => ({ ...prev, pfeSupervisor: parseFloat(data.evaluation.supervisor_score) }));
+            }
+            if (data.evaluation.jury_score) {
+              setScores((prev: any) => ({ ...prev, pfeJury: parseFloat(data.evaluation.jury_score) }));
+            }
+            setIsGradesPublished(data.evaluation.is_published || false);
+          }
+        }
+      } else {
+        const data = await projectsApi.getAll();
+        setProjects(Array.isArray(data) ? data : (data.results || []));
+      }
+    } catch (err) {
+      console.error('Project refresh error:', err);
     }
-    document.documentElement.setAttribute('data-theme', resolvedTheme);
-    localStorage.setItem('app-theme', targetTheme);
+  }, [user]);
+
+  const refreshData = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const [
+        { projectsApi },
+        { studentsApi },
+        { messagesApi },
+        { notificationsApi },
+        { adminNotesApi },
+        { resourcesApi },
+      ] = await Promise.all([
+        import('../api/projects'),
+        import('../api/students'),
+        import('../api/communications'),
+        import('../api/communications'),
+        import('../api/communications'),
+        import('../api/communications'),
+      ]);
+
+      const promises: Promise<any>[] = [
+        refreshProject(),
+        notificationsApi.getAll().then(setNotifications).catch(() => {}),
+        adminNotesApi.getAll().then(setAdministrativeNotes).catch(() => {}),
+        resourcesApi.getAll().then(setResourceCenter).catch(() => {}),
+        messagesApi.getAll().then(setMessages).catch(() => {}),
+        messagesApi.getContactableUsers().then(setContactableUsers).catch(() => {}),
+        projectsApi.getSubjects().then(setSubjects).catch(() => {}),
+      ];
+
+      if (user.role === 'student') {
+        // appointments & evaluations already loaded via refreshProject
+      } else if (user.role === 'supervisor' || user.role === 'jury') {
+        promises.push(
+          studentsApi.getAll().then(setStudents).catch(() => {}),
+          (async () => {
+            const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
+            setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
+          })(),
+          (async () => {
+            const apptData = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
+            setAppointments(Array.isArray(apptData) ? apptData : (apptData?.results || []));
+          })(),
+        );
+      } else if (user.role === 'admin') {
+        const { usersApi } = await import('../api/users');
+        promises.push(
+          usersApi.getAll().then(setAllUsers).catch(() => {}),
+          studentsApi.getAll().then(setStudents).catch(() => {}),
+          (async () => {
+            const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
+            setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
+          })(),
+          (async () => {
+            const apptData = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
+            setAppointments(Array.isArray(apptData) ? apptData : (apptData?.results || []));
+          })(),
+          (async () => {
+            const jaData = await (await import('../api/projects')).juryAssignmentsApi.getAll().catch(() => []);
+            setJuryAssignments(Array.isArray(jaData) ? jaData : (jaData?.results || []));
+          })(),
+        );
+      }
+
+      await Promise.allSettled(promises);
+      setError(null);
+    } catch (err) {
+      console.error('refreshData error:', err);
+      setError('Server connection issue.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, refreshProject]);
+
+  // ── INIT AUTH ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    (async () => {
+      const token = localStorage.getItem('pfe_access_token');
+      if (token) {
+        try {
+          const { authApi } = await import('../api/auth');
+          const userData = await authApi.me();
+          setUser(userData);
+        } catch {
+          localStorage.removeItem('pfe_access_token');
+        }
+      }
+      setIsLoading(false);
+    })();
   }, []);
 
   useEffect(() => {
-    applyTheme(theme);
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => applyTheme('system');
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, [theme, applyTheme]);
+    if (user) refreshData();
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── NOTE CALCULATION ────────────────────────────────────────────────────────
-  const computeGlobalGrade = useCallback(() => {
-    const entries = Object.entries(scores) as [keyof Scores, number | null][];
-    const filled = entries.filter(([, v]) => v !== null) as [keyof Scores, number][];
-    if (filled.length === 0) return null;
-    const sumWeighted = filled.reduce((acc, [key, val]) => acc + val * COEFFICIENTS[key], 0);
-    const sumCoef     = filled.reduce((acc, [key])      => acc + COEFFICIENTS[key], 0);
-    return (sumWeighted / sumCoef);
-  }, [scores]);
+  // ── DOCUMENTS ──────────────────────────────────────────────────────────────
+  const uploadDocument = useCallback(async (formData: FormData) => {
+    const { documentsApi } = await import('../api/projects');
+    const doc = await documentsApi.upload(formData);
+    setDocuments(prev => [doc, ...prev]);
+    return doc;
+  }, []);
 
-  const globalGrade = computeGlobalGrade();
+  const deleteDocument = useCallback(async (id: number) => {
+    const { documentsApi } = await import('../api/projects');
+    await documentsApi.delete(id);
+    setDocuments(prev => prev.filter(d => d.id !== id));
+  }, []);
 
-  const pfeFinalGrade = (scores.pfeSupervisor !== null && scores.pfeJury !== null)
-    ? (scores.pfeSupervisor * (pfeWeights.supervisor / 100)) + (scores.pfeJury * (pfeWeights.jury / 100))
-    : (scores.pfeSupervisor !== null) ? scores.pfeSupervisor : (scores.pfeJury !== null) ? scores.pfeJury : null;
+  const approveDocument = useCallback(async (id: number) => {
+    const { documentsApi } = await import('../api/projects');
+    const updated = await documentsApi.approve(id);
+    setDocuments(prev => prev.map(d => d.id === id ? updated : d));
+  }, []);
 
-  // ── JURY ACTIONS ────────────────────────────────────────────────────────────
-  const saveScore = useCallback((criterion: keyof Scores, value: string | number) => {
-    setScores(prev => ({ ...prev, [criterion]: value === '' ? null : Number(value) }));
-    addNotification('grade', `A score has been assigned for "${SCORE_LABELS[criterion]}".`, '/student/evaluation');
+  const rejectDocument = useCallback(async (id: number, reason: string) => {
+    const { documentsApi } = await import('../api/projects');
+    const updated = await documentsApi.reject(id, reason);
+    setDocuments(prev => prev.map(d => d.id === id ? updated : d));
+  }, []);
+
+  const addDocumentRemark = useCallback(async (documentId: number, comment: string, score?: number) => {
+    const { documentRemarksApi } = await import('../api/projects');
+    const remark = await documentRemarksApi.create({ document: documentId, comment, score });
+    setDocuments(prev => prev.map(d =>
+      d.id === documentId ? { ...d, remarks: [...(d.remarks || []), remark] } : d
+    ));
+  }, []);
+
+  // ── EVALUATIONS ────────────────────────────────────────────────────────────
+  const submitSupervisorScore = useCallback(async (
+    evaluationId: number, score: number, comment: string, criteria?: any
+  ) => {
+    const { evaluationsApi } = await import('../api/projects');
+    const updated = await evaluationsApi.submitSupervisor(evaluationId, { score, comment, criteria });
+    setEvaluations(prev => prev.map(e => e.id === evaluationId ? updated : e));
+  }, []);
+
+  const submitJuryScore = useCallback(async (
+    evaluationId: number, score: number, comment: string, criteria?: any
+  ) => {
+    const { evaluationsApi } = await import('../api/projects');
+    const updated = await evaluationsApi.submitJury(evaluationId, { score, comment, criteria });
+    setEvaluations(prev => prev.map(e => e.id === evaluationId ? updated : e));
+  }, []);
+
+  const publishEvaluation = useCallback(async (evaluationId: number) => {
+    const { evaluationsApi } = await import('../api/projects');
+    const updated = await evaluationsApi.publish(evaluationId);
+    setEvaluations(prev => prev.map(e => e.id === evaluationId ? updated : e));
+    setIsGradesPublished(true);
+  }, []);
+
+  const updateEvaluationWeights = useCallback(async (
+    evaluationId: number, supervisorWeight: number, juryWeight: number
+  ) => {
+    const { evaluationsApi } = await import('../api/projects');
+    const updated = await evaluationsApi.updateWeights(evaluationId, { supervisor_weight: supervisorWeight, jury_weight: juryWeight });
+    setEvaluations(prev => prev.map(e => e.id === evaluationId ? updated : e));
+  }, []);
+
+  // ── APPOINTMENTS ───────────────────────────────────────────────────────────
+  const createAppointment = useCallback(async (data: any) => {
+    const { appointmentsApi } = await import('../api/projects');
+    const appt = await appointmentsApi.create(data);
+    setAppointments(prev => [...prev, appt]);
+    return appt;
+  }, []);
+
+  const updateAppointment = useCallback(async (id: number, data: any) => {
+    const { appointmentsApi } = await import('../api/projects');
+    const updated = await appointmentsApi.update(id, data);
+    setAppointments(prev => prev.map(a => a.id === id ? updated : a));
+    return updated;
+  }, []);
+
+  const cancelAppointment = useCallback(async (id: number) => {
+    const { appointmentsApi } = await import('../api/projects');
+    const updated = await appointmentsApi.cancel(id);
+    setAppointments(prev => prev.map(a => a.id === id ? updated : a));
+  }, []);
+
+  const deleteAppointment = useCallback(async (id: number) => {
+    const { appointmentsApi } = await import('../api/projects');
+    await appointmentsApi.delete(id);
+    setAppointments(prev => prev.filter(a => a.id !== id));
+  }, []);
+
+  // ── MILESTONES ─────────────────────────────────────────────────────────────
+  const updateMilestone = useCallback(async (id: number, data: any) => {
+    const { milestonesApi } = await import('../api/projects');
+    const updated = await milestonesApi.update(id, data);
+    setMilestones(prev => prev.map(m => m.id === id ? updated : m));
+  }, []);
+
+  // ── MESSAGES ───────────────────────────────────────────────────────────────
+  const sendMessage = useCallback(async (recipientId: number, content: string, subject?: string) => {
+    const { messagesApi } = await import('../api/communications');
+    const msg = await messagesApi.send({ recipient: recipientId, content, subject });
+    setMessages(prev => [msg, ...prev]);
+  }, []);
+
+  const markMessageRead = useCallback(async (id: number) => {
+    const { messagesApi } = await import('../api/communications');
+    await messagesApi.markRead(id);
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, is_read: true } : m));
+  }, []);
+
+  const markAllMessagesRead = useCallback(async () => {
+    const { messagesApi } = await import('../api/communications');
+    await messagesApi.markAllRead();
+    setMessages(prev => prev.map(m => ({ ...m, is_read: true })));
+  }, []);
+
+  const deleteMessage = useCallback(async (id: number) => {
+    const { messagesApi } = await import('../api/communications');
+    await messagesApi.delete(id);
+    setMessages(prev => prev.filter(m => m.id !== id));
+  }, []);
+
+  // ── NOTIFICATIONS ──────────────────────────────────────────────────────────
+  const markNotificationRead = useCallback(async (id: number) => {
+    const { notificationsApi } = await import('../api/communications');
+    await notificationsApi.markRead(id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+  }, []);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    const { notificationsApi } = await import('../api/communications');
+    await notificationsApi.markAllRead();
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  }, []);
+
+  const deleteNotification = useCallback(async (id: number) => {
+    const { notificationsApi } = await import('../api/communications');
+    await notificationsApi.delete(id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  const sendNotification = useCallback(async (data: any) => {
+    const { notificationsApi } = await import('../api/communications');
+    await notificationsApi.send(data);
+  }, []);
+
+  // ── ADMIN NOTES ────────────────────────────────────────────────────────────
+  const createAdminNote = useCallback(async (data: any) => {
+    const { adminNotesApi } = await import('../api/communications');
+    const note = await adminNotesApi.create(data);
+    setAdministrativeNotes(prev => [note, ...prev]);
+  }, []);
+
+  const deleteAdminNote = useCallback(async (id: number) => {
+    const { adminNotesApi } = await import('../api/communications');
+    await adminNotesApi.delete(id);
+    setAdministrativeNotes(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  // ── RESOURCES ──────────────────────────────────────────────────────────────
+  const uploadResource = useCallback(async (formData: FormData) => {
+    const { resourcesApi } = await import('../api/communications');
+    const res = await resourcesApi.upload(formData);
+    setResourceCenter(prev => [res, ...prev]);
+  }, []);
+
+  const deleteResource = useCallback(async (id: number) => {
+    const { resourcesApi } = await import('../api/communications');
+    await resourcesApi.delete(id);
+    setResourceCenter(prev => prev.filter(r => r.id !== id));
+  }, []);
+
+  // ── USERS ──────────────────────────────────────────────────────────────────
+  const createUser = useCallback(async (data: any) => {
+    const { usersApi } = await import('../api/users');
+    const newUser = await usersApi.create(data);
+    setAllUsers(prev => [...prev, newUser]);
+  }, []);
+
+  const updateUser = useCallback(async (id: number, data: any) => {
+    const { usersApi } = await import('../api/users');
+    const updated = await usersApi.update(id, data);
+    setAllUsers(prev => prev.map(u => u.id === id ? updated : u));
+  }, []);
+
+  const deleteUser = useCallback(async (id: number) => {
+    const { usersApi } = await import('../api/users');
+    await usersApi.delete(id);
+    setAllUsers(prev => prev.filter(u => u.id !== id));
+  }, []);
+
+  // ── FEEDBACKS ──────────────────────────────────────────────────────────────
+  const createFeedback = useCallback(async (projectId: number, title: string, comment: string) => {
+    const { feedbacksApi } = await import('../api/projects');
+    const fb = await feedbacksApi.create({ project: projectId, title, comment });
+    setFeedbacks(prev => [fb, ...prev]);
+  }, []);
+
+  // ── JURY ASSIGNMENTS ───────────────────────────────────────────────────────
+  const assignJury = useCallback(async (projectId: number, juryMemberId: number, role?: string) => {
+    const { juryAssignmentsApi } = await import('../api/projects');
+    const ja = await juryAssignmentsApi.create({ project: projectId, jury_member: juryMemberId, role });
+    setJuryAssignments(prev => [...prev, ja]);
+  }, []);
+
+  const removeJuryAssignment = useCallback(async (id: number) => {
+    const { juryAssignmentsApi } = await import('../api/projects');
+    await juryAssignmentsApi.delete(id);
+    setJuryAssignments(prev => prev.filter(j => j.id !== id));
+  }, []);
+
+  // ── COMPUTED ───────────────────────────────────────────────────────────────
+  const unreadNotificationsCount = notifications.filter(n => !n.is_read).length;
+  const approvedDocs = documents.filter(d => d.status === 'approved').length;
+  const totalRequired = 10;
+  const progressPct = Math.min(Math.round((approvedDocs / totalRequired) * 100), 100);
+  const pendingDocsCount = documents.filter(d => d.status === 'pending').length;
+
+  const currentEval = evaluations[0];
+  const pfeFinalGrade = currentEval
+    ? (() => {
+        const sup = currentEval.supervisor_score !== null ? parseFloat(currentEval.supervisor_score) : null;
+        const jury = currentEval.jury_score !== null ? parseFloat(currentEval.jury_score) : null;
+        const supW = (currentEval.supervisor_weight || 50) / 100;
+        const juryW = (currentEval.jury_weight || 50) / 100;
+        if (sup !== null && jury !== null) return sup * supW + jury * juryW;
+        return sup ?? jury;
+      })()
+    : null;
+
+  const globalGrade = pfeFinalGrade;
+  const isProjectValidated = (pfeFinalGrade || 0) >= 10;
+  const finalResultMessage = isGradesPublished
+    ? (isProjectValidated
+        ? `Congratulations ${user?.name}, you have passed.`
+        : `Unfortunately ${user?.name}, you have not passed.`)
+    : '';
+
+  // Legacy compatibility helpers
+  const saveScore = useCallback((criterion: string, value: any) => {
+    setScores((prev: any) => ({ ...prev, [criterion]: value === '' ? null : Number(value) }));
   }, []);
 
   const submitEvaluation = useCallback((comment: string) => {
     setJuryComment(comment);
-    addNotification('grade', 'The jury has submitted their evaluation. Grades will be visible after official publication.', '/student/evaluation');
   }, []);
 
   const publishGrades = useCallback(() => {
     setIsGradesPublished(true);
-    addNotification('grade', 'Final PFE grades have been officially published. You can consult them now.', '/student/evaluation');
   }, []);
 
-  const updatePfeWeights = useCallback((supervisor: number, jury: number) => {
-    setPfeWeights({ supervisor, jury });
-    addNotification('grade', `Grading coefficients have been updated by administration (${supervisor}% Supervisor / ${jury}% Jury).`, '/admin/grades');
+  const updatePfeWeights = useCallback((s: number, j: number) => {
+    setPfeWeights({ supervisor: s, jury: j });
   }, []);
 
-  const approveDocument = useCallback((docId: number) => {
-    setDocuments(prev =>
-      prev.map(d => d.id === docId ? { ...d, status: 'approved', comment: '' } : d)
-    );
-    const doc = documents.find(d => d.id === docId);
-    if (doc) addNotification('approved', `Your document "${doc.title}" has been approved.`, '/student/reports');
-  }, [documents]);
+  const unreadCountForRole = useCallback((_role: UserRole) => {
+    return messages.filter(m => !m.is_read && m.recipient === user?.id).length;
+  }, [messages, user]);
 
-  const rejectDocument = useCallback((docId: number, reason: string) => {
-    setDocuments(prev =>
-      prev.map(d => d.id === docId ? { ...d, status: 'rejected', comment: reason } : d)
-    );
-    const doc = documents.find(d => d.id === docId);
-    if (doc) addNotification('rejected', `Your document "${doc.title}" was rejected: ${reason}`, '/student/reports');
-  }, [documents]);
-
-  const createDefense = useCallback((defense: Omit<Defense, 'id'>) => {
-    const newDefense = { ...defense, id: Date.now() };
-    setDefenses(prev => [...prev, newDefense]);
-    addNotification('defense', `Defense scheduled for ${defense.date} at ${defense.time} — ${defense.room}.`, '/student/schedule');
+  const markMessagesRead = useCallback((_role: UserRole) => {
+    setMessages(prev => prev.map(m => ({ ...m, is_read: true })));
   }, []);
-
-  const updateDefense = useCallback((id: number, updates: Partial<Defense>) => {
-    setDefenses(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
-    addNotification('defense', `The defense scheduled for ${updates.date || ''} has been updated.`, '/student/schedule');
-  }, []);
-
-  const deleteDefense = useCallback((id: number) => {
-    setDefenses(prev => prev.filter(d => d.id !== id));
-  }, []);
-
-  // ── APPOINTMENTS ─────────────────────────────────────────────────────────────
-  const addAppointment = useCallback((appointment: Omit<Appointment, 'id'>) => {
-    const newAppt = { ...appointment, id: Date.now() };
-    setAppointments(prev => [...prev, newAppt]);
-    addNotification('defense', `New appointment: "${appointment.title}" for ${appointment.date}.`, '/student/schedule');
-  }, [addNotification]);
-
-  const rescheduleAppointment = useCallback((id: number, newDate: string, newTime: string) => {
-    setAppointments(prev => prev.map(a => a.id === id ? { ...a, date: newDate, time: newTime, status: 'Rescheduled' } : a));
-    const appt = appointments.find(a => a.id === id);
-    addNotification('defense', `The appointment "${appt?.title}" has been rescheduled to ${newDate} at ${newTime}.`, '/student/schedule');
-  }, [appointments]);
-
-  const cancelAppointment = useCallback((id: number) => {
-    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a));
-    const appt = appointments.find(a => a.id === id);
-    addNotification('defense', `The appointment "${appt?.title}" has been cancelled by the supervisor.`, '/student/schedule');
-  }, [appointments, addNotification]);
-
-  const deleteAppointment = useCallback((id: number) => {
-    setAppointments(prev => prev.filter(a => a.id !== id));
-  }, []);
-
-  const sendReminder = useCallback((id: number) => {
-    setAppointments(prev => prev.map(a => a.id === id ? { ...a, reminderSent: true } : a));
-    const appt = appointments.find(a => a.id === id);
-    addNotification('message', `Reminder sent for appointment "${appt?.title}".`, '/student/schedule');
-  }, [appointments, addNotification]);
-
-  // ── STUDENT ACTIONS ─────────────────────────────────────────────────────────
-  const uploadDocument = useCallback((title: string, file: File | null, target: 'supervisor' | 'jury' = 'supervisor') => {
-    const existing = documents.filter(d => d.title === title);
-    const version = existing.length > 0
-      ? Math.max(...existing.map(d => d.version)) + 1
-      : 1;
-    const newDoc: AppDocument = {
-      id: Date.now(),
-      title: title || file?.name || 'Document',
-      studentName: user?.name || 'Ahmed Khalil',
-      version,
-      date: new Date().toISOString(),
-      status: 'pending',
-      comment: '',
-      size: file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : '—',
-      target,
-    };
-    setDocuments(prev => [...prev, newDoc]);
-    return newDoc;
-  }, [documents, user]);
-
-  const deleteDocument = useCallback((id: number) => {
-    setDocuments(prev => prev.filter(d => Number(d.id) !== Number(id)));
-    addNotification('approved', "The document has been successfully deleted.", '/student/reports');
-  }, [addNotification]);
-
-  // ── MESSAGES ─────────────────────────────────────────────────────────────────
-  const sendMessage = useCallback((text: string, senderRole: UserRole) => {
-    const newMsg: Message = {
-      id: Date.now(),
-      sender: senderRole,
-      text,
-      time: new Date().toISOString(),
-      readByStudent: senderRole === 'student',
-      readByJury:    senderRole === 'jury',
-    };
-    setMessages(prev => [...prev, newMsg]);
-    addNotification('message', senderRole === 'student' ? 'New message from a student.' : `New message from ${senderRole}.`, senderRole === 'student' ? '/jury/messages' : '/student/messages');
-  }, []);
-
-  const markMessagesRead = useCallback((role: UserRole) => {
-    setMessages(prev =>
-      prev.map(m => ({
-        ...m,
-        readByStudent: role === 'student' ? true : m.readByStudent,
-        readByJury:    role === 'jury'    ? true : m.readByJury,
-      }))
-    );
-  }, []);
-
-  const deleteMessage = useCallback((id: number) => {
-    setMessages(prev => prev.filter(m => m.id !== id));
-  }, []);
-
-  const unreadCountForRole = useCallback((role: UserRole) => {
-    return messages.filter(m =>
-      m.sender !== role &&
-      (role === 'student' ? !m.readByStudent : !m.readByJury)
-    ).length;
-  }, [messages]);
-
-  // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
-
-  const markNotificationRead = useCallback((id: number) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  }, []);
-
-  const markAllNotificationsRead = useCallback(() => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  }, []);
-
-  const deleteNotification = useCallback((id: number) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
-
-  const shareToResources = useCallback((projectId: string) => {
-    console.log("Sharing project to resources:", projectId);
-    const project = archives.find(a => a.id === projectId);
-    if (project) {
-      const newResource = {
-        id: `RES-${Date.now()}`,
-        title: `Archive: ${project.name}`,
-        type: 'Folder',
-        category: 'Archived Projects',
-        date: new Date().toISOString().split('T')[0]
-      };
-      setResourceCenter(prev => {
-        const updated = [newResource, ...prev];
-        localStorage.setItem('pfe-resources', JSON.stringify(updated));
-        return updated;
-      });
-      addNotification('approved', `The project "${project.name}" has been shared in the Resource Center.`, '/admin/resources');
-    }
-  }, [archives, addNotification]);
-
-  const addToResources = useCallback((fileData: any) => {
-    setResourceCenter(prev => {
-      const updated = [fileData, ...prev];
-      localStorage.setItem('pfe-resources', JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
-
-  const removeFromResources = useCallback((id: string) => {
-    setResourceCenter(prev => {
-      const updated = prev.filter(r => r.id !== id);
-      localStorage.setItem('pfe-resources', JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
-
-  const unreadNotificationsCount = notifications.filter(n => !n.read).length;
-
-  // ── COMPUTED ──────────────────────────────────────────────────────────────
-  const approvedDocs  = documents.filter(d => d.status === 'approved').length;
-  const totalRequired = 10;
-  const progressPct   = Math.round((approvedDocs / totalRequired) * 100);
-  const pendingDocsCount = documents.filter(d => d.status === 'pending').length;
-
-  // FINAL VALIDATION LOGIC
-  const isProjectValidated = (pfeFinalGrade || 0) >= 10;
-  const finalResultMessage = isGradesPublished 
-    ? (isProjectValidated 
-        ? `Congratulations Mr ${user?.name}, you have passed.` 
-        : `Unfortunately Mr ${user?.name}, you have not passed.`)
-    : "";
 
   return (
     <AppContext.Provider value={{
-      user, login, logout,
-      scores, saveScore, submitEvaluation, globalGrade, pfeFinalGrade, coefficients: COEFFICIENTS, juryComment,
-      SCORE_LABELS,
-      documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, pendingDocsCount,
-      messages, sendMessage, markMessagesRead, unreadCountForRole, deleteMessage,
-      defenses, createDefense, updateDefense, deleteDefense,
-      notifications, markNotificationRead, markAllNotificationsRead, unreadNotificationsCount, deleteNotification,
-      progressPct, approvedDocs, totalRequired,
+      user, login, logout, isLoading, error,
+
+      projects, currentProject, refreshProject,
+
+      documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, addDocumentRemark,
+
+      evaluations, submitSupervisorScore, submitJuryScore, publishEvaluation, updateEvaluationWeights,
+
+      appointments, createAppointment, updateAppointment, cancelAppointment, deleteAppointment,
+
+      milestones, updateMilestone,
+
+      messages, sendMessage, markMessageRead, markAllMessagesRead, deleteMessage, contactableUsers,
+
+      notifications, unreadNotificationsCount, markNotificationRead, markAllNotificationsRead,
+      deleteNotification, sendNotification,
+
+      administrativeNotes, createAdminNote, deleteAdminNote,
+
+      resourceCenter, uploadResource, deleteResource,
+
+      allUsers, createUser, updateUser, deleteUser,
+
+      students, subjects,
+
+      feedbacks, createFeedback,
+
+      juryAssignments, assignJury, removeJuryAssignment,
+
+      theme, setTheme,
+
+      refreshData,
+
+      // Legacy
+      scores, saveScore, submitEvaluation, globalGrade, pfeFinalGrade, juryComment,
       isGradesPublished, publishGrades,
       pfeWeights, updatePfeWeights,
-      juryCriteriaWeights,
-      updateJuryCriteriaWeights: (weights: Record<string, number>) => {
-        setJuryCriteriaWeights(weights);
-        addNotification('grade', "Jury criteria scales have been updated by administration.", '/jury/evaluation');
-      },
-      theme, setTheme,
-      projectMilestones, updateMilestone,
+      juryCriteriaWeights, updateJuryCriteriaWeights: (w: Record<string, number>) => setJuryCriteriaWeights(w),
+      supervisorCriteriaWeights, updateSupervisorCriteriaWeights: (w: Record<string, number>) => setSupervisorCriteriaWeights(w),
+      SCORE_LABELS, coefficients: COEFFICIENTS,
+      progressPct, approvedDocs, totalRequired, pendingDocsCount,
       isProjectValidated, finalResultMessage,
-      appointments, addAppointment, rescheduleAppointment, cancelAppointment, deleteAppointment,
-      sendReminder,
-      reminders,
-      students,
-      updateStudentEvaluation: (id: number, data: any) => {
-        setStudents(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
-      },
-      archives,
-      updateArchiveProject: (id: string, updates: any) => {
-        setArchives(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
-      },
-      deleteArchiveProject: (id: string) => {
-        setArchives(prev => prev.filter(a => a.id !== id));
-      },
-      shareToResources,
-      resourceCenter, addToResources, removeFromResources,
-      supervisorCriteriaWeights,
-      updateSupervisorCriteriaWeights: (weights: Record<string, number>) => {
-        setSupervisorCriteriaWeights(weights);
-        addNotification('grade', "Supervisor criteria scales have been updated by administration.", '/supervisor/evaluation');
-      },
-      isLoading, error, refreshData,
-      administrativeNotes,
-      subjects,
-      allUsers,
-      updateSubjectStatus: (id: number, status: string) => {
-        setSubjects(prev => prev.map(s => s.id === id ? { ...s, status } : s));
-      },
-      deleteSubject: (id: number) => {
-        setSubjects(prev => prev.filter(s => s.id !== id));
-      },
-      createUser: async (data: any) => {
-        const { usersApi } = await import('../api/users');
-        const newUser = await usersApi.create(data);
-        setAllUsers(prev => [...prev, newUser]);
-      },
-      updateUser: async (id: number, data: any) => {
-        const { usersApi } = await import('../api/users');
-        const updatedUser = await usersApi.update(id, data);
-        setAllUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-      },
-      deleteUser: async (id: number) => {
-        const { usersApi } = await import('../api/users');
-        await usersApi.delete(id);
-        setAllUsers(prev => prev.filter(u => u.id !== id));
-      }
+      defenses, createDefense: (d: any) => setDefenses(prev => [...prev, { ...d, id: Date.now() }]),
+      updateDefense: (id: number, d: any) => setDefenses(prev => prev.map(x => x.id === id ? { ...x, ...d } : x)),
+      deleteDefense: (id: number) => setDefenses(prev => prev.filter(x => x.id !== id)),
+      reminders, sendReminder: (_id: number) => {},
+      archives, updateArchiveProject: () => {}, deleteArchiveProject: () => {}, shareToResources: () => {},
+      addToResources: () => {}, removeFromResources: () => {},
+      projectMilestones: milestones,
+      unreadCountForRole, markMessagesRead,
+      updateStudentEvaluation: (id: number, d: any) => setStudents(prev => prev.map(s => s.id === id ? { ...s, ...d } : s)),
+      updateSubjectStatus: () => {}, deleteSubject: () => {},
     }}>
       {children}
     </AppContext.Provider>

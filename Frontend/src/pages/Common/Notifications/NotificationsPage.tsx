@@ -102,26 +102,34 @@ const NotificationsPage: React.FC = () => {
                 }
               };
 
+              const isUnread = !notif.is_read;
+              const notifLabel = (() => {
+                if (notif.title) return notif.title;
+                if (notif.type === 'message') return 'New Message';
+                if (notif.type === 'approved') return 'Document Approved';
+                if (notif.type === 'rejected') return 'Action Required';
+                return 'Notification';
+              })();
               return (
-                <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${!notif.read ? 'border-start border-primary border-3 bg-primary-soft' : 'hover-bg-surface'}`}>
+                <div key={notif.id} className={`p-4 d-flex gap-4 border-bottom transition-all ${isUnread ? 'border-start border-primary border-3 bg-primary-soft' : 'hover-bg-surface'}`}>
                   <div className={`p-3 rounded-4 bg-${getColor()}-soft text-${getColor()} flex-shrink-0`} style={{ height: 'fit-content' }}>
                     {getIcon()}
                   </div>
                   <div className="flex-grow-1 overflow-hidden" onClick={() => markNotificationRead(notif.id)}>
                     <div className="d-flex justify-content-between align-items-start mb-1">
-                      <h6 className={`mb-0 small ${!notif.read ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>
-                        {notif.type === 'message' ? 'New Message' : notif.type === 'approved' ? 'Document Approved' : notif.type === 'rejected' ? 'Action Required' : 'Notification'}
+                      <h6 className={`mb-0 small ${isUnread ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>
+                        {notifLabel}
                       </h6>
                       <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>
-                        {new Date(notif.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                        {new Date(notif.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
-                    <p className={`extra-small mb-0 lh-base ${!notif.read ? 'text-navy fw-bold' : 'text-muted fw-bold opacity-75'}`}>{notif.text}</p>
+                    <p className={`extra-small mb-0 lh-base ${isUnread ? 'text-navy fw-bold' : 'text-muted fw-bold opacity-75'}`}>{notif.message}</p>
                   </div>
                   <Dropdown align="end">
                     <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
                     <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small glass-card">
-                      {!notif.read && <Dropdown.Item className="fw-bold" onClick={() => markNotificationRead(notif.id)}>Mark as read</Dropdown.Item>}
+                      {isUnread && <Dropdown.Item className="fw-bold" onClick={() => markNotificationRead(notif.id)}>Mark as read</Dropdown.Item>}
                       <Dropdown.Item className="fw-bold text-danger" onClick={() => deleteNotification(notif.id)}>Delete</Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>

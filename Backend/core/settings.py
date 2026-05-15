@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'apps.supervisor',
     'apps.jury',
     'apps.administration',
+    'apps.communications',
 ]
 
 AUTH_USER_MODEL = 'users.User'

@@ -2,7 +2,7 @@ import os
 import django
 from django.contrib.auth import get_user_model
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
 User = get_user_model()
@@ -27,7 +27,7 @@ def seed_all_roles():
         )
         user.set_password(password)
         user.save()
-        print(f"✅ Created {role} user: {email} / {password}")
+        print(f"Created {role} user: {email} / {password}")
 
 if __name__ == "__main__":
     seed_all_roles()

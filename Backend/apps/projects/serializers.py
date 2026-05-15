@@ -2,18 +2,38 @@
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Project, ProjectMilestone, Document, Appointment, Evaluation, Feedback
+from .models import (
+    Project, ProjectMilestone, Document, DocumentRemark,
+    Appointment, Evaluation, Feedback, JuryAssignment
+)
 
 User = get_user_model()
 
 
 class UserSimpleSerializer(serializers.ModelSerializer):
-    """Simple serializer for user info (supervisor/author)."""
-    name = serializers.CharField(source='get_full_name')
-    
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'name', 'email']
+        fields = ['id', 'name', 'email', 'role']
+
+    def get_name(self, obj):
+        full = f"{obj.first_name} {obj.last_name}".strip()
+        return full or obj.username
+
+
+class StudentSimpleSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    email = serializers.CharField(source='user.email', read_only=True)
+
+    class Meta:
+        from apps.students.models import Student
+        model = Student
+        fields = ['id', 'name', 'email', 'enrollment_number', 'specialization', 'academic_year']
+
+    def get_name(self, obj):
+        full = f"{obj.user.first_name} {obj.user.last_name}".strip()
+        return full or obj.user.username
 
 
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
@@ -22,59 +42,108 @@ class ProjectMilestoneSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class DocumentRemarkSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    author_role = serializers.CharField(source='author.role', read_only=True)
+
+    class Meta:
+        model = DocumentRemark
+        fields = ['id', 'document', 'author', 'author_name', 'author_role', 'comment', 'score', 'created_at']
+        read_only_fields = ['id', 'author', 'created_at']
+
+
 class DocumentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='project.student.user.get_full_name', read_only=True)
-    
+    remarks = DocumentRemarkSerializer(many=True, read_only=True)
+    file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Document
-        fields = ['id', 'title', 'file', 'target', 'status', 'version', 'created_at', 'student_name']
+        fields = [
+            'id', 'title', 'file', 'file_url', 'target', 'status',
+            'version', 'rejection_reason', 'created_at', 'student_name', 'remarks'
+        ]
+        read_only_fields = ['id', 'version', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(source='project.student.user.get_full_name', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
 
     class Meta:
         model = Appointment
         fields = '__all__'
+        read_only_fields = ['id', 'created_by', 'created_at']
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
-    evaluator = UserSimpleSerializer(read_only=True)
-    
+    final_score = serializers.ReadOnlyField()
+
     class Meta:
         model = Evaluation
         fields = [
-            'id', 'supervisor_score', 'jury_score', 
-            'technical_quality', 'innovation', 'documentation', 
-            'implementation', 'presentation', 'comments', 
-            'is_published', 'evaluator', 'created_at'
+            'id', 'supervisor_score', 'supervisor_comment', 'supervisor_criteria',
+            'jury_score', 'jury_comment', 'jury_criteria',
+            'technical_quality', 'innovation', 'documentation',
+            'implementation', 'presentation', 'comments',
+            'is_published', 'supervisor_weight', 'jury_weight',
+            'final_score', 'created_at', 'updated_at'
         ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    author_role = serializers.CharField(source='author.role', read_only=True)
 
     class Meta:
         model = Feedback
-        fields = ['id', 'title', 'comment', 'author_name', 'created_at']
+        fields = ['id', 'title', 'comment', 'author_name', 'author_role', 'created_at']
+
+
+class JuryAssignmentSerializer(serializers.ModelSerializer):
+    jury_member_name = serializers.CharField(source='jury_member.get_full_name', read_only=True)
+    jury_member_email = serializers.CharField(source='jury_member.email', read_only=True)
+
+    class Meta:
+        model = JuryAssignment
+        fields = ['id', 'project', 'jury_member', 'jury_member_name', 'jury_member_email', 'role', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    """Serializer for project data."""
     supervisor = UserSimpleSerializer(read_only=True)
-    
+    supervisor_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(role='supervisor'),
+        source='supervisor', write_only=True, required=False, allow_null=True
+    )
+    student = StudentSimpleSerializer(read_only=True)
+
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'status', 'start_date', 'end_date', 'supervisor', 'created_at', 'updated_at']
+        fields = [
+            'id', 'title', 'description', 'status',
+            'start_date', 'end_date', 'supervisor', 'supervisor_id',
+            'student', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class ProjectDetailSerializer(ProjectSerializer):
-    """Detailed serializer for project dashboard."""
     milestones = ProjectMilestoneSerializer(many=True, read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
     appointments = AppointmentSerializer(many=True, read_only=True)
     feedbacks = FeedbackSerializer(many=True, read_only=True)
     evaluation = EvaluationSerializer(read_only=True)
-    
+    jury_assignments = JuryAssignmentSerializer(many=True, read_only=True)
+
     class Meta(ProjectSerializer.Meta):
-        fields = ProjectSerializer.Meta.fields + ['milestones', 'documents', 'appointments', 'feedbacks', 'evaluation']
+        fields = ProjectSerializer.Meta.fields + [
+            'milestones', 'documents', 'appointments',
+            'feedbacks', 'evaluation', 'jury_assignments'
+        ]
