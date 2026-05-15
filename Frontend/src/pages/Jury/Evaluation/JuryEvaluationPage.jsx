@@ -15,13 +15,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext.jsx';
 
-const CHART_DATA = [
-  { name: 'Jan', completed: 5, pending: 15 },
-  { name: 'Feb', completed: 8, pending: 12 },
-  { name: 'Mar', completed: 15, pending: 10 },
-  { name: 'Apr', completed: 22, pending: 8 },
-  { name: 'May', completed: 28, pending: 12 },
-];
+const CHART_DATA = [];
 
 // Projects list will be fetched from context
 

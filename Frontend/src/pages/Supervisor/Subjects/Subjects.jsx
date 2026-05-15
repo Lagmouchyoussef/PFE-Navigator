@@ -31,51 +31,11 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
-const SUBJECTS_DATA = [
-  {
-    id: 1,
-    title: "AI-Driven Cybersecurity Threat Detection",
-    description: "Developing a real-time system using LSTM networks to detect network intrusions.",
-    category: "AI / Security",
-    difficulty: "Advanced",
-    status: "Approved",
-    students: 2,
-    date: "2026-04-10"
-  },
-  {
-    id: 2,
-    title: "Blockchain for Supply Chain Transparency",
-    description: "Implementing a decentralized ledger for tracking pharmaceutical products.",
-    category: "Blockchain",
-    difficulty: "Intermediate",
-    status: "Pending",
-    students: 0,
-    date: "2026-05-02"
-  },
-  {
-    id: 3,
-    title: "Microservices Orchestration with Kubernetes",
-    description: "Optimizing resource allocation in a high-traffic e-commerce environment.",
-    category: "Cloud / DevOps",
-    difficulty: "Intermediate",
-    status: "Approved",
-    students: 1,
-    date: "2026-04-15"
-  },
-  {
-    id: 4,
-    title: "Edge Computing for Smart Cities",
-    description: "Low-latency processing for urban traffic management using Raspberry Pi clusters.",
-    category: "IoT / Edge",
-    difficulty: "Advanced",
-    status: "Revision",
-    students: 0,
-    date: "2026-05-10"
-  }
-];
+const SUBJECTS_DATA = [];
 
 const Subjects = () => {
   const navigate = useNavigate();
+  const { students } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteModalSubject, setDeleteModalSubject] = useState(null);
@@ -607,10 +567,7 @@ const Subjects = () => {
                 </h6>
                 {viewModalSubject?.students > 0 ? (
                   <div className="d-flex flex-column gap-3">
-                    {[
-                      { name: 'Ahmed Khalil', email: 'ahmed.khalil@emsi.ma', year: '5th Year' },
-                      { name: 'Sara Kamali', email: 'sara.kamali@emsi.ma', year: '5th Year' }
-                    ].slice(0, viewModalSubject?.students).map((stu, i) => (
+                    {students.slice(0, viewModalSubject?.students).map((stu, i) => (
                       <div key={i} className="p-3 bg-white rounded-4 border border-light-soft shadow-sm hover-shadow-md transition-all">
                         <div className="d-flex align-items-center gap-3 mb-2">
                           <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '36px', height: '36px', fontSize: '12px' }}>

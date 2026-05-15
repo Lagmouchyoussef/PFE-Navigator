@@ -17,13 +17,6 @@ interface ResourceFile {
   color: string;
 }
 
-const FILES: ResourceFile[] = [
-  { name: 'Jury_report_2026.pdf', type: 'PDF', size: '2.4 MB', date: 'May 10, 2026', color: 'primary' },
-  { name: 'Evaluation_guide.docx', type: 'DOCX', size: '1.1 MB', date: 'May 8, 2026', color: 'primary' },
-  { name: 'Analysis_data.xlsx', type: 'XLSX', size: '3.8 MB', date: 'May 5, 2026', color: 'primary' },
-  { name: 'Project_presentation.pptx', type: 'PPTX', size: '5.2 MB', date: 'May 1, 2026', color: 'primary' },
-];
-
 const ResourceHub: React.FC = () => {
   const { resourceCenter, addToResources, removeFromResources } = useApp();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -38,6 +31,13 @@ const ResourceHub: React.FC = () => {
   const filteredResources = resourceCenter.filter(res => 
     res.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const stats = {
+    total: resourceCenter.length,
+    pdf: resourceCenter.filter(f => f.type === 'PDF').length,
+    others: resourceCenter.filter(f => f.type !== 'PDF').length,
+    favorites: 0 // Could be dynamic if favorites were in context
+  };
 
   const toggleSelect = (id: string) => {
     setSelectedFiles(prev => 
@@ -142,19 +142,18 @@ const ResourceHub: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Categories Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Documents PDF" value="18" icon={<FileText />} color="primary" trend="Files" />
+            <StatCard label="PDF Documents" value={stats.pdf.toString()} icon={<FileText />} color="primary" trend="Files" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Space Used" value="1.2 GB" icon={<HardDrive />} color="info" trend="Out of 10 GB" />
+            <StatCard label="Total Resources" value={stats.total.toString()} icon={<HardDrive />} color="info" trend="Total" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="New Items" value="4" icon={<Plus />} color="success" trend="Week" />
+            <StatCard label="Other Formats" value={stats.others.toString()} icon={<Plus />} color="success" trend="Files" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Favorites" value="6" icon={<Award />} color="warning" trend="Access" />
+            <StatCard label="Favorites" value={stats.favorites.toString()} icon={<Award />} color="warning" trend="Access" />
           </Col>
         </Row>
 

@@ -10,6 +10,8 @@ import {
   Edit, Eye, X, ChevronRight, Activity, Clock
 } from 'lucide-react';
 
+import { useApp } from '../../../context/AppContext.jsx';
+
 const PROJECTS_DATA = [];
 
 const JuryProjectsPage = () => {

@@ -8,6 +8,7 @@ import {
   UserPlus, UserCheck, Clock, CheckCircle, TrendingUp, X, Trash2, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../../context/AppContext';
 
 // Custom Animated Trash Icon Component
 const AnimatedTrash = ({ isDeleting, size = 32 }) => {
@@ -32,10 +33,8 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
-const STUDENTS_DATA = [];
-
-
 const StudentsList = () => {
+  const { students: STUDENTS_DATA } = useApp();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -341,9 +340,9 @@ const StudentsList = () => {
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">Current academic year</p>
                 </div>
               </div>
-              <div className="h3 fw-bold text-navy mb-2">6/8 Students</div>
-              <ProgressBar now={75} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
-              <div className="extra-small text-muted fw-bold">75% Capacity Utilized</div>
+              <div className="h3 fw-bold text-navy mb-2">{STUDENTS_DATA.length} Students</div>
+              <ProgressBar now={(STUDENTS_DATA.length / 20) * 100} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
+              <div className="extra-small text-muted fw-bold">{Math.round((STUDENTS_DATA.length / 20) * 100)}% Capacity Utilized</div>
             </Card>
           </Col>
           <Col lg={4}>
@@ -357,9 +356,11 @@ const StudentsList = () => {
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">Validated milestones</p>
                 </div>
               </div>
-              <div className="h3 fw-bold text-navy mb-2">92.4%</div>
+              <div className="h3 fw-bold text-navy mb-2">
+                {STUDENTS_DATA.length > 0 ? (STUDENTS_DATA.filter(s => s.status === 'Validated').length / STUDENTS_DATA.length * 100).toFixed(1) : '0.0'}%
+              </div>
               <div className="extra-small text-success fw-bold d-flex align-items-center gap-1">
-                <TrendingUp size={14} /> +4.2% from last semester
+                <TrendingUp size={14} /> Tracking in real-time
               </div>
             </Card>
           </Col>
@@ -374,8 +375,8 @@ const StudentsList = () => {
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">Needs your attention</p>
                 </div>
               </div>
-              <div className="h3 fw-bold text-navy mb-2">12 Tasks</div>
-              <div className="extra-small text-muted fw-bold text-danger">3 Urgent report reviews</div>
+              <div className="h3 fw-bold text-navy mb-2">{STUDENTS_DATA.filter(s => s.status !== 'Validated').length} Students</div>
+              <div className="extra-small text-muted fw-bold text-danger">Active follow-ups required</div>
             </Card>
           </Col>
         </Row>
@@ -510,25 +511,29 @@ const StudentsList = () => {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { id: 1, name: 'Requirements Specifications', date: '2025-11-20', size: '2.4 MB' },
-                  { id: 2, name: 'Technical Report v1', date: '2026-02-15', size: '4.8 MB' },
-                  { id: 3, name: 'Midterm Presentation', date: '2026-03-01', size: '1.2 MB' }
-                ].map(doc => (
-                  <tr key={doc.id}>
-                    <td className="px-4 py-3">
-                      <div className="d-flex align-items-center gap-2">
-                        <FileText size={18} className="text-primary" />
-                        <span className="small fw-bold text-navy">{doc.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 small text-muted">{doc.date}</td>
-                    <td className="py-3 small text-muted">{doc.size}</td>
-                    <td className="px-4 py-3 text-end">
-                      <Button variant="link" className="p-1 text-primary shadow-none border-0"><Download size={18}/></Button>
+                {selectedStudent?.documents?.length > 0 ? (
+                  selectedStudent.documents.map(doc => (
+                    <tr key={doc.id}>
+                      <td className="px-4 py-3">
+                        <div className="d-flex align-items-center gap-2">
+                          <FileText size={18} className="text-primary" />
+                          <span className="small fw-bold text-navy">{doc.title}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 small text-muted">{new Date(doc.date).toLocaleDateString()}</td>
+                      <td className="py-3 small text-muted">{doc.size}</td>
+                      <td className="px-4 py-3 text-end">
+                        <Button variant="link" className="p-1 text-primary shadow-none border-0"><Download size={18}/></Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4 extra-small fw-bold text-muted opacity-50">
+                      No documents submitted by this student yet.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </Table>
           </div>
@@ -549,17 +554,17 @@ const StudentsList = () => {
           <p className="small text-muted mb-4 fw-bold opacity-75">Select the phase to validate for <strong>{selectedStudent?.name}</strong> :</p>
           <div className="d-flex flex-column gap-3">
             {[
-              { id: 1, name: 'Proposal / Subject', status: 'completed' },
-              { id: 2, name: 'Requirements Specifications', status: 'completed' },
-              { id: 3, name: 'Interim Report', status: 'current' },
-              { id: 4, name: 'Final Report', status: 'pending' }
+              { id: 1, name: 'Proposal / Subject', field: 'proposalValidated' },
+              { id: 2, name: 'Requirements Specifications', field: 'requirementsValidated' },
+              { id: 3, name: 'Interim Report', field: 'interimValidated' },
+              { id: 4, name: 'Final Report', field: 'finalValidated' }
             ].map(phase => (
               <Button 
                 key={phase.id}
                 variant="outline-primary"
-                className={`text-start p-3 rounded-4 d-flex justify-content-between align-items-center border-2 transition-all ${phase.status === 'completed' ? 'border-success text-success bg-success-soft' : phase.status === 'current' ? 'border-primary' : 'opacity-50'}`}
+                className={`text-start p-3 rounded-4 d-flex justify-content-between align-items-center border-2 transition-all ${selectedStudent?.[phase.field] ? 'border-success text-success bg-success-soft' : 'border-primary'}`}
                 onClick={() => {
-                  if(phase.status !== 'completed') {
+                  if(!selectedStudent?.[phase.field]) {
                     setSuccessMsg(`Phase "${phase.name}" has been successfully validated for ${selectedStudent.name}.`);
                     setShowValidation(false);
                     setShowSuccessCard(true);
@@ -568,12 +573,12 @@ const StudentsList = () => {
                 }}
               >
                 <div className="d-flex align-items-center gap-3">
-                  <div className={`p-2 rounded-circle ${phase.status === 'completed' ? 'bg-success text-white' : 'bg-surface-alt text-primary'}`}>
-                    {phase.status === 'completed' ? <CheckCircle size={16}/> : <Clock size={16}/>}
+                  <div className={`p-2 rounded-circle ${selectedStudent?.[phase.field] ? 'bg-success text-white' : 'bg-surface-alt text-primary'}`}>
+                    {selectedStudent?.[phase.field] ? <CheckCircle size={16}/> : <Clock size={16}/>}
                   </div>
                   <span className="fw-bold small">{phase.name}</span>
                 </div>
-                {phase.status === 'completed' && <Badge className="bg-success text-white rounded-pill">Validated</Badge>}
+                {selectedStudent?.[phase.field] && <Badge className="bg-success text-white rounded-pill">Validated</Badge>}
               </Button>
             ))}
           </div>

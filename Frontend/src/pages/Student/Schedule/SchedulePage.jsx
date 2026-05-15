@@ -29,7 +29,7 @@ const SchedulePage = () => {
     e.preventDefault();
     addAppointment({
       ...newEvent,
-      studentName: user?.name || 'Ahmed Khalil',
+      studentName: user?.name || 'Student',
       location: 'Online Portal',
       status: 'Confirmed'
     });

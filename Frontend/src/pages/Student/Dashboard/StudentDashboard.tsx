@@ -134,7 +134,12 @@ const StudentDashboard: React.FC = () => {
             <StatCard label="Tasks Completed" value={completedSteps.toString()} color="success" icon={<CheckCircle />} trend={`+${completedSteps}`} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Average Score" value="0.00" color="info" icon={<GraduationCap />} />
+            <StatCard 
+              label="Average Score" 
+              value={(useApp() as any).pfeFinalGrade !== null ? (useApp() as any).pfeFinalGrade.toFixed(2) : "0.00"} 
+              color="info" 
+              icon={<GraduationCap />} 
+            />
           </Col>
         </Row>
 
@@ -181,12 +186,9 @@ const StudentDashboard: React.FC = () => {
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div className="d-flex align-items-center gap-2">
                     <h6 className="fw-bold mb-0 text-white">Next Defense</h6>
-                    <Form.Control 
-                      type="date" 
-                      defaultValue="2026-05-15"
-                      className="rounded-4 border-light-soft bg-white bg-opacity-25 py-1 extra-small fw-bold shadow-none text-white border-0"
-                      style={{ maxWidth: '130px', cursor: 'pointer' }}
-                    />
+                    <Badge className="bg-white bg-opacity-25 py-2 px-3 rounded-pill extra-small fw-bold border-0 text-white">
+                      {appointments[0]?.date || "TBD"}
+                    </Badge>
                   </div>
                   <Calendar size={18} className="opacity-75" />
                 </div>
@@ -194,7 +196,7 @@ const StudentDashboard: React.FC = () => {
                   <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "No defense scheduled"}</div>
                   <div className="small opacity-75">{appointments[0]?.date || "Pending scheduling"}</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
-                    <Clock size={12} /> {appointments[0]?.time || "--:--"} - {appointments[0]?.location || "TBD"}
+                    <Clock size={12} /> {appointments[0]?.time || "--:--"} - {appointments[0]?.room || appointments[0]?.location || "TBD"}
                   </div>
                 </div>
                 <Button 

@@ -187,15 +187,15 @@ const Evaluations = () => {
               </div>
               <Row className="text-center g-4">
                 <Col xs={4}>
-                  <div className="h2 fw-bold text-navy mb-1">14</div>
+                  <div className="h2 fw-bold text-navy mb-1">{students.length}</div>
                   <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Submissions</div>
                 </Col>
                 <Col xs={4} className="border-start border-end">
-                  <div className="h2 fw-bold text-success mb-1">8</div>
+                  <div className="h2 fw-bold text-success mb-1">{students.filter(s => s.isSupervisorEvaluated).length}</div>
                   <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Evaluated</div>
                 </Col>
                 <Col xs={4}>
-                  <div className="h2 fw-bold text-warning mb-1">6</div>
+                  <div className="h2 fw-bold text-warning mb-1">{students.filter(s => !s.isSupervisorEvaluated).length}</div>
                   <div className="extra-small text-muted fw-bold text-uppercase opacity-75">Remaining</div>
                 </Col>
               </Row>

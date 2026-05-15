@@ -12,33 +12,49 @@ import { useNavigate, useParams } from 'react-router-dom';
 const StudentDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { students, documents = [] } = useApp();
 
-  // Mock data for a single student - in a real app this would fetch by ID
+  // Find the real student from context
+  const currentStudent = students.find(s => s.id.toString() === id?.toString());
+  
+  if (!currentStudent) {
+    return (
+      <Container className="py-5 text-center">
+        <h4 className="text-muted fw-bold">Student not found</h4>
+        <Button onClick={() => navigate('/supervisor/students')} className="btn-premium mt-3">Back to list</Button>
+      </Container>
+    );
+  }
+
+  // Derive deliverables from the global documents state
+  const studentDeliverables = documents.filter(d => d.studentName === currentStudent.name);
+
   const student = {
-    id: id || 1,
-    name: 'Ahmed Khalil',
-    email: 'ahmed.khalil@emsi.ma',
-    phone: '+212 6 12 34 56 78',
-    department: 'Software Engineering',
+    ...currentStudent,
+    email: currentStudent.email || `${currentStudent.name.toLowerCase().replace(/\s/g, '.')}@emsi.ma`,
+    phone: currentStudent.phone || '+212 6 XX XX XX XX',
+    department: currentStudent.department || 'Software Engineering',
     type: 'PFE',
-    status: 'In Progress',
-    progress: 75,
-    projectTitle: 'AI-Powered Student Performance Prediction System',
-    supervisor: 'Dr. Sofia Drissi',
+    status: currentStudent.status || 'In Progress',
+    progress: currentStudent.progress || 0,
+    projectTitle: currentStudent.project || 'Project Title TBD',
+    supervisor: currentStudent.supervisor || 'Dr. Sofia Drissi',
     institution: 'EMSI - Moroccan School of Engineering Sciences',
     startDate: '2025-10-15',
     endDate: '2026-06-30',
-    description: 'This project aims to develop an artificial intelligence-based system capable of predicting student academic performance based on their learning behaviors and past results.',
-    deliverables: [
-      { id: 1, name: 'Specifications Document', date: '2025-11-20', status: 'Validated', size: '2.4 MB' },
-      { id: 2, name: 'Analysis Report', date: '2026-01-15', status: 'Validated', size: '4.1 MB' },
-      { id: 3, name: 'Midterm Report', date: '2026-03-10', status: 'Pending', size: '5.8 MB' },
-    ],
+    description: currentStudent.description || 'No description available for this project yet.',
+    deliverables: studentDeliverables.map(d => ({
+      id: d.id,
+      name: d.title,
+      date: new Date(d.date).toLocaleDateString(),
+      status: d.status.charAt(0).toUpperCase() + d.status.slice(1),
+      size: d.size
+    })),
     milestones: [
       { id: 1, title: 'Topic Validation', date: '2025-10-20', completed: true },
-      { id: 2, title: 'Analysis & Design', date: '2026-01-05', completed: true },
-      { id: 3, title: 'Implementation Phase 1', date: '2026-03-15', completed: false },
-      { id: 4, title: 'Final Report Submission', date: '2026-05-20', completed: false },
+      { id: 2, title: 'Analysis & Design', date: '2026-01-05', completed: currentStudent.progress > 30 },
+      { id: 3, title: 'Implementation Phase 1', date: '2026-03-15', completed: currentStudent.progress > 60 },
+      { id: 4, title: 'Final Report Submission', date: '2026-05-20', completed: currentStudent.isJuryEvaluated },
     ]
   };
 
@@ -267,10 +283,12 @@ const StudentDetail = () => {
                   <div className="p-3 rounded-4 bg-primary-soft border border-primary border-opacity-10">
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
-                        <div className="extra-small text-muted fw-bold">Average Grade</div>
-                        <div className="h3 fw-bold mb-0 text-navy">16.5<span className="small opacity-50">/20</span></div>
+                        <div className="extra-small text-muted fw-bold">Jury Grade</div>
+                        <div className="h3 fw-bold mb-0 text-navy">{student.juryScore !== null ? student.juryScore : '--'}<span className="small opacity-50">/20</span></div>
                       </div>
-                      <Badge className="bg-success-soft text-success border-0 extra-small">+1.2</Badge>
+                      <Badge className={`bg-${student.isJuryEvaluated ? 'success' : 'warning'}-soft text-${student.isJuryEvaluated ? 'success' : 'warning'} border-0 extra-small`}>
+                        {student.isJuryEvaluated ? 'Evaluated' : 'Pending'}
+                      </Badge>
                     </div>
                   </div>
                   
@@ -278,9 +296,9 @@ const StudentDetail = () => {
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
                         <div className="extra-small text-muted fw-bold">Completion Rate</div>
-                        <div className="h3 fw-bold mb-0 text-navy">75%</div>
+                        <div className="h3 fw-bold mb-0 text-navy">{student.progress}%</div>
                       </div>
-                      <Badge className="bg-info-soft text-info border-0 extra-small">On track</Badge>
+                      <Badge className="bg-info-soft text-info border-0 extra-small">{student.progress > 80 ? 'Final Phase' : 'In Progress'}</Badge>
                     </div>
                   </div>
                 </div>

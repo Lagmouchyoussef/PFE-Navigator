@@ -117,6 +117,9 @@ const INITIAL_RESOURCES: any[] = [];
 
 const INITIAL_NOTES: any[] = [];
 
+// Data version for tracking schema/state changes
+const DATA_VERSION = 'v2_zero_data';
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
   const [user, setUser] = useState<Session | null>(() => {
@@ -191,14 +194,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [resourceCenter]);
 
   // Persist students
-  useEffect(() => {
-    localStorage.setItem('pfe-students', JSON.stringify(students));
-  }, [students]);
-
   const [administrativeNotes, setAdministrativeNotes] = useState(() => {
     const saved = localStorage.getItem('pfe-admin-notes');
     return saved ? JSON.parse(saved) : INITIAL_NOTES;
   });
+
+  useEffect(() => {
+    localStorage.setItem('pfe-students', JSON.stringify(students));
+  }, [students]);
+
+  useEffect(() => {
+    // Reset localStorage if it's the first time running this version
+    const currentVersion = localStorage.getItem('pfe_app_data_version');
+    if (currentVersion !== DATA_VERSION) {
+      localStorage.removeItem('pfe-students');
+      localStorage.removeItem('pfe-documents');
+      localStorage.removeItem('pfe-archives');
+      localStorage.removeItem('pfe-resources');
+      localStorage.removeItem('pfe-admin-notes');
+      localStorage.removeItem('pfe-scores');
+      localStorage.setItem('pfe_app_data_version', DATA_VERSION);
+      
+      // Also update state to reflect the wipe
+      setStudents([]);
+      setDocuments([]);
+      setArchives([]);
+      setResourceCenter([]);
+      setAdministrativeNotes([]);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('pfe-admin-notes', JSON.stringify(administrativeNotes));

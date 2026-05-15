@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Planning = () => {
   const navigate = useNavigate();
-  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder } = useApp();
+  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder, students } = useApp();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -28,12 +28,6 @@ const Planning = () => {
   const [viewMode, setViewMode] = useState('month'); // 'week' | 'month'
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', location: '', type: 'Meeting', target: 'all', selectedStudents: [] });
-  const students = [
-    { id: 1, name: 'Ahmed Khalil' },
-    { id: 2, name: 'Sara Kamali' },
-    { id: 3, name: 'Mehdi Alami' },
-    { id: 4, name: 'Fatima Zahra Mansouri' }
-  ];
 
   const handleAction = (msg) => {
     setSuccessMsg(msg);
@@ -339,10 +333,9 @@ const Planning = () => {
                 onChange={(e) => setNewEvent({...newEvent, target: e.target.value})}
               >
                 <option value="all">All supervised students</option>
-                <option value="1">Ahmed Khalil</option>
-                <option value="2">Sara Kamali</option>
-                <option value="3">Mehdi Alami</option>
-                <option value="4">Fatima Zahra Mansouri</option>
+                {students.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
                 <option value="group">Specific Group...</option>
               </Form.Select>
             </Form.Group>
