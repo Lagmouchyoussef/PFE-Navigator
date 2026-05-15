@@ -14,6 +14,7 @@ import SidebarLink from './components/shared/SidebarLink';
 import NotificationItem from './components/shared/NotificationItem';
 
 import LoginPage from './pages/Auth/Login/LoginPage';
+import AdminLoginPage from './pages/Auth/Login/AdminLoginPage';
 import StudentDashboard from './pages/Student/Dashboard/StudentDashboard';
 import ReportsPage from './pages/Student/Reports/ReportsPage';
 import EvaluationPage from './pages/Student/Evaluation/EvaluationPage';
@@ -59,7 +60,11 @@ interface RequireAuthProps {
 
 const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => {
   const { user } = useApp();
-  if (!user) return <Navigate to="/login" replace />;
+  const location = useLocation();
+  if (!user) {
+    const isLinkToAdmin = location.pathname.startsWith('/admin');
+    return <Navigate to={isLinkToAdmin ? "/admin-login" : "/login"} replace />;
+  }
   if (requiredRole && user.role !== requiredRole) {
     const rolePath =
       user.role === 'admin' ? '/admin/dashboard' :
@@ -136,6 +141,7 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
