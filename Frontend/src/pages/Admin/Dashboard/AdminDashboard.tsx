@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Container, Row, Col, Badge, Button, Table, 
   Form, InputGroup
@@ -6,8 +7,9 @@ import {
 import { 
   Users, Briefcase, Plus, Search, 
   Database, Download, Edit, Trash2, Lock,
-  Clock, Trash
+  Clock, Trash, FileText, FileSpreadsheet, File, AlertCircle, ShieldAlert
 } from 'lucide-react';
+import { Dropdown, Modal } from 'react-bootstrap';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -36,7 +38,64 @@ const STATUS_DATA = [
 
 const AdminDashboard: React.FC = () => {
   const { appointments, deleteAppointment } = useApp();
+  const [users, setUsers] = React.useState(USER_DATA);
   const [visibleCount, setVisibleCount] = React.useState(5);
+  const navigate = useNavigate();
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+  const [confirmConfig, setConfirmConfig] = React.useState({ title: '', message: '', action: '', user: null as any });
+
+  const generateReport = (format: 'pdf' | 'csv' | 'word') => {
+    const data = [
+      ["Statistique", "Valeur"],
+      ["Utilisateurs", "1248"],
+      ["Projets Actifs", "842"],
+      ["Taux de validation", "85%"],
+      ["Dernière mise à jour", new Date().toLocaleDateString()]
+    ];
+    
+    if (format === 'csv') {
+      const csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `rapport_global_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      setConfirmConfig({
+        title: 'Exportation Rapport',
+        message: `Voulez-vous vraiment générer le rapport au format ${format.toUpperCase()} ?`,
+        action: 'export',
+        user: { name: format.toUpperCase() }
+      });
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleAction = (action: string, user: any) => {
+    if (action === 'edit') {
+      navigate('/admin/users');
+    } else {
+      setConfirmConfig({
+        title: action === 'delete' ? 'Confirmation de suppression' : 'Action système',
+        message: action === 'delete' 
+          ? `Êtes-vous sûr de vouloir supprimer l'utilisateur "${user.name}" ? Cette action est irréversible.`
+          : `Confirmez-vous l'action "${action}" pour l'utilisateur "${user.name}" ?`,
+        action: action,
+        user: user
+      });
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (confirmConfig.action === 'delete' && confirmConfig.user) {
+      setUsers(prev => prev.filter(u => u.id !== confirmConfig.user.id));
+    }
+    setShowConfirmModal(false);
+  };
+
   return (
     <div className="py-2">
       <Container fluid className="px-0">
@@ -47,10 +106,31 @@ const AdminDashboard: React.FC = () => {
             <p className="text-muted small mb-0 fw-bold opacity-75">Vue d'ensemble de la plateforme et gestion des ressources.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Download size={18} /> Rapport Global
-            </Button>
-            <Button className="btn-premium d-flex align-items-center gap-2">
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="outline-primary" 
+                className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 no-caret shadow-none"
+              >
+                <Download size={18} /> Rapport Global
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden mt-2 p-1">
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('pdf')}>
+                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Exporter en PDF
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('word')}>
+                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Exporter en Word
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('csv')}>
+                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Exporter en CSV
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
+            <Button 
+              className="btn-premium d-flex align-items-center gap-2"
+              onClick={() => navigate('/admin/users')}
+            >
               <Plus size={18} /> Nouvel Utilisateur
             </Button>
           </div>
@@ -198,7 +278,7 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {USER_DATA.map((user, idx) => (
+                {users.map((user, idx) => (
                   <tr key={idx}>
                     <td className="px-4 py-3">
                       <div className="d-flex align-items-center gap-3">
@@ -222,9 +302,9 @@ const AdminDashboard: React.FC = () => {
                     </td>
                     <td className="px-4 text-end">
                       <div className="d-flex justify-content-end gap-1">
-                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3"><Edit size={16}/></Button>
-                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3"><Lock size={16}/></Button>
-                        <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3"><Trash2 size={16}/></Button>
+                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('edit', user)}><Edit size={16}/></Button>
+                        <Button variant="link" className="p-2 text-muted hover-bg-surface rounded-3" onClick={() => handleAction('lock', user)}><Lock size={16}/></Button>
+                        <Button variant="link" className="p-2 text-danger hover-bg-surface rounded-3" onClick={() => handleAction('delete', user)}><Trash2 size={16}/></Button>
                       </div>
                     </td>
                   </tr>
@@ -234,6 +314,31 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </Container>
+
+      {/* Confirmation Modal (La Carte demandée) */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered className="delete-modal-premium">
+        <Modal.Body className="p-4 text-center">
+          <div className={`${confirmConfig.action === 'delete' ? 'bg-danger-soft text-danger' : 'bg-primary-soft text-primary'} rounded-circle p-3 d-inline-block mb-4 shadow-sm`}>
+            {confirmConfig.action === 'delete' ? <Trash2 size={40} /> : <ShieldAlert size={40} />}
+          </div>
+          <h4 className="fw-bold text-navy mb-3">{confirmConfig.title}</h4>
+          <p className="text-muted small mb-4 px-3">
+            {confirmConfig.message}
+          </p>
+          <div className="d-flex gap-3 justify-content-center">
+            <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowConfirmModal(false)}>
+              Annuler
+            </Button>
+            <Button 
+              variant={confirmConfig.action === 'delete' ? 'danger' : 'primary'} 
+              className="px-4 py-2 rounded-3 fw-bold shadow-sm" 
+              onClick={handleConfirm}
+            >
+              {confirmConfig.action === 'delete' ? 'Supprimer' : 'Confirmer'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

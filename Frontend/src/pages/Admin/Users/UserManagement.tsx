@@ -3,7 +3,8 @@ import {
   Search, Edit2, Trash2, Mail, Shield, 
   Clock, XCircle, UserCheck, UserPlus, Users, 
   MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone, Eye, EyeOff,
-  LayoutDashboard, FileText, Award, Calendar, Settings, Briefcase, UserCheck as UserIcon
+  LayoutDashboard, FileText, Award, Calendar, Settings, Briefcase, UserCheck as UserIcon,
+  FileSpreadsheet, File
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal, Tabs, Tab } from 'react-bootstrap';
@@ -115,6 +116,52 @@ const UserManagement: React.FC = () => {
   const [messageContent, setMessageContent] = useState('');
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [accessUser, setAccessUser] = useState<UserData | null>(null);
+  const [filterRole, setFilterRole] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+
+  const handleExport = (format: 'pdf' | 'csv' | 'word') => {
+    if (selectedUsers.length === 0) {
+      alert("Veuillez sélectionner au moins un utilisateur à exporter.");
+      return;
+    }
+
+    const selectedData = users.filter(u => selectedUsers.includes(u.id));
+    
+    if (format === 'csv') {
+      const headers = ["ID Institutionnel", "Nom", "Email", "Rôle", "Statut"];
+      const rows = selectedData.map(u => [u.institutionalId, u.name, u.email, u.role, u.status]);
+      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `export_utilisateurs_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert(`Exportation de ${selectedUsers.length} utilisateur(s) au format ${format.toUpperCase()}... (Simulé)`);
+    }
+  };
+
+  const toggleSelectAll = (role: string) => {
+    const roleUsers = filteredUsers.filter(u => u.role === role).map(u => u.id);
+    const allSelected = roleUsers.length > 0 && roleUsers.every(id => selectedUsers.includes(id));
+    
+    if (allSelected) {
+      setSelectedUsers(selectedUsers.filter(id => !roleUsers.includes(id)));
+    } else {
+      setSelectedUsers([...new Set([...selectedUsers, ...roleUsers])]);
+    }
+  };
+
+  const toggleSelectUser = (id: number) => {
+    if (selectedUsers.includes(id)) {
+      setSelectedUsers(selectedUsers.filter(uid => uid !== id));
+    } else {
+      setSelectedUsers([...selectedUsers, id]);
+    }
+  };
 
   const handleOpenModal = (user?: UserData) => {
     if (user) {
@@ -222,11 +269,14 @@ const UserManagement: React.FC = () => {
     setShowAccessModal(true);
   };
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.role.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole ? u.role === filterRole : true;
+    const matchesStatus = filterStatus ? u.status === filterStatus : true;
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   return (
     <div className="users-modern-layout py-4">
@@ -238,9 +288,27 @@ const UserManagement: React.FC = () => {
             <p className="text-muted small mb-0 fw-bold opacity-75">Contrôlez les accès et les rôles de tous les membres du portail.</p>
           </div>
           <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Users size={18} /> Exporter
-            </Button>
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="outline-primary" 
+                className={`fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 no-caret shadow-none ${selectedUsers.length === 0 ? 'opacity-50' : ''}`}
+              >
+                <Users size={18} /> Exporter ({selectedUsers.length})
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden mt-2 p-1">
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('pdf')}>
+                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Exporter en PDF
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('word')}>
+                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Exporter en Word
+                </Dropdown.Item>
+                <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('csv')}>
+                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Exporter en CSV
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
             <Button 
               className="btn-premium d-flex align-items-center gap-2"
               onClick={() => handleOpenModal()}
@@ -284,9 +352,27 @@ const UserManagement: React.FC = () => {
             </Col>
             <Col lg={8}>
               <div className="d-flex gap-2 justify-content-lg-end">
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Tous les rôles</Button>
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Statut: Actif</Button>
-                <Button variant="link" className="text-muted extra-small fw-bold text-decoration-none">Réinitialiser</Button>
+                <Button 
+                  variant={filterRole ? "primary" : "outline-secondary"} 
+                  className="rounded-pill border extra-small fw-bold px-4"
+                  onClick={() => setFilterRole(filterRole ? null : 'Student')}
+                >
+                  {filterRole || 'Tous les rôles'}
+                </Button>
+                <Button 
+                  variant={filterStatus ? "success" : "outline-secondary"} 
+                  className="rounded-pill border extra-small fw-bold px-4"
+                  onClick={() => setFilterStatus(filterStatus ? null : 'Active')}
+                >
+                  {filterStatus ? `Statut: ${filterStatus}` : 'Tous les statuts'}
+                </Button>
+                <Button 
+                  variant="link" 
+                  className="text-muted extra-small fw-bold text-decoration-none"
+                  onClick={() => { setFilterRole(null); setFilterStatus(null); setSearchTerm(''); }}
+                >
+                  Réinitialiser
+                </Button>
               </div>
             </Col>
           </Row>
@@ -321,7 +407,15 @@ const UserManagement: React.FC = () => {
                   <Table borderless hover className="align-middle mb-0 custom-table-modern">
                     <thead>
                       <tr>
-                        <th className="px-4">Utilisateur</th>
+                        <th className="px-4" style={{ width: '40px' }}>
+                          <Form.Check 
+                            type="checkbox"
+                            className="custom-checkbox-premium"
+                            checked={filteredUsers.filter(u => u.role === tab.key).length > 0 && filteredUsers.filter(u => u.role === tab.key).every(u => selectedUsers.includes(u.id))}
+                            onChange={() => toggleSelectAll(tab.key)}
+                          />
+                        </th>
+                        <th>Utilisateur</th>
                         <th>Vérification</th>
                         <th>Statut</th>
                         <th>Dernière connexion</th>
@@ -332,8 +426,16 @@ const UserManagement: React.FC = () => {
                       {filteredUsers.filter(u => u.role === tab.key).length > 0 ? (
                         filteredUsers.filter(u => u.role === tab.key).map((user) => (
                           <React.Fragment key={user.id}>
-                            <tr>
-                              <td className="px-4 py-3">
+                            <tr className={selectedUsers.includes(user.id) ? 'bg-primary-soft' : ''}>
+                              <td className="px-4">
+                                <Form.Check 
+                                  type="checkbox"
+                                  className="custom-checkbox-premium"
+                                  checked={selectedUsers.includes(user.id)}
+                                  onChange={() => toggleSelectUser(user.id)}
+                                />
+                              </td>
+                              <td className="py-3">
                                 <div className="d-flex align-items-center gap-3">
                                   <img src={user.avatar} alt={user.name} className="rounded-circle border" style={{ width: '40px', height: '40px' }} />
                                   <div>
