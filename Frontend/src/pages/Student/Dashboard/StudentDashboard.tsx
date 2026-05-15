@@ -1,17 +1,17 @@
 import React from 'react';
 import { 
-  Container, Row, Col, Card, Button, Form 
+  Container, Row, Col, Card, Button, Form, Modal 
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
-  CheckCircle, GraduationCap, 
-  Plus, Activity, Mail, MessageSquare, Calendar, 
-  Clock, Target
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { 
   PieChart, Pie, Cell, ResponsiveContainer
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import { 
+  CheckCircle, GraduationCap, 
+  Plus, Activity, Mail, MessageSquare, Calendar, 
+  Clock, Target, AlertCircle, Trash2
+} from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 import ProjectStepper, { Step } from '../../../components/features/student/ProjectStepper';
@@ -29,6 +29,9 @@ const StudentDashboard: React.FC = () => {
     isProjectValidated,
     appointments
   } = useApp();
+
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [docToDelete, setDocToDelete] = React.useState<number | null>(null);
 
   const handleNewSubmission = () => {
     navigate('/student/reports');
@@ -139,10 +142,11 @@ const StudentDashboard: React.FC = () => {
               documents={globalDocs.slice(0, 5)} 
               onView={handleView} 
               onDownload={handleDownload} 
-              onDelete={(id) => {
-                if(window.confirm('Are you sure you want to delete this document?')) deleteDocument(id);
-              }} 
               onViewAll={() => navigate('/student/reports')}
+              onDelete={(id) => {
+                setDocToDelete(id);
+                setShowDeleteModal(true);
+              }} 
             />
           </Col>
           <Col lg={4}>
@@ -240,6 +244,35 @@ const StudentDashboard: React.FC = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Premium Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="delete-modal-premium">
+        <Modal.Body className="p-4 text-center">
+          <div className="bg-danger-soft text-danger rounded-circle p-3 d-inline-block mb-4 shadow-sm">
+            <Trash2 size={40} />
+          </div>
+          <h4 className="fw-bold text-navy mb-3">Confirmer la suppression</h4>
+          <p className="text-muted small mb-4 px-3">
+            Êtes-vous sûr de vouloir supprimer ce document ? <br />
+            <span className="text-danger fw-bold">Cette action est irréversible.</span>
+          </p>
+          <div className="d-flex gap-3 justify-content-center">
+            <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowDeleteModal(false)}>
+              Annuler
+            </Button>
+            <Button 
+              variant="danger" 
+              className="px-4 py-2 rounded-3 fw-bold shadow-sm" 
+              onClick={() => {
+                if (docToDelete !== null) deleteDocument(docToDelete);
+                setShowDeleteModal(false);
+              }}
+            >
+              Supprimer définitivement
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
