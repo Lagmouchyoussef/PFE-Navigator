@@ -21,11 +21,11 @@ export const COEFFICIENTS: Record<keyof Scores, number> = {
 };
 
 export const SCORE_LABELS: Record<keyof Scores, string> = {
-  rapport:      'Rapport de Thèse',
-  presentation: 'Soutenance Orale',
-  technique:    'Maîtrise Technique',
-  innovation:   'Innovation & Recherche',
-  delais:       'Respect des Échéances',
-  pfeSupervisor: 'Note Encadrant (50%)',
-  pfeJury:       'Note Jury (50%)',
+  rapport:      'Thesis Report',
+  presentation: 'Oral Defense',
+  technique:    'Technical Proficiency',
+  innovation:   'Innovation & Research',
+  delais:       'Deadline Compliance',
+  pfeSupervisor: 'Supervisor Grade (50%)',
+  pfeJury:       'Jury Grade (50%)',
 };

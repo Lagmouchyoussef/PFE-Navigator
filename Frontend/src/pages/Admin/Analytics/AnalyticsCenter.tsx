@@ -37,11 +37,11 @@ const AnalyticsCenter: React.FC = () => {
   const gradedStudents = filteredStudents.filter(s => s.supervisorScore !== null && s.juryScore !== null);
   const finalGrades = gradedStudents.map(s => getFinalGrade(s.supervisorScore, s.juryScore)).filter(g => g !== null) as number[];
 
-  // 1. Taux de Réussite
+  // 1. Success Rate
   const successCount = finalGrades.filter(g => g >= 10).length;
   const successRate = finalGrades.length > 0 ? (successCount / finalGrades.length * 100).toFixed(1) : "0";
 
-  // 2. Moyenne Générale
+  // 2. General Average
   const averageGrade = finalGrades.length > 0 ? (finalGrades.reduce((a, b) => a + b, 0) / finalGrades.length).toFixed(1) : "0.0";
 
   // 3. Score Distribution

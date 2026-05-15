@@ -339,9 +339,9 @@ const ProjectsArchive: React.FC = () => {
                   <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Archived Documents</h6>
                   <div className="d-flex flex-column gap-2">
                     {[
-                      { name: 'Rapport_Final.pdf', size: '2.4 MB' },
+                      { name: 'Final_Report.pdf', size: '2.4 MB' },
                       { name: 'Presentation.pptx', size: '5.1 MB' },
-                      { name: 'Cahier_des_charges.pdf', size: '1.2 MB' }
+                      { name: 'Specifications.pdf', size: '1.2 MB' }
                     ].map((doc, idx) => (
                       <div key={idx} className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-white border border-light-soft hover-bg-surface-alt transition-all">
                         <div className="d-flex align-items-center gap-3">

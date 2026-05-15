@@ -184,7 +184,7 @@ const SettingsPage: React.FC = () => {
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Residential Address</Form.Label>
-                            <Form.Control placeholder="Ex: 123 Rue de la Liberté, Casablanca" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                            <Form.Control placeholder="Ex: 123 Liberty Street, Casablanca" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         {(user?.role === 'jury' || user?.role === 'supervisor' || user?.role === 'admin') && (

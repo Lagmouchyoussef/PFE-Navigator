@@ -167,7 +167,7 @@ const UserManagement: React.FC = () => {
     if (user) {
       setEditingUser(user);
       setFormData({ ...user });
-      const standardDiplomas = ['Doctorat', 'Master', "Ingénieur d'État", 'Licence'];
+      const standardDiplomas = ['PhD', 'Master', "State Engineer", 'Bachelor'];
       setIsOtherDiploma(user.diplomaObtained ? !standardDiplomas.includes(user.diplomaObtained) : false);
     } else {
       setEditingUser(null);
@@ -825,10 +825,10 @@ const UserManagement: React.FC = () => {
                       className="form-control-premium fw-bold mb-2"
                     >
                       <option value="">Select a degree...</option>
-                      <option value="Doctorat">PhD</option>
+                      <option value="PhD">PhD</option>
                       <option value="Master">Master</option>
-                      <option value="Ingénieur d'État">State Engineer</option>
-                      <option value="Licence">Bachelor</option>
+                      <option value="State Engineer">State Engineer</option>
+                      <option value="Bachelor">Bachelor</option>
                       <option value="Other">Other (Specify...)</option>
                     </Form.Select>
                     

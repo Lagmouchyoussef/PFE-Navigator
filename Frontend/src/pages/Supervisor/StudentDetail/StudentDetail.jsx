@@ -25,20 +25,20 @@ const StudentDetail = () => {
     progress: 75,
     projectTitle: 'AI-Powered Student Performance Prediction System',
     supervisor: 'Dr. Sofia Drissi',
-    institution: 'EMSI - École Marocaine des Sciences de l\'Ingénieur',
+    institution: 'EMSI - Moroccan School of Engineering Sciences',
     startDate: '2025-10-15',
     endDate: '2026-06-30',
-    description: 'Ce projet vise à développer un système basé sur l\'intelligence artificielle capable de prédire les performances académiques des étudiants en se basant sur leurs comportements d\'apprentissage et leurs résultats passés.',
+    description: 'This project aims to develop an artificial intelligence-based system capable of predicting student academic performance based on their learning behaviors and past results.',
     deliverables: [
-      { id: 1, name: 'Cahier des Charges', date: '2025-11-20', status: 'Validated', size: '2.4 MB' },
-      { id: 2, name: 'Rapport d\'analyse', date: '2026-01-15', status: 'Validated', size: '4.1 MB' },
-      { id: 3, name: 'Rapport de mi-parcours', date: '2026-03-10', status: 'Pending', size: '5.8 MB' },
+      { id: 1, name: 'Specifications Document', date: '2025-11-20', status: 'Validated', size: '2.4 MB' },
+      { id: 2, name: 'Analysis Report', date: '2026-01-15', status: 'Validated', size: '4.1 MB' },
+      { id: 3, name: 'Midterm Report', date: '2026-03-10', status: 'Pending', size: '5.8 MB' },
     ],
     milestones: [
-      { id: 1, title: 'Validation du Sujet', date: '2025-10-20', completed: true },
-      { id: 2, title: 'Analyse & Conception', date: '2026-01-05', completed: true },
-      { id: 3, title: 'Implémentation Phase 1', date: '2026-03-15', completed: false },
-      { id: 4, title: 'Dépôt Rapport Final', date: '2026-05-20', completed: false },
+      { id: 1, title: 'Topic Validation', date: '2025-10-20', completed: true },
+      { id: 2, title: 'Analysis & Design', date: '2026-01-05', completed: true },
+      { id: 3, title: 'Implementation Phase 1', date: '2026-03-15', completed: false },
+      { id: 4, title: 'Final Report Submission', date: '2026-05-20', completed: false },
     ]
   };
 
@@ -52,7 +52,7 @@ const StudentDetail = () => {
             className="p-0 text-muted extra-small fw-bold text-decoration-none d-flex align-items-center gap-1 mb-3 hover-text-primary transition-all shadow-none border-0"
             onClick={() => navigate('/supervisor/students')}
           >
-            <ChevronLeft size={14} /> Retour à la liste
+            <ChevronLeft size={14} /> Back to list
           </Button>
           
           <motion.div 
@@ -86,7 +86,7 @@ const StudentDetail = () => {
                 <MessageSquare size={18} /> Message
               </Button>
               <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm px-4 py-2 small">
-                <Award size={18} /> Évaluer
+                <Award size={18} /> Evaluate
               </Button>
             </div>
           </motion.div>
@@ -98,10 +98,10 @@ const StudentDetail = () => {
             <Tab.Container defaultActiveKey="overview">
               <Nav variant="pills" className="nav-premium mb-4 gap-2">
                 <Nav.Item>
-                  <Nav.Link eventKey="overview" className="rounded-pill px-4 py-2 small fw-bold border-0 shadow-none">Aperçu</Nav.Link>
+                  <Nav.Link eventKey="overview" className="rounded-pill px-4 py-2 small fw-bold border-0 shadow-none">Overview</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="deliverables" className="rounded-pill px-4 py-2 small fw-bold border-0 shadow-none">Livrables</Nav.Link>
+                  <Nav.Link eventKey="deliverables" className="rounded-pill px-4 py-2 small fw-bold border-0 shadow-none">Deliverables</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="timeline" className="rounded-pill px-4 py-2 small fw-bold border-0 shadow-none">Timeline</Nav.Link>
@@ -115,7 +115,7 @@ const StudentDetail = () => {
                     <Card className="glass-card border-0 p-4 shadow-sm mb-4 rounded-4">
                       <div className="d-flex justify-content-between align-items-start mb-4">
                         <div>
-                          <h6 className="fw-bold text-navy mb-1">Titre du Projet</h6>
+                          <h6 className="fw-bold text-navy mb-1">Project Title</h6>
                           <h4 className="fw-bold text-primary mb-0">{student.projectTitle}</h4>
                         </div>
                         <div className="p-3 rounded-4 bg-surface-alt text-primary">
@@ -127,7 +127,7 @@ const StudentDetail = () => {
                       </p>
                       <div className="bg-surface-alt p-3 rounded-4 border-start border-primary border-4">
                         <div className="d-flex justify-content-between align-items-center mb-2">
-                          <span className="small fw-bold text-navy">Progression Globale</span>
+                          <span className="small fw-bold text-navy">Overall Progress</span>
                           <span className="small fw-bold text-primary">{student.progress}%</span>
                         </div>
                         <ProgressBar now={student.progress} variant="primary" style={{ height: '8px' }} className="rounded-pill bg-transparent" />
@@ -138,23 +138,23 @@ const StudentDetail = () => {
                       <Col md={6}>
                         <Card className="glass-card border-0 p-4 shadow-sm rounded-4 h-100">
                           <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
-                            <Activity size={18} className="text-primary" /> Informations Académiques
+                            <Activity size={18} className="text-primary" /> Academic Information
                           </h6>
                           <div className="d-flex flex-column gap-3">
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Statut</span>
+                              <span className="extra-small text-muted fw-bold">Status</span>
                               <Badge className="bg-warning-soft text-warning border-0 extra-small px-2 py-1 rounded-pill">{student.status}</Badge>
                             </div>
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Encadrant</span>
+                              <span className="extra-small text-muted fw-bold">Supervisor</span>
                               <span className="extra-small text-navy fw-bold">{student.supervisor}</span>
                             </div>
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Début</span>
+                              <span className="extra-small text-muted fw-bold">Start Date</span>
                               <span className="extra-small text-navy fw-bold">{student.startDate}</span>
                             </div>
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Date Limite</span>
+                              <span className="extra-small text-muted fw-bold">Deadline</span>
                               <span className="extra-small text-navy fw-bold">{student.endDate}</span>
                             </div>
                           </div>
@@ -163,20 +163,20 @@ const StudentDetail = () => {
                       <Col md={6}>
                         <Card className="glass-card border-0 p-4 shadow-sm rounded-4 h-100">
                           <h6 className="fw-bold text-navy mb-4 d-flex align-items-center gap-2">
-                            <Shield size={18} className="text-primary" /> Certification & Accès
+                            <Shield size={18} className="text-primary" /> Certification & Access
                           </h6>
                           <div className="d-flex flex-column gap-3">
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">ID Institutionnel</span>
+                              <span className="extra-small text-muted fw-bold">Institutional ID</span>
                               <span className="extra-small text-navy fw-bold">STU-2026-00105</span>
                             </div>
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Accès Documents</span>
-                              <span className="extra-small text-success fw-bold">Autorisé</span>
+                              <span className="extra-small text-muted fw-bold">Documents Access</span>
+                              <span className="extra-small text-success fw-bold">Authorized</span>
                             </div>
                             <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Vérification</span>
-                              <span className="extra-small text-info fw-bold">Complétée</span>
+                              <span className="extra-small text-muted fw-bold">Verification</span>
+                              <span className="extra-small text-info fw-bold">Completed</span>
                             </div>
                           </div>
                         </Card>
@@ -192,7 +192,7 @@ const StudentDetail = () => {
                         <tr>
                           <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Document</th>
                           <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Date</th>
-                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Statut</th>
+                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Status</th>
                           <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Action</th>
                         </tr>
                       </thead>
@@ -213,7 +213,7 @@ const StudentDetail = () => {
                             <td className="px-4 py-3 small text-muted">{doc.date}</td>
                             <td className="px-4 py-3">
                               <Badge className={`bg-${doc.status === 'Validated' ? 'success' : 'warning'}-soft text-${doc.status === 'Validated' ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold rounded-pill`}>
-                                {doc.status === 'Validated' ? 'Validé' : 'En attente'}
+                                {doc.status === 'Validated' ? 'Validated' : 'Pending'}
                               </Badge>
                             </td>
                             <td className="px-4 py-3">
@@ -243,7 +243,7 @@ const StudentDetail = () => {
                             <div className="small fw-bold text-navy mb-1">{ms.title}</div>
                             <div className="extra-small text-muted fw-bold opacity-75">{ms.date}</div>
                             <p className="extra-small text-muted mt-2 mb-0">
-                              {ms.completed ? "Étape validée avec succès par l'encadrant et l'administration." : "Cette étape nécessite le dépôt des documents requis."}
+                              {ms.completed ? "Step successfully validated by the supervisor and administration." : "This step requires the submission of requested documents."}
                             </p>
                           </div>
                         </div>
@@ -261,26 +261,26 @@ const StudentDetail = () => {
               {/* Performance Indicators Card */}
               <Card className="glass-card border-0 p-4 shadow-sm bg-white rounded-4 overflow-hidden position-relative">
                 <h6 className="fw-bold mb-4 text-navy d-flex align-items-center gap-2">
-                  <Target size={18} className="text-primary" /> Indicateurs de Performance
+                  <Target size={18} className="text-primary" /> Performance Indicators
                 </h6>
                 <div className="d-flex flex-column gap-3">
                   <div className="p-3 rounded-4 bg-primary-soft border border-primary border-opacity-10">
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
-                        <div className="extra-small text-muted fw-bold">Note Moyenne</div>
-                        <div className="h3 fw-bold mb-0 text-navy">16,5<span className="small opacity-50">/20</span></div>
+                        <div className="extra-small text-muted fw-bold">Average Grade</div>
+                        <div className="h3 fw-bold mb-0 text-navy">16.5<span className="small opacity-50">/20</span></div>
                       </div>
-                      <Badge className="bg-success-soft text-success border-0 extra-small">+1,2</Badge>
+                      <Badge className="bg-success-soft text-success border-0 extra-small">+1.2</Badge>
                     </div>
                   </div>
                   
                   <div className="p-3 rounded-4 bg-info-soft border border-info border-opacity-10">
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
-                        <div className="extra-small text-muted fw-bold">Taux de Complétion</div>
+                        <div className="extra-small text-muted fw-bold">Completion Rate</div>
                         <div className="h3 fw-bold mb-0 text-navy">75%</div>
                       </div>
-                      <Badge className="bg-info-soft text-info border-0 extra-small">En bonne voie</Badge>
+                      <Badge className="bg-info-soft text-info border-0 extra-small">On track</Badge>
                     </div>
                   </div>
                 </div>
@@ -288,14 +288,14 @@ const StudentDetail = () => {
 
               {/* Contact Information */}
               <Card className="glass-card border-0 p-4 shadow-sm rounded-4">
-                <h6 className="fw-bold text-navy mb-4">Informations de Contact</h6>
+                <h6 className="fw-bold text-navy mb-4">Contact Information</h6>
                 <div className="d-flex flex-column gap-3">
                   <div className="d-flex align-items-center gap-3">
                     <div className="p-2 rounded bg-surface-alt text-primary">
                       <Mail size={18} />
                     </div>
                     <div className="overflow-hidden">
-                      <div className="extra-small text-muted fw-bold">Email Académique</div>
+                      <div className="extra-small text-muted fw-bold">Institutional Email</div>
                       <div className="small fw-bold text-navy text-truncate">{student.email}</div>
                     </div>
                   </div>
@@ -304,12 +304,12 @@ const StudentDetail = () => {
                       <Phone size={18} />
                     </div>
                     <div>
-                      <div className="extra-small text-muted fw-bold">Téléphone</div>
+                      <div className="extra-small text-muted fw-bold">Phone</div>
                       <div className="small fw-bold text-navy">{student.phone}</div>
                     </div>
                   </div>
                   <Button className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2 mt-2 border-2 small fw-bold">
-                    <ExternalLink size={16} /> Contacter via MS Teams
+                    <ExternalLink size={16} /> Contact via MS Teams
                   </Button>
                 </div>
               </Card>

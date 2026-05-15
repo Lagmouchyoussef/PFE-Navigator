@@ -103,7 +103,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 3,
     type: 'message',
-    text: 'Nouveau message de Ahmed Khalil (Étudiant) concernant le dépôt final.',
+    text: 'New message from Ahmed Khalil (Student) regarding the final submission.',
     date: new Date().toISOString(),
     read: false,
     link: '/jury/messages',
@@ -117,7 +117,7 @@ const INITIAL_APPOINTMENTS: Appointment[] = [
     studentName: "Ahmed Khalil",
     date: "2026-05-15",
     time: "10:00 AM",
-    location: "Salle 402 / Online",
+    location: "Room 402 / Online",
     type: "Review",
     status: "Confirmed"
   },
@@ -258,19 +258,19 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 const initialReminders = [
-  { id: 1, text: "Soumettre la liste du jury", time: "17:00", type: "warning" },
-  { id: 2, text: "Réunion de département", time: "45 min", type: "primary" }
+  { id: 1, text: "Submit jury list", time: "17:00", type: "warning" },
+  { id: 2, text: "Department meeting", time: "45 min", type: "primary" }
 ];
 
 const initialStudents = [];
 
 const INITIAL_ARCHIVES = [
-  { id: 'ARCH-001', name: 'Optimisation de Réseau 5G', desc: 'Analyse et simulation de la propagation du signal en milieu urbain dense.', date: '2025-06-15', files: 5, status: 'Completed', type: 'Réseaux', supervisor: 'Dr. Sofia Drissi' },
-  { id: 'ARCH-002', name: 'IA pour Diagnostic Médical', desc: 'Développement d\'un modèle CNN pour la détection précoce du cancer.', date: '2025-06-20', files: 8, status: 'Completed', type: 'IA', supervisor: 'Pr. Youssef Lagmouch' },
+  { id: 'ARCH-001', name: '5G Network Optimization', desc: 'Analysis and simulation of signal propagation in dense urban environments.', date: '2025-06-15', files: 5, status: 'Completed', type: 'Networks', supervisor: 'Dr. Sofia Drissi' },
+  { id: 'ARCH-002', name: 'AI for Medical Diagnosis', desc: 'Development of a CNN model for early cancer detection.', date: '2025-06-20', files: 8, status: 'Completed', type: 'AI', supervisor: 'Prof. Youssef Lagmouch' },
 ];
 
 const INITIAL_RESOURCES = [
-  { id: 'RES-001', title: 'Guide de Rédaction PFE', type: 'PDF', category: 'Documentation', date: '2026-01-10' },
+  { id: 'RES-001', title: 'PFE Writing Guide', type: 'PDF', category: 'Documentation', date: '2026-01-10' },
 ];
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -346,14 +346,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Automatic Archiving Logic
   useEffect(() => {
     students.forEach((s: any) => {
-      if (s.status === 'Validé') {
+      if (s.status === 'Validated') {
         const exists = archives.find(a => a.studentId === s.id);
         if (!exists) {
           const newArchive = {
             id: `ARCH-${s.id}`,
             studentId: s.id,
             name: s.project,
-            desc: `Projet de fin d'études validé par ${s.name}.`,
+            desc: `Final project validated by ${s.name}.`,
             date: s.date || new Date().toISOString().split('T')[0],
             files: 3,
             status: 'Completed',
@@ -475,17 +475,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const submitEvaluation = useCallback((comment: string) => {
     setJuryComment(comment);
-    addNotification('grade', 'Le jury a soumis son évaluation. Les notes seront visibles après publication officielle.', '/student/evaluation');
+    addNotification('grade', 'The jury has submitted their evaluation. Grades will be visible after official publication.', '/student/evaluation');
   }, []);
 
   const publishGrades = useCallback(() => {
     setIsGradesPublished(true);
-    addNotification('grade', 'Les notes finales du PFE ont été publiées officiellement. Vous pouvez les consulter dès maintenant.', '/student/evaluation');
+    addNotification('grade', 'Final PFE grades have been officially published. You can consult them now.', '/student/evaluation');
   }, []);
 
   const updatePfeWeights = useCallback((supervisor: number, jury: number) => {
     setPfeWeights({ supervisor, jury });
-    addNotification('grade', `Les coefficients de notation ont été mis à jour par l'administration (${supervisor}% Encadrant / ${jury}% Jury).`, '/admin/grades');
+    addNotification('grade', `Grading coefficients have been updated by administration (${supervisor}% Supervisor / ${jury}% Jury).`, '/admin/grades');
   }, []);
 
   const approveDocument = useCallback((docId: number) => {
@@ -523,19 +523,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addAppointment = useCallback((appointment: Omit<Appointment, 'id'>) => {
     const newAppt = { ...appointment, id: Date.now() };
     setAppointments(prev => [...prev, newAppt]);
-    addNotification('defense', `Nouveau rendez-vous : "${appointment.title}" pour le ${appointment.date}.`, '/student/schedule');
+    addNotification('defense', `New appointment: "${appointment.title}" for ${appointment.date}.`, '/student/schedule');
   }, [addNotification]);
 
   const rescheduleAppointment = useCallback((id: number, newDate: string, newTime: string) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, date: newDate, time: newTime, status: 'Rescheduled' } : a));
     const appt = appointments.find(a => a.id === id);
-    addNotification('defense', `Le rendez-vous "${appt?.title}" a été reprogrammé au ${newDate} à ${newTime}.`, '/student/schedule');
+    addNotification('defense', `The appointment "${appt?.title}" has been rescheduled to ${newDate} at ${newTime}.`, '/student/schedule');
   }, [appointments]);
 
   const cancelAppointment = useCallback((id: number) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a));
     const appt = appointments.find(a => a.id === id);
-    addNotification('defense', `Le rendez-vous "${appt?.title}" a été annulé par l'encadrant.`, '/student/schedule');
+    addNotification('defense', `The appointment "${appt?.title}" has been cancelled by the supervisor.`, '/student/schedule');
   }, [appointments, addNotification]);
 
   const deleteAppointment = useCallback((id: number) => {
@@ -545,7 +545,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const sendReminder = useCallback((id: number) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, reminderSent: true } : a));
     const appt = appointments.find(a => a.id === id);
-    addNotification('message', `Rappel envoyé pour le rendez-vous "${appt?.title}".`, '/student/schedule');
+    addNotification('message', `Reminder sent for appointment "${appt?.title}".`, '/student/schedule');
   }, [appointments, addNotification]);
 
   // ── STUDENT ACTIONS ─────────────────────────────────────────────────────────
@@ -571,7 +571,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteDocument = useCallback((id: number) => {
     setDocuments(prev => prev.filter(d => Number(d.id) !== Number(id)));
-    addNotification('approved', "Le document a été supprimé avec succès.", '/student/reports');
+    addNotification('approved', "The document has been successfully deleted.", '/student/reports');
   }, [addNotification]);
 
   // ── MESSAGES ─────────────────────────────────────────────────────────────────
@@ -631,7 +631,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         id: `RES-${Date.now()}`,
         title: `Archive: ${project.name}`,
         type: 'Folder',
-        category: 'Projets Archivés',
+        category: 'Archived Projects',
         date: new Date().toISOString().split('T')[0]
       };
       setResourceCenter(prev => {
@@ -639,7 +639,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         localStorage.setItem('pfe-resources', JSON.stringify(updated));
         return updated;
       });
-      addNotification('approved', `Le projet "${project.name}" a été partagé dans le Centre de Ressources.`, '/admin/resources');
+      addNotification('approved', `The project "${project.name}" has been shared in the Resource Center.`, '/admin/resources');
     }
   }, [archives, addNotification]);
 
@@ -671,8 +671,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const isProjectValidated = (pfeFinalGrade || 0) >= 10;
   const finalResultMessage = isGradesPublished 
     ? (isProjectValidated 
-        ? `Bravo Mr ${user?.name}, vous avez validé.` 
-        : `Malheureusement Mr ${user?.name}, vous n'avez pas validé.`)
+        ? `Congratulations Mr ${user?.name}, you have passed.` 
+        : `Unfortunately Mr ${user?.name}, you have not passed.`)
     : "";
 
   return (
@@ -690,7 +690,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       juryCriteriaWeights,
       updateJuryCriteriaWeights: (weights: Record<string, number>) => {
         setJuryCriteriaWeights(weights);
-        addNotification('grade', "Les barèmes des critères du jury ont été mis à jour par l'administration.", '/jury/evaluation');
+        addNotification('grade', "Jury criteria scales have been updated by administration.", '/jury/evaluation');
       },
       theme, setTheme,
       projectMilestones, updateMilestone,
@@ -714,7 +714,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       supervisorCriteriaWeights,
       updateSupervisorCriteriaWeights: (weights: Record<string, number>) => {
         setSupervisorCriteriaWeights(weights);
-        addNotification('grade', "Les barèmes des critères de l'encadrant ont été mis à jour par l'administration.", '/supervisor/evaluation');
+        addNotification('grade', "Supervisor criteria scales have been updated by administration.", '/supervisor/evaluation');
       }
     }}>
       {children}
