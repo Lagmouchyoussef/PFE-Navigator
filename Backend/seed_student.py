@@ -35,7 +35,7 @@ def seed():
         )
         user.set_password(password)
         user.save()
-        print(f"✅ Student user {email} created")
+        print(f"Student user {email} created")
 
         # 3. Create Admin User
         admin_email = "admin@emsi.ma"
@@ -54,7 +54,7 @@ def seed():
         admin_user.is_staff = True
         admin_user.is_superuser = True
         admin_user.save()
-        print(f"✅ Admin user {admin_email} created")
+        print(f"Admin user {admin_email} created")
 
         # 4. Create Student Profile
         try:
@@ -64,11 +64,11 @@ def seed():
                 specialization="Software Engineering",
                 academic_year="5th Year"
             )
-            print(f"✅ Student profile created")
+            print(f"Student profile created")
         except Exception as e:
-            print(f"⚠️ Student profile creation warning: {e}")
+            print(f"Student profile creation warning: {e}")
         
-        print("\n✅ SEEDING COMPLETED!")
+        print("\nSEEDING COMPLETED!")
         print("=" * 50)
         print("Test credentials:")
         print("  Student: student@emsi.ma / password123")
@@ -76,7 +76,7 @@ def seed():
         print("=" * 50)
         
     except Exception as e:
-        print(f"❌ Error during seeding: {e}")
+        print(f"Error during seeding: {e}")
         import traceback
         traceback.print_exc()
 

@@ -18,7 +18,7 @@ const JuryDashboard: React.FC = () => {
   const { user, notifications, students, appointments } = useApp();
 
   // Map notifications to the activity UI structure
-  const recentNotifs = notifications.slice(0, 4).map(n => {
+  const recentNotifs = (Array.isArray(notifications) ? notifications : []).slice(0, 4).map(n => {
     let icon = <Activity size={16} />;
     let color: 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'primary';
 

@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions, viewsets
+from rest_framework import status, permissions, viewsets, authentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from django.contrib.auth import authenticate, get_user_model
@@ -48,6 +48,7 @@ class LoginView(APIView):
 
 
 class UserMeView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -62,6 +63,7 @@ class UserMeView(APIView):
 
 
 class LogoutView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
@@ -74,6 +76,7 @@ class LogoutView(APIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

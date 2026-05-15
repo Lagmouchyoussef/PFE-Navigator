@@ -315,19 +315,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const promises: Promise<any>[] = [
         refreshProject(),
-        notificationsApi.getAll().then(setNotifications).catch(() => {}),
-        adminNotesApi.getAll().then(setAdministrativeNotes).catch(() => {}),
-        resourcesApi.getAll().then(setResourceCenter).catch(() => {}),
-        messagesApi.getAll().then(setMessages).catch(() => {}),
-        messagesApi.getContactableUsers().then(setContactableUsers).catch(() => {}),
-        projectsApi.getSubjects().then(setSubjects).catch(() => {}),
+        notificationsApi.getAll().then(data => setNotifications(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        adminNotesApi.getAll().then(data => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        resourcesApi.getAll().then(data => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        messagesApi.getAll().then(data => setMessages(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        messagesApi.getContactableUsers().then(data => setContactableUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        projectsApi.getSubjects().then(data => setSubjects(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
       ];
 
       if (user.role === 'student') {
         // appointments & evaluations already loaded via refreshProject
       } else if (user.role === 'supervisor' || user.role === 'jury') {
         promises.push(
-          studentsApi.getAll().then(setStudents).catch(() => {}),
+          studentsApi.getAll().then(data => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
             const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
@@ -340,8 +340,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       } else if (user.role === 'admin') {
         const { usersApi } = await import('../api/users');
         promises.push(
-          usersApi.getAll().then(setAllUsers).catch(() => {}),
-          studentsApi.getAll().then(setStudents).catch(() => {}),
+        usersApi.getAll().then(data => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          studentsApi.getAll().then(data => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
             const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));

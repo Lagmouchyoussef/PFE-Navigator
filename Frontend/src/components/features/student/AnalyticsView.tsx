@@ -5,7 +5,13 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
-const barData: any[] = [];
+const barData = [
+  { name: 'Week 1', score: 65 },
+  { name: 'Week 2', score: 55 },
+  { name: 'Week 3', score: 80 },
+  { name: 'Week 4', score: 70 },
+  { name: 'Week 5', score: 85 },
+];
 
 const AnalyticsView: React.FC = () => {
   return (
@@ -17,7 +23,7 @@ const AnalyticsView: React.FC = () => {
           </div>
           <Card.Body className="p-4">
             <div style={{ height: '220px', width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={220}>
                 <BarChart data={barData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-muted)', fontWeight: 600 }} />
