@@ -21,8 +21,8 @@ const JuryProjectsPage = () => {
 
   const stats = [
     { label: 'Total Assigned', value: students.length.toString(), color: 'primary' },
-    { label: 'Pending Evaluation', value: students.filter((s: any) => !s.isJuryEvaluated).length.toString(), color: 'warning' },
-    { label: 'Evaluated', value: students.filter((s: any) => s.isJuryEvaluated).length.toString(), color: 'success' },
+    { label: 'Pending Evaluation', value: students.filter((s) => !s.isJuryEvaluated).length.toString(), color: 'warning' },
+    { label: 'Evaluated', value: students.filter((s) => s.isJuryEvaluated).length.toString(), color: 'success' },
   ];
 
   return (

@@ -32,74 +32,8 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
-const STUDENTS_DATA = [
-  { 
-    id: 1, 
-    name: 'Ahmed Khalil', 
-    email: 'ahmed.khalil@emsi-edu.ma',
-    project: 'AI-Powered Student Performance Prediction System', 
-    progress: 85, 
-    status: 'Validated', 
-    lastActivity: '2 hours ago',
-    type: 'PFE',
-    department: 'Software Engineering'
-  },
-  { 
-    id: 2, 
-    name: 'Sara Kamali', 
-    email: 'sara.kamali@emsi-edu.ma',
-    project: 'Blockchain-based Academic Certificate Verification', 
-    progress: 60, 
-    status: 'In Progress', 
-    lastActivity: 'Yesterday',
-    type: 'PFE',
-    department: 'Cybersecurity'
-  },
-  { 
-    id: 3, 
-    name: 'Mohamed Alaoui', 
-    email: 'm.alaoui@emsi-edu.ma',
-    project: 'IoT Smart Campus Solution for Energy Management', 
-    progress: 40, 
-    status: 'Pending', 
-    lastActivity: '3 days ago',
-    type: 'Internship',
-    department: 'Embedded Systems'
-  },
-  { 
-    id: 4, 
-    name: 'Fatima Zahra', 
-    email: 'f.zahra@emsi-edu.ma',
-    project: 'Cloud-Native Microservices Architecture for E-Health', 
-    progress: 95, 
-    status: 'Validated', 
-    lastActivity: '5 hours ago',
-    type: 'PFE',
-    department: 'Cloud Computing'
-  },
-  { 
-    id: 5, 
-    name: 'Youssef Amrani', 
-    email: 'y.amrani@emsi-edu.ma',
-    project: 'Deep Learning for Medical Image Segmentation', 
-    progress: 72, 
-    status: 'In Progress', 
-    lastActivity: '4 hours ago',
-    type: 'PFE',
-    department: 'AI & Data Science'
-  },
-  { 
-    id: 6, 
-    name: 'Laila Bennani', 
-    email: 'l.bennani@emsi-edu.ma',
-    project: 'Automated Penetration Testing Framework', 
-    progress: 55, 
-    status: 'In Progress', 
-    lastActivity: '1 day ago',
-    type: 'PFE',
-    department: 'Cybersecurity'
-  }
-];
+const STUDENTS_DATA = [];
+
 
 const StudentsList = () => {
   const navigate = useNavigate();

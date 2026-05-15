@@ -34,7 +34,7 @@ const DocumentsList: React.FC<DocumentsListProps> = ({ documents, onView, onDown
           </tr>
         </thead>
         <tbody>
-          {documents.map((doc) => (
+          {documents.length > 0 ? documents.map((doc) => (
             <tr key={doc.id} className="border-bottom border-light border-opacity-10">
               <td className="px-4 py-3">
                 <div className="d-flex align-items-center gap-3">
@@ -73,7 +73,13 @@ const DocumentsList: React.FC<DocumentsListProps> = ({ documents, onView, onDown
                 </Dropdown>
               </td>
             </tr>
-          ))}
+          )) : (
+            <tr>
+              <td colSpan={4} className="text-center py-5 text-muted extra-small fw-bold opacity-50">
+                No recent documents found.
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
     </div>

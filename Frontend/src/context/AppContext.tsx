@@ -113,9 +113,7 @@ const initialStudents = [];
 
 const INITIAL_ARCHIVES = [];
 
-const INITIAL_RESOURCES = [
-  { id: 'RES-001', title: 'PFE Writing Guide', type: 'PDF', category: 'Documentation', date: '2026-01-10' },
-];
+const INITIAL_RESOURCES: any[] = [];
 
 const INITIAL_NOTES: any[] = [];
 

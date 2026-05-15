@@ -5,10 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
-const barData = [
-  { name: 'Jan', score: 65 }, { name: 'Feb', score: 78 },
-  { name: 'Mar', score: 82 }, { name: 'Apr', score: 90 },
-];
+const barData: any[] = [];
 
 const AnalyticsView: React.FC = () => {
   return (
@@ -31,6 +28,11 @@ const AnalyticsView: React.FC = () => {
                   <Bar dataKey="score" fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={40} />
                 </BarChart>
               </ResponsiveContainer>
+              {barData.length === 0 && (
+                <div className="position-absolute top-50 start-50 translate-middle text-muted extra-small fw-bold opacity-50">
+                  No data available yet
+                </div>
+              )}
             </div>
           </Card.Body>
         </Card>
@@ -41,26 +43,26 @@ const AnalyticsView: React.FC = () => {
             <div className="d-flex justify-content-between align-items-start">
               <div>
                 <h6 className="fw-bold text-uppercase text-muted extra-small tracking-widest">Confidence Score</h6>
-                <h1 className="display-4 fw-bold mb-0 mt-2 text-primary">98.2</h1>
+                <h1 className="display-4 fw-bold mb-0 mt-2 text-primary">0.0</h1>
               </div>
               <div className="p-3 bg-primary-soft rounded-4 text-primary shadow-sm">
                 <Target size={28} />
               </div>
             </div>
             
-            <div className="mt-4 p-3 rounded-4 bg-success-soft border border-success text-success shadow-sm">
+            <div className="mt-4 p-3 rounded-4 bg-primary-soft border border-primary text-primary shadow-sm">
               <div className="d-flex align-items-center gap-2 extra-small">
                 <Target size={18} />
-                <span className="fw-bold">Goal: Highest Distinction</span>
+                <span className="fw-bold">Goal: Initialization</span>
               </div>
             </div>
 
             <div className="mt-4">
               <div className="d-flex justify-content-between extra-small fw-bold mb-2">
                 <span className="text-muted">Goal Progression</span>
-                <span className="text-success">Excellent</span>
+                <span className="text-primary">Started</span>
               </div>
-              <ProgressBar now={90} variant="success" style={{ height: '8px' }} className="bg-surface-alt rounded-pill border-0" />
+              <ProgressBar now={0} variant="primary" style={{ height: '8px' }} className="bg-surface-alt rounded-pill border-0" />
               <p className="extra-small fw-bold mt-3 mb-0 text-center text-muted">
                 Based on submission punctuality and feedback.
               </p>
