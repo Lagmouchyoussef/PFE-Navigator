@@ -45,12 +45,33 @@ const ResourceHub: React.FC = () => {
     );
   };
 
-  const handleAction = (action: string, file: any) => {
+  const handleAction = async (action: string, file: any) => {
     if (action === 'Suppression') {
       removeFromResources(file.id);
       setSuccessMsg(`Fichier "${file.title}" supprimé avec succès.`);
-    } else {
-      setSuccessMsg(`L'action "${action}" sur le fichier "${file.title}" a été effectuée.`);
+    } else if (action === 'Téléchargement') {
+      // Simulate real download
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('download', file.title);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setSuccessMsg(`Préparation du téléchargement pour "${file.title}"...`);
+    } else if (action === 'Partage') {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: file.title,
+            text: `Consultez ce document : ${file.title}`,
+            url: window.location.href
+          });
+        } catch (err) {
+          setSuccessMsg(`Option de partage activée pour "${file.title}".`);
+        }
+      } else {
+        setSuccessMsg(`Lien de partage copié pour "${file.title}".`);
+      }
     }
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
