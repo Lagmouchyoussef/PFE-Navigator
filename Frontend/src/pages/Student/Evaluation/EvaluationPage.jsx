@@ -106,40 +106,40 @@ const EvaluationPage = () => {
             <Dropdown.Menu className="border-0 shadow-lg rounded-4 p-2 mt-2">
               <Dropdown.Item 
                 className="d-flex align-items-center gap-3 py-2 rounded-3"
-                onClick={() => alert("Génération du rapport PDF...")}
+                onClick={() => alert("Generating PDF report...")}
               >
                 <div className="p-2 bg-danger-soft text-danger rounded-3">
                   <FileText size={18} />
                 </div>
                 <div>
                   <div className="fw-bold small">Export PDF</div>
-                  <div className="extra-small text-muted fw-bold">Document Portable</div>
+                  <div className="extra-small text-muted fw-bold">Portable Document</div>
                 </div>
               </Dropdown.Item>
 
               <Dropdown.Item 
                 className="d-flex align-items-center gap-3 py-2 rounded-3"
-                onClick={() => alert("Exportation CSV en cours...")}
+                onClick={() => alert("CSV Export in progress...")}
               >
                 <div className="p-2 bg-success-soft text-success rounded-3">
                   <TableIcon size={18} />
                 </div>
                 <div>
                   <div className="fw-bold small">Export CSV</div>
-                  <div className="extra-small text-muted fw-bold">Feuille de calcul</div>
+                  <div className="extra-small text-muted fw-bold">Spreadsheet</div>
                 </div>
               </Dropdown.Item>
 
               <Dropdown.Item 
                 className="d-flex align-items-center gap-3 py-2 rounded-3"
-                onClick={() => alert("Génération du document Word...")}
+                onClick={() => alert("Generating Word document...")}
               >
                 <div className="p-2 bg-primary-soft text-primary rounded-3">
                   <FileIcon size={18} />
                 </div>
                 <div>
                   <div className="fw-bold small">Export Word</div>
-                  <div className="extra-small text-muted fw-bold">Document Microsoft</div>
+                  <div className="extra-small text-muted fw-bold">Microsoft Document</div>
                 </div>
               </Dropdown.Item>
             </Dropdown.Menu>
@@ -246,9 +246,9 @@ const EvaluationPage = () => {
                           <div className="p-3 bg-warning-soft text-warning rounded-circle shadow-sm">
                             <Clock size={32} />
                           </div>
-                          <h6 className="fw-bold text-navy mb-1">En attente de publication officielle</h6>
+                          <h6 className="fw-bold text-navy mb-1">Awaiting official publication</h6>
                           <p className="extra-small text-muted fw-bold mb-0 opacity-75 max-w-400 mx-auto">
-                            Vos notes de PFE (Encadrant et Jury) ont été soumises mais restent confidentielles jusqu'à la validation finale par l'administration.
+                            Your PFE grades (Supervisor and Jury) have been submitted but remain confidential until final validation by the administration.
                           </p>
                         </div>
                       </td>
@@ -257,12 +257,12 @@ const EvaluationPage = () => {
                     <>
                       <tr className="border-bottom border-light border-opacity-10 bg-primary-soft bg-opacity-10">
                         <td className="px-4 py-4">
-                          <div className="fw-bold small text-primary">Note Encadrant (Contrôle Continu)</div>
+                          <div className="fw-bold small text-primary">Supervisor Grade (Continuous Control)</div>
                         </td>
                         <td><span className="extra-small fw-bold text-muted">{pfeWeights.supervisor}%</span></td>
                         <td>
                           <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${supScore === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
-                            {supScore !== null ? `${supScore}/20` : 'En attente'}
+                            {supScore !== null ? `${supScore}/20` : 'Pending'}
                           </Badge>
                         </td>
                         <td><span className="fw-bold text-navy small">{supScore !== null ? (supScore * (pfeWeights.supervisor / 100)).toFixed(2) : '--'}</span></td>
@@ -272,12 +272,12 @@ const EvaluationPage = () => {
                       </tr>
                       <tr className="border-bottom border-light border-opacity-10 bg-info-soft bg-opacity-10">
                         <td className="px-4 py-4">
-                          <div className="fw-bold small text-info">Note Jury (Soutenance PFE)</div>
+                          <div className="fw-bold small text-info">Jury Grade (PFE Defense)</div>
                         </td>
                         <td><span className="extra-small fw-bold text-muted">{pfeWeights.jury}%</span></td>
                         <td>
                           <Badge className={`px-3 py-1 extra-small fw-bold border-0 ${juryScore === null ? 'bg-surface-alt text-muted' : 'bg-success-soft text-success'}`}>
-                            {juryScore !== null ? `${juryScore}/20` : 'En attente'}
+                            {juryScore !== null ? `${juryScore}/20` : 'Pending'}
                           </Badge>
                         </td>
                         <td><span className="fw-bold text-navy small">{juryScore !== null ? (juryScore * (pfeWeights.jury / 100)).toFixed(2) : '--'}</span></td>
@@ -286,7 +286,7 @@ const EvaluationPage = () => {
                         </td>
                       </tr>
                       <tr className="bg-surface-alt align-middle">
-                        <td colSpan="3" className="px-4 py-4 fw-bold text-navy">Note Finale PFE (Moyenne Consolidée)</td>
+                        <td colSpan="3" className="px-4 py-4 fw-bold text-navy">Final PFE Grade (Consolidated Average)</td>
                         <td colSpan="2" className="px-4 py-4 text-end">
                           <div className="d-flex align-items-baseline justify-content-end gap-2">
                             <h3 className="fw-bold text-primary mb-0">{pfeFinalGrade !== null ? pfeFinalGrade.toFixed(2) : '--'}</h3>

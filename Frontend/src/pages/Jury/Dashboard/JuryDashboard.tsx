@@ -47,10 +47,10 @@ const JuryDashboard: React.FC = () => {
     const time = new Date(n.date);
     const now = new Date();
     const diff = Math.floor((now.getTime() - time.getTime()) / 1000 / 60); // minutes
-    let timeLabel = "À l'instant";
-    if (diff >= 1440) timeLabel = `Il y a ${Math.floor(diff/1440)}j`;
-    else if (diff >= 60) timeLabel = `Il y a ${Math.floor(diff/60)}h`;
-    else if (diff > 0) timeLabel = `Il y a ${diff} min`;
+    let timeLabel = "Just now";
+    if (diff >= 1440) timeLabel = `${Math.floor(diff/1440)}d ago`;
+    else if (diff >= 60) timeLabel = `${Math.floor(diff/60)}h ago`;
+    else if (diff > 0) timeLabel = `${diff}m ago`;
 
     return {
       id: n.id,
@@ -97,7 +97,7 @@ const JuryDashboard: React.FC = () => {
               value={students.length.toString()} 
               icon={<Briefcase />} 
               color="primary" 
-              trend={`Total des étudiants`}
+              trend={`Total Students`}
               onClick={() => navigate('/jury/projects')}
             />
           </Col>
@@ -107,7 +107,7 @@ const JuryDashboard: React.FC = () => {
               value={students.filter(s => s.isJuryEvaluated).length.toString()} 
               icon={<CheckCircle />} 
               color="success" 
-              trend={`${Math.round((students.filter(s => s.isJuryEvaluated).length / (students.length || 1)) * 100)}% complété`}
+              trend={`${Math.round((students.filter(s => s.isJuryEvaluated).length / (students.length || 1)) * 100)}% completed`}
               onClick={() => navigate('/jury/evaluation')}
             />
           </Col>
@@ -117,7 +117,7 @@ const JuryDashboard: React.FC = () => {
               value={appointments.filter(a => (a.type === 'Defense' || a.type === 'Review') && a.status !== 'Cancelled').length.toString()} 
               icon={<Calendar />} 
               color="warning" 
-              trend="Planning total" 
+              trend="Total Planning" 
               onClick={() => navigate('/jury/schedule')}
             />
           </Col>
@@ -131,7 +131,7 @@ const JuryDashboard: React.FC = () => {
               } 
               icon={<Star />} 
               color="info" 
-              trend="Moyenne / 20" 
+              trend="Average / 20" 
             />
           </Col>
         </Row>
@@ -143,7 +143,7 @@ const JuryDashboard: React.FC = () => {
           </Col>
           <Col lg={4}>
             <div className="glass-card p-4 h-100 d-flex flex-column">
-              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Notifications Récentes</h5>
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Recent Notifications</h5>
               <div className="d-flex flex-column gap-3 flex-grow-1">
                 {recentNotifs.length > 0 ? recentNotifs.map((act) => (
                   <div 
@@ -165,7 +165,7 @@ const JuryDashboard: React.FC = () => {
                 )) : (
                   <div className="text-center py-5 text-muted extra-small fw-bold opacity-50">
                     <Bell size={32} className="mb-2 d-block mx-auto opacity-25" />
-                    Aucune notification récente
+                    No recent notifications
                   </div>
                 )}
               </div>
@@ -173,7 +173,7 @@ const JuryDashboard: React.FC = () => {
                 className="btn-premium w-100 mt-4 py-3 rounded-4 fw-bold shadow-sm border-0 d-flex align-items-center justify-content-center gap-2"
                 onClick={() => navigate('/jury/notifications')}
               >
-                <Bell size={18} /> Voir toutes les notifications
+                <Bell size={18} /> View all notifications
               </Button>
             </div>
           </Col>
@@ -212,10 +212,10 @@ const JuryDashboard: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 extra-small text-navy fw-bold opacity-75">{row.date || 'À définir'}</td>
+                    <td className="py-3 extra-small text-navy fw-bold opacity-75">{row.date || 'To define'}</td>
                     <td className="py-3">
                       <Badge className={`bg-${row.isDraft ? 'warning' : 'primary'}-soft text-${row.isDraft ? 'warning' : 'primary'} border-0 extra-small fw-bold px-3 py-1`}>
-                        {row.isDraft ? 'Brouillon' : 'En Attente'}
+                        {row.isDraft ? 'Draft' : 'Pending'}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-end">
@@ -232,7 +232,7 @@ const JuryDashboard: React.FC = () => {
                 {students.filter(s => !s.isJuryEvaluated).length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-5 text-center text-muted extra-small fw-bold opacity-50">
-                      Toutes les évaluations sont terminées !
+                      All evaluations are completed!
                     </td>
                   </tr>
                 )}

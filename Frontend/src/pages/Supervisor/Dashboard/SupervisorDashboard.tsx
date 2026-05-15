@@ -25,28 +25,28 @@ const SupervisorDashboard: React.FC = () => {
 
   // Mock data for charts (can be made dynamic later)
   const WEEKLY_ACTIVITY = [
-    { day: 'Lun', meetings: 4, feedback: 12 },
-    { day: 'Mar', meetings: 2, feedback: 8 },
-    { day: 'Mer', meetings: 5, feedback: 15 },
-    { day: 'Jeu', meetings: 3, feedback: 10 },
-    { day: 'Ven', meetings: 6, feedback: 18 },
-    { day: 'Sam', meetings: 1, feedback: 4 },
+    { day: 'Mon', meetings: 4, feedback: 12 },
+    { day: 'Tue', meetings: 2, feedback: 8 },
+    { day: 'Wed', meetings: 5, feedback: 15 },
+    { day: 'Thu', meetings: 3, feedback: 10 },
+    { day: 'Fri', meetings: 6, feedback: 18 },
+    { day: 'Sat', meetings: 1, feedback: 4 },
   ];
 
   const DELIVERABLE_STATUS = [
-    { name: 'Cahier des Charges', value: 90, color: 'var(--color-success)' },
-    { name: 'Rapport Partiel', value: 65, color: 'var(--color-primary)' },
-    { name: 'Rapport Final', value: 20, color: 'var(--color-warning)' },
-    { name: 'Présentation', value: 10, color: 'var(--color-info)' },
+    { name: 'Requirements Specifications', value: 90, color: 'var(--color-success)' },
+    { name: 'Interim Report', value: 65, color: 'var(--color-primary)' },
+    { name: 'Final Report', value: 20, color: 'var(--color-warning)' },
+    { name: 'Presentation', value: 10, color: 'var(--color-info)' },
   ];
 
   const SKILLS_DISTRIBUTION = [
-    { subject: 'Analyse', A: 120, B: 110, fullMark: 150 },
-    { subject: 'Développement', A: 98, B: 130, fullMark: 150 },
-    { subject: 'Conception', A: 86, B: 130, fullMark: 150 },
+    { subject: 'Analysis', A: 120, B: 110, fullMark: 150 },
+    { subject: 'Development', A: 98, B: 130, fullMark: 150 },
+    { subject: 'Design', A: 86, B: 130, fullMark: 150 },
     { subject: 'Documentation', A: 99, B: 100, fullMark: 150 },
-    { subject: 'Recherche', A: 85, B: 90, fullMark: 150 },
-    { subject: 'Tests', A: 65, B: 85, fullMark: 150 },
+    { subject: 'Research', A: 85, B: 90, fullMark: 150 },
+    { subject: 'Testing', A: 65, B: 85, fullMark: 150 },
   ];
 
   return (
@@ -65,8 +65,8 @@ const SupervisorDashboard: React.FC = () => {
                 <CheckCircle size={20} />
               </div>
               <div>
-                <h6 className="mb-0 fw-bold small">Rapports Mis à Jour</h6>
-                <p className="extra-small mb-0 opacity-75 fw-bold">3 nouveaux rapports ont été déposés par vos étudiants et attendent votre revue.</p>
+                <h6 className="mb-0 fw-bold small">Reports Updated</h6>
+                <p className="extra-small mb-0 opacity-75 fw-bold">3 new reports have been submitted by your students and are awaiting your review.</p>
               </div>
             </div>
             <Button variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Dismiss</Button>
@@ -76,9 +76,9 @@ const SupervisorDashboard: React.FC = () => {
         {/* Welcome Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Tableau de Bord Encadrant</h2>
+            <h2 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Année Universitaire 2025/2026 • Ravi de vous revoir, Prof. {user?.name}
+              Academic Year 2025/2026 • Great to see you again, Prof. {user?.name}
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -95,16 +95,16 @@ const SupervisorDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
             <StatCard 
-              label="Étudiants Supervisés" 
+              label="Supervised Students" 
               value={students.length.toString()} 
               color="primary" 
               icon={<Users />} 
-              trend="+3 mois" 
+              trend="+3 months" 
               onClick={() => navigate('/supervisor/students')}
             />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Avg Progress" value="72%" color="success" icon={<TrendingUp />} trend="+12% week" />
+            <StatCard label="Avg Progress" value="72%" color="success" icon={<TrendingUp />} trend="+12% this week" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Meeting Hours" value="142h" color="info" icon={<Clock />} trend="Semester" />
@@ -225,9 +225,9 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={8}>
             <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
               <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-                <h5 className="mb-0 fw-bold text-navy">Étudiants Supervisés</h5>
+                <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
                 <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
-                  Voir la liste complète <ChevronRight size={14} />
+                  View full list <ChevronRight size={14} />
                 </Button>
               </div>
               <div className="table-responsive">
@@ -313,18 +313,18 @@ const SupervisorDashboard: React.FC = () => {
               {/* Upcoming Deadlines */}
               <Card className="glass-card border p-4 shadow-sm border-0">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-primary">Prochaines Échéances</h6>
+                  <h6 className="fw-bold mb-0 text-primary">Upcoming Deadlines</h6>
                   <Clock size={18} className="text-warning" />
                 </div>
                 <div className="mb-4 pb-3 border-bottom border-muted">
-                  <div className="extra-small text-warning fw-bold mb-1">15 MAI, 2026</div>
-                  <div className="small fw-bold mb-1">Dépôt du Rapport Final</div>
-                  <div className="extra-small text-muted fw-bold">{students.length} étudiants restants</div>
+                  <div className="extra-small text-warning fw-bold mb-1">MAY 15, 2026</div>
+                  <div className="small fw-bold mb-1">Final Report Submission</div>
+                  <div className="extra-small text-muted fw-bold">{students.length} students remaining</div>
                 </div>
                 <div className="deadline-item">
-                  <div className="extra-small text-warning fw-bold mb-1">20 MAI, 2026</div>
-                  <div className="small fw-bold mb-1">Session de Soutenance A</div>
-                  <div className="extra-small text-muted fw-bold">{appointments[0]?.location || "Salle 304"} - {appointments[0]?.time || "09:00"}</div>
+                  <div className="extra-small text-warning fw-bold mb-1">MAY 20, 2026</div>
+                  <div className="small fw-bold mb-1">Defense Session A</div>
+                  <div className="extra-small text-muted fw-bold">{appointments[0]?.location || "Room 304"} - {appointments[0]?.time || "09:00"}</div>
                 </div>
               </Card>
 

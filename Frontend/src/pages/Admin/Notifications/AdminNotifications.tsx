@@ -22,9 +22,9 @@ interface NotificationItem {
 const NOTIFICATIONS: NotificationItem[] = [
   { 
     id: 1, 
-    title: 'Rappel Jury #15', 
-    desc: 'Le jury Innovation Tech commence demain à 9h00. Veuillez préparer vos évaluations.', 
-    time: 'Il y a 30 min', 
+    title: 'Jury Reminder #15', 
+    desc: 'The Tech Innovation jury starts tomorrow at 9:00 AM. Please prepare your evaluations.', 
+    time: '30 min ago', 
     type: 'reminder', 
     icon: <RefreshCcw />,
     color: 'warning',
@@ -32,9 +32,9 @@ const NOTIFICATIONS: NotificationItem[] = [
   },
   { 
     id: 2, 
-    title: 'Projet Alpha archivé', 
-    desc: 'Le projet Alpha a été archivé avec succès après validation finale du jury.', 
-    time: 'Il y a 2 heures', 
+    title: 'Project Alpha archived', 
+    desc: 'Project Alpha has been successfully archived after final jury validation.', 
+    time: '2 hours ago', 
     type: 'success', 
     icon: <Archive />,
     color: 'success',
@@ -42,9 +42,9 @@ const NOTIFICATIONS: NotificationItem[] = [
   },
   { 
     id: 3, 
-    title: 'Nouveau membre ajouté', 
-    desc: 'Lucas Petit a rejoint le groupe de participants pour le projet Gamma.', 
-    time: 'Hier', 
+    title: 'New member added', 
+    desc: 'Lucas Petit joined the participants group for project Gamma.', 
+    time: 'Yesterday', 
     type: 'info', 
     icon: <UserPlus />,
     color: 'primary',
@@ -52,9 +52,9 @@ const NOTIFICATIONS: NotificationItem[] = [
   },
   { 
     id: 4, 
-    title: 'Mise à jour Système', 
-    desc: 'Le système a été mis à jour vers la version 2.4.1. Nouvelles fonctionnalités de sécurité disponibles.', 
-    time: 'Il y a 3 jours', 
+    title: 'System Update', 
+    desc: 'The system has been updated to version 2.4.1. New security features available.', 
+    time: '3 days ago', 
     type: 'system', 
     icon: <ShieldAlert />,
     color: 'info',
@@ -62,9 +62,9 @@ const NOTIFICATIONS: NotificationItem[] = [
   },
   { 
     id: 5, 
-    title: 'Session Jury expirée', 
-    desc: 'La session de jury du 10 Mai a expiré. Veuillez valider les notes finales.', 
-    time: 'Il y a 4 jours', 
+    title: 'Jury Session expired', 
+    desc: 'The May 10 jury session has expired. Please validate the final grades.', 
+    time: '4 days ago', 
     type: 'urgent', 
     icon: <AlertCircle />,
     color: 'danger',
@@ -81,7 +81,7 @@ const AdminNotifications: React.FC = () => {
     setTimeout(() => {
       setLoading(false);
       setHasMore(false);
-      alert("Toutes les notifications ont été chargées.");
+      alert("All notifications have been loaded.");
     }, 800);
   };
 
@@ -91,15 +91,15 @@ const AdminNotifications: React.FC = () => {
         {/* Header */}
         <header className="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-gradient">Centre de Notifications</h2>
-            <p className="text-muted small mb-0">Restez informé de toutes les activités administratives importantes.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Notifications Center</h2>
+            <p className="text-muted small mb-0">Stay informed of all important administrative activities.</p>
           </motion.div>
           
           <div className="d-flex align-items-center px-4 py-2 rounded-pill shadow-sm glass-card" style={{ minWidth: '300px' }}>
             <Search size={18} className="text-muted me-2" />
             <Form.Control 
               type="text" 
-              placeholder="Rechercher une notification..." 
+              placeholder="Search for a notification..." 
               className="border-0 bg-transparent shadow-none extra-small fw-bold p-0 text-navy"
             />
           </div>
@@ -108,25 +108,25 @@ const AdminNotifications: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="2" icon={<Bell />} color="primary" trend="Alert" />
+            <StatCard label="Unread" value="2" icon={<Bell />} color="primary" trend="Alert" />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Total" value="7" icon={<Activity />} color="info" trend="Stats" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Cette semaine" value="24" icon={<RefreshCcw />} color="success" trend="Active" />
+            <StatCard label="This week" value="24" icon={<RefreshCcw />} color="success" trend="Active" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Importantes" value="3" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Important" value="3" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 
         {/* Feed Actions */}
         <div className="d-flex gap-2 mb-4">
-          <Button variant="primary" className="fw-bold small rounded-pill px-4 shadow-sm border-0 btn-premium">Toutes</Button>
-          <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Non lues</Button>
+          <Button variant="primary" className="fw-bold small rounded-pill px-4 shadow-sm border-0 btn-premium">All</Button>
+          <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Unread</Button>
           <Button variant="outline-secondary" className="fw-bold small rounded-pill px-4 border">Archives</Button>
-          <Button variant="link" className="ms-auto text-muted text-decoration-none extra-small fw-bold border-0 bg-transparent">Tout marquer comme lu</Button>
+          <Button variant="link" className="ms-auto text-muted text-decoration-none extra-small fw-bold border-0 bg-transparent">Mark all as read</Button>
         </div>
 
         {/* Main Feed */}
@@ -156,18 +156,18 @@ const AdminNotifications: React.FC = () => {
                 </div>
                 
                 <div className="d-flex gap-2 mt-3">
-                  <Button variant="link" className="p-0 extra-small fw-bold text-primary text-decoration-none">Voir les détails</Button>
-                  <Button variant="link" className="p-0 extra-small fw-bold text-muted text-decoration-none">Ignorer</Button>
+                  <Button variant="link" className="p-0 extra-small fw-bold text-primary text-decoration-none">View details</Button>
+                  <Button variant="link" className="p-0 extra-small fw-bold text-muted text-decoration-none">Ignore</Button>
                 </div>
               </div>
               
               <Dropdown align="end">
                 <Dropdown.Toggle variant="link" className="p-1 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
                 <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                  <Dropdown.Item className="small fw-bold"><CheckCircle2 size={14} className="me-2"/> Marquer comme lu</Dropdown.Item>
-                  <Dropdown.Item className="small fw-bold"><Archive size={14} className="me-2"/> Archiver</Dropdown.Item>
+                  <Dropdown.Item className="small fw-bold"><CheckCircle2 size={14} className="me-2"/> Mark as read</Dropdown.Item>
+                  <Dropdown.Item className="small fw-bold"><Archive size={14} className="me-2"/> Archive</Dropdown.Item>
                   <Dropdown.Divider />
-                  <Dropdown.Item className="small fw-bold text-danger"><Trash2 size={14} className="me-2"/> Supprimer</Dropdown.Item>
+                  <Dropdown.Item className="small fw-bold text-danger"><Trash2 size={14} className="me-2"/> Delete</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </motion.div>
@@ -182,11 +182,11 @@ const AdminNotifications: React.FC = () => {
             disabled={loading || !hasMore}
           >
             {loading ? (
-              <><RefreshCcw size={18} className="animate-spin" /> Chargement...</>
+              <><RefreshCcw size={18} className="animate-spin" /> Loading...</>
             ) : hasMore ? (
-              "Charger plus de notifications"
+              "Load more notifications"
             ) : (
-              "Plus de notifications"
+              "No more notifications"
             )}
           </Button>
         </div>

@@ -146,44 +146,44 @@ const SettingsPage: React.FC = () => {
                       <Row className="g-4">
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Nom</Form.Label>
-                            <Form.Control defaultValue={user?.name?.split(' ')[1] || ''} placeholder="Ex: Benali" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                            <Form.Label className="small fw-bold text-muted mb-2">Last Name</Form.Label>
+                            <Form.Control defaultValue={user?.name?.split(' ')[1] || ''} placeholder="Ex: Smith" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Prénom</Form.Label>
-                            <Form.Control defaultValue={user?.name?.split(' ')[0] || ''} placeholder="Ex: Ahmed" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                            <Form.Label className="small fw-bold text-muted mb-2">First Name</Form.Label>
+                            <Form.Control defaultValue={user?.name?.split(' ')[0] || ''} placeholder="Ex: John" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Numéro de téléphone</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Phone Number</Form.Label>
                             <Form.Control type="tel" defaultValue="+212 600 000 000" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Email Institutionnel</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Institutional Email</Form.Label>
                             <Form.Control 
                               defaultValue={user?.email} 
                               className="form-control-premium" 
                               readOnly={user?.role !== 'admin'} 
-                              title={user?.role !== 'admin' ? "Seul l'administrateur peut modifier l'email" : ""}
+                              title={user?.role !== 'admin' ? "Only administrators can modify the email" : ""}
                             />
                           </Form.Group>
                         </Col>
-                        {/* Section: Informations Personnelles */}
-                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations Personnelles</h6></Col>
+                        {/* Section: Personal Information */}
+                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Personal Information</h6></Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">CIN (Carte d'Identité Nationale)</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">National Identity Card (CIN)</Form.Label>
                             <Form.Control placeholder="Ex: AB123456" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Adresse de Résidence</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Residential Address</Form.Label>
                             <Form.Control placeholder="Ex: 123 Rue de la Liberté, Casablanca" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
@@ -191,55 +191,55 @@ const SettingsPage: React.FC = () => {
                           <>
                             <Col md={6}>
                               <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Code de CNSS</Form.Label>
+                                <Form.Label className="small fw-bold text-muted mb-2">Social Security Code (CNSS)</Form.Label>
                                 <Form.Control placeholder="Ex: 123456789" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                               </Form.Group>
                             </Col>
                             <Col md={6}>
                               <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Situation familiale</Form.Label>
+                                <Form.Label className="small fw-bold text-muted mb-2">Family Status</Form.Label>
                                 <Form.Select className="form-control-premium" disabled={user?.role !== 'admin'}>
-                                  <option>Célibataire</option>
-                                  <option>Marié(e)</option>
-                                  <option>Divorcé(e)</option>
-                                  <option>Veuf/Veuve</option>
+                                  <option>Single</option>
+                                  <option>Married</option>
+                                  <option>Divorced</option>
+                                  <option>Widowed</option>
                                 </Form.Select>
                               </Form.Group>
                             </Col>
                           </>
                         )}
 
-                        {/* Section: Informations Académiques */}
-                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations Académiques</h6></Col>
+                        {/* Section: Academic Information */}
+                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Academic Information</h6></Col>
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Année Universitaire</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Academic Year</Form.Label>
                             <Form.Control defaultValue="2025/2026" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         {user?.role !== 'jury' && user?.role !== 'supervisor' && (
                           <Col md={4}>
                             <Form.Group>
-                              <Form.Label className="small fw-bold text-muted mb-2">Code National (CNE/Massar)</Form.Label>
+                              <Form.Label className="small fw-bold text-muted mb-2">National Student Code (CNE)</Form.Label>
                               <Form.Control placeholder="Ex: G130000000" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                             </Form.Group>
                           </Col>
                         )}
                         <Col md={4}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Section / Groupe</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Section / Group</Form.Label>
                             <Form.Control placeholder="Ex: 5IIR-G1" className="form-control-premium" readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">
-                              {user?.role === 'jury' || user?.role === 'supervisor' ? 'Diplôme obtenu' : 'Note du Diplôme (Dernière année)'}
+                              {user?.role === 'jury' || user?.role === 'supervisor' ? 'Degree Earned' : 'Degree Grade (Final Year)'}
                             </Form.Label>
                             <Form.Control 
                               type={user?.role === 'jury' || user?.role === 'supervisor' ? 'text' : 'number'} 
                               step="0.01" 
-                              placeholder={user?.role === 'jury' || user?.role === 'supervisor' ? 'Ex: Doctorat en Informatique' : 'Ex: 16.50'} 
+                              placeholder={user?.role === 'jury' || user?.role === 'supervisor' ? 'Ex: PhD in Computer Science' : 'Ex: 16.50'} 
                               className="form-control-premium" 
                               readOnly={user?.role !== 'admin'} 
                             />
@@ -247,80 +247,76 @@ const SettingsPage: React.FC = () => {
                         </Col>
                         <Col md={6}>
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Filière / Spécialité</Form.Label>
+                            <Form.Label className="small fw-bold text-muted mb-2">Field / Specialty</Form.Label>
                             <Form.Select className="form-control-premium" disabled={user?.role !== 'admin'}>
-                              <option>Ingénierie Informatique et Réseaux (IIR)</option>
-                              <option>Ingénierie Automatismes et Informatique Industrielle (IAII)</option>
-                              <option>Génie Civil</option>
+                              <option>Computer Engineering and Networks (IIR)</option>
+                              <option>Automation and Industrial Computing (IAII)</option>
+                              <option>Civil Engineering</option>
                             </Form.Select>
                           </Form.Group>
                         </Col>
 
-                        {/* Section: Informations des Parents */}
-                        {user?.role !== 'jury' && user?.role !== 'supervisor' && (
-                          <>
-                            <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Informations des Parents</h6></Col>
-                            
-                            {/* Père */}
-                            <Col md={12} className="mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails du Père (Papa)</span></Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom du Père</Form.Label>
-                                <Form.Control placeholder="Nom du père..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
-                                <Form.Control placeholder="Ex: Cadre Bancaire" className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Tél. du Père</Form.Label>
-                                <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Email du Père</Form.Label>
-                                <Form.Control type="email" placeholder="papa@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
+                        {/* Section: Parent Information */}
+                        <Col md={12} className="mt-5"><h6 className="fw-bold text-navy border-bottom pb-2 mb-3">Parent Information</h6></Col>
+                        
+                        {/* Father */}
+                        <Col md={12} className="mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Father Details</span></Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Father's Full Name</Form.Label>
+                            <Form.Control placeholder="Father's name..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Job / Profession</Form.Label>
+                            <Form.Control placeholder="Ex: Bank Manager" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Father's Phone</Form.Label>
+                            <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Father's Email</Form.Label>
+                            <Form.Control type="email" placeholder="father@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
 
-                            {/* Mère */}
-                            <Col md={12} className="mt-4 mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Détails de la Mère (Maman)</span></Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Nom & Prénom de la Mère</Form.Label>
-                                <Form.Control placeholder="Nom de la mère..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Fonction / Profession</Form.Label>
-                                <Form.Control placeholder="Ex: Enseignante" className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Tél. de la Mère</Form.Label>
-                                <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="small fw-bold text-muted mb-2">Email de la Mère</Form.Label>
-                                <Form.Control type="email" placeholder="maman@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
-                              </Form.Group>
-                            </Col>
-                          </>
-                        )}
+                        {/* Mother */}
+                        <Col md={12} className="mt-4 mb-2"><span className="extra-small fw-bold text-primary text-uppercase tracking-wider">Mother Details</span></Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Mother's Full Name</Form.Label>
+                            <Form.Control placeholder="Mother's name..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Job / Profession</Form.Label>
+                            <Form.Control placeholder="Ex: Teacher" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Mother's Phone</Form.Label>
+                            <Form.Control type="tel" placeholder="+212 6..." className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className="small fw-bold text-muted mb-2">Mother's Email</Form.Label>
+                            <Form.Control type="email" placeholder="mother@email.com" className="form-control-premium" readOnly={user?.role !== 'admin'} />
+                          </Form.Group>
+                        </Col>
 
                         <Col md={12} className="mt-5">
                           <Form.Group>
-                            <Form.Label className="small fw-bold text-muted mb-2">Notes Additionnelles</Form.Label>
-                            <Form.Control as="textarea" rows={3} className="form-control-premium" placeholder="Autres informations pertinentes..." readOnly={user?.role !== 'admin'} />
+                            <Form.Label className="small fw-bold text-muted mb-2">Additional Notes</Form.Label>
+                            <Form.Control as="textarea" rows={3} className="form-control-premium" placeholder="Other relevant information..." readOnly={user?.role !== 'admin'} />
                           </Form.Group>
                         </Col>
                       </Row>
@@ -340,8 +336,8 @@ const SettingsPage: React.FC = () => {
                                       <CheckCircle size={20} />
                                     </div>
                                     <div>
-                                      <h6 className="fw-bold mb-0 text-navy">Informations Confirmées</h6>
-                                      <p className="extra-small text-success mb-0 fw-bold">Merci ! Vos informations ont été confirmées avec succès.</p>
+                                      <h6 className="fw-bold mb-0 text-navy">Information Confirmed</h6>
+                                      <p className="extra-small text-success mb-0 fw-bold">Thank you! Your information has been successfully confirmed.</p>
                                     </div>
                                   </motion.div>
                                 )}
@@ -355,7 +351,7 @@ const SettingsPage: React.FC = () => {
                                   disabled={isConfirmed}
                                   style={{ backgroundColor: isConfirmed ? '#6ee7b7' : '#10b981', opacity: isConfirmed ? 0.7 : 1 }}
                                 >
-                                  <CheckCircle size={18} /> {isConfirmed ? 'Déjà confirmé' : 'Tout les informations sont correct'}
+                                  <CheckCircle size={18} /> {isConfirmed ? 'Already confirmed' : 'All information is correct'}
                                 </Button>
                                 {!isConfirmed && (
                                   <Button 
@@ -363,7 +359,7 @@ const SettingsPage: React.FC = () => {
                                     className="d-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-3 fw-bold shadow-sm"
                                     onClick={() => setIsReporting(true)}
                                   >
-                                    <AlertCircle size={18} /> Signaler des informations incorrectes
+                                    <AlertCircle size={18} /> Report incorrect information
                                   </Button>
                                 )}
                               </div>
@@ -379,17 +375,17 @@ const SettingsPage: React.FC = () => {
                                   <AlertCircle size={20} />
                                 </div>
                                 <div>
-                                  <h6 className="fw-bold mb-0 text-navy">Signaler une erreur</h6>
-                                  <p className="extra-small text-muted mb-0">Décrivez les modifications à apporter (Données ou Photo)</p>
+                                  <h6 className="fw-bold mb-0 text-navy">Report an error</h6>
+                                  <p className="extra-small text-muted mb-0">Describe the changes to be made (Data or Photo)</p>
                                 </div>
                               </div>
                               
                               <Form.Group className="mb-4">
-                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Description des corrections</Form.Label>
+                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Description of corrections</Form.Label>
                                 <Form.Control 
                                   as="textarea" 
                                   rows={3} 
-                                  placeholder="Ex: Mon adresse est incorrecte, ou Je souhaite changer ma photo de profil..."
+                                  placeholder="Ex: My address is incorrect, or I wish to change my profile photo..."
                                   className="form-control-premium border-danger border-opacity-10 shadow-none"
                                   value={reportMessage}
                                   onChange={(e) => setReportMessage(e.target.value)}
@@ -397,14 +393,14 @@ const SettingsPage: React.FC = () => {
                               </Form.Group>
 
                               <Form.Group className="mb-4">
-                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nouvelle Photo (Optionnel)</Form.Label>
+                                <Form.Label className="extra-small fw-bold text-muted text-uppercase">New Photo (Optional)</Form.Label>
                                 <div 
                                   className="border-dashed rounded-4 p-4 text-center cursor-pointer hover-bg-surface-alt transition-all"
                                   onClick={() => document.getElementById('report-photo-input')?.click()}
                                 >
                                   <Camera size={24} className="text-muted mb-2" />
-                                  <div className="small fw-bold text-navy">Cliquez pour téléverser votre nouvelle photo</div>
-                                  <div className="extra-small text-muted">L'admin validera ce changement</div>
+                                  <div className="small fw-bold text-navy">Click to upload your new photo</div>
+                                  <div className="extra-small text-muted">The admin will validate this change</div>
                                   {newPhoto && <Badge bg="success" className="mt-2">{newPhoto.name}</Badge>}
                                   <input 
                                     id="report-photo-input" 
@@ -417,7 +413,7 @@ const SettingsPage: React.FC = () => {
                               </Form.Group>
 
                               <div className="d-flex gap-2 justify-content-end">
-                                <Button variant="link" className="text-muted small fw-bold text-decoration-none" onClick={() => setIsReporting(false)}>Annuler</Button>
+                                <Button variant="link" className="text-muted small fw-bold text-decoration-none" onClick={() => setIsReporting(false)}>Cancel</Button>
                                 <Button 
                                   className="btn-premium bg-danger border-0 px-4"
                                   onClick={() => {
@@ -426,7 +422,7 @@ const SettingsPage: React.FC = () => {
                                     setTimeout(() => setReportSuccess(false), 5000);
                                   }}
                                 >
-                                  Envoyer le signalement
+                                  Send report
                                 </Button>
                               </div>
                             </motion.div>
@@ -440,7 +436,7 @@ const SettingsPage: React.FC = () => {
                                 exit={{ opacity: 0, y: 20 }}
                                 className="mt-3 p-3 bg-success-soft text-success rounded-3 border border-success border-opacity-25 d-flex align-items-center gap-3 fw-bold small"
                               >
-                                <CheckCircle size={18} /> Signalement envoyé avec succès ! L'administrateur traitera votre demande.
+                                <CheckCircle size={18} /> Report sent successfully! The administrator will process your request.
                               </motion.div>
                             )}
                           </AnimatePresence>

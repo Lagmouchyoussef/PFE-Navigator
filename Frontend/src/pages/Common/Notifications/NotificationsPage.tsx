@@ -35,8 +35,8 @@ const NotificationsPage: React.FC = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Centre de Notifications</h2>
-            <p className="text-muted small mb-0">Restez informé de toutes les activités importantes sur votre plateforme, {user?.name}.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Notification Center</h2>
+            <p className="text-muted small mb-0">Stay informed about all important activities on your platform, {user?.name}.</p>
           </div>
           <div className="d-flex gap-2">
             <InputGroup size="sm" className="bg-surface rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
@@ -55,7 +55,7 @@ const NotificationsPage: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} sm={6}>
-            <StatCard label="Non lues" value={unreadNotificationsCount.toString()} color="primary" icon={<Bell />} trend="Nouveau" />
+            <StatCard label="Unread" value={unreadNotificationsCount.toString()} color="primary" icon={<Bell />} trend="New" />
           </Col>
           <Col lg={3} sm={6}>
             <StatCard label="Total" value={notifications.length.toString()} color="info" icon={<Activity />} trend="Global" />
@@ -64,22 +64,22 @@ const NotificationsPage: React.FC = () => {
             <StatCard label="Messages" value={notifications.filter(n => n.type === 'message').length.toString()} color="success" icon={<MessageSquare />} trend="Chat" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Urgent" value={notifications.filter(n => n.type === 'rejected').length.toString()} color="danger" icon={<AlertCircle />} trend="Critique" />
+            <StatCard label="Urgent" value={notifications.filter(n => n.type === 'rejected').length.toString()} color="danger" icon={<AlertCircle />} trend="Critical" />
           </Col>
         </Row>
 
         {/* Notifications List */}
         <div className="glass-card overflow-hidden mb-5">
           <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-            <h5 className="fw-bold mb-0 text-navy">Notifications Récentes</h5>
+            <h5 className="fw-bold mb-0 text-navy">Recent Notifications</h5>
             <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none shadow-none" onClick={markAllNotificationsRead}>
-              Tout marquer comme lu
+              Mark all as read
             </Button>
           </div>
           <div className="d-flex flex-column">
             {notifications.length === 0 && (
               <div className="p-5 text-center text-muted fw-bold extra-small opacity-50">
-                Vous n'avez aucune notification pour le moment.
+                You have no notifications at the moment.
               </div>
             )}
             {notifications.map((notif) => {
@@ -110,10 +110,10 @@ const NotificationsPage: React.FC = () => {
                   <div className="flex-grow-1 overflow-hidden" onClick={() => markNotificationRead(notif.id)}>
                     <div className="d-flex justify-content-between align-items-start mb-1">
                       <h6 className={`mb-0 small ${!notif.read ? 'fw-bold text-primary' : 'fw-semibold text-muted'}`}>
-                        {notif.type === 'message' ? 'Nouveau Message' : notif.type === 'approved' ? 'Document Approuvé' : notif.type === 'rejected' ? 'Action Requise' : 'Notification'}
+                        {notif.type === 'message' ? 'New Message' : notif.type === 'approved' ? 'Document Approved' : notif.type === 'rejected' ? 'Action Required' : 'Notification'}
                       </h6>
                       <span className="extra-small text-muted fw-bold" style={{ whiteSpace: 'nowrap' }}>
-                        {new Date(notif.time).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                        {new Date(notif.time).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
                     <p className={`extra-small mb-0 lh-base ${!notif.read ? 'text-navy fw-bold' : 'text-muted fw-bold opacity-75'}`}>{notif.text}</p>
@@ -121,8 +121,8 @@ const NotificationsPage: React.FC = () => {
                   <Dropdown align="end">
                     <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
                     <Dropdown.Menu className="border-0 shadow-lg rounded-3 extra-small glass-card">
-                      {!notif.read && <Dropdown.Item className="fw-bold" onClick={() => markNotificationRead(notif.id)}>Marquer comme lu</Dropdown.Item>}
-                      <Dropdown.Item className="fw-bold text-danger" onClick={() => deleteNotification(notif.id)}>Supprimer</Dropdown.Item>
+                      {!notif.read && <Dropdown.Item className="fw-bold" onClick={() => markNotificationRead(notif.id)}>Mark as read</Dropdown.Item>}
+                      <Dropdown.Item className="fw-bold text-danger" onClick={() => deleteNotification(notif.id)}>Delete</Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </div>

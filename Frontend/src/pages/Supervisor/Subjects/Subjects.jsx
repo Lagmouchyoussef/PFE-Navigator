@@ -119,7 +119,7 @@ const Subjects = () => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     setShowAddModal(false);
-    setSuccessMsg("Votre proposition de sujet a été soumise avec succès au département.");
+    setSuccessMsg("Your subject proposal has been successfully submitted to the department.");
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -127,13 +127,13 @@ const Subjects = () => {
   const handleEditSubject = (sub) => {
     setEditModalSubject(sub);
     // Mock pre-fill of objectives based on existing data
-    setSelectedObjectives(['Étude de l\'existant', 'Conception UML/SI']);
+    setSelectedObjectives(['Existing Study', 'UML/SI Design']);
   };
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setEditModalSubject(null);
-    setSuccessMsg(`Le sujet "${editModalSubject.title}" a été mis à jour avec succès.`);
+    setSuccessMsg(`The subject "${editModalSubject.title}" has been successfully updated.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -141,7 +141,7 @@ const Subjects = () => {
   const handleDeleteSubject = () => {
     setIsDeleting(true);
     setTimeout(() => {
-      setSuccessMsg(`Le sujet "${deleteModalSubject.title}" a été supprimé avec succès.`);
+      setSuccessMsg(`The subject "${deleteModalSubject.title}" has been successfully deleted.`);
       setDeleteModalSubject(null);
       setIsDeleting(false);
       setShowSuccessCard(true);
@@ -159,9 +159,9 @@ const Subjects = () => {
   };
 
   const translateStatus = (s) => {
-    if (s === 'Approved') return 'Accepté';
-    if (s === 'Pending') return 'En Attente';
-    if (s === 'Revision') return 'Refusé';
+    if (s === 'Approved') return 'Accepted';
+    if (s === 'Pending') return 'Pending';
+    if (s === 'Revision') return 'Rejected';
     return s;
   };
 
@@ -183,7 +183,7 @@ const Subjects = () => {
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
+                  <h6 className="fw-bold mb-0 text-navy">Success</h6>
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
                 </div>
               </div>
@@ -195,9 +195,9 @@ const Subjects = () => {
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy text-gradient">Sujets de Thèse</h2>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Thesis Subjects</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Proposez et gérez les thématiques de recherche pour la session actuelle
+              Propose and manage research themes for the current session
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -206,35 +206,35 @@ const Subjects = () => {
                 variant="outline-primary" 
                 className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
               >
-                <Download size={18} /> Exportation {selectedIds.length > 0 && `(${selectedIds.length})`}
+                <Download size={18} /> Export {selectedIds.length > 0 && `(${selectedIds.length})`}
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Format d'export</div>
+                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Export Format</div>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
-                  setSuccessMsg(`L'exportation Excel a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setSuccessMsg(`Excel export has been started for ${selectedIds.length > 0 ? selectedIds.length : 'all'} subjects.`);
                   setShowSuccessCard(true);
                   setTimeout(() => setShowSuccessCard(false), 5000);
                 }}>
-                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx)
+                  <FileText size={14} className="text-success" /> Excel List (.xlsx)
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
-                  setSuccessMsg(`L'exportation Word a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setSuccessMsg(`Word export has been started for ${selectedIds.length > 0 ? selectedIds.length : 'all'} subjects.`);
                   setShowSuccessCard(true);
                   setTimeout(() => setShowSuccessCard(false), 5000);
                 }}>
-                  <FileText size={14} className="text-primary" /> Liste Word (.docx)
+                  <FileText size={14} className="text-primary" /> Word List (.docx)
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => {
-                  setSuccessMsg(`L'exportation PDF a été lancée pour ${selectedIds.length > 0 ? selectedIds.length : 'tous les'} sujets.`);
+                  setSuccessMsg(`PDF export has been started for ${selectedIds.length > 0 ? selectedIds.length : 'all'} subjects.`);
                   setShowSuccessCard(true);
                   setTimeout(() => setShowSuccessCard(false), 5000);
                 }}>
-                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf)
+                  <FileText size={14} className="text-danger" /> PDF List (.pdf)
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => setShowAddModal(true)}>
-              <Plus size={18} /> Proposer un nouveau sujet
+              <Plus size={18} /> Propose a new subject
             </Button>
           </div>
         </header>
@@ -242,10 +242,10 @@ const Subjects = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Sujets Totaux', value: '12', icon: <BookOpen />, color: 'primary' },
-            { label: 'Approuvés', value: '8', icon: <CheckCircle />, color: 'success' },
-            { label: 'En Révision', value: '3', icon: <Clock />, color: 'warning' },
-            { label: 'Pris par Étudiants', value: '5', icon: <Users />, color: 'info' },
+            { label: 'Total Subjects', value: '12', icon: <BookOpen />, color: 'primary' },
+            { label: 'Approved', value: '8', icon: <CheckCircle />, color: 'success' },
+            { label: 'Under Revision', value: '3', icon: <Clock />, color: 'warning' },
+            { label: 'Taken by Students', value: '5', icon: <Users />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} sm={6} lg={3}>
               <motion.div 
@@ -269,7 +269,7 @@ const Subjects = () => {
           <Card.Header className="p-4 bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-0">
             <h5 className="mb-0 fw-bold text-navy d-flex align-items-center gap-2">
               <Layout size={20} className="text-primary" />
-              Propositions Actives
+              Active Proposals
             </h5>
             <div className="d-flex gap-2">
               <InputGroup className="bg-surface-alt rounded-pill border px-3" style={{ width: '250px' }}>
@@ -277,7 +277,7 @@ const Subjects = () => {
                   <Search size={16} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Filtrer les sujets..." 
+                  placeholder="Filter subjects..." 
                   className="bg-transparent border-0 py-2 extra-small shadow-none fw-bold"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -298,10 +298,10 @@ const Subjects = () => {
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Titre & Description du Sujet</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Catégorie</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Étudiants</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Statut</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Subject Title & Description</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Category</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Students</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Status</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
@@ -343,7 +343,7 @@ const Subjects = () => {
                           <div className="avatar-xs bg-surface-alt text-navy rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '28px', height: '28px', fontSize: '10px' }}>
                             {subject.students}
                           </div>
-                          <span className="extra-small text-muted fw-bold opacity-75">Inscrit(s)</span>
+                          <span className="extra-small text-muted fw-bold opacity-75">Enrolled</span>
                         </div>
                       </td>
                       <td className="text-center">
@@ -357,7 +357,7 @@ const Subjects = () => {
                             variant="link" 
                             className="p-2 text-info hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
                             onClick={() => setViewModalSubject(subject)}
-                            title="Voir les détails"
+                            title="View Details"
                           >
                             <Eye size={18} />
                           </Button>
@@ -365,7 +365,7 @@ const Subjects = () => {
                             variant="link" 
                             className="p-2 text-primary hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
                             onClick={() => handleEditSubject(subject)}
-                            title="Modifier"
+                            title="Edit"
                           >
                             <Edit3 size={18} />
                           </Button>
@@ -373,7 +373,7 @@ const Subjects = () => {
                             variant="link" 
                             className="p-2 text-danger hover-bg-surface-alt rounded-circle transition-all border-0 shadow-none"
                             onClick={() => setDeleteModalSubject(subject)}
-                            title="Supprimer"
+                            title="Delete"
                           >
                             <Trash2 size={18} />
                           </Button>
@@ -396,26 +396,26 @@ const Subjects = () => {
         className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Proposer un nouveau sujet</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Propose a new subject</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={handleFormSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre du sujet</Form.Label>
-              <Form.Control placeholder="ex: Machine Learning dans le Cloud" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Subject Title</Form.Label>
+              <Form.Control placeholder="e.g.: Machine Learning in the Cloud" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Catégorie / Technologies</Form.Label>
-              <Form.Control placeholder="ex: Python, React, AWS" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Category / Technologies</Form.Label>
+              <Form.Control placeholder="e.g.: Python, React, AWS" className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Description du sujet</Form.Label>
-              <Form.Control as="textarea" rows={3} placeholder="Décrivez la portée du projet..." className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Subject Description</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Describe the project scope..." className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Objectifs Clés (Sélectionnez)</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Key Objectives (Select)</Form.Label>
               <div className="d-flex flex-wrap gap-2 mb-3">
-                {['Étude de l\'existant', 'Conception UML/SI', 'Implémentation Tech', 'Tests & Validation', 'Rédaction Mémoire', 'Déploiement Cloud', 'Autre'].map((obj, i) => {
+                {['Existing Study', 'UML/SI Design', 'Tech Implementation', 'Tests & Validation', 'Thesis Writing', 'Cloud Deployment', 'Other'].map((obj, i) => {
                   const isSelected = selectedObjectives.includes(obj);
                   return (
                     <div 
@@ -443,7 +443,7 @@ const Subjects = () => {
                     <Form.Control 
                       as="textarea" 
                       rows={2} 
-                      placeholder="Précisez votre objectif personnalisé ici..." 
+                      placeholder="Specify your custom objective here..." 
                       className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none mt-2" 
                     />
                   </motion.div>
@@ -452,20 +452,20 @@ const Subjects = () => {
             </Form.Group>
             <Row className="mb-4">
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulté</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulty</Form.Label>
                 <Form.Select className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
-                  <option>Débutant</option>
-                  <option>Intermédiaire</option>
-                  <option>Avancé</option>
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
                 </Form.Select>
               </Col>
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nb. Max Étudiants</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Max Students</Form.Label>
                 <Form.Control type="number" defaultValue={1} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
               </Col>
             </Row>
             <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
-              Soumettre la proposition
+              Submit Proposal
             </Button>
           </Form>
         </Modal.Body>
@@ -479,12 +479,12 @@ const Subjects = () => {
         className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Modifier le Sujet</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Edit Subject</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={handleEditSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre du sujet</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Subject Title</Form.Label>
               <Form.Control 
                 defaultValue={editModalSubject?.title} 
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
@@ -492,7 +492,7 @@ const Subjects = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Catégorie / Technologies</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Category / Technologies</Form.Label>
               <Form.Control 
                 defaultValue={editModalSubject?.category} 
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" 
@@ -500,7 +500,7 @@ const Subjects = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Description du sujet</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Subject Description</Form.Label>
               <Form.Control 
                 as="textarea" 
                 rows={3} 
@@ -510,9 +510,9 @@ const Subjects = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Objectifs Clés (Sélectionnez)</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75 mb-3">Key Objectives (Select)</Form.Label>
               <div className="d-flex flex-wrap gap-2 mb-3">
-                {['Étude de l\'existant', 'Conception UML/SI', 'Implémentation Tech', 'Tests & Validation', 'Rédaction Mémoire', 'Déploiement Cloud', 'Autre'].map((obj, i) => {
+                {['Existing Study', 'UML/SI Design', 'Tech Implementation', 'Tests & Validation', 'Thesis Writing', 'Cloud Deployment', 'Other'].map((obj, i) => {
                   const isSelected = selectedObjectives.includes(obj);
                   return (
                     <div 
@@ -533,20 +533,20 @@ const Subjects = () => {
             </Form.Group>
             <Row className="mb-4">
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulté</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Difficulty</Form.Label>
                 <Form.Select defaultValue={editModalSubject?.difficulty} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none">
-                  <option>Débutant</option>
-                  <option>Intermédiaire</option>
-                  <option>Avancé</option>
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
                 </Form.Select>
               </Col>
               <Col>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nb. Max Étudiants</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Max Students</Form.Label>
                 <Form.Control type="number" defaultValue={editModalSubject?.students} className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none" />
               </Col>
             </Row>
             <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
-              Enregistrer les modifications
+              Save Changes
             </Button>
           </Form>
         </Modal.Body>
@@ -566,7 +566,7 @@ const Subjects = () => {
               <BookOpen size={24} />
             </div>
             <div>
-              <Modal.Title className="fw-bold text-navy h5 mb-0">Détails du Sujet</Modal.Title>
+              <Modal.Title className="fw-bold text-navy h5 mb-0">Subject Details</Modal.Title>
               <Badge className={`bg-${getStatusStyle(viewModalSubject?.status)}-soft text-${getStatusStyle(viewModalSubject?.status)} border-0 extra-small fw-bold`}>
                 {translateStatus(viewModalSubject?.status)}
               </Badge>
@@ -577,39 +577,39 @@ const Subjects = () => {
           <Row className="g-4">
             <Col lg={7}>
               <div className="mb-4">
-                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Titre du Projet</h6>
+                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Project Title</h6>
                 <p className="fw-bold text-navy mb-0">{viewModalSubject?.title}</p>
               </div>
               <div className="mb-4">
-                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Description Complète</h6>
+                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Full Description</h6>
                 <p className="extra-small text-muted fw-bold opacity-75" style={{ lineHeight: '1.6', textAlign: 'justify' }}>
                   {viewModalSubject?.description}
                   <br /><br />
-                  Ce projet vise à explorer les dernières avancées en {viewModalSubject?.category}. L'étudiant devra faire preuve d'autonomie et de rigueur technique pour mener à bien les objectifs fixés.
+                  This project aims to explore the latest advances in {viewModalSubject?.category}. The student must demonstrate autonomy and technical rigor to successfully achieve the set objectives.
                 </p>
               </div>
               <div className="p-3 bg-surface-alt rounded-4 border border-light-soft">
                 <h6 className="fw-bold text-navy extra-small mb-3 d-flex align-items-center gap-2">
-                  <Target size={14} className="text-primary" /> Objectifs Clés
+                  <Target size={14} className="text-primary" /> Key Objectives
                 </h6>
                 <ul className="extra-small text-muted fw-bold opacity-75 mb-0 ps-3">
-                  <li className="mb-2">Analyse approfondie de l'existant</li>
-                  <li className="mb-2">Conception d'une architecture robuste</li>
-                  <li className="mb-2">Implémentation et tests unitaires</li>
-                  <li>Rédaction du mémoire final</li>
+                  <li className="mb-2">In-depth analysis of existing systems</li>
+                  <li className="mb-2">Design of a robust architecture</li>
+                  <li className="mb-2">Implementation and unit testing</li>
+                  <li>Final thesis writing</li>
                 </ul>
               </div>
             </Col>
             <Col lg={5}>
               <div className="mb-4">
                 <h6 className="fw-bold text-navy small mb-3 text-uppercase opacity-50 d-flex align-items-center gap-2">
-                  <Users size={16} /> Étudiants Inscrits ({viewModalSubject?.students})
+                  <Users size={16} /> Enrolled Students ({viewModalSubject?.students})
                 </h6>
                 {viewModalSubject?.students > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {[
-                      { name: 'Ahmed Khalil', email: 'ahmed.khalil@emsi.ma', year: '5ème Année' },
-                      { name: 'Sara Kamali', email: 'sara.kamali@emsi.ma', year: '5ème Année' }
+                      { name: 'Ahmed Khalil', email: 'ahmed.khalil@emsi.ma', year: '5th Year' },
+                      { name: 'Sara Kamali', email: 'sara.kamali@emsi.ma', year: '5th Year' }
                     ].slice(0, viewModalSubject?.students).map((stu, i) => (
                       <div key={i} className="p-3 bg-white rounded-4 border border-light-soft shadow-sm hover-shadow-md transition-all">
                         <div className="d-flex align-items-center gap-3 mb-2">
@@ -624,7 +624,7 @@ const Subjects = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <span className="text-muted" style={{ fontSize: '10px', fontWeight: 'bold' }}>{stu.email}</span>
                           <Button variant="link" className="p-0 extra-small fw-bold text-primary text-decoration-none" onClick={() => navigate(`/supervisor/student/${i+1}`)}>
-                            Profil <ChevronRight size={12} />
+                            Profile <ChevronRight size={12} />
                           </Button>
                         </div>
                       </div>
@@ -632,29 +632,29 @@ const Subjects = () => {
                   </div>
                 ) : (
                   <div className="p-4 text-center bg-surface-alt rounded-4 border border-dashed border-light-soft">
-                    <p className="extra-small text-muted fw-bold mb-0 opacity-50">Aucun étudiant inscrit pour le moment</p>
+                    <p className="extra-small text-muted fw-bold mb-0 opacity-50">No student enrolled at the moment</p>
                   </div>
                 )}
               </div>
               <div className="mb-4">
-                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Informations Complémentaires</h6>
+                <h6 className="fw-bold text-navy small mb-2 text-uppercase opacity-50">Additional Information</h6>
                 <div className="d-flex flex-column gap-2">
                   <div className="d-flex justify-content-between extra-small fw-bold">
-                    <span className="text-muted opacity-75">Difficulté :</span>
+                    <span className="text-muted opacity-75">Difficulty:</span>
                     <span className="text-primary">{viewModalSubject?.difficulty}</span>
                   </div>
                   <div className="d-flex justify-content-between extra-small fw-bold">
-                    <span className="text-muted opacity-75">Proposé le :</span>
+                    <span className="text-muted opacity-75">Proposed on:</span>
                     <span className="text-navy">{viewModalSubject?.date}</span>
                   </div>
                   <div className="d-flex justify-content-between extra-small fw-bold">
-                    <span className="text-muted opacity-75">Catégorie :</span>
+                    <span className="text-muted opacity-75">Category:</span>
                     <span className="text-navy">{viewModalSubject?.category}</span>
                   </div>
                 </div>
               </div>
               <Button variant="primary" className="w-100 py-3 rounded-pill fw-bold extra-small border-0 shadow-sm" onClick={() => setViewModalSubject(null)}>
-                Fermer les détails
+                Close details
               </Button>
             </Col>
           </Row>
@@ -675,14 +675,14 @@ const Subjects = () => {
             </div>
           </div>
           <h5 className="fw-bold text-navy mb-2">
-            {isDeleting ? 'Suppression...' : "Supprimer le sujet ?"}
+            {isDeleting ? 'Deleting...' : "Delete subject?"}
           </h5>
           <p className="text-muted extra-small fw-bold mb-4">
-            Voulez-vous vraiment supprimer le sujet <strong>{deleteModalSubject?.title}</strong> ?
+            Do you really want to delete the subject <strong>{deleteModalSubject?.title}</strong> ?
           </p>
           <div className="d-flex gap-3">
-            <Button variant="light" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0" onClick={() => setDeleteModalSubject(null)}>Annuler</Button>
-            <Button variant="danger" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0 shadow-sm" onClick={handleDeleteSubject}>Supprimer</Button>
+            <Button variant="light" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0" onClick={() => setDeleteModalSubject(null)}>Cancel</Button>
+            <Button variant="danger" className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0 shadow-sm" onClick={handleDeleteSubject}>Delete</Button>
           </div>
         </Modal.Body>
       </Modal>

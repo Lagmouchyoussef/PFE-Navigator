@@ -116,7 +116,7 @@ const StudentsList = () => {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const handleExport = (format) => {
-    setSuccessMsg(`L'exportation de la liste des étudiants au format ${format} a été lancée.`);
+    setSuccessMsg(`The export of the student list in ${format} format has been started.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -124,7 +124,7 @@ const StudentsList = () => {
   const handleAddStudent = (e) => {
     e.preventDefault();
     setShowAddModal(false);
-    setSuccessMsg("L'étudiant a été ajouté avec succès à votre liste de supervision.");
+    setSuccessMsg("The student has been successfully added to your supervision list.");
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -134,7 +134,7 @@ const StudentsList = () => {
     
     // Simulate deletion delay for animation
     setTimeout(() => {
-      setSuccessMsg(`L'étudiant ${deleteModalStudent.name} a été retiré de votre liste de supervision.`);
+      setSuccessMsg(`Student ${deleteModalStudent.name} has been removed from your supervision list.`);
       setDeleteModalStudent(null);
       setIsDeleting(false);
       setShowSuccessCard(true);
@@ -181,7 +181,7 @@ const StudentsList = () => {
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
+                  <h6 className="fw-bold mb-0 text-navy">Action Successful</h6>
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
                 </div>
               </div>
@@ -193,9 +193,9 @@ const StudentsList = () => {
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy text-gradient">Étudiants Supervisés</h2>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">Supervised Students</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Gérez et suivez la progression de vos étudiants en PFE
+              Manage and track the progress of your PFE students
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -204,18 +204,18 @@ const StudentsList = () => {
                 variant="outline-primary" 
                 className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
               >
-                <Download size={18} /> Exportation {selectedIds.length > 0 && `(${selectedIds.length})`}
+                <Download size={18} /> Export {selectedIds.length > 0 && `(${selectedIds.length})`}
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Format d'export</div>
+                <div className="px-3 py-2 text-muted fw-bold extra-small opacity-50 text-uppercase">Export Format</div>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Excel')}>
-                  <FileText size={14} className="text-success" /> Liste Excel (.xlsx) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
+                  <FileText size={14} className="text-success" /> Excel List (.xlsx) {selectedIds.length > 0 ? 'Selected' : 'Total'}
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('Word')}>
-                  <FileText size={14} className="text-primary" /> Liste Word (.docx) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
+                  <FileText size={14} className="text-primary" /> Word List (.docx) {selectedIds.length > 0 ? 'Selected' : 'Total'}
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => handleExport('PDF')}>
-                  <FileText size={14} className="text-danger" /> Liste PDF (.pdf) {selectedIds.length > 0 ? 'Selectionnée' : 'Totale'}
+                  <FileText size={14} className="text-danger" /> PDF List (.pdf) {selectedIds.length > 0 ? 'Selected' : 'Total'}
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -223,7 +223,7 @@ const StudentsList = () => {
               className="btn-premium d-flex align-items-center gap-2 shadow-sm"
               onClick={() => setShowAddModal(true)}
             >
-              <UserPlus size={18} /> Ajouter un Étudiant
+              <UserPlus size={18} /> Add Student
             </Button>
           </div>
         </header>
@@ -370,17 +370,17 @@ const StudentsList = () => {
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
                               <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate(`/supervisor/student/${student.id}`)}>
-                                <User size={14} className="text-primary" /> Voir le profil
+                                <User size={14} className="text-primary" /> View Profile
                               </Dropdown.Item>
                                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => { setSelectedStudent(student); setShowDeliverables(true); }}>
-                                <FileText size={14} className="text-success" /> Voir les livrables
+                                <FileText size={14} className="text-success" /> View Deliverables
                                </Dropdown.Item>
                                <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => { setSelectedStudent(student); setShowValidation(true); }}>
-                                <UserCheck size={14} className="text-info" /> Valider une phase
+                                <UserCheck size={14} className="text-info" /> Validate Phase
                                </Dropdown.Item>
                               <Dropdown.Divider />
                               <Dropdown.Item className="py-2 text-danger d-flex align-items-center gap-2" onClick={() => setDeleteModalStudent(student)}>
-                                <Trash2 size={14} /> Supprimer l'Étudiant
+                                <Trash2 size={14} /> Delete Student
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
@@ -455,43 +455,43 @@ const StudentsList = () => {
         className="extra-small"
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Ajouter un Étudiant</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Add Student</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={handleAddStudent}>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold text-muted extra-small">Nom</Form.Label>
+                  <Form.Label className="fw-bold text-muted extra-small">Last Name</Form.Label>
                   <Form.Control type="text" placeholder="Ex: Dupont" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold text-muted extra-small">Prénom</Form.Label>
+                  <Form.Label className="fw-bold text-muted extra-small">First Name</Form.Label>
                   <Form.Control type="text" placeholder="Ex: Jean" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
                 </Form.Group>
               </Col>
             </Row>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold text-muted extra-small">Email Académique</Form.Label>
+              <Form.Label className="fw-bold text-muted extra-small">Academic Email</Form.Label>
               <Form.Control type="email" placeholder="email@emsi-edu.ma" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold text-muted extra-small">Téléphone</Form.Label>
+              <Form.Label className="fw-bold text-muted extra-small">Phone</Form.Label>
               <Form.Control type="tel" placeholder="+212 6 XX XX XX XX" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold text-muted extra-small">Titre du Projet</Form.Label>
-              <Form.Control type="text" placeholder="Titre du PFE" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
+              <Form.Label className="fw-bold text-muted extra-small">Project Title</Form.Label>
+              <Form.Control type="text" placeholder="PFE Title" className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none" required />
             </Form.Group>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="fw-bold text-muted extra-small">Département</Form.Label>
+                  <Form.Label className="fw-bold text-muted extra-small">Department</Form.Label>
                   <Form.Select className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none">
-                    <option>Génie Logiciel</option>
-                    <option>Cyber-sécurité</option>
+                    <option>Software Engineering</option>
+                    <option>Cybersecurity</option>
                     <option>IoT</option>
                     <option>Cloud Computing</option>
                   </Form.Select>
@@ -501,15 +501,15 @@ const StudentsList = () => {
                 <Form.Group className="mb-4">
                   <Form.Label className="fw-bold text-muted extra-small">Type</Form.Label>
                   <Form.Select className="rounded-3 extra-small py-2 bg-surface-alt border-0 shadow-none">
-                    <option>PFE</option>
-                    <option>Stage</option>
+                    <option>Graduation Project</option>
+                    <option>Internship</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
             </Row>
             <div className="d-grid">
               <Button type="submit" className="btn-premium py-2 rounded-pill fw-bold border-0 shadow-sm">
-                Enregistrer l'Étudiant
+                Save Student
               </Button>
             </div>
           </Form>
@@ -530,10 +530,10 @@ const StudentsList = () => {
             </div>
           </div>
           <h5 className="fw-bold text-navy mb-2">
-            {isDeleting ? 'Suppression en cours...' : "Supprimer l'Étudiant ?"}
+            {isDeleting ? 'Deleting...' : "Delete Student?"}
           </h5>
           <p className="text-muted extra-small fw-bold mb-4">
-            Êtes-vous sûr de vouloir retirer <strong>{deleteModalStudent?.name}</strong> de votre liste de supervision ? Cette action est irréversible.
+            Are you sure you want to remove <strong>{deleteModalStudent?.name}</strong> from your supervision list? This action is irreversible.
           </p>
           <div className="d-flex gap-3">
             <Button 
@@ -541,14 +541,14 @@ const StudentsList = () => {
               className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0"
               onClick={() => setDeleteModalStudent(null)}
             >
-              Annuler
+              Cancel
             </Button>
             <Button 
               variant="danger" 
               className="flex-grow-1 py-2 rounded-pill fw-bold extra-small border-0 shadow-sm"
               onClick={handleDeleteStudent}
             >
-              Confirmer la suppression
+              Confirm Deletion
             </Button>
           </div>
         </Modal.Body>
@@ -562,7 +562,7 @@ const StudentsList = () => {
         className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Livrables de {selectedStudent?.name}</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Deliverables of {selectedStudent?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <div className="glass-card border-0 p-0 overflow-hidden rounded-4">
@@ -570,16 +570,16 @@ const StudentsList = () => {
               <thead className="bg-surface-alt">
                 <tr>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date de Dépôt</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
                   <th className="px-4 py-3 text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { id: 1, name: 'Cahier des Charges', date: '2025-11-20', size: '2.4 MB' },
-                  { id: 2, name: 'Rapport Technique v1', date: '2026-02-15', size: '4.8 MB' },
-                  { id: 3, name: 'Présentation Mi-parcours', date: '2026-03-01', size: '1.2 MB' }
+                  { id: 1, name: 'Requirements Specifications', date: '2025-11-20', size: '2.4 MB' },
+                  { id: 2, name: 'Technical Report v1', date: '2026-02-15', size: '4.8 MB' },
+                  { id: 3, name: 'Midterm Presentation', date: '2026-03-01', size: '1.2 MB' }
                 ].map(doc => (
                   <tr key={doc.id}>
                     <td className="px-4 py-3">
@@ -609,16 +609,16 @@ const StudentsList = () => {
         className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Valider une Phase</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Validate Phase</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
-          <p className="small text-muted mb-4 fw-bold opacity-75">Sélectionnez la phase à valider pour <strong>{selectedStudent?.name}</strong> :</p>
+          <p className="small text-muted mb-4 fw-bold opacity-75">Select the phase to validate for <strong>{selectedStudent?.name}</strong> :</p>
           <div className="d-flex flex-column gap-3">
             {[
-              { id: 1, name: 'Proposition / Sujet', status: 'completed' },
-              { id: 2, name: 'Cahier des Charges', status: 'completed' },
-              { id: 3, name: 'Rapport Intérimaire', status: 'current' },
-              { id: 4, name: 'Rapport Final', status: 'pending' }
+              { id: 1, name: 'Proposal / Subject', status: 'completed' },
+              { id: 2, name: 'Requirements Specifications', status: 'completed' },
+              { id: 3, name: 'Interim Report', status: 'current' },
+              { id: 4, name: 'Final Report', status: 'pending' }
             ].map(phase => (
               <Button 
                 key={phase.id}
@@ -626,7 +626,7 @@ const StudentsList = () => {
                 className={`text-start p-3 rounded-4 d-flex justify-content-between align-items-center border-2 transition-all ${phase.status === 'completed' ? 'border-success text-success bg-success-soft' : phase.status === 'current' ? 'border-primary' : 'opacity-50'}`}
                 onClick={() => {
                   if(phase.status !== 'completed') {
-                    setSuccessMsg(`La phase "${phase.name}" a été validée avec succès pour ${selectedStudent.name}.`);
+                    setSuccessMsg(`Phase "${phase.name}" has been successfully validated for ${selectedStudent.name}.`);
                     setShowValidation(false);
                     setShowSuccessCard(true);
                     setTimeout(() => setShowSuccessCard(false), 5000);
@@ -639,7 +639,7 @@ const StudentsList = () => {
                   </div>
                   <span className="fw-bold small">{phase.name}</span>
                 </div>
-                {phase.status === 'completed' && <Badge className="bg-success text-white rounded-pill">Validé</Badge>}
+                {phase.status === 'completed' && <Badge className="bg-success text-white rounded-pill">Validated</Badge>}
               </Button>
             ))}
           </div>

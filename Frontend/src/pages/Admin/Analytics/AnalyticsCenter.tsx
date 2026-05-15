@@ -59,7 +59,7 @@ const AnalyticsCenter: React.FC = () => {
   }));
 
   // 4. Monthly Submissions (from archives)
-  const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthlySubmissions = months.map((m, i) => {
     const count = archives.filter(a => {
       const date = new Date(a.date);
@@ -85,31 +85,31 @@ const AnalyticsCenter: React.FC = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-navy">Centre d'Analyses</h2>
+            <h2 className="fw-bold mb-1 text-navy">Analytics Center</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Période actuelle : <span className="text-primary">{timePeriod === 'All' ? 'Année Complète' : timePeriod === 'S1' ? 'Semestre 1' : 'Semestre 2'}</span>
+              Current Period: <span className="text-primary">{timePeriod === 'All' ? 'Full Year' : timePeriod === 'S1' ? 'Semester 1' : 'Semester 2'}</span>
             </p>
           </div>
           <div className="d-flex gap-2">
             <Dropdown onSelect={(k: any) => handleExport(k)}>
               <Dropdown.Toggle variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none">
-                <Download size={18} /> Exporter
+                <Download size={18} /> Export
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
-                <Dropdown.Item eventKey="csv" className="py-2">Format CSV (.csv)</Dropdown.Item>
-                <Dropdown.Item eventKey="word" className="py-2">Format Word (.doc)</Dropdown.Item>
-                <Dropdown.Item eventKey="pdf" className="py-2">Format PDF (Imprimer)</Dropdown.Item>
+                <Dropdown.Item eventKey="csv" className="py-2">CSV Format (.csv)</Dropdown.Item>
+                <Dropdown.Item eventKey="word" className="py-2">Word Format (.doc)</Dropdown.Item>
+                <Dropdown.Item eventKey="pdf" className="py-2">PDF Format (Print)</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             
             <Dropdown onSelect={(k: any) => setTimePeriod(k)}>
               <Dropdown.Toggle className="btn-premium d-flex align-items-center gap-2 shadow-none border-0">
-                <Filter size={18} /> Filtrer : {timePeriod}
+                <Filter size={18} /> Filter: {timePeriod}
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
-                <Dropdown.Item eventKey="All" className="py-2">Toute l'année</Dropdown.Item>
-                <Dropdown.Item eventKey="S1" className="py-2">Premier Semestre (S1)</Dropdown.Item>
-                <Dropdown.Item eventKey="S2" className="py-2">Second Semestre (S2)</Dropdown.Item>
+                <Dropdown.Item eventKey="All" className="py-2">Full Year</Dropdown.Item>
+                <Dropdown.Item eventKey="S1" className="py-2">First Semester (S1)</Dropdown.Item>
+                <Dropdown.Item eventKey="S2" className="py-2">Second Semester (S2)</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>
@@ -122,20 +122,20 @@ const AnalyticsCenter: React.FC = () => {
             animate={{ opacity: 1, y: 0 }} 
             className="p-3 bg-success text-white rounded-4 mb-4 text-center extra-small fw-bold shadow-sm"
           >
-            Le rapport a été généré avec succès ! Le téléchargement va commencer.
+            The report has been successfully generated! The download will begin.
           </motion.div>
         )}
 
         {/* Top Stats Row */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Taux de Réussite" value={`${successRate}%`} icon={<Target />} color="primary" trend={Number(successRate) > 80 ? "+2%" : "-1%"} />
+            <StatCard label="Success Rate" value={`${successRate}%`} icon={<Target />} color="primary" trend={Number(successRate) > 80 ? "+2%" : "-1%"} />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Étudiants Évalués" value={`${gradedStudents.length}/${students.length}`} icon={<Clock />} color="info" trend="Live" />
+            <StatCard label="Evaluated Students" value={`${gradedStudents.length}/${students.length}`} icon={<Clock />} color="info" trend="Live" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Moyenne Générale" value={`${averageGrade}/20`} icon={<Award />} color="warning" trend={Number(averageGrade) > 12 ? "+0.5" : "-0.2"} />
+            <StatCard label="Overall Average" value={`${averageGrade}/20`} icon={<Award />} color="warning" trend={Number(averageGrade) > 12 ? "+0.5" : "-0.2"} />
           </Col>
           <Col lg={3} md={6}>
             <StatCard label="Participation" value={`${participation}%`} icon={<Activity />} color="danger" trend="Stable" />
@@ -146,13 +146,13 @@ const AnalyticsCenter: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={6}>
             <div className="glass-card p-4 rounded-4 shadow-sm h-100 border">
-              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Distribution des Notes</h5>
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Grade Distribution</h5>
               <div className="space-y-4">
                 {scoreDistribution.map((item, i) => (
                   <div key={i} className="mb-4">
                     <div className="d-flex justify-content-between extra-small mb-2 fw-bold">
-                      <span className="text-navy opacity-75">Plage {item.range}</span>
-                      <span className={`text-${item.colorClass}`}>{item.count} étudiant(s) ({item.percentage}%)</span>
+                      <span className="text-navy opacity-75">Range {item.range}</span>
+                      <span className={`text-${item.colorClass}`}>{item.count} student(s) ({item.percentage}%)</span>
                     </div>
                     <ProgressBar now={item.percentage} className={`bg-${item.colorClass}-soft rounded-pill`} style={{ height: '8px' }}>
                       <ProgressBar now={item.percentage} className={`bg-${item.colorClass} border-0 rounded-pill`} />
@@ -161,14 +161,14 @@ const AnalyticsCenter: React.FC = () => {
                 ))}
               </div>
               <div className="mt-5 p-3 rounded-4 bg-surface-alt border text-center">
-                <div className="extra-small text-muted fw-bold text-uppercase mb-1">Observation Globale</div>
-                <div className="small fw-bold text-navy">Performance supérieure de 12% par rapport à l'année dernière.</div>
+                <div className="extra-small text-muted fw-bold text-uppercase mb-1">Global Observation</div>
+                <div className="small fw-bold text-navy">Performance improved by 12% compared to last year.</div>
               </div>
             </div>
           </Col>
           <Col lg={6}>
             <div className="glass-card p-4 rounded-4 shadow-sm h-100 border">
-              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Evolution des Soumissions</h5>
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Submission Trends</h5>
               <div style={{ height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={monthlySubmissions}>

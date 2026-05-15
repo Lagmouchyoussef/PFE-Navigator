@@ -47,7 +47,7 @@ const AdminGrades = () => {
 
   const handleExport = (format) => {
     const count = selectedGrades.length;
-    alert(`Exportation des notes de ${count} étudiant(s) au format ${format} en cours...`);
+    alert(`Exporting grades for ${count} student(s) in ${format} format...`);
     setSelectedGrades([]);
   };
 
@@ -63,7 +63,7 @@ const AdminGrades = () => {
 
   const handleSaveWeights = () => {
     if (parseInt(weightForm.supervisor) + parseInt(weightForm.jury) !== 100) {
-      alert("Le total des pourcentages doit être égal à 100%");
+      alert("Total percentages must equal 100%");
       return;
     }
     updatePfeWeights(parseInt(weightForm.supervisor), parseInt(weightForm.jury));
@@ -109,9 +109,9 @@ const AdminGrades = () => {
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy text-gradient">Gestion des Notes PFE</h2>
+            <h2 className="fw-bold mb-1 text-navy text-gradient">PFE Grades Management</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Validez, modifiez et publiez les résultats finaux des étudiants
+              Validate, edit, and publish students' final results
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -125,14 +125,14 @@ const AdminGrades = () => {
                 setShowWeightModal(true);
               }}
             >
-              <Filter size={18} /> Barèmes & Coefs
+              <Filter size={18} /> Scales & Coefficients
             </Button>
             <Button 
               className={`btn-premium d-flex align-items-center gap-2 shadow-sm border-0 ${isGradesPublished ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={publishGrades}
               disabled={isGradesPublished}
             >
-              <Share2 size={18} /> {isGradesPublished ? 'Notes Publiées' : 'Publier les Notes Finales'}
+              <Share2 size={18} /> {isGradesPublished ? 'Grades Published' : 'Publish Final Grades'}
             </Button>
           </div>
         </header>
@@ -152,7 +152,7 @@ const AdminGrades = () => {
                 <div>
                   <h6 className="fw-bold mb-0 text-navy">Publication Active</h6>
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">
-                    Toutes les notes sont désormais visibles par les étudiants, les encadrants et les membres du jury.
+                    All grades are now visible to students, supervisors, and jury members.
                   </p>
                 </div>
               </div>
@@ -168,7 +168,7 @@ const AdminGrades = () => {
                 <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted opacity-50" size={18} />
                 <Form.Control 
                   type="text" 
-                  placeholder="Rechercher un étudiant..." 
+                  placeholder="Search for a student..." 
                   className="rounded-pill ps-5 bg-surface-alt border-0 shadow-none extra-small fw-bold py-2"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -183,7 +183,7 @@ const AdminGrades = () => {
                     className="d-flex gap-2 bg-success-soft p-1 rounded-pill border border-success border-opacity-10 px-2 shadow-sm"
                   >
                     <div className="extra-small fw-bold text-success px-2 border-end border-success border-opacity-25 d-flex align-items-center">
-                      {selectedGrades.length} sélectionnés
+                      {selectedGrades.length} selected
                     </div>
                     <Button 
                       variant="link" 
@@ -210,7 +210,7 @@ const AdminGrades = () => {
                 )}
               </AnimatePresence>
             </div>
-            <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">Session Juin 2026</Badge>
+            <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">June 2026 Session</Badge>
           </Card.Header>
 
           <div className="table-responsive">
@@ -225,12 +225,12 @@ const AdminGrades = () => {
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Étudiant</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Encadrant ({pfeWeights.supervisor}%)</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Note Jury ({pfeWeights.jury}%)</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Remarques Jury</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Note Générale</th>
-                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Décision</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Supervisor Grade ({pfeWeights.supervisor}%)</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Jury Grade ({pfeWeights.jury}%)</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase">Jury Remarks</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">General Grade</th>
+                  <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Decision</th>
                   <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                 </tr>
               </thead>
@@ -255,7 +255,7 @@ const AdminGrades = () => {
                           {student.supervisorScore !== null ? `${student.supervisorScore}/20` : '--'}
                         </span>
                         <Badge className={`extra-small border-0 ${student.isSupervisorEvaluated ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
-                          {student.isSupervisorEvaluated ? 'Évalué' : 'À faire'}
+                          {student.isSupervisorEvaluated ? 'Evaluated' : 'To do'}
                         </Badge>
                       </div>
                     </td>
@@ -265,7 +265,7 @@ const AdminGrades = () => {
                           {student.juryScore !== null ? `${student.juryScore}/20` : '--'}
                         </span>
                         <Badge className={`extra-small border-0 ${student.isJuryEvaluated ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
-                          {student.isJuryEvaluated ? 'Évalué' : 'À faire'}
+                          {student.isJuryEvaluated ? 'Evaluated' : 'To do'}
                         </Badge>
                       </div>
                     </td>
@@ -282,12 +282,12 @@ const AdminGrades = () => {
                     <td className="text-center">
                       {student.supervisorScore !== null && student.juryScore !== null ? (
                         Number(calculateFinal(student.supervisorScore, student.juryScore)) >= 10 ? (
-                          <Badge className="bg-success text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">ADMIS</Badge>
+                          <Badge className="bg-success text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">PASSED</Badge>
                         ) : (
-                          <Badge className="bg-danger text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">AJOURNÉ</Badge>
+                          <Badge className="bg-danger text-white border-0 px-3 py-1 rounded-pill extra-small fw-bold shadow-sm">FAILED</Badge>
                         )
                       ) : (
-                        <Badge className="bg-surface-alt text-muted border-0 px-3 py-1 rounded-pill extra-small fw-bold">EN ATTENTE</Badge>
+                        <Badge className="bg-surface-alt text-muted border-0 px-3 py-1 rounded-pill extra-small fw-bold">PENDING</Badge>
                       )}
                     </td>
                     <td className="px-4 py-3 text-end">
@@ -319,18 +319,18 @@ const AdminGrades = () => {
           <Col lg={6}>
             <Card className="glass-card border-0 shadow-sm border p-4 bg-primary text-white h-100">
               <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                <AlertCircle size={18} /> Règle de Publication
+                <AlertCircle size={18} /> Publication Rule
               </h6>
               <p className="small mb-0 opacity-75">
-                Une fois les notes publiées, les étudiants pourront consulter leurs résultats détaillés. 
-                <strong> Attention :</strong> Cette action est irréversible pour la session en cours.
+                Once grades are published, students can view their detailed results. 
+                <strong> Warning:</strong> This action is irreversible for the current session.
               </p>
             </Card>
           </Col>
           <Col lg={6}>
             <Card className="glass-card border shadow-sm border p-4 h-100">
               <h6 className="fw-bold mb-4 d-flex align-items-center gap-2 text-navy">
-                <Filter size={18} className="text-primary" /> Barème des Critères Actuels
+                <Filter size={18} className="text-primary" /> Current Criteria Scale
               </h6>
               <Row>
                 <Col xs={6} className="border-end">
@@ -345,7 +345,7 @@ const AdminGrades = () => {
                   </div>
                 </Col>
                 <Col xs={6}>
-                  <div className="extra-small fw-bold text-muted text-uppercase mb-3 opacity-50">Encadrant ({pfeWeights.supervisor}%)</div>
+                  <div className="extra-small fw-bold text-muted text-uppercase mb-3 opacity-50">Supervisor ({pfeWeights.supervisor}%)</div>
                   <div className="d-flex flex-column gap-2">
                     {Object.entries(supervisorCriteriaWeights).map(([key, val]) => (
                       <div key={key} className="d-flex justify-content-between extra-small">
@@ -364,14 +364,14 @@ const AdminGrades = () => {
       {/* Edit Grade Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Modifier les Notes : {selectedStudent?.name}</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Edit Grades: {selectedStudent?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
             <Row className="g-4 mb-4">
               <Col sm={6}>
                 <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Note Encadrant (/20)</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Supervisor Grade (/20)</Form.Label>
                   <Form.Control 
                     type="number" 
                     max={20} min={0} step="0.25"
@@ -383,7 +383,7 @@ const AdminGrades = () => {
               </Col>
               <Col sm={6}>
                 <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Note Jury (/20)</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Jury Grade (/20)</Form.Label>
                   <Form.Control 
                     type="number" 
                     max={20} min={0} step="0.25"
@@ -396,14 +396,14 @@ const AdminGrades = () => {
             </Row>
 
             <div className="p-3 bg-primary-soft rounded-4 mb-4 border border-primary border-opacity-10 text-center">
-              <div className="extra-small text-muted fw-bold text-uppercase mb-1">Moyenne Finale Calculée</div>
+              <div className="extra-small text-muted fw-bold text-uppercase mb-1">Calculated Final Average</div>
               <div className="h2 fw-bold text-primary mb-0">
                 {calculateFinal(editForm.supervisor, editForm.jury)}
               </div>
             </div>
 
             <Button className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0" onClick={handleSaveEdit}>
-              <Save size={18} className="me-2" /> Enregistrer les modifications
+              <Save size={18} className="me-2" /> Save changes
             </Button>
           </Form>
         </Modal.Body>
@@ -412,12 +412,12 @@ const AdminGrades = () => {
       {/* Weight Management Modal */}
       <Modal show={showWeightModal} onHide={() => setShowWeightModal(false)} centered className="glass-modal" size="lg">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Configuration des Coefficients</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Coefficients Configuration</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <div className="p-3 bg-primary-soft rounded-4 mb-4 border border-primary border-opacity-10">
             <p className="extra-small text-primary fw-bold mb-0">
-              Définissez l'importance relative de chaque évaluation dans le calcul de la note finale. Le total doit être de 100%.
+              Define the relative importance of each evaluation in the final grade calculation. Total must be 100%.
             </p>
           </div>
           
@@ -425,7 +425,7 @@ const AdminGrades = () => {
             <Row className="g-4 mb-4">
               <Col sm={6}>
                 <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Coefficient Encadrant (%)</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Supervisor Coefficient (%)</Form.Label>
                   <Form.Control 
                     type="number" 
                     max={100} min={0}
@@ -437,7 +437,7 @@ const AdminGrades = () => {
               </Col>
               <Col sm={6}>
                 <Form.Group>
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Coefficient Jury (%)</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Jury Coefficient (%)</Form.Label>
                   <Form.Control 
                     type="number" 
                     max={100} min={0}
@@ -451,13 +451,13 @@ const AdminGrades = () => {
 
             <hr className="my-4 opacity-10" />
             
-            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Barème des Critères Jury</h6>
+            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Jury Criteria Scale</h6>
             <Row className="g-3 mb-4">
               {[
                 { id: 'innovation', label: 'Innovation' },
-                { id: 'methodology', label: 'Méthodologie' },
-                { id: 'quality', label: 'Qualité Technique' },
-                { id: 'presentation', label: 'Présentation' },
+                { id: 'methodology', label: 'Methodology' },
+                { id: 'quality', label: 'Technical Quality' },
+                { id: 'presentation', label: 'Presentation' },
                 { id: 'docs', label: 'Documentation' },
               ].map(crit => (
                 <Col sm={4} key={crit.id}>
@@ -476,13 +476,13 @@ const AdminGrades = () => {
 
             <hr className="my-4 opacity-10" />
             
-            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Barème des Critères Encadrant</h6>
+            <h6 className="fw-bold text-navy mb-3 extra-small text-uppercase tracking-wider">Supervisor Criteria Scale</h6>
             <Row className="g-3 mb-4">
               {[
-                { id: 'report', label: 'Qualité du Rapport' },
-                { id: 'progress', label: 'Avancement' },
-                { id: 'autonomy', label: 'Autonomie' },
-                { id: 'professionalism', label: 'Professionnalisme' },
+                { id: 'report', label: 'Report Quality' },
+                { id: 'progress', label: 'Progress' },
+                { id: 'autonomy', label: 'Autonomy' },
+                { id: 'professionalism', label: 'Professionalism' },
               ].map(crit => (
                 <Col sm={6} key={crit.id}>
                   <Form.Group>
@@ -499,7 +499,7 @@ const AdminGrades = () => {
             </Row>
 
             <Button className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0" onClick={handleSaveWeights}>
-              <Save size={18} className="me-2" /> Appliquer tous les barèmes
+              <Save size={18} className="me-2" /> Apply all scales
             </Button>
           </Form>
         </Modal.Body>
@@ -507,31 +507,31 @@ const AdminGrades = () => {
       {/* View Details Modal */}
       <Modal show={showViewModal} onHide={() => setShowViewModal(false)} centered className="glass-modal" size="lg">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Détails de l'Évaluation : {selectedStudent?.name}</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Evaluation Details: {selectedStudent?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Row className="g-4 mb-4">
             <Col md={6}>
               <Card className="rounded-4 border-light-soft bg-surface-alt p-4 h-100 shadow-none">
-                <h6 className="extra-small fw-bold text-primary text-uppercase mb-3">Évaluation Encadrant</h6>
-                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.supervisorScore !== null ? `${selectedStudent?.supervisorScore}/20` : 'Non noté'}</div>
+                <h6 className="extra-small fw-bold text-primary text-uppercase mb-3">Supervisor Evaluation</h6>
+                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.supervisorScore !== null ? `${selectedStudent?.supervisorScore}/20` : 'Not graded'}</div>
                 <div className="p-3 bg-white rounded-3 border-start border-4 border-primary">
-                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Remarques Encadrant</div>
-                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.supervisorRemarks || 'Aucune remarque.'}</p>
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Supervisor Remarks</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.supervisorRemarks || 'No remarks.'}</p>
                 </div>
               </Card>
             </Col>
             <Col md={6}>
               <Card className="rounded-4 border-light-soft bg-surface-alt p-4 h-100 shadow-none">
-                <h6 className="extra-small fw-bold text-success text-uppercase mb-3">Évaluation Jury</h6>
-                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.juryScore !== null ? `${selectedStudent?.juryScore}/20` : 'Non noté'}</div>
+                <h6 className="extra-small fw-bold text-success text-uppercase mb-3">Jury Evaluation</h6>
+                <div className="h3 fw-bold text-navy mb-2">{selectedStudent?.juryScore !== null ? `${selectedStudent?.juryScore}/20` : 'Not graded'}</div>
                 <div className="p-3 bg-white rounded-3 border-start border-4 border-success mb-3">
-                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Consignes de présentation</div>
-                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryRespectInstructions || 'Aucune remarque.'}</p>
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Presentation instructions</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryRespectInstructions || 'No remarks.'}</p>
                 </div>
                 <div className="p-3 bg-white rounded-3 border-start border-4 border-success">
-                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">Observations générales</div>
-                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryObservations || 'Aucune observation.'}</p>
+                  <div className="extra-small text-muted fw-bold text-uppercase mb-1 opacity-50">General observations</div>
+                  <p className="extra-small text-navy mb-0 fw-bold">{selectedStudent?.juryObservations || 'No observations.'}</p>
                 </div>
               </Card>
             </Col>
@@ -539,8 +539,8 @@ const AdminGrades = () => {
           <Card className="rounded-4 border-primary border-opacity-25 bg-primary-soft p-4 shadow-none mt-4">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h6 className="extra-small fw-bold text-primary text-uppercase mb-1">Résultat Général Final</h6>
-                <p className="extra-small text-muted mb-0 fw-bold opacity-75">Calcul : ({pfeWeights.jury}% Jury) + ({pfeWeights.supervisor}% Encadrant)</p>
+                <h6 className="extra-small fw-bold text-primary text-uppercase mb-1">Final General Result</h6>
+                <p className="extra-small text-muted mb-0 fw-bold opacity-75">Calculation: ({pfeWeights.jury}% Jury) + ({pfeWeights.supervisor}% Supervisor)</p>
               </div>
               <div className="text-end">
                 <div className="h2 fw-bold text-navy mb-0">
@@ -551,7 +551,7 @@ const AdminGrades = () => {
                 </div>
                 {selectedStudent?.juryScore !== null && selectedStudent?.supervisorScore !== null && (
                   <Badge className={`mt-1 border-0 extra-small fw-bold ${Number(calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)) >= 10 ? 'bg-success text-white' : 'bg-danger text-white'}`}>
-                    {Number(calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)) >= 10 ? 'ADMIS' : 'AJOURNÉ'}
+                    {Number(calculateFinal(selectedStudent.supervisorScore, selectedStudent.juryScore)) >= 10 ? 'PASSED' : 'FAILED'}
                   </Badge>
                 )}
               </div>

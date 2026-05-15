@@ -25,10 +25,10 @@ const AdministrativeNotesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const notes: AdministrativeNote[] = [
-    { id: 1, title: 'Mise à jour du planning des soutenances', isNew: true, priority: 'HIGH', category: 'Soutenance', content: 'Les plannings définitifs seront publiés le 5 Mai 2026. Veuillez consulter régulièrement votre portail. Les salles seront affectées 48h avant.', author: 'Bureau Coordination PFE', date: '2026-04-28', pinned: true, unread: true },
-    { id: 2, title: 'Rappel : Date limite de soumission', isNew: true, priority: 'HIGH', category: 'Deadlines', content: 'Les rapports finaux doivent être soumis avant le 15 Mai 2026 à 23:59. Tout retard entraînera une pénalité de 5 points par jour.', author: 'Affaires Académiques', date: '2026-04-27', pinned: true, unread: true },
-    { id: 3, title: 'Atelier obligatoire : Techniques de présentation', isNew: true, priority: 'HIGH', category: 'Workshops', content: 'Atelier prévu le 8 Mai à 14:00 en Amphi B. Présence obligatoire pour tous les étudiants en fin de cycle.', author: 'Pôle Développement Pro', date: '2026-04-23', pinned: true, unread: true },
-    { id: 4, title: 'Nouveaux critères d\'évaluation', isNew: false, priority: 'MEDIUM', category: 'Évaluation', content: 'La grille d\'évaluation 2026 a été mise à jour dans le Resource Hub. L\'innovation compte désormais pour 15% de la note finale.', author: 'Dr. Ahmed Mansouri', date: '2026-04-25', pinned: false, unread: false },
+    { id: 1, title: 'Defense Schedule Update', isNew: true, priority: 'HIGH', category: 'Defense', content: 'Final schedules will be published on May 5, 2026. Please check your portal regularly. Rooms will be assigned 48 hours before.', author: 'PFE Coordination Office', date: '2026-04-28', pinned: true, unread: true },
+    { id: 2, title: 'Reminder: Submission Deadline', isNew: true, priority: 'HIGH', category: 'Deadlines', content: 'Final reports must be submitted by May 15, 2026, at 23:59. Any delay will result in a penalty of 5 points per day.', author: 'Academic Affairs', date: '2026-04-27', pinned: true, unread: true },
+    { id: 3, title: 'Mandatory Workshop: Presentation Techniques', isNew: true, priority: 'HIGH', category: 'Workshops', content: 'Workshop scheduled for May 8 at 14:00 in Auditorium B. Attendance is mandatory for all final-year students.', author: 'Pro Development Center', date: '2026-04-23', pinned: true, unread: true },
+    { id: 4, title: 'New Evaluation Criteria', isNew: false, priority: 'MEDIUM', category: 'Evaluation', content: 'The 2026 evaluation grid has been updated in the Resource Hub. Innovation now accounts for 15% of the final grade.', author: 'Dr. Ahmed Mansouri', date: '2026-04-25', pinned: false, unread: false },
   ];
 
   return (
@@ -37,21 +37,21 @@ const AdministrativeNotesPage: React.FC = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Notes Administratives</h2>
-            <p className="text-muted small mb-0">Consultez les annonces et notes officielles de la coordination.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Administrative Notes</h2>
+            <p className="text-muted small mb-0">Consult official announcements and notes from the coordination.</p>
           </div>
           <div className="d-flex gap-2">
             <InputGroup size="sm" className="glass-card rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
               <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16}/></InputGroup.Text>
               <Form.Control 
-                placeholder="Rechercher une note..." 
+                placeholder="Search for a note..." 
                 className="bg-transparent border-0 shadow-none py-2 small fw-bold text-navy"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </InputGroup>
             <Button className="btn-premium d-flex align-items-center gap-2">
-              <Filter size={18} /> Filtrer
+              <Filter size={18} /> Filter
             </Button>
           </div>
         </div>
@@ -62,13 +62,13 @@ const AdministrativeNotesPage: React.FC = () => {
             <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Docs" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="3" icon={<Bell />} color="danger" trend="Alert" />
+            <StatCard label="Unread" value="3" icon={<Bell />} color="danger" trend="Alert" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Épinglées" value="3" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="Pinned" value="3" icon={<Pin />} color="warning" trend="Fav" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Prioritaires" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="Priority" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 

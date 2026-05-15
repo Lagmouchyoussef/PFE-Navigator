@@ -17,11 +17,11 @@ const PortalSettings: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs: { id: SettingsTab; label: string; icon: React.ReactElement }[] = [
-    { id: 'general', label: 'Général', icon: <Globe size={18} /> },
-    { id: 'appearance', label: 'Apparence', icon: <Monitor size={18} /> },
-    { id: 'profile', label: 'Mon Profil', icon: <User size={18} /> },
+    { id: 'general', label: 'General', icon: <Globe size={18} /> },
+    { id: 'appearance', label: 'Appearance', icon: <Monitor size={18} /> },
+    { id: 'profile', label: 'My Profile', icon: <User size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
-    { id: 'security', label: 'Sécurité', icon: <Shield size={18} /> },
+    { id: 'security', label: 'Security', icon: <Shield size={18} /> },
   ];
 
   return (
@@ -29,8 +29,8 @@ const PortalSettings: React.FC = () => {
       <Container fluid className="px-0">
         {/* Header Section */}
         <div className="mb-5">
-          <h2 className="fw-bold mb-1 text-navy">Paramètres du Portail</h2>
-          <p className="text-muted small mb-0 fw-bold opacity-75">Gestion avancée de la plateforme et de ses services.</p>
+          <h2 className="fw-bold mb-1 text-navy">Portal Settings</h2>
+          <p className="text-muted small mb-0 fw-bold opacity-75">Advanced management of the platform and its services.</p>
         </div>
 
         <Row className="g-4">
@@ -79,25 +79,25 @@ const PortalSettings: React.FC = () => {
               <div className="p-4 p-md-5 flex-grow-1">
                 {activeTab === 'general' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Informations de base</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Basic Information</h6>
                     <Row className="g-4 mb-5">
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de l'Institution</Form.Label>
-                        <Form.Control defaultValue="Université EMSI - Portails PFE" className="form-control-premium fw-bold" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Institution Name</Form.Label>
+                        <Form.Control defaultValue="EMSI University - PFE Portals" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Administrateur</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Admin Email</Form.Label>
                         <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Langue d'Interface</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Interface Language</Form.Label>
                         <div className="form-control-premium fw-bold d-flex align-items-center justify-content-between bg-surface-alt">
-                          <span>{navigator.language === 'fr-FR' || navigator.language === 'fr' ? 'Français (FR)' : navigator.language === 'en-US' || navigator.language === 'en' ? 'English (US)' : navigator.language}</span>
-                          <Badge className="bg-success-soft text-success border-0 extra-small px-2">Système Connecté</Badge>
+                          <span>{navigator.language === 'fr-FR' || navigator.language === 'fr' ? 'French (FR)' : navigator.language === 'en-US' || navigator.language === 'en' ? 'English (US)' : navigator.language}</span>
+                          <Badge className="bg-success-soft text-success border-0 extra-small px-2">System Connected</Badge>
                         </div>
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Format de Date</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Date Format</Form.Label>
                         <Form.Select className="form-control-premium fw-bold">
                           <option>DD/MM/YYYY</option>
                           <option>MM/DD/YYYY</option>
@@ -106,19 +106,19 @@ const PortalSettings: React.FC = () => {
                       </Col>
                     </Row>
 
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Contrôles Globaux</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Global Controls</h6>
                     <div className="d-flex flex-column gap-3">
                       <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt border">
                         <div>
-                          <div className="small fw-bold text-navy">Maintenance Système</div>
-                          <div className="extra-small text-muted fw-bold opacity-75">Affiche une page de maintenance pour tous les utilisateurs.</div>
+                          <div className="small fw-bold text-navy">System Maintenance</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Displays a maintenance page for all users.</div>
                         </div>
                         <Form.Check type="switch" id="maintenance-switch" className="custom-switch-lg" />
                       </div>
                       <div className="d-flex justify-content-between align-items-center p-3 rounded-4 bg-surface-alt border">
                         <div>
-                          <div className="small fw-bold text-navy">Inscriptions Ouvertes</div>
-                          <div className="extra-small text-muted fw-bold opacity-75">Permettre aux nouveaux étudiants de créer un compte.</div>
+                          <div className="small fw-bold text-navy">Open Registrations</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Allow new students to create an account.</div>
                         </div>
                         <Form.Check type="switch" id="register-switch" defaultChecked className="custom-switch-lg" />
                       </div>
@@ -128,34 +128,34 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'appearance' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Thème & Identité Visuelle</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Theme & Visual Identity</h6>
                     
                     <div className="mb-5">
-                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Mode d'affichage</Form.Label>
+                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Display Mode</Form.Label>
                       <Row className="g-3">
                         <Col md={4}>
                           <div className="p-3 border rounded-4 text-center cursor-pointer transition-all border-primary bg-primary-soft shadow-sm">
                             <Sun size={24} className="mb-2 text-primary" />
-                            <div className="extra-small fw-bold text-navy">Mode Clair</div>
+                            <div className="extra-small fw-bold text-navy">Light Mode</div>
                           </div>
                         </Col>
                         <Col md={4}>
                           <div className="p-3 border rounded-4 text-center cursor-pointer transition-all opacity-50 bg-surface-alt">
                             <Moon size={24} className="mb-2 text-muted" />
-                            <div className="extra-small fw-bold text-muted">Mode Sombre</div>
+                            <div className="extra-small fw-bold text-muted">Dark Mode</div>
                           </div>
                         </Col>
                         <Col md={4}>
                           <div className="p-3 border rounded-4 text-center cursor-pointer transition-all opacity-50 bg-surface-alt">
                             <Monitor size={24} className="mb-2 text-muted" />
-                            <div className="extra-small fw-bold text-muted">Système</div>
+                            <div className="extra-small fw-bold text-muted">System</div>
                           </div>
                         </Col>
                       </Row>
                     </div>
 
                     <div>
-                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Logo de la plateforme</Form.Label>
+                      <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-3">Platform Logo</Form.Label>
                       <input 
                         type="file" 
                         ref={fileInputRef} 
@@ -172,9 +172,9 @@ const PortalSettings: React.FC = () => {
                             className="btn-premium mb-2"
                             onClick={() => fileInputRef.current?.click()}
                           >
-                            Changer le logo
+                            Change Logo
                           </Button>
-                          <div className="extra-small text-muted fw-bold opacity-75">Recommandé : PNG ou SVG, fond transparent.</div>
+                          <div className="extra-small text-muted fw-bold opacity-75">Recommended: PNG or SVG, transparent background.</div>
                         </div>
                       </div>
                     </div>
@@ -193,55 +193,55 @@ const PortalSettings: React.FC = () => {
                         </Button>
                       </div>
                       <div className="flex-grow-1">
-                        <h4 className="fw-bold mb-1 text-navy">{user?.name || 'Administrateur'}</h4>
+                        <h4 className="fw-bold mb-1 text-navy">{user?.name || 'Administrator'}</h4>
                         <div className="d-flex align-items-center gap-2 mb-2">
-                          <Badge className="bg-primary-soft text-primary border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Rôle : {user?.role || 'Admin'}</Badge>
-                          <Badge className="bg-success-soft text-success border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Compte Vérifié</Badge>
+                          <Badge className="bg-primary-soft text-primary border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Role: {user?.role || 'Admin'}</Badge>
+                          <Badge className="bg-success-soft text-success border-0 extra-small px-3 py-1 rounded-pill fw-bold text-uppercase">Verified Account</Badge>
                         </div>
-                        <p className="extra-small text-muted mb-0 fw-bold opacity-75">ID Utilisateur : #AD-2026-991</p>
+                        <p className="extra-small text-muted mb-0 fw-bold opacity-75">User ID: #AD-2026-991</p>
                       </div>
                     </div>
 
                     <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy d-flex align-items-center gap-2">
-                      <User size={18} className="text-primary" /> Détails du Compte
+                      <User size={18} className="text-primary" /> Account Details
                     </h6>
                     <Row className="g-4">
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">First Name</Form.Label>
                         <Form.Control defaultValue={user?.name?.split(' ')[0] || 'Admin'} className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Last Name</Form.Label>
                         <Form.Control defaultValue={user?.name?.split(' ')[1] || 'System'} className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Professionnel</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Professional Email</Form.Label>
                         <Form.Control defaultValue="admin@emsi.ma" className="form-control-premium fw-bold" readOnly />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Numéro de Téléphone</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Phone Number</Form.Label>
                         <Form.Control defaultValue="+212 6 00 00 00 00" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Département</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Department</Form.Label>
                         <Form.Select className="form-control-premium fw-bold">
-                          <option>Ingénierie Informatique</option>
-                          <option>Génie Civil</option>
+                          <option>Computer Engineering</option>
+                          <option>Civil Engineering</option>
                           <option>Management</option>
                         </Form.Select>
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Poste / Fonction</Form.Label>
-                        <Form.Control defaultValue="Responsable des Portails" className="form-control-premium fw-bold" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Position / Role</Form.Label>
+                        <Form.Control defaultValue="Portal Manager" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={12}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Biographie / Description</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Biography / Description</Form.Label>
                         <Form.Control 
                           as="textarea" 
                           rows={3} 
                           className="form-control-premium fw-bold" 
-                          placeholder="Parlez-nous de vous..."
-                          defaultValue="Responsable de la coordination des projets de fin d'études à l'EMSI."
+                          placeholder="Tell us about yourself..."
+                          defaultValue="Responsible for coordinating graduation projects at EMSI."
                         />
                       </Col>
                     </Row>
@@ -250,15 +250,15 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'notifications' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Préférences de Notification</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Notification Preferences</h6>
                     
                     <div className="d-flex flex-column gap-3">
                       <div className="d-flex justify-content-between align-items-center p-3 rounded-4 border bg-surface-alt shadow-sm">
                         <div className="d-flex align-items-center gap-3">
                           <div className="p-2 bg-primary-soft border border-primary border-opacity-10 rounded-circle text-primary"><Mail size={18}/></div>
                           <div>
-                            <div className="small fw-bold text-navy">Rapports par Email</div>
-                            <div className="extra-small text-muted fw-bold opacity-75">Résumé hebdomadaire de l'activité du portail.</div>
+                            <div className="small fw-bold text-navy">Email Reports</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Weekly summary of portal activity.</div>
                           </div>
                         </div>
                         <Form.Check type="switch" defaultChecked className="custom-switch-lg" />
@@ -267,8 +267,8 @@ const PortalSettings: React.FC = () => {
                         <div className="d-flex align-items-center gap-3">
                           <div className="p-2 bg-primary-soft border border-primary border-opacity-10 rounded-circle text-primary"><Bell size={18}/></div>
                           <div>
-                            <div className="small fw-bold text-navy">Alertes de Bureau</div>
-                            <div className="extra-small text-muted fw-bold opacity-75">Notifications instantanées lors de nouvelles soumissions.</div>
+                            <div className="small fw-bold text-navy">Desktop Alerts</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Instant notifications for new submissions.</div>
                           </div>
                         </div>
                         <Form.Check type="switch" defaultChecked className="custom-switch-lg" />
@@ -279,23 +279,23 @@ const PortalSettings: React.FC = () => {
 
                 {activeTab === 'security' && (
                   <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Sécurité du Compte</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Account Security</h6>
                     <Row className="g-4 mb-5">
                       <Col md={12}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mot de passe actuel</Form.Label>
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Current Password</Form.Label>
                         <Form.Control type="password" placeholder="••••••••••••" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nouveau mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium fw-bold" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">New Password</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 characters" className="form-control-premium fw-bold" />
                       </Col>
                       <Col md={6}>
-                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Confirmer le mot de passe</Form.Label>
-                        <Form.Control type="password" placeholder="Min. 12 caractères" className="form-control-premium fw-bold" />
+                        <Form.Label className="extra-small fw-bold text-muted text-uppercase">Confirm Password</Form.Label>
+                        <Form.Control type="password" placeholder="Min. 12 characters" className="form-control-premium fw-bold" />
                       </Col>
                     </Row>
 
-                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Authentification à deux facteurs</h6>
+                    <h6 className="fw-bold mb-4 pb-2 border-bottom text-navy">Two-Factor Authentication</h6>
                     <div className="p-4 rounded-4 border bg-surface-alt shadow-sm">
                       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div className="d-flex align-items-center gap-3">
@@ -303,11 +303,11 @@ const PortalSettings: React.FC = () => {
                             <Smartphone size={24} />
                           </div>
                           <div>
-                            <div className="small fw-bold text-navy">Application d'authentification</div>
-                            <div className="extra-small text-muted fw-bold opacity-75">Sécurisez votre compte avec Google Authenticator ou Authy.</div>
+                            <div className="small fw-bold text-navy">Authenticator App</div>
+                            <div className="extra-small text-muted fw-bold opacity-75">Secure your account with Google Authenticator or Authy.</div>
                           </div>
                         </div>
-                        <Button className="btn-premium px-4">Activer 2FA</Button>
+                        <Button className="btn-premium px-4">Enable 2FA</Button>
                       </div>
                     </div>
                   </motion.div>
@@ -317,7 +317,7 @@ const PortalSettings: React.FC = () => {
               <div className="p-4 border-top text-end bg-surface-alt">
                 <Button className="btn-premium px-4">
                   <Save size={18} className="me-2" />
-                  Sauvegarder les paramètres
+                  Save Settings
                 </Button>
               </div>
             </div>

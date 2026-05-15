@@ -17,25 +17,25 @@ interface JurySession {
 }
 
 const AVAILABLE_JURIES = [
-  { id: 'j1', name: 'Dr. Sofia Drissi', dept: 'Informatique' },
-  { id: 'j2', name: 'Pr. Youssef Lagmouch', dept: 'Génie Logiciel' },
-  { id: 'j3', name: 'Dr. Ahmed Mansouri', dept: 'Cyber-sécurité' },
-  { id: 'j4', name: 'Pr. Sara Kamali', dept: 'Intelligence Artificielle' },
-  { id: 'j5', name: 'Dr. Karim Tazi', dept: 'Réseaux & Télécoms' },
+  { id: 'j1', name: 'Dr. Sofia Drissi', dept: 'Computer Science' },
+  { id: 'j2', name: 'Pr. Youssef Lagmouch', dept: 'Software Engineering' },
+  { id: 'j3', name: 'Dr. Ahmed Mansouri', dept: 'Cybersecurity' },
+  { id: 'j4', name: 'Pr. Sara Kamali', dept: 'Artificial Intelligence' },
+  { id: 'j5', name: 'Dr. Karim Tazi', dept: 'Networks & Telecoms' },
 ];
 
 const INITIAL_JURIES: JurySession[] = [
-  { id: 1, title: 'Introduction au Jury', day: 1, date: '1 Jan 2025', location: 'Salle A', time: '09:00', members: ['Dr. Sofia Drissi', 'Dr. Ahmed Mansouri'] },
-  { id: 2, title: 'Session Technique', day: 3, date: '3 Jan 2025', location: 'Salle B', time: '14:00', members: ['Pr. Youssef Lagmouch'] },
-  { id: 3, title: 'Revue de Projet', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00', members: ['Pr. Sara Kamali', 'Dr. Karim Tazi'] },
-  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Salle D', time: '10:30', members: ['Dr. Sofia Drissi'] },
-  { id: 5, title: 'Audit Final', day: 12, date: '12 Jan 2025', location: 'Salle A', time: '15:00', members: ['Dr. Ahmed Mansouri', 'Pr. Youssef Lagmouch'] },
-  { id: 6, title: 'Soutenance Oral', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '09:30', members: ['Pr. Sara Kamali'] },
-  { id: 7, title: 'Clôture de Session', day: 17, date: '17 Jan 2025', location: 'Salle C', time: '16:30', members: ['Dr. Karim Tazi', 'Dr. Sofia Drissi'] },
+  { id: 1, title: 'Jury Introduction', day: 1, date: '1 Jan 2025', location: 'Room A', time: '09:00', members: ['Dr. Sofia Drissi', 'Dr. Ahmed Mansouri'] },
+  { id: 2, title: 'Technical Session', day: 3, date: '3 Jan 2025', location: 'Room B', time: '14:00', members: ['Pr. Youssef Lagmouch'] },
+  { id: 3, title: 'Project Review', day: 6, date: '6 Jan 2025', location: 'Amphi C', time: '11:00', members: ['Pr. Sara Kamali', 'Dr. Karim Tazi'] },
+  { id: 4, title: 'Design UX/UI', day: 7, date: '7 Jan 2025', location: 'Room D', time: '10:30', members: ['Dr. Sofia Drissi'] },
+  { id: 5, title: 'Final Audit', day: 12, date: '12 Jan 2025', location: 'Room A', time: '15:00', members: ['Dr. Ahmed Mansouri', 'Pr. Youssef Lagmouch'] },
+  { id: 6, title: 'Oral Defense', day: 15, date: '15 Jan 2025', location: 'Amphi B', time: '09:30', members: ['Pr. Sara Kamali'] },
+  { id: 7, title: 'Session Closing', day: 17, date: '17 Jan 2025', location: 'Room C', time: '16:30', members: ['Dr. Karim Tazi', 'Dr. Sofia Drissi'] },
 ];
 
 const JuryPlanning: React.FC = () => {
-  const [activeView, setActiveView] = useState('Mois');
+  const [activeView, setActiveView] = useState('Month');
   const [juries, setJuries] = useState<JurySession[]>(INITIAL_JURIES);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ 
@@ -127,14 +127,14 @@ const JuryPlanning: React.FC = () => {
         {/* Header Section */}
         <div className="d-flex justify-content-between align-items-center mb-5">
           <div>
-            <h2 className="fw-bold mb-1 text-navy">Planning des Juries</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Organisez et gérez les sessions d'évaluation académique.</p>
+            <h2 className="fw-bold mb-1 text-navy">Jury Planning</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Organize and manage academic evaluation sessions.</p>
           </div>
           <Button 
             className="btn-premium d-flex align-items-center gap-2"
             onClick={() => setShowModal(true)}
           >
-            <Plus size={20} /> Nouveau jury
+            <Plus size={20} /> New jury
           </Button>
         </div>
 
@@ -145,7 +145,7 @@ const JuryPlanning: React.FC = () => {
               <div className="d-flex align-items-center gap-3">
                 <div className="d-flex align-items-center gap-2">
                   <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronLeft size={24} /></Button>
-                  <h4 className="fw-bold mb-0 mx-2 text-navy text-nowrap">Janvier 2025</h4>
+                  <h4 className="fw-bold mb-0 mx-2 text-navy text-nowrap">January 2025</h4>
                   <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronRight size={24} /></Button>
                 </div>
                 <Form.Control 
@@ -156,7 +156,7 @@ const JuryPlanning: React.FC = () => {
                 />
               </div>
               <div className="d-flex gap-2 bg-surface p-1 rounded-pill border">
-                {['Mois', 'Semaine'].map(view => (
+                {['Month', 'Week'].map(view => (
                   <Button 
                     key={view}
                     variant={activeView === view ? 'primary' : 'link'}
@@ -171,7 +171,7 @@ const JuryPlanning: React.FC = () => {
 
             <div className="glass-card rounded-4 overflow-hidden border shadow-sm">
               <div className="d-flex border-bottom bg-surface-alt text-center fw-bold extra-small text-muted py-3">
-                {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(d => (
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                   <div key={d} className="flex-grow-1">{d}</div>
                 ))}
               </div>
@@ -203,7 +203,7 @@ const JuryPlanning: React.FC = () => {
           <Col lg={4}>
             <div className="glass-card p-4 rounded-4 shadow-sm mb-4">
               <h6 className="fw-bold mb-4 d-flex align-items-center gap-2 text-navy">
-                <Clock size={18} className="text-primary" /> Sessions Prochaines
+                <Clock size={18} className="text-primary" /> Upcoming Sessions
               </h6>
               <div className="d-flex flex-column gap-3">
                 {juries.filter(j => j.day >= 1).slice(0, 4).map(j => (
@@ -212,7 +212,7 @@ const JuryPlanning: React.FC = () => {
                       <div className="flex-grow-1">
                         <div className="small fw-bold text-navy">{j.title}</div>
                         <Badge className={`bg-${j.status === 'Cancelled' ? 'secondary' : 'primary'}-soft text-${j.status === 'Cancelled' ? 'secondary' : 'primary'} border border-opacity-10 extra-small px-2 mt-1`}>
-                          {j.day} Jan {j.status === 'Cancelled' && '• ANNULÉ'}
+                          {j.day} Jan {j.status === 'Cancelled' && '• CANCELLED'}
                         </Badge>
                       </div>
                       <Dropdown align="end">
@@ -221,14 +221,14 @@ const JuryPlanning: React.FC = () => {
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
                           <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => openReschedule(j)}>
-                            <Calendar size={14} className="text-primary" /> Reporter
+                            <Calendar size={14} className="text-primary" /> Reschedule
                           </Dropdown.Item>
                           <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-warning" onClick={() => handleCancelSession(j.id)}>
-                            <XCircle size={14} /> Annuler
+                            <XCircle size={14} /> Cancel
                           </Dropdown.Item>
                           <Dropdown.Divider />
                           <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-danger" onClick={() => handleDeleteSession(j.id)}>
-                            <Trash2 size={14} /> Supprimer
+                            <Trash2 size={14} /> Delete
                           </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
@@ -246,7 +246,7 @@ const JuryPlanning: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <Button variant="link" className="w-100 mt-4 extra-small fw-bold text-primary text-decoration-none border-0 shadow-none">Voir tout le calendrier</Button>
+              <Button variant="link" className="w-100 mt-4 extra-small fw-bold text-primary text-decoration-none border-0 shadow-none">View full calendar</Button>
             </div>
 
             <div className="glass-card p-4 rounded-4 shadow-sm bg-primary-soft border-primary border-opacity-10">
@@ -254,9 +254,9 @@ const JuryPlanning: React.FC = () => {
                 <div className="p-2 bg-primary-soft rounded-circle text-primary">
                   <Users size={20} />
                 </div>
-                <h6 className="fw-bold mb-0 text-navy">Disponibilité Jury</h6>
+                <h6 className="fw-bold mb-0 text-navy">Jury Availability</h6>
               </div>
-              <div className="extra-small text-muted mb-3 fw-bold opacity-75">Taux d'occupation des examinateurs pour cette semaine.</div>
+              <div className="extra-small text-muted mb-3 fw-bold opacity-75">Examiner occupancy rate for this week.</div>
               <div className="mb-2 d-flex justify-content-between align-items-center extra-small fw-bold">
                 <span className="text-muted">Occupation</span>
                 <span className="text-primary">78%</span>
@@ -272,16 +272,16 @@ const JuryPlanning: React.FC = () => {
       {/* Modal Planifier */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg" className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold fs-5 text-navy">Planifier une Session de Jury</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">Schedule a Jury Session</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
             <Row className="g-4 mb-4">
               <Col lg={8}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre de la session</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Session Title</Form.Label>
                   <Form.Control 
-                    placeholder="Ex: Soutenance Finale Groupe A" 
+                    placeholder="Ex: Final Defense Group A" 
                     className="form-control-premium fw-bold py-3"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -290,7 +290,7 @@ const JuryPlanning: React.FC = () => {
                 
                 <Row className="g-3">
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Jour (Janvier)</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Day (January)</Form.Label>
                     <Form.Control 
                       type="number" 
                       min="1" max="31" 
@@ -300,7 +300,7 @@ const JuryPlanning: React.FC = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Heure</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Time</Form.Label>
                     <Form.Control 
                       type="time" 
                       className="form-control-premium fw-bold"
@@ -309,9 +309,9 @@ const JuryPlanning: React.FC = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Salle / Lieu</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Room / Location</Form.Label>
                     <Form.Control 
-                      placeholder="Ex: Salle B2" 
+                      placeholder="Ex: Room B2" 
                       className="form-control-premium fw-bold"
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
@@ -322,7 +322,7 @@ const JuryPlanning: React.FC = () => {
 
               <Col lg={4}>
                 <div className="p-3 bg-surface-alt rounded-4 border h-100">
-                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Membres du Jury</h6>
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Jury Members</h6>
                   <div className="d-flex flex-column gap-2 overflow-auto" style={{ maxHeight: '200px' }}>
                     {AVAILABLE_JURIES.map(jury => (
                       <div 
@@ -336,7 +336,7 @@ const JuryPlanning: React.FC = () => {
                     ))}
                   </div>
                   <div className="mt-3 extra-small fw-bold text-primary">
-                    {formData.selectedMembers.length} membres sélectionnés
+                    {formData.selectedMembers.length} members selected
                   </div>
                 </div>
               </Col>
@@ -344,22 +344,22 @@ const JuryPlanning: React.FC = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer className="border-0 p-4 pt-0">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowModal(false)}>Annuler</Button>
-          <Button className="btn-premium px-4 py-2" onClick={handleAddJury}>Confirmer le Planning</Button>
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleAddJury}>Confirm Planning</Button>
         </Modal.Footer>
       </Modal>
 
       {/* Modal Reporter / Modifier */}
       <Modal show={showReschedule} onHide={() => setShowReschedule(false)} centered size="lg" className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold fs-5 text-navy">Reporter / Modifier la Session</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">Reschedule / Edit Session</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
             <Row className="g-4 mb-4">
               <Col lg={8}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre de la session</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Session Title</Form.Label>
                   <Form.Control 
                     className="form-control-premium fw-bold py-3"
                     value={formData.title}
@@ -369,7 +369,7 @@ const JuryPlanning: React.FC = () => {
                 
                 <Row className="g-3">
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouveau Jour</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">New Day</Form.Label>
                     <Form.Control 
                       type="number" 
                       min="1" max="31" 
@@ -379,7 +379,7 @@ const JuryPlanning: React.FC = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouvelle Heure</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">New Time</Form.Label>
                     <Form.Control 
                       type="time" 
                       className="form-control-premium fw-bold"
@@ -388,7 +388,7 @@ const JuryPlanning: React.FC = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouvelle Salle</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">New Room</Form.Label>
                     <Form.Control 
                       className="form-control-premium fw-bold"
                       value={formData.location}
@@ -400,7 +400,7 @@ const JuryPlanning: React.FC = () => {
 
               <Col lg={4}>
                 <div className="p-3 bg-surface-alt rounded-4 border h-100">
-                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Ajuster le Jury</h6>
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Adjust Jury</h6>
                   <div className="d-flex flex-column gap-2 overflow-auto" style={{ maxHeight: '200px' }}>
                     {AVAILABLE_JURIES.map(jury => (
                       <div 
@@ -418,8 +418,8 @@ const JuryPlanning: React.FC = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer className="border-0 p-4 pt-0">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowReschedule(false)}>Annuler</Button>
-          <Button className="btn-premium px-4 py-2" onClick={handleConfirmReschedule}>Enregistrer les modifications</Button>
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowReschedule(false)}>Cancel</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleConfirmReschedule}>Save changes</Button>
         </Modal.Footer>
       </Modal>
 
@@ -439,7 +439,7 @@ const JuryPlanning: React.FC = () => {
           </div>
           <h5 className="fw-bold text-navy mb-3">Confirmation</h5>
           <p className="small text-muted mb-4 fw-bold opacity-75">
-            Êtes-vous sûr de vouloir supprimer cette session ? Cette action est irréversible.
+            Are you sure you want to delete this session? This action is irreversible.
           </p>
           <div className="d-flex gap-3 justify-content-center">
             <Button 
@@ -447,14 +447,14 @@ const JuryPlanning: React.FC = () => {
               className="text-muted fw-bold text-decoration-none border-0 px-4 shadow-none" 
               onClick={() => setShowDeleteModal(false)}
             >
-              Annuler
+              Cancel
             </Button>
             <Button 
               variant="danger" 
               className="rounded-pill px-4 fw-bold shadow-sm border-0 bg-danger"
               onClick={confirmDelete}
             >
-              Supprimer
+              Delete
             </Button>
           </div>
         </Modal.Body>

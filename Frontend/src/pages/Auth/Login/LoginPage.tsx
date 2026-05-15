@@ -22,29 +22,29 @@ const LoginPage: React.FC = () => {
   const roles: RoleOption[] = [
     { 
       id: 'student', 
-      title: 'Portail Étudiant', 
-      desc: 'Accédez à votre espace PFE et soumettez vos livrables.', 
+      title: 'Student Portal', 
+      desc: 'Access your PFE space and submit your deliverables.', 
       icon: <GraduationCap size={32} />,
       colorClass: 'primary'
     },
     { 
       id: 'supervisor', 
-      title: 'Espace Encadrant', 
-      desc: 'Suivez vos étudiants et validez les étapes clés.', 
+      title: 'Supervisor Space', 
+      desc: 'Track your students and validate key milestones.', 
       icon: <Users size={32} />,
       colorClass: 'success'
     },
     { 
       id: 'jury', 
-      title: 'Conseil de Jury', 
-      desc: 'Évaluez les projets et gérez les soutenances.', 
+      title: 'Jury Council', 
+      desc: 'Evaluate projects and manage defenses.', 
       icon: <UserCog size={32} />,
       colorClass: 'warning'
     },
     { 
       id: 'admin', 
-      title: 'Centre Admin', 
-      desc: 'Gestion globale et coordination académique.', 
+      title: 'Admin Center', 
+      desc: 'Global management and academic coordination.', 
       icon: <Shield size={32} />,
       colorClass: 'danger'
     }
@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
           </motion.div>
           <h1 className="fw-bold text-navy mb-2" style={{ fontSize: '2.5rem' }}>PFE Navigator</h1>
           <p className="text-muted mx-auto fw-bold opacity-75" style={{ maxWidth: '500px' }}>
-            Bienvenue sur la plateforme de gestion des projets de fin d'études. Veuillez sélectionner votre profil.
+            Welcome to the PFE project management platform. Please select your profile.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ const LoginPage: React.FC = () => {
                   <p className="extra-small text-muted mb-4 fw-bold opacity-75">{role.desc}</p>
                   
                   <div className={`mt-auto d-flex align-items-center gap-2 text-${role.colorClass} fw-bold small`}>
-                    Se connecter <ArrowRight size={16} />
+                    Sign In <ArrowRight size={16} />
                   </div>
                 </Card>
               </motion.div>
@@ -99,9 +99,9 @@ const LoginPage: React.FC = () => {
 
         <div className="text-center mt-5">
           <div className="extra-small text-muted mb-3 d-flex align-items-center justify-content-center gap-2 fw-bold opacity-50">
-            <Key size={12} /> Connexion sécurisée (SSO) active
+            <Key size={12} /> Secure connection (SSO) active
           </div>
-          <div className="fw-bold small text-navy opacity-25">Groupe Scolaire EMSI © 2026</div>
+          <div className="fw-bold small text-navy opacity-25">EMSI School Group © 2026</div>
         </div>
       </Container>
     </div>

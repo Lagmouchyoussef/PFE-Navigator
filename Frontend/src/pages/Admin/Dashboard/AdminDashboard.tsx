@@ -30,10 +30,10 @@ const SUBMISSION_DATA = [
 ];
 
 const STATUS_DATA = [
-  { name: 'En attente', value: 15, color: '#f59e0b' },
-  { name: 'Approuvé', value: 45, color: '#10b981' },
-  { name: 'En cours', value: 25, color: '#3b82f6' },
-  { name: 'Terminé', value: 10, color: '#6366f1' },
+  { name: 'Pending', value: 15, color: '#f59e0b' },
+  { name: 'Approved', value: 45, color: '#10b981' },
+  { name: 'In Progress', value: 25, color: '#3b82f6' },
+  { name: 'Completed', value: 10, color: '#6366f1' },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -46,11 +46,11 @@ const AdminDashboard: React.FC = () => {
 
   const generateReport = (format: 'pdf' | 'csv' | 'word') => {
     const data = [
-      ["Statistique", "Valeur"],
-      ["Utilisateurs", "1248"],
-      ["Projets Actifs", "842"],
-      ["Taux de validation", "85%"],
-      ["Dernière mise à jour", new Date().toLocaleDateString()]
+      ["Statistic", "Value"],
+      ["Users", "1248"],
+      ["Active Projects", "842"],
+      ["Validation Rate", "85%"],
+      ["Last Update", new Date().toLocaleDateString()]
     ];
     
     if (format === 'csv') {
@@ -58,14 +58,14 @@ const AdminDashboard: React.FC = () => {
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `rapport_global_${new Date().getTime()}.csv`);
+      link.setAttribute("download", `global_report_${new Date().getTime()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } else {
       setConfirmConfig({
-        title: 'Exportation Rapport',
-        message: `Voulez-vous vraiment générer le rapport au format ${format.toUpperCase()} ?`,
+        title: 'Report Export',
+        message: `Are you sure you want to generate the report in ${format.toUpperCase()} format?`,
         action: 'export',
         user: { name: format.toUpperCase() }
       });
@@ -78,10 +78,10 @@ const AdminDashboard: React.FC = () => {
       navigate('/admin/users');
     } else {
       setConfirmConfig({
-        title: action === 'delete' ? 'Confirmation de suppression' : 'Action système',
+        title: action === 'delete' ? 'Deletion Confirmation' : 'System Action',
         message: action === 'delete' 
-          ? `Êtes-vous sûr de vouloir supprimer l'utilisateur "${user.name}" ? Cette action est irréversible.`
-          : `Confirmez-vous l'action "${action}" pour l'utilisateur "${user.name}" ?`,
+          ? `Are you sure you want to delete user "${user.name}"? This action is irreversible.`
+          : `Do you confirm the action "${action}" for user "${user.name}"?`,
         action: action,
         user: user
       });
@@ -102,8 +102,8 @@ const AdminDashboard: React.FC = () => {
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-navy">Panneau de Contrôle Admin</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Vue d'ensemble de la plateforme et gestion des ressources.</p>
+            <h2 className="fw-bold mb-1 text-navy">Admin Control Panel</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Platform overview and resource management.</p>
           </div>
           <div className="d-flex gap-2">
             <Dropdown>
@@ -111,18 +111,18 @@ const AdminDashboard: React.FC = () => {
                 variant="outline-primary" 
                 className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 no-caret shadow-none"
               >
-                <Download size={18} /> Rapport Global
+                <Download size={18} /> Global Report
               </Dropdown.Toggle>
 
               <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden mt-2 p-1">
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('pdf')}>
-                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Exporter en PDF
+                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Export to PDF
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('word')}>
-                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Exporter en Word
+                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Export to Word
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => generateReport('csv')}>
-                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Exporter en CSV
+                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Export to CSV
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -131,7 +131,7 @@ const AdminDashboard: React.FC = () => {
               className="btn-premium d-flex align-items-center gap-2"
               onClick={() => navigate('/admin/users')}
             >
-              <Plus size={18} /> Nouvel Utilisateur
+              <Plus size={18} /> New User
             </Button>
           </div>
         </div>
@@ -139,16 +139,16 @@ const AdminDashboard: React.FC = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
-            <StatCard label="Utilisateurs" value="1,248" icon={<Users />} color="primary" trend="+12%" />
+            <StatCard label="Users" value="1,248" icon={<Users />} color="primary" trend="+12%" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Projets Actifs" value="842" icon={<Briefcase />} color="info" trend="92%" />
+            <StatCard label="Active Projects" value="842" icon={<Briefcase />} color="info" trend="92%" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Actions en Attente" value="24" icon={<Clock />} color="warning" trend="Urgent" />
+            <StatCard label="Pending Actions" value="24" icon={<Clock />} color="warning" trend="Urgent" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Stockage Système" value="64.2%" icon={<Database />} color="danger" trend="420GB" />
+            <StatCard label="System Storage" value="64.2%" icon={<Database />} color="danger" trend="420GB" />
           </Col>
         </Row>
 
@@ -156,7 +156,7 @@ const AdminDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={7}>
             <div className="glass-card p-4 h-100">
-              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Tendances de Soumission</h5>
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Submission Trends</h5>
               <div style={{ height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={SUBMISSION_DATA}>
@@ -182,7 +182,7 @@ const AdminDashboard: React.FC = () => {
             <div className="glass-card p-4 h-100">
               <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-3">
-                  <span>Événements & Rendez-vous</span>
+                  <span>Events & Meetings</span>
                   <Form.Control 
                     type="date" 
                     defaultValue="2026-05-15"
@@ -228,7 +228,7 @@ const AdminDashboard: React.FC = () => {
                   </Button>
                 )}
               </div>
-              <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-muted text-decoration-none border-0 shadow-none opacity-50">Gérer le planning complet</Button>
+              <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-muted text-decoration-none border-0 shadow-none opacity-50">Manage full schedule</Button>
             </div>
           </Col>
         </Row>
@@ -236,7 +236,7 @@ const AdminDashboard: React.FC = () => {
         <Row className="mb-5">
           <Col lg={4}>
             <div className="glass-card p-4 h-100">
-              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Répartition des Statuts</h5>
+              <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Status Distribution</h5>
               <div style={{ height: '240px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -256,13 +256,13 @@ const AdminDashboard: React.FC = () => {
         <div className="glass-card overflow-hidden mb-5">
           <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
             <div>
-              <h5 className="fw-bold mb-0 text-navy">Gestion des Utilisateurs</h5>
-              <p className="extra-small text-muted mb-0 fw-bold opacity-75">Gérez les comptes globaux et les accès privilégiés.</p>
+              <h5 className="fw-bold mb-0 text-navy">User Management</h5>
+              <p className="extra-small text-muted mb-0 fw-bold opacity-75">Manage global accounts and privileged access.</p>
             </div>
             <div className="d-flex gap-2">
               <InputGroup size="sm" className="glass-card rounded-pill border px-3" style={{ width: '250px', backgroundColor: 'var(--color-surface)' }}>
                 <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16}/></InputGroup.Text>
-                <Form.Control placeholder="Rechercher..." className="bg-transparent border-0 shadow-none py-2 extra-small fw-bold text-navy" />
+                <Form.Control placeholder="Search..." className="bg-transparent border-0 shadow-none py-2 extra-small fw-bold text-navy" />
               </InputGroup>
             </div>
           </div>
@@ -270,10 +270,10 @@ const AdminDashboard: React.FC = () => {
             <Table borderless hover className="align-middle mb-0 custom-table-modern">
               <thead>
                 <tr>
-                  <th className="px-4">Utilisateur</th>
+                  <th className="px-4">User</th>
                   <th>Email</th>
-                  <th>Rôle</th>
-                  <th>Statut</th>
+                  <th>Role</th>
+                  <th>Status</th>
                   <th className="text-end px-4">Actions</th>
                 </tr>
               </thead>
@@ -327,14 +327,14 @@ const AdminDashboard: React.FC = () => {
           </p>
           <div className="d-flex gap-3 justify-content-center">
             <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowConfirmModal(false)}>
-              Annuler
+              Cancel
             </Button>
             <Button 
               variant={confirmConfig.action === 'delete' ? 'danger' : 'primary'} 
               className="px-4 py-2 rounded-3 fw-bold shadow-sm" 
               onClick={handleConfirm}
             >
-              {confirmConfig.action === 'delete' ? 'Supprimer' : 'Confirmer'}
+              {confirmConfig.action === 'delete' ? 'Delete' : 'Confirm'}
             </Button>
           </div>
         </Modal.Body>

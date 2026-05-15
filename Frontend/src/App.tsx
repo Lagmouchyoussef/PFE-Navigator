@@ -284,7 +284,7 @@ function App() {
 
         <div className="sidebar-footer mt-auto p-3 border-top border-secondary border-opacity-10">
           <div className="d-flex flex-column gap-1">
-            <SidebarLink to="/settings" icon={<Settings size={18} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Paramètres"} />
+            <SidebarLink to="/settings" icon={<Settings size={18} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Settings"} />
             {!isSidebarCollapsed && (
               <button
                 onClick={logout}
@@ -294,7 +294,7 @@ function App() {
                 <div className="sidebar-icon-wrapper">
                   <LogOut size={18} />
                 </div>
-                <span className="fw-bold">Déconnexion</span>
+                <span className="fw-bold">Sign Out</span>
               </button>
             )}
           </div>
@@ -336,7 +336,7 @@ function App() {
             </div>
             {user && (
               <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
-                <span className="opacity-50">Portail</span>
+                <span className="opacity-50">Portal</span>
                 <ChevronRight size={12} className="opacity-25" />
                 <span className="text-primary text-capitalize">{user.role} Workspace</span>
               </div>
@@ -513,7 +513,7 @@ function App() {
                       {user.name}
                     </span>
                     <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>
-                      {user.role === 'jury' ? 'Jury Member' : user.role === 'supervisor' ? 'Prof. Superviseur' : 'Étudiant PFE'}
+                      {user.role === 'jury' ? 'Jury Member' : user.role === 'supervisor' ? 'Supervisor Prof.' : 'PFE Student'}
                     </span>
                   </div>
                   <div className="avatar-circle">{user.name.charAt(0)}</div>

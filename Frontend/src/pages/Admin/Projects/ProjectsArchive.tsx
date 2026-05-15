@@ -48,7 +48,7 @@ const ProjectsArchive: React.FC = () => {
   };
 
   const handleExport = (format: string) => {
-    alert(`Exportation de ${selectedProjects.length} projets en format ${format}...`);
+    alert(`Exporting ${selectedProjects.length} projects in ${format} format...`);
     setSelectedProjects([]);
   };
 
@@ -79,15 +79,15 @@ const ProjectsArchive: React.FC = () => {
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-navy">Archives des Projets</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Consultez et gérez l'historique de tous les projets passés.</p>
+            <h2 className="fw-bold mb-1 text-navy">Project Archives</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">View and manage the history of all past projects.</p>
           </div>
           <div className="d-flex gap-2">
             <Button variant="outline-primary" className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
-              <Filter size={18} /> Filtrer
+              <Filter size={18} /> Filter
             </Button>
             <Button className="btn-premium d-flex align-items-center gap-2">
-              <Download size={18} /> Exporter
+              <Download size={18} /> Export
             </Button>
           </div>
         </div>
@@ -99,7 +99,7 @@ const ProjectsArchive: React.FC = () => {
               <Search size={18} />
             </InputGroup.Text>
             <Form.Control 
-              placeholder="Rechercher un projet, un rapport ou une thématique..."
+              placeholder="Search for a project, report, or theme..."
               className="bg-transparent border-0 py-2 text-navy fw-bold small shadow-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -138,24 +138,24 @@ const ProjectsArchive: React.FC = () => {
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="border-0 shadow-lg rounded-4 extra-small">
                             <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => handleShare(project.id)}>
-                              <Share2 size={14} className="text-primary" /> Partager dans Ressources
+                              <Share2 size={14} className="text-primary" /> Share to Resources
                             </Dropdown.Item>
                             <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2" onClick={() => handleEdit(project)}>
-                              <Edit2 size={14} className="text-info" /> Modifier
+                              <Edit2 size={14} className="text-info" /> Edit
                             </Dropdown.Item>
                             <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-warning" onClick={() => handleCancel(project.id)}>
-                              <XCircle size={14} /> Annuler / Masquer
+                              <XCircle size={14} /> Cancel / Hide
                             </Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item className="py-2 fw-bold d-flex align-items-center gap-2 text-danger" onClick={() => deleteArchiveProject(project.id)}>
-                              <Trash2 size={14} /> Supprimer définitivement
+                              <Trash2 size={14} /> Permanently delete
                             </Dropdown.Item>
                           </Dropdown.Menu>
                         </Dropdown>
                       </div>
                     <Badge className={`bg-${project.status === 'Completed' ? 'success' : 'danger'}-soft text-${project.status === 'Completed' ? 'success' : 'danger'} border border-${project.status === 'Completed' ? 'success' : 'danger'} border-opacity-10 extra-small px-2`}>
                         {project.status === 'Completed' ? <CheckCircle size={12} className="me-1" /> : <XCircle size={12} className="me-1" />}
-                        {project.status === 'Completed' ? 'Terminé' : 'Annulé'}
+                        {project.status === 'Completed' ? 'Completed' : 'Cancelled'}
                       </Badge>
                     
                     <h5 className="fw-bold mb-2 text-navy">{project.name}</h5>
@@ -168,7 +168,7 @@ const ProjectsArchive: React.FC = () => {
                         <Calendar size={14} className="text-primary" /> {project.date}
                       </div>
                       <div className="d-flex align-items-center gap-2 extra-small text-muted fw-bold">
-                        <FileText size={14} className="text-primary" /> {project.files} documents archivés
+                        <FileText size={14} className="text-primary" /> {project.files} archived documents
                       </div>
                     </div>
                   </div>
@@ -185,7 +185,7 @@ const ProjectsArchive: React.FC = () => {
                       className="p-0 text-primary extra-small fw-bold text-decoration-none border-0 shadow-none"
                       onClick={() => handleViewDetails(project)}
                     >
-                      Détails <ChevronRight size={14}/>
+                      Details <ChevronRight size={14}/>
                     </Button>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const ProjectsArchive: React.FC = () => {
                   <div className="p-2 bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
                     <span className="fw-bold small">{selectedProjects.length}</span>
                   </div>
-                  <span className="extra-small fw-bold text-uppercase tracking-wider">Projets Sélectionnés</span>
+                  <span className="extra-small fw-bold text-uppercase tracking-wider">Selected Projects</span>
                 </div>
 
                 <div className="d-flex gap-3">
@@ -252,13 +252,13 @@ const ProjectsArchive: React.FC = () => {
       {/* Modal Modification Projet */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold fs-5 text-navy">Modifier le Dossier Archivé</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">Edit Archived Folder</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           {editingProject && (
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre du Projet</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Project Title</Form.Label>
                 <Form.Control 
                   className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                   value={editingProject.name}
@@ -287,7 +287,7 @@ const ProjectsArchive: React.FC = () => {
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Encadrant</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Supervisor</Form.Label>
                     <Form.Control 
                       className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                       value={editingProject.supervisor}
@@ -300,8 +300,8 @@ const ProjectsArchive: React.FC = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="border-0 p-4 pt-0">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowEditModal(false)}>Annuler</Button>
-          <Button className="btn-premium px-4 py-2" onClick={saveEdit}>Enregistrer les modifications</Button>
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowEditModal(false)}>Cancel</Button>
+          <Button className="btn-premium px-4 py-2" onClick={saveEdit}>Save changes</Button>
         </Modal.Footer>
       </Modal>
 
@@ -329,14 +329,14 @@ const ProjectsArchive: React.FC = () => {
             <Row className="g-4">
               <Col lg={7}>
                 <div className="mb-4">
-                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Description du Projet</h6>
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Project Description</h6>
                   <p className="small text-navy lh-base opacity-75 fw-medium bg-surface-alt p-3 rounded-4 border">
                     {viewingProject.desc}
                   </p>
                 </div>
 
                 <div className="mb-4">
-                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Documents Archivés</h6>
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Archived Documents</h6>
                   <div className="d-flex flex-column gap-2">
                     {[
                       { name: 'Rapport_Final.pdf', size: '2.4 MB' },
@@ -360,7 +360,7 @@ const ProjectsArchive: React.FC = () => {
               
               <Col lg={5}>
                 <div className="p-4 rounded-4 bg-surface-alt border h-100">
-                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-4 tracking-wider">Métadonnées Académiques</h6>
+                  <h6 className="extra-small fw-bold text-muted text-uppercase mb-4 tracking-wider">Academic Metadata</h6>
                   
                   <div className="d-flex flex-column gap-4">
                     <div className="d-flex align-items-center gap-3">
@@ -368,7 +368,7 @@ const ProjectsArchive: React.FC = () => {
                         <Calendar size={18} />
                       </div>
                       <div>
-                        <div className="extra-small text-muted fw-bold opacity-50">DATE D'ARCHIVAGE</div>
+                        <div className="extra-small text-muted fw-bold opacity-50">ARCHIVE DATE</div>
                         <div className="small fw-bold text-navy">{viewingProject.date}</div>
                       </div>
                     </div>
@@ -378,7 +378,7 @@ const ProjectsArchive: React.FC = () => {
                         <FileText size={18} />
                       </div>
                       <div>
-                        <div className="extra-small text-muted fw-bold opacity-50">TYPE DE PROJET</div>
+                        <div className="extra-small text-muted fw-bold opacity-50">PROJECT TYPE</div>
                         <Badge className="bg-info-soft text-info border-0 extra-small px-2 py-1 mt-1">{viewingProject.type}</Badge>
                       </div>
                     </div>
@@ -388,13 +388,13 @@ const ProjectsArchive: React.FC = () => {
                         <CheckCircle size={18} />
                       </div>
                       <div>
-                        <div className="extra-small text-muted fw-bold opacity-50">STATUT FINAL</div>
-                        <Badge className="bg-success-soft text-success border-0 extra-small px-2 py-1 mt-1">Validé / Terminé</Badge>
+                        <div className="extra-small text-muted fw-bold opacity-50">FINAL STATUS</div>
+                        <Badge className="bg-success-soft text-success border-0 extra-small px-2 py-1 mt-1">Validated / Completed</Badge>
                       </div>
                     </div>
 
                     <div className="pt-4 border-top">
-                      <div className="extra-small text-muted fw-bold opacity-50 mb-3">ENCADRANT RESPONSABLE</div>
+                      <div className="extra-small text-muted fw-bold opacity-50 mb-3">RESPONSIBLE SUPERVISOR</div>
                       <div className="d-flex align-items-center gap-3">
                         <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
                           {viewingProject.supervisor.split('. ')[1]?.charAt(0) || viewingProject.supervisor.charAt(0)}
@@ -413,7 +413,7 @@ const ProjectsArchive: React.FC = () => {
             className="btn-premium w-100 py-3 rounded-4 shadow-sm border-0" 
             onClick={() => setShowDetailsModal(false)}
           >
-            Fermer l'aperçu
+            Close preview
           </Button>
         </Modal.Footer>
       </Modal>
@@ -432,7 +432,7 @@ const ProjectsArchive: React.FC = () => {
               <div className="bg-white text-success rounded-circle p-1">
                 <CheckCircle size={20} />
               </div>
-              <span className="fw-bold extra-small">Le dossier a été partagé avec succès dans le Centre de Ressources !</span>
+              <span className="fw-bold extra-small">The folder has been successfully shared in the Resource Center!</span>
             </div>
           </motion.div>
         )}

@@ -18,10 +18,10 @@ interface ResourceFile {
 }
 
 const FILES: ResourceFile[] = [
-  { name: 'Rapport_jury_2026.pdf', type: 'PDF', size: '2.4 MB', date: '10 Mai 2026', color: 'primary' },
-  { name: 'Guide_evaluation.docx', type: 'DOCX', size: '1.1 MB', date: '8 Mai 2026', color: 'primary' },
-  { name: 'Donnees_analyse.xlsx', type: 'XLSX', size: '3.8 MB', date: '5 Mai 2026', color: 'primary' },
-  { name: 'Presentation_projet.pptx', type: 'PPTX', size: '5.2 MB', date: '1 Mai 2026', color: 'primary' },
+  { name: 'Jury_report_2026.pdf', type: 'PDF', size: '2.4 MB', date: 'May 10, 2026', color: 'primary' },
+  { name: 'Evaluation_guide.docx', type: 'DOCX', size: '1.1 MB', date: 'May 8, 2026', color: 'primary' },
+  { name: 'Analysis_data.xlsx', type: 'XLSX', size: '3.8 MB', date: 'May 5, 2026', color: 'primary' },
+  { name: 'Project_presentation.pptx', type: 'PPTX', size: '5.2 MB', date: 'May 1, 2026', color: 'primary' },
 ];
 
 const ResourceHub: React.FC = () => {
@@ -46,10 +46,10 @@ const ResourceHub: React.FC = () => {
   };
 
   const handleAction = async (action: string, file: any) => {
-    if (action === 'Suppression') {
+    if (action === 'Delete') {
       removeFromResources(file.id);
-      setSuccessMsg(`Fichier "${file.title}" supprimé avec succès.`);
-    } else if (action === 'Téléchargement') {
+      setSuccessMsg(`File "${file.title}" successfully deleted.`);
+    } else if (action === 'Download') {
       // Simulate real download
       const link = document.createElement('a');
       link.href = '#';
@@ -57,20 +57,20 @@ const ResourceHub: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      setSuccessMsg(`Préparation du téléchargement pour "${file.title}"...`);
-    } else if (action === 'Partage') {
+      setSuccessMsg(`Preparing download for "${file.title}"...`);
+    } else if (action === 'Share') {
       if (navigator.share) {
         try {
           await navigator.share({
             title: file.title,
-            text: `Consultez ce document : ${file.title}`,
+            text: `Check out this document: ${file.title}`,
             url: window.location.href
           });
         } catch (err) {
-          setSuccessMsg(`Option de partage activée pour "${file.title}".`);
+          setSuccessMsg(`Sharing option activated for "${file.title}".`);
         }
       } else {
-        setSuccessMsg(`Lien de partage copié pour "${file.title}".`);
+        setSuccessMsg(`Sharing link copied for "${file.title}".`);
       }
     }
     setShowSuccess(true);
@@ -80,7 +80,7 @@ const ResourceHub: React.FC = () => {
   const confirmUpload = () => {
     addToResources(pendingFile);
     setShowUploadModal(false);
-    setSuccessMsg(`Fichier "${pendingFile.title}" téléversé avec succès !`);
+    setSuccessMsg(`File "${pendingFile.title}" successfully uploaded!`);
     setPendingFile(null);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -94,7 +94,7 @@ const ResourceHub: React.FC = () => {
       title: file.name,
       type: file.name.split('.').pop()?.toUpperCase() || 'FILE',
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }),
+      date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
       category: 'Supports',
       downloadUrl: '#'
     };
@@ -102,7 +102,7 @@ const ResourceHub: React.FC = () => {
   };
 
   const handleDownloadAll = () => {
-    setSuccessMsg("Préparation de l'archive ZIP contenant tous les documents...");
+    setSuccessMsg("Preparing ZIP archive containing all documents...");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
@@ -113,8 +113,8 @@ const ResourceHub: React.FC = () => {
         {/* Header Section */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Centre de Ressources</h2>
-            <p className="text-muted small mb-0">Gestion centralisée des documents et supports de travail.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Resource Center</h2>
+            <p className="text-muted small mb-0">Centralized management of documents and work materials.</p>
           </div>
           <div className="d-flex gap-2">
             <Button 
@@ -122,13 +122,13 @@ const ResourceHub: React.FC = () => {
               className="fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 shadow-none"
               onClick={handleDownloadAll}
             >
-              <Download size={18} /> Tout Télécharger
+              <Download size={18} /> Download All
             </Button>
             <Button 
               className="btn-premium d-flex align-items-center gap-2"
               onClick={() => setShowUploadModal(true)}
             >
-              <Plus size={18} /> Téléverser
+              <Plus size={18} /> Upload
             </Button>
           </div>
         </div>
@@ -148,25 +148,25 @@ const ResourceHub: React.FC = () => {
             <StatCard label="Documents PDF" value="18" icon={<FileText />} color="primary" trend="Fichiers" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Espace Utilisé" value="1.2 GB" icon={<HardDrive />} color="info" trend="Sur 10 GB" />
+            <StatCard label="Space Used" value="1.2 GB" icon={<HardDrive />} color="info" trend="Out of 10 GB" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Nouveautés" value="4" icon={<Plus />} color="success" trend="Semaine" />
+            <StatCard label="New Items" value="4" icon={<Plus />} color="success" trend="Week" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Favoris" value="6" icon={<Award />} color="warning" trend="Accès" />
+            <StatCard label="Favorites" value="6" icon={<Award />} color="warning" trend="Access" />
           </Col>
         </Row>
 
         {/* Repository Table */}
         <div className="glass-card rounded-4 overflow-hidden shadow-sm mb-5">
           <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-            <h5 className="fw-bold mb-0 text-navy">Fichiers récents</h5>
+            <h5 className="fw-bold mb-0 text-navy">Recent Files</h5>
             <div className="d-flex gap-2">
               <InputGroup className="bg-surface rounded-pill border px-2 overflow-hidden d-none d-md-flex">
                 <InputGroup.Text className="bg-transparent border-0"><Search size={16} className="text-muted"/></InputGroup.Text>
                 <Form.Control 
-                  placeholder="Rechercher..." 
+                  placeholder="Search..." 
                   className="bg-transparent border-0 shadow-none extra-small text-navy" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -205,10 +205,10 @@ const ResourceHub: React.FC = () => {
                       }}
                     />
                   </th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Nom du fichier</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">File Name</th>
                   <th className="py-3 extra-small text-muted text-uppercase fw-bold">Type</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Taille</th>
-                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Modifié le</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Size</th>
+                  <th className="py-3 extra-small text-muted text-uppercase fw-bold">Modified on</th>
                   <th className="py-3 text-end pe-4 extra-small text-muted text-uppercase fw-bold">Actions</th>
                 </tr>
               </thead>
@@ -243,10 +243,10 @@ const ResourceHub: React.FC = () => {
                           <MoreHorizontal size={18} />
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="border-0 shadow-lg rounded-3 glass-card">
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Téléchargement', file)}><Download size={14} className="me-2" /> Télécharger</Dropdown.Item>
-                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Partage', file)}><Share2 size={14} className="me-2" /> Partager</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Download', file)}><Download size={14} className="me-2" /> Download</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold" onClick={() => handleAction('Share', file)}><Share2 size={14} className="me-2" /> Share</Dropdown.Item>
                           <Dropdown.Divider />
-                          <Dropdown.Item className="extra-small fw-bold text-danger" onClick={() => handleAction('Suppression', file)}>Supprimer</Dropdown.Item>
+                          <Dropdown.Item className="extra-small fw-bold text-danger" onClick={() => handleAction('Delete', file)}>Delete</Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
                     </td>
@@ -265,13 +265,13 @@ const ResourceHub: React.FC = () => {
           className="position-fixed bottom-0 start-50 translate-middle-x mb-4 z-index-1000"
         >
           <div className="glass-card p-3 rounded-pill shadow-lg border border-primary border-opacity-25 bg-white d-flex align-items-center gap-3">
-            <Badge bg="primary" className="rounded-pill px-3 py-2">{selectedFiles.length} sélectionnés</Badge>
+            <Badge bg="primary" className="rounded-pill px-3 py-2">{selectedFiles.length} selected</Badge>
             <div className="vr opacity-10" />
             <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('pdf')}>PDF</Button>
             <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('csv')}>CSV</Button>
             <Button variant="link" className="extra-small fw-bold text-navy text-decoration-none shadow-none p-0" onClick={() => handleExportSelected('word')}>Word</Button>
             <div className="vr opacity-10" />
-            <Button variant="link" className="extra-small fw-bold text-danger text-decoration-none shadow-none p-0" onClick={() => setSelectedFiles([])}>Annuler</Button>
+            <Button variant="link" className="extra-small fw-bold text-danger text-decoration-none shadow-none p-0" onClick={() => setSelectedFiles([])}>Cancel</Button>
           </div>
         </motion.div>
       )}
@@ -287,7 +287,7 @@ const ResourceHub: React.FC = () => {
         className="glass-modal"
       >
         <Modal.Header closeButton className="border-0 p-4">
-          <Modal.Title className="fw-bold text-navy h5">Téléverser des Documents</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Upload Documents</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4 text-center">
           {!pendingFile ? (
@@ -316,8 +316,8 @@ const ResourceHub: React.FC = () => {
               />
               <HardDrive size={48} className="text-primary opacity-25" />
               <div>
-                <div className="fw-bold text-navy">Glissez vos fichiers ici</div>
-                <div className="extra-small text-muted fw-bold">ou cliquez pour parcourir vos dossiers</div>
+                <div className="fw-bold text-navy">Drag your files here</div>
+                <div className="extra-small text-muted fw-bold">or click to browse your folders</div>
               </div>
             </div>
           ) : (
@@ -335,21 +335,21 @@ const ResourceHub: React.FC = () => {
                   <div className="extra-small text-muted fw-bold">{pendingFile.size} • {pendingFile.type}</div>
                 </div>
               </div>
-              <div className="extra-small text-primary fw-bold opacity-75">Voulez-vous confirmer le téléversement de ce fichier ?</div>
+              <div className="extra-small text-primary fw-bold opacity-75">Do you want to confirm the upload of this file??</div>
             </motion.div>
           )}
 
           <div className="d-flex gap-2">
             {pendingFile && (
               <Button variant="outline-secondary" className="flex-fill py-3 rounded-pill fw-bold border-2" onClick={() => setPendingFile(null)}>
-                Annuler
+                Cancel
               </Button>
             )}
             <Button 
               className="btn-premium flex-fill py-3 rounded-pill fw-bold border-0 shadow-sm" 
               onClick={pendingFile ? confirmUpload : () => fileInputRef.current?.click()}
             >
-              {pendingFile ? 'Confirmer le téléversement' : 'Sélectionner un fichier'}
+              {pendingFile ? 'Confirm upload' : 'Select a file'}
             </Button>
           </div>
         </Modal.Body>

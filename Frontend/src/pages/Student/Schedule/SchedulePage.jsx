@@ -39,7 +39,7 @@ const SchedulePage = () => {
 
   const [viewDate, setViewDate] = useState(new Date(2026, 4, 1)); // Default to May 2026 as per user projects
 
-  const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   
   const handlePrevMonth = () => {
     setViewDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -106,10 +106,10 @@ const SchedulePage = () => {
           <Modal.Body className="p-4">
             <Form onSubmit={handleAddEvent}>
               <Form.Group className="mb-3">
-                <Form.Label className="extra-small fw-bold text-navy opacity-75">TITRE DE L'ÉVÉNEMENT</Form.Label>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TITLE</Form.Label>
                 <Form.Control 
                   type="text" 
-                  placeholder="ex: Réunion avec Encadrant" 
+                  placeholder="ex: Meeting with Supervisor" 
                   className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                   value={newEvent.title}
                   onChange={e => setNewEvent({...newEvent, title: e.target.value})}
@@ -131,7 +131,7 @@ const SchedulePage = () => {
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="extra-small fw-bold text-navy opacity-75">HEURE</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-navy opacity-75">TIME</Form.Label>
                     <Form.Control 
                       type="time" 
                       className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
@@ -143,20 +143,20 @@ const SchedulePage = () => {
                 </Col>
               </Row>
               <Form.Group className="mb-4">
-                <Form.Label className="extra-small fw-bold text-navy opacity-75">TYPE D'ÉVÉNEMENT</Form.Label>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TYPE</Form.Label>
                 <Form.Select 
                   className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                   value={newEvent.type}
                   onChange={e => setNewEvent({...newEvent, type: e.target.value})}
                 >
-                  <option>Réunion</option>
-                  <option>Date Limite</option>
-                  <option>Revue de Code</option>
-                  <option>Soutenance</option>
+                  <option>Meeting</option>
+                  <option>Deadline</option>
+                  <option>Code Review</option>
+                  <option>Defense</option>
                 </Form.Select>
               </Form.Group>
               <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm">
-                Programmer l'événement
+                Schedule Event
               </Button>
             </Form>
           </Modal.Body>
@@ -165,9 +165,9 @@ const SchedulePage = () => {
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Événements à venir', value: appointments.length.toString(), icon: <Bell size={24} />, color: 'primary' },
-            { label: 'Échéances en attente', value: '2', icon: <AlertCircle size={24} />, color: 'danger' },
-            { label: 'Ce mois-ci', value: appointments.filter(a => a.date.startsWith('2026-05')).length.toString(), icon: <CalendarIcon size={24} />, color: 'info' },
+            { label: 'Upcoming Events', value: appointments.length.toString(), icon: <Bell size={24} />, color: 'primary' },
+            { label: 'Pending Deadlines', value: '2', icon: <AlertCircle size={24} />, color: 'danger' },
+            { label: 'This Month', value: appointments.filter(a => a.date.startsWith('2026-05')).length.toString(), icon: <CalendarIcon size={24} />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} lg={4}>
               <Card className="glass-card border-0 shadow-sm border p-3">
@@ -193,8 +193,8 @@ const SchedulePage = () => {
                 <div className="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
                     <div className="d-flex align-items-center gap-3">
                       <div className="d-flex gap-1">
-                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevYear} title="Année précédente"><ChevronLeft size={20} /><ChevronLeft size={20} style={{marginLeft: '-12px'}} /></Button>
-                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevMonth} title="Mois précédent"><ChevronLeft size={20} /></Button>
+                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevYear} title="Previous Year"><ChevronLeft size={20} /><ChevronLeft size={20} style={{marginLeft: '-12px'}} /></Button>
+                        <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handlePrevMonth} title="Previous Month"><ChevronLeft size={20} /></Button>
                       </div>
 
                       <Form.Control 
@@ -235,14 +235,14 @@ const SchedulePage = () => {
                     </div>
 
                     <div className="d-flex gap-1">
-                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextMonth} title="Mois suivant"><ChevronRight size={20} /></Button>
-                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextYear} title="Année suivante"><ChevronRight size={20} /><ChevronRight size={20} style={{marginLeft: '-12px'}} /></Button>
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextMonth} title="Next Month"><ChevronRight size={20} /></Button>
+                      <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface-alt" onClick={handleNextYear} title="Next Year"><ChevronRight size={20} /><ChevronRight size={20} style={{marginLeft: '-12px'}} /></Button>
                     </div>
-                    <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Aujourd'hui</Button>
+                    <Button variant="outline-primary" size="sm" className="rounded-pill px-3 fw-bold extra-small border-2" onClick={() => setViewDate(new Date(2026, 4, 1))}>Today</Button>
                   </div>
                 <div className="p-4">
                   <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden' }}>
-                    {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                       <div key={day} className="bg-surface-alt p-3 text-center extra-small fw-bold text-muted text-uppercase">{day}</div>
                     ))}
                     {days.map((day, i) => {
@@ -337,7 +337,7 @@ const SchedulePage = () => {
                       className="text-primary extra-small fw-bold text-decoration-none d-flex align-items-center justify-content-center gap-2 hover-gap-3 transition-all"
                       onClick={() => setVisibleCount(prev => prev + 5)}
                     >
-                      Charger plus d'événements <ChevronRight size={14} />
+                      Load more events <ChevronRight size={14} />
                     </Button>
                   </div>
                 )}
@@ -378,7 +378,7 @@ const SchedulePage = () => {
               <Card className="glass-card border shadow-sm border overflow-hidden">
                 <Card.Body className="p-0">
                   <div className="p-4 border-bottom bg-white">
-                    <h6 className="fw-bold text-navy mb-0">Focus à venir</h6>
+                    <h6 className="fw-bold text-navy mb-0">Upcoming Focus</h6>
                   </div>
                   <div className="d-flex flex-column gap-1">
                     {appointments.slice(0, 5).map((ue, i) => {
@@ -432,9 +432,9 @@ const SchedulePage = () => {
                 <Clock size={20} />
               </div>
               <div>
-                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Date & Heure</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Date & Time</div>
                 <div className="small fw-bold text-navy">
-                  {selectedEvent && new Date(selectedEvent.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  {selectedEvent && new Date(selectedEvent.date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
                   <span className="mx-2 opacity-25">|</span>
                   {selectedEvent?.time}
                 </div>
@@ -446,7 +446,7 @@ const SchedulePage = () => {
                 <MapPin size={20} />
               </div>
               <div>
-                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Localisation / Lien</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Location / Link</div>
                 <div className="small fw-bold text-navy">{selectedEvent?.loc || 'Online Portal'}</div>
               </div>
             </div>
@@ -456,15 +456,15 @@ const SchedulePage = () => {
                 <Users size={20} />
               </div>
               <div>
-                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Intervenants</div>
-                <div className="small fw-bold text-navy">{selectedEvent?.with || 'Equipe PFE'}</div>
+                <div className="extra-small text-muted fw-bold text-uppercase opacity-50">Participants</div>
+                <div className="small fw-bold text-navy">{selectedEvent?.with || 'PFE Team'}</div>
               </div>
             </div>
 
             <div className="p-3 rounded-4 bg-surface-alt border">
-              <div className="extra-small text-muted fw-bold text-uppercase opacity-50 mb-2">Description / Consignes</div>
+              <div className="extra-small text-muted fw-bold text-uppercase opacity-50 mb-2">Description / Instructions</div>
               <p className="small text-navy mb-0 lh-base">
-                {selectedEvent?.desc || "Aucune description supplémentaire fournie pour cet événement."}
+                {selectedEvent?.desc || "No additional description provided for this event."}
               </p>
             </div>
           </div>
@@ -474,7 +474,7 @@ const SchedulePage = () => {
             className="btn-premium w-100 py-3 rounded-pill fw-bold shadow-sm border-0" 
             onClick={() => setShowEventModal(false)}
           >
-            Fermer
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

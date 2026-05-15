@@ -11,22 +11,22 @@ const ACCOUNTS: User[] = [
   { id: '1', institutionalId: 'STU-2026-00105', email: 'ahmed.khalil@emsi.ma', name: 'Ahmed Khalil', role: 'student', initials: 'AK' },
   { id: '2', institutionalId: 'JRY-2026-00951', email: 'y.lagmouch@emsi.ma', name: 'Prof. Youssef Lagmouch', role: 'jury', initials: 'YL' },
   { id: '3', institutionalId: 'SUP-2026-00842', email: 's.drissi@emsi.ma', name: 'Dr. Sofia Drissi', role: 'supervisor', initials: 'SD' },
-  { id: '4', institutionalId: 'ADM-2026-00412', email: 'admin@emsi.ma', name: 'Système PFE Navigator', role: 'admin', initials: 'SP' },
+  { id: '4', institutionalId: 'ADM-2026-00412', email: 'admin@emsi.ma', name: 'PFE Navigator System', role: 'admin', initials: 'SP' },
 ];
 
 const INITIAL_MILESTONES: Milestone[] = [
-  { id: 1, title: 'Proposition', description: 'Dépôt du rapport initial / proposition par l\'étudiant.', status: 'completed', date: '2025-11-10' },
-  { id: 2, title: 'Rapport Intérimaire', description: 'Vérification et validation de l\'état d\'avancement par l\'encadrant.', status: 'completed', date: '2026-02-15' },
-  { id: 3, title: 'Rapport Final', description: 'Validation finale ou refus du rapport par le membre du jury.', status: 'current', date: '2026-05-14' },
-  { id: 4, title: 'Défense', description: 'Soutenance et publication des notes finales par l\'administration.', status: 'pending', date: '' },
+  { id: 1, title: 'Proposal', description: 'Submission of initial report / proposal by student.', status: 'completed', date: '2025-11-10' },
+  { id: 2, title: 'Interim Report', description: 'Verification and validation of progress by supervisor.', status: 'completed', date: '2026-02-15' },
+  { id: 3, title: 'Final Report', description: 'Final validation or rejection of report by jury member.', status: 'current', date: '2026-05-14' },
+  { id: 4, title: 'Defense', description: 'Defense presentation and publication of final grades by administration.', status: 'pending', date: '' },
 ];
 
 
 const INITIAL_DOCUMENTS: AppDocument[] = [
   {
     id: 1,
-    title: 'Rapport_Final_v1.pdf',
-    studentName: 'Ahmed Khalil',
+    title: 'Final_Report_v1.pdf',
+    student_name: 'Ahmed Khalil',
     version: 1,
     date: '2026-04-20T09:30:00',
     status: 'approved',
@@ -36,8 +36,8 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
   },
   {
     id: 2,
-    title: 'Presentation_Soutenance.pptx',
-    studentName: 'Ahmed Khalil',
+    title: 'Defense_Presentation.pptx',
+    student_name: 'Ahmed Khalil',
     version: 1,
     date: '2026-04-22T14:15:00',
     status: 'pending',
@@ -47,8 +47,8 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
   },
   {
     id: 3,
-    title: 'Cahier_des_Charges.pdf',
-    studentName: 'Sara Bennani',
+    title: 'Requirements_Document.pdf',
+    student_name: 'Sara Bennani',
     version: 1,
     date: '2026-04-10T11:00:00',
     status: 'approved',
@@ -58,8 +58,8 @@ const INITIAL_DOCUMENTS: AppDocument[] = [
   },
   {
     id: 4,
-    title: 'Rapport_Avancement.pdf',
-    studentName: 'Mehdi Alami',
+    title: 'Progress_Report.pdf',
+    student_name: 'Mehdi Alami',
     version: 2,
     date: '2026-04-18T16:45:00',
     status: 'pending',
@@ -74,12 +74,12 @@ const INITIAL_MESSAGES: Message[] = [];
 const INITIAL_DEFENSES: Defense[] = [
   {
     id: 1,
-    title: 'Soutenance de PFE – Ahmed Khalil',
+    title: 'Final Project Defense – Ahmed Khalil',
     date: '2026-05-15',
     time: '09:00',
     duration: 45,
-    room: 'Salle de Conférence A',
-    notes: 'Présentation de 20 min + 25 min de Q&A',
+    room: 'Conference Room A',
+    notes: '20 min presentation + 25 min Q&A',
   },
 ];
 
@@ -87,7 +87,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 1,
     type: 'approved',
-    text: 'Votre document Rapport_Final_v1.pdf a été approuvé par le jury.',
+    text: 'Your document Final_Report_v1.pdf has been approved by the jury.',
     date: '2026-04-21T08:00:00',
     read: true,
     link: '/student/reports',
@@ -95,7 +95,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: 2,
     type: 'grade',
-    text: 'Mise à jour Système : Les paramètres de l\'année académique 2026 ont été initialisés.',
+    text: 'System Update: Academic year 2026 parameters have been initialized.',
     date: new Date().toISOString(),
     read: false,
     link: '/admin/dashboard',
@@ -287,7 +287,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('pfe-scores', JSON.stringify(scores));
   }, [scores]);
-  const [documents, setDocuments] = useState<AppDocument[]>(INITIAL_DOCUMENTS);
+  const [documents, setDocuments] = useState<AppDocument[]>(() => {
+    const saved = localStorage.getItem('pfe-documents');
+    return saved ? JSON.parse(saved) : INITIAL_DOCUMENTS;
+  });
+  
+  // Persist documents
+  useEffect(() => {
+    localStorage.setItem('pfe-documents', JSON.stringify(documents));
+  }, [documents]);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
@@ -562,8 +570,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [documents, user]);
 
   const deleteDocument = useCallback((id: number) => {
-    setDocuments(prev => prev.filter(d => d.id !== id));
-  }, []);
+    setDocuments(prev => prev.filter(d => Number(d.id) !== Number(id)));
+    addNotification('approved', "Le document a été supprimé avec succès.", '/student/reports');
+  }, [addNotification]);
 
   // ── MESSAGES ─────────────────────────────────────────────────────────────────
   const sendMessage = useCallback((text: string, senderRole: UserRole) => {

@@ -28,47 +28,47 @@ const AdminNotes: React.FC = () => {
   const notes: Note[] = [
     {
       id: 1,
-      title: 'Publication du Planning des Soutenances',
+      title: 'Publication of Defense Schedule',
       isNew: true,
       priority: 'HIGH',
-      category: 'Soutenance',
-      content: 'Les plannings finaux pour tous les étudiants seront publiés le 5 Mai 2026. Veuillez vérifier régulièrement votre portail. Les affectations de salles seront envoyées 48h avant.',
-      author: 'Bureau PFE',
+      category: 'Defense',
+      content: 'Final schedules for all students will be published on May 5, 2026. Please check your portal regularly. Room assignments will be sent 48h before.',
+      author: 'PFE Office',
       date: '2026-04-28',
       pinned: true,
       unread: true
     },
     {
       id: 2,
-      title: 'Rappel Limite de Dépôt',
+      title: 'Submission Deadline Reminder',
       isNew: true,
       priority: 'HIGH',
-      category: 'Délais',
-      content: 'Les rapports finaux doivent être déposés avant le 15 Mai 2026 à 23h59. Tout retard entraînera une pénalité de 5 points par jour.',
-      author: 'Affaires Académiques',
+      category: 'Deadlines',
+      content: 'Final reports must be submitted before May 15, 2026 at 23:59. Any delay will result in a penalty of 5 points per day.',
+      author: 'Academic Affairs',
       date: '2026-04-27',
       pinned: true,
       unread: true
     },
     {
       id: 3,
-      title: 'Atelier de Présentation Obligatoire',
+      title: 'Mandatory Presentation Workshop',
       isNew: true,
       priority: 'HIGH',
-      category: 'Ateliers',
-      content: 'Tous les étudiants doivent assister à l\'atelier sur les techniques de présentation le 8 Mai à 14h00 dans l\'Amphi B.',
-      author: 'Développement Pro',
+      category: 'Workshops',
+      content: 'All students must attend the workshop on presentation techniques on May 8 at 14:00 in Auditorium B.',
+      author: 'Professional Development',
       date: '2026-04-23',
       pinned: true,
       unread: true
     },
     {
       id: 4,
-      title: 'Nouveaux Critères d\'Évaluation',
+      title: 'New Evaluation Criteria',
       isNew: false,
       priority: 'MEDIUM',
-      category: 'Évaluation',
-      content: 'La grille d\'évaluation 2026 a été mise à jour dans le Centre de Ressources. L\'innovation compte désormais pour 15%.',
+      category: 'Evaluation',
+      content: 'The 2026 evaluation grid has been updated in the Resource Center. Innovation now counts for 15%.',
       author: 'Dr. Ahmed Mansouri',
       date: '2026-04-25',
       pinned: false,
@@ -78,9 +78,9 @@ const AdminNotes: React.FC = () => {
 
   const getPriorityBadge = (priority: Note['priority']) => {
     switch (priority) {
-      case 'HIGH': return <Badge bg="danger" className="bg-opacity-10 text-danger border border-danger border-opacity-25 extra-small fw-bold">HAUTE</Badge>;
-      case 'MEDIUM': return <Badge bg="warning" className="bg-opacity-10 text-warning border border-warning border-opacity-25 extra-small fw-bold">MOYENNE</Badge>;
-      case 'LOW': return <Badge bg="success" className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small fw-bold">BASSE</Badge>;
+      case 'HIGH': return <Badge bg="danger" className="bg-opacity-10 text-danger border border-danger border-opacity-25 extra-small fw-bold">HIGH</Badge>;
+      case 'MEDIUM': return <Badge bg="warning" className="bg-opacity-10 text-warning border border-warning border-opacity-25 extra-small fw-bold">MEDIUM</Badge>;
+      case 'LOW': return <Badge bg="success" className="bg-opacity-10 text-success border border-success border-opacity-25 extra-small fw-bold">LOW</Badge>;
       default: return null;
     }
   };
@@ -91,14 +91,14 @@ const AdminNotes: React.FC = () => {
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-gradient">Notes & Annonces</h2>
-            <p className="text-muted small mb-0">Suivi des mises à jour et communications importantes.</p>
+            <h2 className="fw-bold mb-1 text-gradient">Notes & Announcements</h2>
+            <p className="text-muted small mb-0">Tracking updates and important communications.</p>
           </div>
           <Button 
             className="btn-premium d-flex align-items-center gap-2" 
             onClick={() => setShowAddModal(true)}
           >
-            <Plus size={18} /> Nouvelle Note
+            <Plus size={18} /> New Note
           </Button>
         </div>
 
@@ -108,13 +108,13 @@ const AdminNotes: React.FC = () => {
             <StatCard label="Total Notes" value="8" icon={<FileText />} color="primary" trend="Overall" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Non lues" value="3" icon={<Bell />} color="danger" trend="Action" />
+            <StatCard label="Unread" value="3" icon={<Bell />} color="danger" trend="Action" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Épinglées" value="3" icon={<Pin />} color="warning" trend="Fav" />
+            <StatCard label="Pinned" value="3" icon={<Pin />} color="warning" trend="Fav" />
           </Col>
           <Col lg={3} md={6}>
-            <StatCard label="Priorité Haute" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
+            <StatCard label="High Priority" value="4" icon={<AlertCircle />} color="danger" trend="Urgent" />
           </Col>
         </Row>
 
@@ -127,7 +127,7 @@ const AdminNotes: React.FC = () => {
                   <Search size={18} />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Rechercher une note..." 
+                  placeholder="Search for a note..." 
                   className="bg-transparent border-0 shadow-none small py-2 text-primary-custom"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -136,9 +136,9 @@ const AdminNotes: React.FC = () => {
             </Col>
             <Col lg={8}>
               <div className="d-flex gap-2 justify-content-lg-end">
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Toutes</Button>
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Épinglées</Button>
-                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Priorité Haute</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">All</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">Pinned</Button>
+                <Button variant="outline-secondary" className="rounded-pill border extra-small fw-bold px-4">High Priority</Button>
               </div>
             </Col>
           </Row>
@@ -159,10 +159,10 @@ const AdminNotes: React.FC = () => {
                     <Dropdown align="end">
                       <Dropdown.Toggle variant="link" className="p-0 text-muted no-caret border-0 shadow-none"><MoreVertical size={18}/></Dropdown.Toggle>
                       <Dropdown.Menu className="border-0 shadow-lg rounded-3">
-                        <Dropdown.Item className="extra-small fw-bold">Modifier</Dropdown.Item>
-                        <Dropdown.Item className="extra-small fw-bold">Épingler</Dropdown.Item>
+                        <Dropdown.Item className="extra-small fw-bold">Edit</Dropdown.Item>
+                        <Dropdown.Item className="extra-small fw-bold">Pin</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item className="extra-small fw-bold text-danger">Supprimer</Dropdown.Item>
+                        <Dropdown.Item className="extra-small fw-bold text-danger">Delete</Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>

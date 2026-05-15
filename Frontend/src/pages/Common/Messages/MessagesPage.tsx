@@ -15,8 +15,8 @@ const MessagesPage: React.FC = () => {
 
   const channels = [
     { id: 'admin', name: 'Administration', avatar: 'AD', color: 'var(--color-rose)', desc: 'Coordination & Support' },
-    { id: 'supervisor', name: 'Encadrement', avatar: 'EN', color: 'var(--color-primary)', desc: 'Suivi pédagogique' },
-    { id: 'jury', name: 'Jury', avatar: 'JU', color: 'var(--color-warning)', desc: 'Évaluations & Soutenances' },
+    { id: 'supervisor', name: 'Supervision', avatar: 'EN', color: 'var(--color-primary)', desc: 'Academic follow-up' },
+    { id: 'jury', name: 'Jury', avatar: 'JU', color: 'var(--color-warning)', desc: 'Evaluations & Defenses' },
   ];
 
   const filteredMessages = (messages || []).filter(m => 
@@ -44,13 +44,13 @@ const MessagesPage: React.FC = () => {
             {/* Sidebar */}
             <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end bg-surface-alt">
               <div className="p-4 bg-white border-bottom">
-                <h4 className="fw-bold mb-4 text-navy">Messagerie</h4>
+                <h4 className="fw-bold mb-4 text-navy">Messaging</h4>
                 <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
                   <InputGroup.Text className="bg-transparent border-0 pe-1">
                     <Search size={18} className="text-muted" />
                   </InputGroup.Text>
                   <Form.Control 
-                    placeholder="Rechercher..." 
+                    placeholder="Search..." 
                     className="bg-transparent border-0 shadow-none extra-small py-2 text-navy fw-bold"
                   />
                 </InputGroup>
@@ -72,11 +72,11 @@ const MessagesPage: React.FC = () => {
                     <div className="flex-grow-1 overflow-hidden">
                       <div className="d-flex justify-content-between mb-1">
                         <div className="fw-bold small text-truncate text-navy">{conv.name}</div>
-                        <div className="extra-small text-muted fw-bold">En ligne</div>
+                        <div className="extra-small text-muted fw-bold">Online</div>
                       </div>
                       <div className="extra-small text-muted mb-1 opacity-75 fw-bold">{conv.desc}</div>
                       <p className="extra-small text-muted mb-0 text-truncate fw-bold opacity-50">
-                        {(messages || []).filter(m => m.sender === conv.id).slice(-1)[0]?.text || "Aucun message"}
+                        {(messages || []).filter(m => m.sender === conv.id).slice(-1)[0]?.text || "No messages"}
                       </p>
                     </div>
                   </div>
@@ -98,7 +98,7 @@ const MessagesPage: React.FC = () => {
                   <div>
                     <h6 className="fw-bold mb-0 text-navy">{channels.find(c => c.id === activeTab)?.name}</h6>
                     <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
-                      <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> Connecté
+                      <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> Connected
                     </span>
                   </div>
                 </div>
@@ -110,8 +110,8 @@ const MessagesPage: React.FC = () => {
                       <MoreVertical size={20} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small glass-card">
-                      <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> Profil</Dropdown.Item>
-                      <Dropdown.Item className="fw-bold text-danger">Signaler</Dropdown.Item>
+                      <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> Profile</Dropdown.Item>
+                      <Dropdown.Item className="fw-bold text-danger">Report</Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </div>
@@ -132,7 +132,7 @@ const MessagesPage: React.FC = () => {
                 ))}
                 {filteredMessages.length === 0 && (
                   <div className="text-center p-5 text-muted extra-small fw-bold opacity-50">
-                    Aucun message dans cette conversation.
+                    No messages in this conversation.
                   </div>
                 )}
               </div>
@@ -146,7 +146,7 @@ const MessagesPage: React.FC = () => {
                   </Button>
                   <div className="flex-grow-1 position-relative">
                     <Form.Control 
-                      placeholder="Votre message..." 
+                      placeholder="Your message..." 
                       className="rounded-pill border-0 shadow-none px-4 py-2 bg-surface-alt text-navy fw-bold"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}

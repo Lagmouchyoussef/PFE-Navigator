@@ -65,9 +65,9 @@ const StudentDashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="fw-bold mb-1 text-navy">Ravi de vous revoir, {user?.name}</h2>
+              <h2 className="fw-bold mb-1 text-navy">Great to see you again, {user?.name}</h2>
               <p className="text-muted small mb-0 fw-bold opacity-75">
-                Système PFE • Candidat PFE 2026
+                PFE System • PFE Candidate 2026
               </p>
             </motion.div>
             <div className="d-flex gap-2">
@@ -97,8 +97,8 @@ const StudentDashboard: React.FC = () => {
                 </h3>
                 <p className="text-muted small mb-0 fw-bold opacity-75">
                   {isProjectValidated 
-                    ? "Félicitations pour la réussite de votre projet de fin d'études !" 
-                    : "Nous vous invitons à contacter l'administration pour plus de détails."}
+                    ? "Congratulations on the success of your graduation project!" 
+                    : "We invite you to contact the administration for more details."}
                 </p>
               </div>
             </div>
@@ -109,7 +109,7 @@ const StudentDashboard: React.FC = () => {
         <Row className="g-4 mb-5">
           <Col lg={3} md={6}>
             <StatCard 
-              label="Événements à venir" 
+              label="Upcoming Events" 
               value={appointments.length.toString()} 
               color="primary" 
               icon={<Calendar />} 
@@ -176,7 +176,7 @@ const StudentDashboard: React.FC = () => {
               <Card className="glass-card border p-4 shadow-sm bg-primary text-white border-0">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div className="d-flex align-items-center gap-2">
-                    <h6 className="fw-bold mb-0 text-white">Prochaine Soutenance</h6>
+                    <h6 className="fw-bold mb-0 text-white">Next Defense</h6>
                     <Form.Control 
                       type="date" 
                       defaultValue="2026-05-15"
@@ -187,10 +187,10 @@ const StudentDashboard: React.FC = () => {
                   <Calendar size={18} className="opacity-75" />
                 </div>
                 <div className="mb-4">
-                  <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "Soutenance de PFE"}</div>
-                  <div className="small opacity-75">{appointments[0]?.date || "15 Mai, 2026"}</div>
+                  <div className="fw-bold fs-6 mb-1">{appointments[0]?.title || "PFE Defense"}</div>
+                  <div className="small opacity-75">{appointments[0]?.date || "May 15, 2026"}</div>
                   <div className="extra-small opacity-75 mt-1 d-flex align-items-center gap-1">
-                    <Clock size={12} /> {appointments[0]?.time || "09:00"} - {appointments[0]?.location || "Salle de Conférence A"}
+                    <Clock size={12} /> {appointments[0]?.time || "09:00"} - {appointments[0]?.location || "Conference Room A"}
                   </div>
                 </div>
                 <Button 
@@ -199,38 +199,38 @@ const StudentDashboard: React.FC = () => {
                   className="w-100 fw-bold rounded-pill text-primary py-2 border-0"
                   onClick={() => navigate('/student/schedule')}
                 >
-                  Détails de la Convocation
+                  Convocation Details
                 </Button>
               </Card>
 
               {/* Recent Feedback Widget */}
               <Card className="glass-card border p-4 shadow-sm">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-navy">Retours Récents</h6>
+                  <h6 className="fw-bold mb-0 text-navy">Recent Feedback</h6>
                   <MessageSquare size={18} className="text-primary" />
                 </div>
                 <div className="p-3 bg-surface-alt rounded-4 border-start border-primary border-4">
-                  <div className="fw-bold small mb-1 text-navy">Révision du Rapport Initial</div>
+                  <div className="fw-bold small mb-1 text-navy">Initial Report Revision</div>
                   <p className="extra-small text-muted mb-2">
-                    "Veuillez réviser les sections 3.2 et 4.1. Bon progrès dans l'ensemble !"
+                    "Please revise sections 3.2 and 4.1. Good progress overall!"
                   </p>
                   <div className="d-flex justify-content-between align-items-center extra-small mt-2">
                     <span className="text-primary fw-bold">Dr. Sofia Drissi</span>
-                    <span className="opacity-50">Il y a 2 jours</span>
+                    <span className="opacity-50">2 days ago</span>
                   </div>
                 </div>
               </Card>
 
               {/* Supervisor Card */}
               <Card className="glass-card border p-4 shadow-sm">
-                <h6 className="fw-bold mb-4 text-navy">Encadrant Académique</h6>
+                <h6 className="fw-bold mb-4 text-navy">Academic Supervisor</h6>
                 <div className="d-flex align-items-center gap-3 mb-4">
                   <div className="avatar-md bg-primary text-white rounded-4 d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '48px', height: '48px' }}>
                     SD
                   </div>
                   <div>
                     <h6 className="fw-bold mb-0 text-navy">Dr. Sofia Drissi</h6>
-                    <div className="extra-small text-muted fw-bold">Département Informatique</div>
+                    <div className="extra-small text-muted fw-bold">IT Department</div>
                   </div>
                 </div>
                 <Button 
@@ -251,14 +251,14 @@ const StudentDashboard: React.FC = () => {
           <div className="bg-danger-soft text-danger rounded-circle p-3 d-inline-block mb-4 shadow-sm">
             <Trash2 size={40} />
           </div>
-          <h4 className="fw-bold text-navy mb-3">Confirmer la suppression</h4>
+          <h4 className="fw-bold text-navy mb-3">Confirm Deletion</h4>
           <p className="text-muted small mb-4 px-3">
-            Êtes-vous sûr de vouloir supprimer ce document ? <br />
-            <span className="text-danger fw-bold">Cette action est irréversible.</span>
+            Are you sure you want to delete this document? <br />
+            <span className="text-danger fw-bold">This action is irreversible.</span>
           </p>
           <div className="d-flex gap-3 justify-content-center">
             <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowDeleteModal(false)}>
-              Annuler
+              Cancel
             </Button>
             <Button 
               variant="danger" 
@@ -268,7 +268,7 @@ const StudentDashboard: React.FC = () => {
                 setShowDeleteModal(false);
               }}
             >
-              Supprimer définitivement
+              Permanently delete
             </Button>
           </div>
         </Modal.Body>

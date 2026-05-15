@@ -76,7 +76,7 @@ const ReportsPage = () => {
         fileUrlMap.current[doc.id] = { url, name: file.name };
       }
     });
-    setSuccessMsg(`${files.length} fichier(s) envoyé(s) à ${uploadTarget === 'supervisor' ? "l'encadrant" : "le jury"} !`);
+    setSuccessMsg(`${files.length} file(s) sent to ${uploadTarget === 'supervisor' ? "the supervisor" : "the jury"}!`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -100,7 +100,7 @@ const ReportsPage = () => {
     if (entry) {
       window.open(entry.url, '_blank');
     } else {
-      alert('Aperçu indisponible : le fichier n\'est plus en mémoire. Veuillez re-téléverser le fichier.');
+      alert('Preview unavailable: the file is no longer in memory. Please re-upload the file.');
     }
   };
 
@@ -113,9 +113,9 @@ const ReportsPage = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      setSuccessMsg(`Téléchargement de "${doc.title}" commencé...`);
+      setSuccessMsg(`Download of "${doc.title}" started...`);
     } else {
-      setSuccessMsg(`"${doc.title}" — fichier non disponible localement.`);
+      setSuccessMsg(`"${doc.title}" — file not available locally.`);
     }
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
@@ -131,7 +131,7 @@ const ReportsPage = () => {
   const userDocs = documents.filter(d => d.studentName === session?.name);
 
   const categories = [
-    { name: 'Tous', count: userDocs.length, icon: <Folder size={20} />, color: 'blue' },
+    { name: 'All', count: userDocs.length, icon: <Folder size={20} />, color: 'blue' },
     { name: 'PDF', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pdf')).length, icon: <Folder size={20} />, color: 'blue' },
     { name: 'DOCX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.docx')).length, icon: <Folder size={20} />, color: 'blue' },
     { name: 'PPTX', count: userDocs.filter(d => d.title.toLowerCase().endsWith('.pptx')).length, icon: <Folder size={20} />, color: 'blue' },
@@ -156,11 +156,11 @@ const ReportsPage = () => {
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-bold">Document Prêt</h6>
+                  <h6 className="mb-0 fw-bold">Document Ready</h6>
                   <p className="extra-small mb-0 opacity-75 fw-bold">{successMsg}</p>
                 </div>
               </div>
-              <Button size="sm" variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Fermer</Button>
+              <Button size="sm" variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Close</Button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -270,14 +270,14 @@ const ReportsPage = () => {
               </motion.div>
 
               <h5 className="fw-bold text-navy mb-1" style={{ fontSize: '1.05rem' }}>
-                {isDragging ? '✓ Relâchez pour importer' : 'Glisser-déposer vos fichiers ici'}
+                {isDragging ? '✓ Release to import' : 'Drag and drop your files here'}
               </h5>
               <div className="mt-4 mb-4" />
               <p className="text-muted mb-4 fw-bold" style={{ fontSize: '0.82rem' }}>
                 {isDragging ? (
-                  "Les fichiers seront affectés à la cible sélectionnée"
+                  "Files will be assigned to the selected target"
                 ) : (
-                  "Cliquez pour parcourir ou déposez vos documents (PDF, Word, PPT)"
+                  "Click to browse or drop your documents (PDF, Word, PPT)"
                 )}
               </p>
 
@@ -298,7 +298,7 @@ const ReportsPage = () => {
                   <div className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold"
                     style={{ background: 'rgba(0,0,0,0.04)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                     <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%', display: 'inline-block' }} />
-                    Taille maximale : 10 MB par fichier
+                    Maximum size: 10 MB per file
                   </div>
                 </>
               )}
@@ -315,17 +315,17 @@ const ReportsPage = () => {
             >
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
-                  <span className="fw-bold small text-navy d-block mb-1">{pendingFiles.length} fichier(s) prêt(s) à être importé(s)</span>
-                  <span className="extra-small text-muted fw-bold">Veuillez choisir la destination ci-dessous :</span>
+                  <span className="fw-bold small text-navy d-block mb-1">{pendingFiles.length} file(s) ready to be imported</span>
+                  <span className="extra-small text-muted fw-bold">Please choose the destination below:</span>
                 </div>
                 <div className="d-flex gap-2">
                   <button className="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold extra-small"
                     onClick={e => { e.stopPropagation(); setPendingFiles([]); }}>
-                    Annuler
+                    Cancel
                   </button>
                   <button className="btn btn-sm btn-premium rounded-pill px-4 fw-bold extra-small shadow-sm"
                     onClick={e => { e.stopPropagation(); processFiles(pendingFiles); setPendingFiles([]); }}>
-                    ✓ Importer pour {uploadTarget === 'supervisor' ? "l'Encadrant" : "le Jury"}
+                    ✓ Import for {uploadTarget === 'supervisor' ? "the Supervisor" : "the Jury"}
                   </button>
                 </div>
               </div>
@@ -336,14 +336,14 @@ const ReportsPage = () => {
                   className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'supervisor' ? 'shadow-sm' : ''}`}
                   onClick={() => setUploadTarget('supervisor')}
                 >
-                  <Users size={14} className="me-2" /> Vers Encadrant
+                  <Users size={14} className="me-2" /> To Supervisor
                 </Button>
                 <Button 
                   variant={uploadTarget === 'jury' ? 'primary' : 'outline-light text-muted'} 
                   className={`rounded-pill px-4 fw-bold extra-small border-0 ${uploadTarget === 'jury' ? 'shadow-sm' : ''}`}
                   onClick={() => setUploadTarget('jury')}
                 >
-                  <GraduationCap size={14} className="me-2" /> Vers Jury
+                  <GraduationCap size={14} className="me-2" /> To Jury
                 </Button>
               </div>
               <div className="d-flex flex-column gap-2">
@@ -374,18 +374,18 @@ const ReportsPage = () => {
               <div className="document-section">
                 <div className="d-flex align-items-center gap-2 mb-3">
                   <div className="p-2 rounded-3 bg-primary-soft text-primary"><Users size={20} /></div>
-                  <h5 className="fw-bold text-navy mb-0">Documents pour l'Encadrant</h5>
+                  <h5 className="fw-bold text-navy mb-0">Documents for the Supervisor</h5>
                 </div>
                 <Card className="glass-card border-0 shadow-sm border overflow-hidden">
                   <div className="table-responsive">
                     <Table hover className="mb-0 align-middle">
                       <thead className="bg-surface-alt">
                         <tr>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Nom du Document</th>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
                           <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date d'Envoi</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                           <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                         </tr>
                       </thead>
@@ -415,11 +415,11 @@ const ReportsPage = () => {
                                     <MoreVertical size={18} />
                                   </Dropdown.Toggle>
                                   <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> View</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Download</Dropdown.Item>
                                     <Dropdown.Divider />
                                     <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
-                                      <Trash2 size={14} /> Supprimer
+                                      <Trash2 size={14} /> Delete
                                     </Dropdown.Item>
                                   </Dropdown.Menu>
                                 </Dropdown>
@@ -427,7 +427,7 @@ const ReportsPage = () => {
                             </tr>
                           ))
                         ) : (
-                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">Aucun document pour l'encadrant</td></tr>
+                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">No documents for the supervisor</td></tr>
                         )}
                       </tbody>
                     </Table>
@@ -439,18 +439,18 @@ const ReportsPage = () => {
               <div className="document-section">
                 <div className="d-flex align-items-center gap-2 mb-3">
                   <div className="p-2 rounded-3 bg-warning-soft text-warning"><GraduationCap size={20} /></div>
-                  <h5 className="fw-bold text-navy mb-0">Documents pour le Jury</h5>
+                  <h5 className="fw-bold text-navy mb-0">Documents for the Jury</h5>
                 </div>
                 <Card className="glass-card border-0 shadow-sm border overflow-hidden">
                   <div className="table-responsive">
                     <Table hover className="mb-0 align-middle">
                       <thead className="bg-surface-alt">
                         <tr>
-                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Nom du Document</th>
+                          <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Document Name</th>
                           <th className="py-3 extra-small fw-bold text-muted text-uppercase text-center">Version</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Date d'Envoi</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Taille</th>
-                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Statut</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Submission Date</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Size</th>
+                          <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
                           <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
                         </tr>
                       </thead>
@@ -480,11 +480,11 @@ const ReportsPage = () => {
                                     <MoreVertical size={18} />
                                   </Dropdown.Toggle>
                                   <Dropdown.Menu className="border-0 shadow-lg extra-small rounded-4">
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> Voir</Dropdown.Item>
-                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Télécharger</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleView(doc)}><Eye size={14} className="text-primary" /> View</Dropdown.Item>
+                                    <Dropdown.Item className="d-flex align-items-center gap-2 py-2" onClick={() => handleDownload(doc)}><Download size={14} className="text-success" /> Download</Dropdown.Item>
                                     <Dropdown.Divider />
                                     <Dropdown.Item className="text-danger d-flex align-items-center gap-2 py-2" onClick={() => setDeleteModalDoc(doc)}>
-                                      <Trash2 size={14} /> Supprimer
+                                      <Trash2 size={14} /> Delete
                                     </Dropdown.Item>
                                   </Dropdown.Menu>
                                 </Dropdown>
@@ -492,7 +492,7 @@ const ReportsPage = () => {
                             </tr>
                           ))
                         ) : (
-                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">Aucun document pour le jury</td></tr>
+                          <tr><td colSpan="6" className="text-center py-5 opacity-50 fw-bold small">No documents for the jury</td></tr>
                         )}
                       </tbody>
                     </Table>
@@ -517,9 +517,9 @@ const ReportsPage = () => {
             >
               <AnimatedTrash isDeleting={isDeleting} />
             </motion.div>
-            <h5 className="fw-bold text-navy mb-3">Supprimer le document ?</h5>
+            <h5 className="fw-bold text-navy mb-3">Delete document?</h5>
             <p className="text-muted small mb-4 fw-bold px-3">
-              Êtes-vous sûr de vouloir supprimer <span className="text-danger">"{deleteModalDoc?.title}"</span> ? Cette action est irréversible.
+              Are you sure you want to delete <span className="text-danger">"{deleteModalDoc?.title}"</span>? This action is irreversible.
             </p>
             <div className="d-flex gap-2 p-2">
               <Button 
@@ -527,7 +527,7 @@ const ReportsPage = () => {
                 className="flex-grow-1 rounded-pill fw-bold extra-small border-2 py-2"
                 onClick={() => setDeleteModalDoc(null)}
               >
-                Annuler
+                Cancel
               </Button>
               <Button 
                 variant="danger" 
@@ -540,13 +540,13 @@ const ReportsPage = () => {
                     deleteDocument(deleteModalDoc.id);
                     setDeleteModalDoc(null);
                     setIsDeleting(false);
-                    setSuccessMsg(`"${deleteModalDoc.title}" a été supprimé.`);
+                    setSuccessMsg(`"${deleteModalDoc.title}" has been deleted.`);
                     setShowSuccessCard(true);
                     setTimeout(() => setShowSuccessCard(false), 5000);
                   }, 600);
                 }}
               >
-                {isDeleting ? 'Suppression...' : 'Supprimer'}
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </Button>
             </div>
           </div>

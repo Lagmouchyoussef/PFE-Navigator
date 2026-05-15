@@ -52,7 +52,7 @@ const Planning = () => {
     e.preventDefault();
     rescheduleAppointment(selectedEvent.id, newDate, newTime);
     setShowRescheduleModal(false);
-    handleAction(`Le rendez-vous avec ${selectedEvent.studentName} a été reprogrammé au ${newDate} à ${newTime}.`);
+    handleAction(`The appointment with ${selectedEvent.studentName} has been rescheduled to ${newDate} at ${newTime}.`);
   };
 
   const filteredAppointments = appointments.filter(app => {
@@ -81,7 +81,7 @@ const Planning = () => {
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-navy">Action Réussie</h6>
+                  <h6 className="fw-bold mb-0 text-navy">Action Successful</h6>
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">{successMsg}</p>
                 </div>
               </div>
@@ -93,9 +93,9 @@ const Planning = () => {
         {/* Header */}
         <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Planning Académique</h2>
+            <h2 className="fw-bold mb-1 text-navy">Academic Planning</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Bonjour {user?.name}, gérez vos rendez-vous, soutenances et suivez les échéances critiques.
+              Hello {user?.name}, manage your appointments, defenses and track critical deadlines.
             </p>
           </motion.div>
           <div className="d-flex gap-2">
@@ -133,7 +133,7 @@ const Planning = () => {
                     value="2026-05-22"
                     className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
                     style={{ maxWidth: '180px', cursor: 'pointer' }}
-                    onChange={(e) => alert(`Navigation vers le ${e.target.value}`)}
+                    onChange={(e) => alert(`Navigation to ${e.target.value}`)}
                   />
                 </div>
                 <div className="d-grid gap-2" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
@@ -149,7 +149,7 @@ const Planning = () => {
               </div>
               <hr className="opacity-10" />
               <div className="upcoming-summary mt-4">
-                <h6 className="extra-small fw-bold text-navy text-uppercase mb-3 opacity-50">Rappels du Jour</h6>
+                <h6 className="extra-small fw-bold text-navy text-uppercase mb-3 opacity-50">Daily Reminders</h6>
                 {reminders.map(r => (
                   <div key={r.id} className="d-flex align-items-center gap-3 mb-3">
                     <div className={`text-${r.type}`}><Clock size={16} /></div>
@@ -160,9 +160,9 @@ const Planning = () => {
             </Card>
 
             <Card className="border shadow-sm rounded-4 p-4 bg-surface">
-              <h6 className="fw-bold mb-3 text-primary extra-small text-uppercase">Prochaine Échéance</h6>
-              <div className="h2 fw-bold mb-1 text-navy">12 Jours</div>
-              <p className="extra-small mb-0 text-muted fw-bold">Délai pour le Rapport Final</p>
+              <h6 className="fw-bold mb-3 text-primary extra-small text-uppercase">Next Deadline</h6>
+              <div className="h2 fw-bold mb-1 text-navy">12 Days</div>
+              <p className="extra-small mb-0 text-muted fw-bold">Final Report Deadline</p>
             </Card>
           </Col>
 
@@ -170,19 +170,19 @@ const Planning = () => {
           <Col lg={8}>
             <Card className="border shadow-sm rounded-4 overflow-hidden bg-surface">
               <Card.Header className="p-4 bg-surface-alt d-flex justify-content-between align-items-center border-bottom">
-                <h6 className="mb-0 fw-bold text-navy">Chronologie des Événements</h6>
+                <h6 className="mb-0 fw-bold text-navy">Events Timeline</h6>
                 <div className="d-flex gap-2">
                   <Badge 
                     className={`${viewMode === 'week' ? 'bg-primary text-white' : 'bg-light text-muted'} border-0 px-3 py-2 rounded-pill extra-small fw-bold cursor-pointer transition-all`}
                     onClick={() => setViewMode('week')}
                   >
-                    Semaine
+                    Week
                   </Badge>
                   <Badge 
                     className={`${viewMode === 'month' ? 'bg-primary text-white' : 'bg-light text-muted'} border-0 px-3 py-2 rounded-pill extra-small fw-bold cursor-pointer transition-all`}
                     onClick={() => setViewMode('month')}
                   >
-                    Mois
+                    Month
                   </Badge>
                 </div>
               </Card.Header>
@@ -190,7 +190,7 @@ const Planning = () => {
                 {filteredAppointments.length === 0 ? (
                   <div className="p-5 text-center text-muted">
                     <CalendarIcon size={40} className="mb-3 opacity-25" />
-                    <p className="fw-bold mb-0">Aucun événement prévu pour cette période.</p>
+                    <p className="fw-bold mb-0">No events scheduled for this period.</p>
                   </div>
                 ) : (
                   filteredAppointments.slice(0, visibleCount).map((event, index) => (
@@ -201,7 +201,7 @@ const Planning = () => {
                       <Row className="align-items-center">
                         <Col md={2} className="text-center text-md-start border-md-end mb-3 mb-md-0">
                           <div className="fw-bold text-navy h4 mb-0">{event.date.split('-')[2]}</div>
-                          <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{new Date(event.date).toLocaleDateString('fr-FR', {month: 'short'}).toUpperCase()}</div>
+                          <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{new Date(event.date).toLocaleDateString('en-US', {month: 'short'}).toUpperCase()}</div>
                         </Col>
                         <Col md={6}>
                           <div className="d-flex align-items-center gap-2 mb-1">
@@ -232,24 +232,24 @@ const Planning = () => {
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
                               <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => navigate(`/supervisor/student/${event.id || 1}`)}>
-                                <ChevronRight size={14} className="text-primary" /> Chronologie
+                                <ChevronRight size={14} className="text-primary" /> Timeline
                               </Dropdown.Item>
                               {event.status !== 'Cancelled' && (
                                 <>
                                   <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => openReschedule(event)}>
-                                    <Clock size={14} className="text-info me-2" /> Reprogrammer
+                                    <Clock size={14} className="text-info me-2" /> Reschedule
                                   </Dropdown.Item>
-                                  <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { cancelAppointment(event.id); handleAction(`Le rendez-vous avec ${event.studentName} a été annulé.`); }}>
-                                    <X size={14} className="text-danger me-2" /> Annuler le rendez-vous
+                                  <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { cancelAppointment(event.id); handleAction(`The appointment with ${event.studentName} has been cancelled.`); }}>
+                                    <X size={14} className="text-danger me-2" /> Cancel appointment
                                   </Dropdown.Item>
                                   <Dropdown.Divider />
-                                  <Dropdown.Item className="py-2 text-primary fw-bold" onClick={() => { sendReminder(event.id); handleAction(`Un rappel a été envoyé à l'étudiant ${event.studentName}.`); }}>
-                                    <Bell size={14} className="text-primary me-2" /> Envoyer un rappel
+                                  <Dropdown.Item className="py-2 text-primary fw-bold" onClick={() => { sendReminder(event.id); handleAction(`A reminder has been sent to the student ${event.studentName}.`); }}>
+                                    <Bell size={14} className="text-primary me-2" /> Send reminder
                                   </Dropdown.Item>
                                 </>
                               )}
-                              <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { deleteAppointment(event.id); handleAction(`Le rendez-vous a été supprimé de l'historique.`); }}>
-                                <Trash2 size={14} className="text-danger me-2" /> Supprimer définitivement
+                              <Dropdown.Item className="py-2 fw-bold text-danger" onClick={() => { deleteAppointment(event.id); handleAction(`The appointment has been deleted from history.`); }}>
+                                <Trash2 size={14} className="text-danger me-2" /> Delete permanently
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
@@ -278,12 +278,12 @@ const Planning = () => {
       {/* Reschedule Modal */}
       <Modal show={showRescheduleModal} onHide={() => setShowRescheduleModal(false)} centered className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Reprogrammer le rendez-vous</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Reschedule appointment</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={confirmReschedule}>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-navy opacity-75">NOUVELLE DATE</Form.Label>
+              <Form.Label className="extra-small fw-bold text-navy opacity-75">NEW DATE</Form.Label>
               <Form.Control 
                 type="date" 
                 value={newDate}
@@ -293,7 +293,7 @@ const Planning = () => {
               />
             </Form.Group>
             <Form.Group className="mb-4">
-              <Form.Label className="extra-small fw-bold text-navy opacity-75">NOUVEL CRÉNEAU HORAIRE</Form.Label>
+              <Form.Label className="extra-small fw-bold text-navy opacity-75">NEW TIME SLOT</Form.Label>
               <Form.Control 
                 type="text" 
                 placeholder="ex: 14:00 - 15:30"
@@ -304,7 +304,7 @@ const Planning = () => {
               />
             </Form.Group>
             <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm border-0">
-              Confirmer la Reprogrammation
+              Confirm Rescheduling
             </Button>
           </Form>
         </Modal.Body>
@@ -313,37 +313,37 @@ const Planning = () => {
       {/* New Event Modal */}
       <Modal show={showNewEventModal} onHide={() => setShowNewEventModal(false)} centered className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold text-navy h5">Créer un nouvel événement</Modal.Title>
+          <Modal.Title className="fw-bold text-navy h5">Create new event</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form onSubmit={(e) => {
             e.preventDefault();
             setShowNewEventModal(false);
-            handleAction(`L'événement "${newEvent.title}" a été créé avec succès.`);
+            handleAction(`Event "${newEvent.title}" has been successfully created.`);
           }}>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-navy opacity-75">TITRE DE L'ÉVÉNEMENT</Form.Label>
+              <Form.Label className="extra-small fw-bold text-navy opacity-75">EVENT TITLE</Form.Label>
               <Form.Control 
                 type="text" 
-                placeholder="ex: Réunion de Suivi"
+                placeholder="ex: Follow-up Meeting"
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                 required
                 onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="extra-small fw-bold text-navy opacity-75">DESTINATAIRE(S)</Form.Label>
+              <Form.Label className="extra-small fw-bold text-navy opacity-75">RECIPIENT(S)</Form.Label>
               <Form.Select 
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                 required
                 onChange={(e) => setNewEvent({...newEvent, target: e.target.value})}
               >
-                <option value="all">Tous les étudiants supervisés</option>
+                <option value="all">All supervised students</option>
                 <option value="1">Ahmed Khalil</option>
                 <option value="2">Sara Kamali</option>
                 <option value="3">Mehdi Alami</option>
                 <option value="4">Fatima Zahra Mansouri</option>
-                <option value="group">Groupe Spécifique...</option>
+                <option value="group">Specific Group...</option>
               </Form.Select>
             </Form.Group>
 
@@ -353,7 +353,7 @@ const Planning = () => {
                 animate={{ height: 'auto', opacity: 1 }}
                 className="mb-4 p-3 rounded-4 bg-light-soft border border-light border-opacity-10"
               >
-                <Form.Label className="extra-small fw-bold text-navy opacity-75 mb-3">SÉLECTIONNER LES ÉTUDIANTS</Form.Label>
+                <Form.Label className="extra-small fw-bold text-navy opacity-75 mb-3">SELECT STUDENTS</Form.Label>
                 <div className="d-flex flex-column gap-2">
                   {students.map(s => (
                     <Form.Check 
@@ -391,7 +391,7 @@ const Planning = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="extra-small fw-bold text-navy opacity-75">HEURE</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-navy opacity-75">TIME</Form.Label>
                   <Form.Control 
                     type="text" 
                     placeholder="10:00 AM"
@@ -403,17 +403,17 @@ const Planning = () => {
               </Col>
             </Row>
             <Form.Group className="mb-4">
-              <Form.Label className="extra-small fw-bold text-navy opacity-75">LIEU / LIEN</Form.Label>
+              <Form.Label className="extra-small fw-bold text-navy opacity-75">LOCATION / LINK</Form.Label>
               <Form.Control 
                 type="text" 
-                placeholder="Salle 302 ou Zoom"
+                placeholder="Room 302 or Zoom"
                 className="rounded-4 border-light-soft bg-surface-alt py-3 extra-small fw-bold shadow-none"
                 required
                 onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
               />
             </Form.Group>
             <Button type="submit" className="btn-premium w-100 py-3 fw-bold rounded-4 shadow-sm border-0">
-              Enregistrer l'événement
+              Save event
             </Button>
           </Form>
         </Modal.Body>

@@ -15,9 +15,9 @@ const AdminMessages: React.FC = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const roles = [
-    { id: 'student', name: 'Canal Étudiants', avatar: 'ST', color: '#10b981', desc: 'Messages des étudiants' },
-    { id: 'supervisor', name: 'Canal Encadrants', avatar: 'EN', color: 'var(--color-primary)', desc: 'Coordination pédagogique' },
-    { id: 'jury', name: 'Canal Jury', avatar: 'JU', color: '#f59e0b', desc: 'Évaluations et soutenances' },
+    { id: 'student', name: 'Students Channel', avatar: 'ST', color: '#10b981', desc: 'Student messages' },
+    { id: 'supervisor', name: 'Supervisors Channel', avatar: 'EN', color: 'var(--color-primary)', desc: 'Pedagogical coordination' },
+    { id: 'jury', name: 'Jury Channel', avatar: 'JU', color: '#f59e0b', desc: 'Evaluations and defenses' },
   ];
 
   const filteredMessages = (messages || []).filter(m => m.sender === activeRole || (m.sender === 'admin' && activeRole === 'student'));
@@ -47,7 +47,7 @@ const AdminMessages: React.FC = () => {
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Rechercher..." 
+                  placeholder="Search..." 
                   className="bg-transparent border-0 shadow-none small py-2 text-navy"
                 />
               </InputGroup>
@@ -71,7 +71,7 @@ const AdminMessages: React.FC = () => {
                     </div>
                     <div className="extra-small text-muted mb-1 fw-bold opacity-75">{conv.desc}</div>
                     <p className="extra-small text-muted mb-0 text-truncate fw-bold opacity-75">
-                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "Aucun message récent"}
+                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "No recent messages"}
                     </p>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ const AdminMessages: React.FC = () => {
                 <div>
                   <h6 className="fw-bold mb-0 text-navy">{roles.find(r => r.id === activeRole)?.name}</h6>
                   <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
-                    <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> En ligne
+                    <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> Online
                   </span>
                 </div>
               </div>
@@ -105,10 +105,10 @@ const AdminMessages: React.FC = () => {
                     <MoreVertical size={20} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small glass-card">
-                    <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> Voir profil</Dropdown.Item>
-                    <Dropdown.Item className="fw-bold"><Search size={14} className="me-2"/> Rechercher</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> View profile</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold"><Search size={14} className="me-2"/> Search</Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item className="text-danger fw-bold">Bloquer</Dropdown.Item>
+                    <Dropdown.Item className="text-danger fw-bold">Block</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -131,7 +131,7 @@ const AdminMessages: React.FC = () => {
               ))}
               {filteredMessages.length === 0 && (
                 <div className="text-center p-5 text-muted extra-small fw-bold opacity-50">
-                  Aucun message dans ce canal.
+                  No messages in this channel.
                 </div>
               )}
             </div>
@@ -145,7 +145,7 @@ const AdminMessages: React.FC = () => {
                 </Button>
                 <div className="flex-grow-1 position-relative">
                   <Form.Control 
-                    placeholder="Tapez votre message..." 
+                    placeholder="Type your message..." 
                     className="rounded-pill border shadow-none px-4 py-2 bg-surface-alt text-navy"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}

@@ -12,17 +12,17 @@ import {
 import { useApp } from '../../../context/AppContext.jsx';
 
 const STATS = [
-  { label: 'Documents PDF', value: '18', icon: <File size={20} />, color: 'danger' },
-  { label: 'Espace Utilisé', value: '1.2 GB', icon: <Folder size={20} />, color: 'warning' },
-  { label: 'Nouveautés', value: '4', icon: <TrendingUp size={20} />, color: 'success' },
-  { label: 'Favoris', value: '6', icon: <Star size={20} />, color: 'primary' }
+  { label: 'PDF Documents', value: '18', icon: <File size={20} />, color: 'danger' },
+  { label: 'Space Used', value: '1.2 GB', icon: <Folder size={20} />, color: 'warning' },
+  { label: 'New Items', value: '4', icon: <TrendingUp size={20} />, color: 'success' },
+  { label: 'Favorites', value: '6', icon: <Star size={20} />, color: 'primary' }
 ];
 
 const CATEGORIES = [
-  { label: 'Tous les documents', icon: <Layers size={18} />, count: 12 },
-  { label: 'Directives PFE', icon: <Book size={18} />, count: 3 },
-  { label: 'Modèles & Templates', icon: <FileText size={18} />, count: 5 },
-  { label: 'Archives Sessions', icon: <History size={18} />, count: 4 },
+  { label: 'All Documents', icon: <Layers size={18} />, count: 12 },
+  { label: 'PFE Guidelines', icon: <Book size={18} />, count: 3 },
+  { label: 'Models & Templates', icon: <FileText size={18} />, count: 5 },
+  { label: 'Session Archives', icon: <History size={18} />, count: 4 },
 ];
 
 const DOCUMENTS = [
@@ -35,14 +35,14 @@ const DOCUMENTS = [
 ];
 
 const ResourceHubPage = () => {
-  const [activeCat, setActiveCat] = useState('Tous les documents');
+  const [activeCat, setActiveCat] = useState('All Documents');
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [favorites, setFavorites] = useState([]);
 
   const handleDownload = (name) => {
-    setSuccessMsg(`Téléchargement de "${name}" commencé...`);
+    setSuccessMsg(`Download of "${name}" started...`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };
@@ -50,7 +50,7 @@ const ResourceHubPage = () => {
   const handleFavorite = (name) => {
     const isFav = favorites.includes(name);
     setFavorites(prev => isFav ? prev.filter(f => f !== name) : [...prev, name]);
-    setSuccessMsg(isFav ? `"${name}" retiré des favoris.` : `"${name}" ajouté aux favoris.`);
+    setSuccessMsg(isFav ? `"${name}" removed from favorites.` : `"${name}" added to favorites.`);
     setShowSuccessCard(true);
     setTimeout(() => setShowSuccessCard(false), 5000);
   };

@@ -54,28 +54,28 @@ const INITIAL_USERS: UserData[] = [
   { 
     id: 1, 
     institutionalId: 'ADM-2026-00412', 
-    name: 'Marie Dupont', 
-    email: 'marie.dupont@email.com', 
+    name: 'Mary Smith', 
+    email: 'mary.smith@email.com', 
     role: 'Admin', 
     status: 'Active', 
     lastLogin: '2 min ago', 
-    avatar: 'https://ui-avatars.com/api/?name=Marie+Dupont&background=3b82f6&color=fff',
+    avatar: 'https://ui-avatars.com/api/?name=Mary+Smith&background=3b82f6&color=fff',
     confirmationStatus: 'Confirmed'
   },
   { 
     id: 4, 
     institutionalId: 'STU-2026-00105', 
-    name: 'Lucas Petit', 
-    email: 'lucas.petit@email.com', 
+    name: 'Luke Small', 
+    email: 'luke.small@email.com', 
     role: 'Student', 
     status: 'Active', 
     lastLogin: '3 days ago', 
-    avatar: 'https://ui-avatars.com/api/?name=Lucas+Petit&background=3b82f6&color=fff',
+    avatar: 'https://ui-avatars.com/api/?name=Luke+Small&background=3b82f6&color=fff',
     confirmationStatus: 'Reported',
     reportDetails: {
-      message: "Mon adresse a changé, je suis maintenant au 45 Rue Hassan II, Rabat. Et je voudrais changer ma photo.",
+      message: "My address has changed, I am now at 45 Hassan II Street, Rabat. And I would like to change my photo.",
       date: "2026-05-14",
-      suggestedPhoto: "https://ui-avatars.com/api/?name=LP&background=random"
+      suggestedPhoto: "https://ui-avatars.com/api/?name=LS&background=random"
     },
     activeSessions: [
       { device: 'Windows 11 - Chrome', ip: '196.200.14.52', lastActive: '2 mins ago' },
@@ -85,19 +85,19 @@ const INITIAL_USERS: UserData[] = [
   { 
     id: 2, 
     institutionalId: 'JRY-2026-00951', 
-    name: 'Jean Martin', 
-    email: 'jean.martin@email.com', 
+    name: 'John Martin', 
+    email: 'john.martin@email.com', 
     role: 'Jury Member', 
     status: 'Active', 
     lastLogin: '1 hour ago', 
-    avatar: 'https://ui-avatars.com/api/?name=Jean+Martin&background=10b981&color=fff', 
+    avatar: 'https://ui-avatars.com/api/?name=John+Martin&background=10b981&color=fff', 
     confirmationStatus: 'None',
     activeSessions: [
       { device: 'macOS - Firefox', ip: '197.252.33.10', lastActive: 'Active now' }
     ]
   },
-  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Bernard', email: 'sophie.bernard@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Bernard&background=f59e0b&color=fff', confirmationStatus: 'None' },
-  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma Leroy', email: 'emma.leroy@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+Leroy&background=64748b&color=fff', confirmationStatus: 'None' },
+  { id: 3, institutionalId: 'SUP-2026-00842', name: 'Sophie Miller', email: 'sophie.miller@email.com', role: 'Supervisor', status: 'Pending', lastLogin: 'Never', avatar: 'https://ui-avatars.com/api/?name=Sophie+Miller&background=f59e0b&color=fff', confirmationStatus: 'None' },
+  { id: 5, institutionalId: 'JRY-2026-00234', name: 'Emma King', email: 'emma.king@email.com', role: 'Jury Member', status: 'Inactive', lastLogin: '30 days ago', avatar: 'https://ui-avatars.com/api/?name=Emma+King&background=64748b&color=fff', confirmationStatus: 'None' },
 ];
 
 const UserManagement: React.FC = () => {
@@ -122,25 +122,25 @@ const UserManagement: React.FC = () => {
 
   const handleExport = (format: 'pdf' | 'csv' | 'word') => {
     if (selectedUsers.length === 0) {
-      alert("Veuillez sélectionner au moins un utilisateur à exporter.");
+      alert("Please select at least one user to export.");
       return;
     }
 
     const selectedData = users.filter(u => selectedUsers.includes(u.id));
     
     if (format === 'csv') {
-      const headers = ["ID Institutionnel", "Nom", "Email", "Rôle", "Statut"];
+      const headers = ["Institutional ID", "Name", "Email", "Role", "Status"];
       const rows = selectedData.map(u => [u.institutionalId, u.name, u.email, u.role, u.status]);
       const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `export_utilisateurs_${new Date().getTime()}.csv`);
+      link.setAttribute("download", `users_export_${new Date().getTime()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } else {
-      alert(`Exportation de ${selectedUsers.length} utilisateur(s) au format ${format.toUpperCase()}... (Simulé)`);
+      alert(`Exporting ${selectedUsers.length} user(s) to ${format.toUpperCase()} format... (Simulated)`);
     }
   };
 
@@ -209,7 +209,7 @@ const UserManagement: React.FC = () => {
   const handleSave = () => {
     const now = new Date().toLocaleString();
     if (editingUser) {
-      const newHistory = [...(editingUser.history || []), { action: 'Modification profil par Admin', date: now }];
+      const newHistory = [...(editingUser.history || []), { action: 'Profile modification by Admin', date: now }];
       setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData, history: newHistory } as UserData : u));
     } else {
       const role = formData.role || 'Student';
@@ -223,7 +223,7 @@ const UserManagement: React.FC = () => {
         status: (formData.status as any) || 'Active',
         lastLogin: 'Never',
         avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`,
-        history: [{ action: 'Création du compte', date: now }],
+        history: [{ action: 'Account creation', date: now }],
         confirmationStatus: 'None'
       };
       setUsers([...users, newUser]);
@@ -255,12 +255,12 @@ const UserManagement: React.FC = () => {
       // Send to global context to make it "arrive" for the user
       globalSendMessage(messageContent, 'admin');
       
-      alert(`Message envoyé avec succès à ${messageRecipient.name}. Il le recevra dans son interface de messagerie.`);
+      alert(`Message sent successfully to ${messageRecipient.name}. They will receive it in their messaging interface.`);
       setShowMessageModal(false);
       setMessageRecipient(null);
       setMessageContent('');
     } else {
-      alert("Veuillez saisir un message avant d'envoyer.");
+      alert("Please enter a message before sending.");
     }
   };
 
@@ -284,8 +284,8 @@ const UserManagement: React.FC = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
           <div>
-            <h2 className="fw-bold mb-1 text-navy">Gestion des Utilisateurs</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">Contrôlez les accès et les rôles de tous les membres du portail.</p>
+            <h2 className="fw-bold mb-1 text-navy">User Management</h2>
+            <p className="text-muted small mb-0 fw-bold opacity-75">Control access and roles for all portal members.</p>
           </div>
           <div className="d-flex gap-2">
             <Dropdown>
@@ -293,18 +293,18 @@ const UserManagement: React.FC = () => {
                 variant="outline-primary" 
                 className={`fw-bold px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2 no-caret shadow-none ${selectedUsers.length === 0 ? 'opacity-50' : ''}`}
               >
-                <Users size={18} /> Exporter ({selectedUsers.length})
+                <Users size={18} /> Export ({selectedUsers.length})
               </Dropdown.Toggle>
 
               <Dropdown.Menu className="border-0 shadow-lg rounded-4 overflow-hidden mt-2 p-1">
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('pdf')}>
-                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Exporter en PDF
+                  <div className="p-1 rounded bg-danger-soft text-danger"><FileText size={14} /></div> Export to PDF
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('word')}>
-                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Exporter en Word
+                  <div className="p-1 rounded bg-primary-soft text-primary"><File size={14} /></div> Export to Word
                 </Dropdown.Item>
                 <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleExport('csv')}>
-                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Exporter en CSV
+                  <div className="p-1 rounded bg-success-soft text-success"><FileSpreadsheet size={14} /></div> Export to CSV
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -313,7 +313,7 @@ const UserManagement: React.FC = () => {
               className="btn-premium d-flex align-items-center gap-2"
               onClick={() => handleOpenModal()}
             >
-              <UserPlus size={18} /> Ajouter Utilisateur
+              <UserPlus size={18} /> Add User
             </Button>
           </div>
         </div>
@@ -321,16 +321,16 @@ const UserManagement: React.FC = () => {
         {/* Stats Row */}
         <Row className="g-4 mb-5">
           <Col lg={3} sm={6}>
-            <StatCard label="Total Utilisateurs" value={users.length.toString()} color="primary" icon={<Users />} trend="Global" />
+            <StatCard label="Total Users" value={users.length.toString()} color="primary" icon={<Users />} trend="Global" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Actifs" value={users.filter(u => u.status === 'Active').length.toString()} color="success" icon={<UserCheck />} trend="Vérifié" />
+            <StatCard label="Active" value={users.filter(u => u.status === 'Active').length.toString()} color="success" icon={<UserCheck />} trend="Verified" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="En Attente" value={users.filter(u => u.status === 'Pending').length.toString()} color="warning" icon={<Clock />} trend="Inscriptions" />
+            <StatCard label="Pending" value={users.filter(u => u.status === 'Pending').length.toString()} color="warning" icon={<Clock />} trend="Registrations" />
           </Col>
           <Col lg={3} sm={6}>
-            <StatCard label="Inactifs" value={users.filter(u => u.status === 'Inactive').length.toString()} color="danger" icon={<XCircle />} trend="Bloqués" />
+            <StatCard label="Inactive" value={users.filter(u => u.status === 'Inactive').length.toString()} color="danger" icon={<XCircle />} trend="Blocked" />
           </Col>
         </Row>
 
@@ -343,7 +343,7 @@ const UserManagement: React.FC = () => {
                   <Search size={18} />
                 </InputGroup.Text>
                 <Form.Control 
-                  placeholder="Rechercher nom, email, rôle..." 
+                  placeholder="Search name, email, role..." 
                   className="bg-transparent border-0 shadow-none py-2 text-navy fw-bold small"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -357,21 +357,21 @@ const UserManagement: React.FC = () => {
                   className="rounded-pill border extra-small fw-bold px-4"
                   onClick={() => setFilterRole(filterRole ? null : 'Student')}
                 >
-                  {filterRole || 'Tous les rôles'}
+                  {filterRole || 'All roles'}
                 </Button>
                 <Button 
                   variant={filterStatus ? "success" : "outline-secondary"} 
                   className="rounded-pill border extra-small fw-bold px-4"
                   onClick={() => setFilterStatus(filterStatus ? null : 'Active')}
                 >
-                  {filterStatus ? `Statut: ${filterStatus}` : 'Tous les statuts'}
+                  {filterStatus ? `Status: ${filterStatus}` : 'All statuses'}
                 </Button>
                 <Button 
                   variant="link" 
                   className="text-muted extra-small fw-bold text-decoration-none"
                   onClick={() => { setFilterRole(null); setFilterStatus(null); setSearchTerm(''); }}
                 >
-                  Réinitialiser
+                  Reset
                 </Button>
               </div>
             </Col>
@@ -386,10 +386,10 @@ const UserManagement: React.FC = () => {
             className="custom-tabs-premium px-4 pt-3 border-bottom-0"
           >
             {[
-              { key: 'Student', label: 'Étudiants', icon: <Users size={16} /> },
-              { key: 'Supervisor', label: 'Encadrants', icon: <UserCheck size={16} /> },
-              { key: 'Jury Member', label: 'Membres de Jury', icon: <Shield size={16} /> },
-              { key: 'Admin', label: 'Administrateurs', icon: <Shield size={16} className="text-danger" /> },
+              { key: 'Student', label: 'Students', icon: <Users size={16} /> },
+              { key: 'Supervisor', label: 'Supervisors', icon: <UserCheck size={16} /> },
+              { key: 'Jury Member', label: 'Jury Members', icon: <Shield size={16} /> },
+              { key: 'Admin', label: 'Administrators', icon: <Shield size={16} className="text-danger" /> },
             ].map((tab) => (
               <Tab 
                 key={tab.key} 
@@ -415,10 +415,10 @@ const UserManagement: React.FC = () => {
                             onChange={() => toggleSelectAll(tab.key)}
                           />
                         </th>
-                        <th>Utilisateur</th>
-                        <th>Vérification</th>
-                        <th>Statut</th>
-                        <th>Dernière connexion</th>
+                        <th>User</th>
+                        <th>Verification</th>
+                        <th>Status</th>
+                        <th>Last login</th>
                         <th className="text-end px-4">Actions</th>
                       </tr>
                     </thead>
@@ -448,15 +448,15 @@ const UserManagement: React.FC = () => {
                               <td>
                                 {user.confirmationStatus === 'Confirmed' ? (
                                   <Badge bg="success-soft" className="text-success extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
-                                    <CheckCircle size={12} /> Confirmé
+                                    <CheckCircle size={12} /> Confirmed
                                   </Badge>
                                 ) : user.confirmationStatus === 'Reported' ? (
                                   <Badge bg="danger-soft" className="text-danger extra-small fw-bold d-flex align-items-center gap-1" style={{ width: 'fit-content' }}>
-                                    <AlertCircle size={12} /> Erreur Signalée
+                                    <AlertCircle size={12} /> Reported Error
                                   </Badge>
                                 ) : (
                                   <Badge bg="secondary-soft" className="text-muted extra-small fw-bold" style={{ width: 'fit-content' }}>
-                                    En attente
+                                    Pending
                                   </Badge>
                                 )}
                               </td>
@@ -492,17 +492,17 @@ const UserManagement: React.FC = () => {
                                     }}
                                   >
                                     <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleOpenModal(user)}>
-                                      <div className="p-1 rounded bg-primary-soft text-primary"><Edit2 size={14} /></div> Modifier
+                                      <div className="p-1 rounded bg-primary-soft text-primary"><Edit2 size={14} /></div> Edit
                                     </Dropdown.Item>
                                     <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleMessage(user)}>
                                       <div className="p-1 rounded bg-info-soft text-info"><Mail size={14} /></div> Message
                                     </Dropdown.Item>
                                     <Dropdown.Item className="py-2 px-3 extra-small fw-bold d-flex align-items-center gap-2" onClick={() => handleAccess(user)}>
-                                      <div className="p-1 rounded bg-warning-soft text-warning"><Shield size={14} /></div> Accès
+                                      <div className="p-1 rounded bg-warning-soft text-warning"><Shield size={14} /></div> Access
                                     </Dropdown.Item>
                                     <Dropdown.Divider className="my-1 opacity-50" />
                                     <Dropdown.Item className="py-2 px-3 extra-small fw-bold text-danger d-flex align-items-center gap-2" onClick={() => handleDelete(user)}>
-                                      <div className="p-1 rounded bg-danger-soft text-danger"><Trash2 size={14} /></div> Supprimer
+                                      <div className="p-1 rounded bg-danger-soft text-danger"><Trash2 size={14} /></div> Delete
                                     </Dropdown.Item>
                                   </Dropdown.Menu>
                                 </Dropdown>
@@ -517,20 +517,20 @@ const UserManagement: React.FC = () => {
                                     </div>
                                     <div className="flex-grow-1">
                                       <div className="d-flex justify-content-between align-items-center mb-1">
-                                        <span className="extra-small fw-bold text-danger text-uppercase tracking-wider">Signalement Reçu le {user.reportDetails.date}</span>
+                                        <span className="extra-small fw-bold text-danger text-uppercase tracking-wider">Report Received on {user.reportDetails.date}</span>
                                         <Button 
                                           variant="link" 
                                           size="sm" 
                                           className="p-0 text-danger extra-small fw-bold text-decoration-none"
                                           onClick={() => handleProcessReport(user.id)}
                                         >
-                                          Marquer comme traité
+                                          Mark as processed
                                         </Button>
                                       </div>
                                       <p className="small text-navy mb-2 fw-bold opacity-75">{user.reportDetails.message}</p>
                                       {user.reportDetails.suggestedPhoto && (
                                         <div className="d-flex align-items-center gap-2">
-                                          <span className="extra-small text-muted fw-bold">Nouvelle Photo demandée:</span>
+                                          <span className="extra-small text-muted fw-bold">New Photo requested:</span>
                                           <img src={user.reportDetails.suggestedPhoto} alt="Suggestion" className="rounded border shadow-sm" style={{ width: '32px', height: '32px' }} />
                                           <Button 
                                             variant="link" 
@@ -538,7 +538,7 @@ const UserManagement: React.FC = () => {
                                             className="p-0 extra-small fw-bold text-primary text-decoration-none"
                                             onClick={() => handleApplyPhoto(user.id, user.reportDetails!.suggestedPhoto!)}
                                           >
-                                            Appliquer la photo
+                                            Apply photo
                                           </Button>
                                         </div>
                                       )}
@@ -552,7 +552,7 @@ const UserManagement: React.FC = () => {
                       ) : (
                         <tr>
                           <td colSpan={5} className="text-center py-5 text-muted small fw-bold">
-                            Aucun utilisateur trouvé dans cette catégorie.
+                            No users found in this category.
                           </td>
                         </tr>
                       )}
@@ -563,7 +563,7 @@ const UserManagement: React.FC = () => {
             ))}
           </Tabs>
           <div className="p-4 border-top d-flex justify-content-between align-items-center bg-surface-alt">
-            <span className="extra-small text-muted fw-bold">Affichage catégorisé des utilisateurs</span>
+            <span className="extra-small text-muted fw-bold">Categorized user display</span>
             <div className="d-flex gap-2">
               <Button size="sm" variant="outline-secondary" className="rounded-circle border p-0 d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.75rem' }}>1</Button>
             </div>
@@ -574,7 +574,7 @@ const UserManagement: React.FC = () => {
       {/* User Modal (Add/Edit) */}
       <Modal show={showModal} onHide={closeModal} centered className="users-modal">
         <Modal.Header closeButton className="border-bottom px-4 py-3">
-          <Modal.Title className="fw-bold fs-5 text-navy">{editingUser ? 'Modifier Utilisateur' : 'Ajouter Utilisateur'}</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">{editingUser ? 'Edit User' : 'Add User'}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <div className="d-flex flex-column align-items-center mb-4">
@@ -598,20 +598,20 @@ const UserManagement: React.FC = () => {
                 <Camera size={14} color="white" />
               </Button>
             </div>
-            <div className="extra-small fw-bold text-muted text-uppercase">Photo de Profil (Géré par l'Admin)</div>
+            <div className="extra-small fw-bold text-muted text-uppercase">Profile Photo (Managed by Admin)</div>
           </div>
           <Form>
             <Row className="g-3">
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">ID Institutionnel (Auto-généré)</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Institutional ID (Auto-generated)</Form.Label>
                 <Form.Control 
-                  value={formData.institutionalId || 'Génération automatique...'} 
+                  value={formData.institutionalId || 'Automatic generation...'} 
                   readOnly
                   className="form-control-premium fw-bold bg-surface-alt border-dashed" 
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Prénom</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">First Name</Form.Label>
                 <Form.Control 
                   value={formData.name?.split(' ')[0] || ''} 
                   onChange={e => setFormData({...formData, name: `${e.target.value} ${formData.name?.split(' ')[1] || ''}`.trim()})}
@@ -620,7 +620,7 @@ const UserManagement: React.FC = () => {
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Last Name</Form.Label>
                 <Form.Control 
                   value={formData.name?.split(' ')[1] || ''} 
                   onChange={e => setFormData({...formData, name: `${formData.name?.split(' ')[0] || ''} ${e.target.value}`.trim()})}
@@ -629,7 +629,7 @@ const UserManagement: React.FC = () => {
                 />
               </Col>
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Email Institutionnel</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Institutional Email</Form.Label>
                 <Form.Control 
                   type="email" 
                   value={formData.email || ''} 
@@ -639,32 +639,32 @@ const UserManagement: React.FC = () => {
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Rôle</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Role</Form.Label>
                 <Form.Select 
                   value={formData.role || 'Student'} 
                   onChange={e => setFormData({...formData, role: e.target.value})}
                   className="form-control-premium fw-bold"
                 >
-                  <option value="Student">Étudiant</option>
-                  <option value="Jury Member">Membre de Jury</option>
-                  <option value="Supervisor">Encadrant</option>
-                  <option value="Admin">Administrateur</option>
+                  <option value="Student">Student</option>
+                  <option value="Jury Member">Jury Member</option>
+                  <option value="Supervisor">Supervisor</option>
+                  <option value="Admin">Administrator</option>
                 </Form.Select>
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Statut</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Status</Form.Label>
                 <Form.Select 
                   value={formData.status || 'Active'} 
                   onChange={e => setFormData({...formData, status: e.target.value as any})}
                   className="form-control-premium fw-bold"
                 >
-                  <option value="Active">Actif</option>
-                  <option value="Pending">En attente</option>
-                  <option value="Inactive">Inactif</option>
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Inactive">Inactive</option>
                 </Form.Select>
               </Col>
 
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Personnelles & Sécurité</h6></Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Personal Information & Security</h6></Col>
               <Col md={6}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">CIN</Form.Label>
                 <Form.Control 
@@ -675,24 +675,24 @@ const UserManagement: React.FC = () => {
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Situation familiale</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Family Status</Form.Label>
                 <Form.Select 
-                  value={formData.familyStatus || 'Célibataire'} 
+                  value={formData.familyStatus || 'Single'} 
                   onChange={e => setFormData({...formData, familyStatus: e.target.value})}
                   className="form-control-premium fw-bold"
                 >
-                  <option>Célibataire</option>
-                  <option>Marié(e)</option>
-                  <option>Divorcé(e)</option>
-                  <option>Veuf/Veuve</option>
+                  <option>Single</option>
+                  <option>Married</option>
+                  <option>Divorced</option>
+                  <option>Widowed</option>
                 </Form.Select>
               </Col>
               <Col md={12}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Adresse</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase">Address</Form.Label>
                 <Form.Control 
                   value={formData.address || ''} 
                   onChange={e => setFormData({...formData, address: e.target.value})}
-                  placeholder="Adresse complète..." 
+                  placeholder="Full address..." 
                   className="form-control-premium fw-bold" 
                 />
               </Col>
@@ -700,11 +700,11 @@ const UserManagement: React.FC = () => {
               {/* Role specific: CNSS for Jury/Supervisor/Admin */}
               {(formData.role === 'Jury Member' || formData.role === 'Supervisor' || formData.role === 'Admin') && (
                 <Col md={12}>
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code de CNSS</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase">CNSS Code</Form.Label>
                   <Form.Control 
                     value={formData.cnss || ''} 
                     onChange={e => setFormData({...formData, cnss: e.target.value})}
-                    placeholder="Numéro CNSS..." 
+                    placeholder="CNSS number..." 
                     className="form-control-premium fw-bold" 
                   />
                 </Col>
@@ -713,9 +713,9 @@ const UserManagement: React.FC = () => {
               {/* Advanced Student Info - Only if role is Student */}
               {formData.role === 'Student' && (
                 <>
-                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Académiques Étudiant</h6></Col>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Student Academic Information</h6></Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Code National (CNE)</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">National Code (CNE)</Form.Label>
                     <Form.Control 
                       value={formData.nationalCode || ''} 
                       onChange={e => setFormData({...formData, nationalCode: e.target.value})}
@@ -724,7 +724,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Note du Diplôme</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Diploma Grade</Form.Label>
                     <Form.Control 
                       type="number"
                       step="0.01"
@@ -735,7 +735,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année Univ.</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Academic Year</Form.Label>
                     <Form.Control 
                       value={formData.academicYear || '2025/2026'} 
                       onChange={e => setFormData({...formData, academicYear: e.target.value})}
@@ -743,7 +743,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Section / Groupe</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Section / Group</Form.Label>
                     <Form.Control 
                       value={formData.section || ''} 
                       onChange={e => setFormData({...formData, section: e.target.value})}
@@ -752,9 +752,9 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
 
-                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations des Parents</h6></Col>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Parental Information</h6></Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom du Père</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Father's Name</Form.Label>
                     <Form.Control 
                       value={formData.fatherName || ''} 
                       onChange={e => setFormData({...formData, fatherName: e.target.value})}
@@ -762,7 +762,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Profession du Père</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Father's Profession</Form.Label>
                     <Form.Control 
                       value={formData.fatherProfession || ''} 
                       onChange={e => setFormData({...formData, fatherProfession: e.target.value})}
@@ -770,7 +770,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Père</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Father's Phone</Form.Label>
                     <Form.Control 
                       value={formData.fatherPhone || ''} 
                       onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
@@ -778,7 +778,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Nom de la Mère</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mother's Name</Form.Label>
                     <Form.Control 
                       value={formData.motherName || ''} 
                       onChange={e => setFormData({...formData, motherName: e.target.value})}
@@ -786,7 +786,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Profession de la Mère</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mother's Profession</Form.Label>
                     <Form.Control 
                       value={formData.motherProfession || ''} 
                       onChange={e => setFormData({...formData, motherProfession: e.target.value})}
@@ -794,7 +794,7 @@ const UserManagement: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Tél. Mère</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Mother's Phone</Form.Label>
                     <Form.Control 
                       value={formData.motherPhone || ''} 
                       onChange={e => setFormData({...formData, motherPhone: e.target.value})}
@@ -807,14 +807,14 @@ const UserManagement: React.FC = () => {
               {/* Role specific: Jury / Supervisor Academic Info */}
               {(formData.role === 'Jury Member' || formData.role === 'Supervisor') && (
                 <>
-                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Informations Académiques (Professionnel)</h6></Col>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Academic Information (Professional)</h6></Col>
                   <Col md={12}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Diplôme Obtenu</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Degree Obtained</Form.Label>
                     <Form.Select 
-                      value={isOtherDiploma ? 'Autre' : (formData.diplomaObtained || '')} 
+                      value={isOtherDiploma ? 'Other' : (formData.diplomaObtained || '')} 
                       onChange={e => {
                         const val = e.target.value;
-                        if (val === 'Autre') {
+                        if (val === 'Other') {
                           setIsOtherDiploma(true);
                           setFormData({...formData, diplomaObtained: ''});
                         } else {
@@ -824,12 +824,12 @@ const UserManagement: React.FC = () => {
                       }}
                       className="form-control-premium fw-bold mb-2"
                     >
-                      <option value="">Sélectionner un diplôme...</option>
-                      <option value="Doctorat">Doctorat</option>
+                      <option value="">Select a degree...</option>
+                      <option value="Doctorat">PhD</option>
                       <option value="Master">Master</option>
-                      <option value="Ingénieur d'État">Ingénieur d'État</option>
-                      <option value="Licence">Licence</option>
-                      <option value="Autre">Autre (Préciser...)</option>
+                      <option value="Ingénieur d'État">State Engineer</option>
+                      <option value="Licence">Bachelor</option>
+                      <option value="Other">Other (Specify...)</option>
                     </Form.Select>
                     
                     {isOtherDiploma && (
@@ -837,17 +837,17 @@ const UserManagement: React.FC = () => {
                         <Form.Control 
                           value={formData.diplomaObtained || ''} 
                           onChange={e => setFormData({...formData, diplomaObtained: e.target.value})}
-                          placeholder="Saisir le nom du diplôme..." 
+                          placeholder="Enter degree name..." 
                           className="form-control-premium fw-bold border-primary border-opacity-25" 
                         />
                       </motion.div>
                     )}
                   </Col>
-                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Affectations & Niveaux d'Enseignement</h6></Col>
+                  <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Assignments & Teaching Levels</h6></Col>
                   <Col md={12} className="mb-3">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-2">Niveaux Assignés</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase mb-2">Assigned Levels</Form.Label>
                     <div className="d-flex flex-wrap gap-3 p-3 rounded-4 bg-surface-alt border">
-                      {['1ère année', '2ème année', '3ème année', '4ème année', '5ème année', 'Doctorat'].map((year) => (
+                      {['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', 'PhD'].map((year) => (
                         <Form.Check 
                           key={year}
                           type="checkbox"
@@ -869,17 +869,17 @@ const UserManagement: React.FC = () => {
                     </div>
                   </Col>
                   <Col md={12}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Groupes / Sections spécifiques</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Specific Groups / Sections</Form.Label>
                     <Form.Control 
                       value={formData.section || ''} 
                       onChange={e => setFormData({...formData, section: e.target.value})}
                       placeholder="Ex: 5IIR-G1, 4IIR-G2..." 
                       className="form-control-premium fw-bold" 
                     />
-                    <Form.Text className="extra-small text-muted fw-bold">Entrez les sections séparées par des virgules.</Form.Text>
+                    <Form.Text className="extra-small text-muted fw-bold">Enter sections separated by commas.</Form.Text>
                   </Col>
                   <Col md={12} className="mt-3">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Année de service</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Year of Service</Form.Label>
                     <Form.Control 
                       value={formData.academicYear || '2025/2026'} 
                       onChange={e => setFormData({...formData, academicYear: e.target.value})}
@@ -889,10 +889,10 @@ const UserManagement: React.FC = () => {
                 </>
               )}
 
-              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Sécurité & Accès</h6></Col>
+              <Col md={12} className="mt-4"><h6 className="fw-bold text-navy border-bottom pb-2 mb-2" style={{ fontSize: '13px' }}>Security & Access</h6></Col>
               <Col md={12}>
                 <Form.Label className="extra-small fw-bold text-muted text-uppercase">
-                  {editingUser ? 'Mot de passe actuel' : 'Mot de passe provisoire'}
+                  {editingUser ? 'Current password' : 'Temporary password'}
                 </Form.Label>
                 <InputGroup className="overflow-hidden">
                   <Form.Control 
@@ -912,15 +912,15 @@ const UserManagement: React.FC = () => {
                 <Form.Text className="extra-small text-muted fw-bold opacity-75">
                   <AlertCircle size={12} className="me-1" />
                   {editingUser 
-                    ? "Il s'agit du mot de passe actuel utilisé par l'utilisateur." 
-                    : "L'utilisateur sera invité à changer ce mot de passe dès sa première connexion."}
+                    ? "This is the current password used by the user." 
+                    : "The user will be prompted to change this password upon their first login."}
                 </Form.Text>
               </Col>
 
               {editingUser && (
                 <>
                   <Col md={12} className="mt-3">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Sessions Actives</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Active Sessions</Form.Label>
                     <div className="bg-surface-alt rounded-4 p-3 border border-dashed">
                       {(formData.activeSessions && formData.activeSessions.length > 0) ? (
                         formData.activeSessions.map((session, idx) => (
@@ -936,13 +936,13 @@ const UserManagement: React.FC = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="extra-small text-muted text-center py-2">Aucune session active détectée</div>
+                        <div className="extra-small text-muted text-center py-2">No active sessions detected</div>
                       )}
                     </div>
                   </Col>
                   
                   <Col md={12} className="mt-3">
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Historique des modifications</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase">Modification History</Form.Label>
                     <div className="bg-surface-alt rounded-3 p-3 border border-dashed" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                       {(formData.history && formData.history.length > 0) ? (
                         formData.history.map((log, idx) => (
@@ -952,7 +952,7 @@ const UserManagement: React.FC = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="extra-small text-muted text-center py-2">Aucun historique disponible</div>
+                        <div className="extra-small text-muted text-center py-2">No history available</div>
                       )}
                     </div>
                   </Col>
@@ -962,8 +962,8 @@ const UserManagement: React.FC = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer className="border-top p-4">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={closeModal}>Annuler</Button>
-          <Button className="btn-premium px-4" onClick={handleSave}>{editingUser ? 'Sauvegarder' : 'Créer l\'utilisateur'}</Button>
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={closeModal}>Cancel</Button>
+          <Button className="btn-premium px-4" onClick={handleSave}>{editingUser ? 'Save' : 'Create user'}</Button>
         </Modal.Footer>
       </Modal>
 
@@ -973,17 +973,17 @@ const UserManagement: React.FC = () => {
           <div className="bg-danger-soft text-danger rounded-circle p-3 d-inline-block mb-4 shadow-sm">
             <AlertCircle size={40} />
           </div>
-          <h4 className="fw-bold text-navy mb-3">Confirmer la suppression</h4>
+          <h4 className="fw-bold text-navy mb-3">Confirm Deletion</h4>
           <p className="text-muted small mb-4 px-3">
-            Êtes-vous sûr de vouloir supprimer l'utilisateur <span className="text-navy fw-bold">"{userToDelete?.name}"</span> ? <br />
-            <span className="text-danger fw-bold">Cette action est irréversible.</span>
+            Are you sure you want to delete user <span className="text-navy fw-bold">"{userToDelete?.name}"</span>? <br />
+            <span className="text-danger fw-bold">This action is irreversible.</span>
           </p>
           <div className="d-flex gap-3 justify-content-center">
             <Button variant="outline-secondary" className="px-4 py-2 rounded-3 fw-bold border-2" onClick={() => setShowDeleteModal(false)}>
-              Annuler
+              Cancel
             </Button>
             <Button variant="danger" className="px-4 py-2 rounded-3 fw-bold shadow-sm" onClick={confirmDelete}>
-              Supprimer définitivement
+              Permanently delete
             </Button>
           </div>
         </Modal.Body>
@@ -993,23 +993,23 @@ const UserManagement: React.FC = () => {
       <Modal show={showMessageModal} onHide={() => setShowMessageModal(false)} centered className="message-modal-premium">
         <Modal.Header closeButton className="border-bottom-0 pt-4 px-4">
           <Modal.Title className="fw-bold text-navy d-flex align-items-center gap-2">
-            <Mail size={24} className="text-primary" /> Envoyer un message
+            <Mail size={24} className="text-primary" /> Send a message
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-surface-alt border">
             <img src={messageRecipient?.avatar} alt="" className="rounded-circle border" style={{ width: '45px', height: '45px' }} />
             <div>
-              <div className="small fw-bold text-navy">Destinataire : {messageRecipient?.name}</div>
+              <div className="small fw-bold text-navy">Recipient: {messageRecipient?.name}</div>
               <div className="extra-small text-muted fw-bold">{messageRecipient?.email}</div>
             </div>
           </div>
           <Form.Group>
-            <Form.Label className="extra-small fw-bold text-muted text-uppercase">Votre Message</Form.Label>
+            <Form.Label className="extra-small fw-bold text-muted text-uppercase">Your Message</Form.Label>
             <Form.Control 
               as="textarea" 
               rows={5} 
-              placeholder="Saisissez votre message ici..." 
+              placeholder="Enter your message here..." 
               className="form-control-premium fw-bold shadow-none border-2"
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
@@ -1018,10 +1018,10 @@ const UserManagement: React.FC = () => {
         </Modal.Body>
         <Modal.Footer className="border-top-0 pb-4 px-4">
           <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowMessageModal(false)}>
-            Annuler
+            Cancel
           </Button>
           <Button className="btn-premium px-4 d-flex align-items-center gap-2" onClick={sendMessage}>
-            <Mail size={18} /> Envoyer le message
+            <Mail size={18} /> Send the message
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1030,7 +1030,7 @@ const UserManagement: React.FC = () => {
       <Modal show={showAccessModal} onHide={() => setShowAccessModal(false)} centered className="access-modal-premium">
         <Modal.Header closeButton className="border-bottom-0 pt-4 px-4">
           <Modal.Title className="fw-bold text-navy d-flex align-items-center gap-2">
-            <Shield size={24} className="text-primary" /> Gestion des Accès
+            <Shield size={24} className="text-primary" /> Access Management
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
@@ -1044,30 +1044,30 @@ const UserManagement: React.FC = () => {
             </div>
           </div>
 
-          <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Contrôle de la Navigation Sidebar ({accessUser?.role})</h6>
+          <h6 className="extra-small fw-bold text-muted text-uppercase mb-3">Sidebar Navigation Control ({accessUser?.role})</h6>
           <div className="d-flex flex-column gap-2">
             {(accessUser?.role === 'Student' ? [
-              { id: 'dash', label: 'Page Dashboard', desc: 'Accès à la vue d\'ensemble.', icon: <LayoutDashboard size={14} /> },
-              { id: 'docs', label: 'Page Mes Documents', desc: 'Accès au dépôt des rapports.', icon: <FileText size={14} /> },
-              { id: 'eval', label: 'Page Évaluations', desc: 'Accès aux notes et critères.', icon: <Award size={14} /> },
-              { id: 'plan', label: 'Page Planning Soutenances', desc: 'Accès à l\'horaire des soutenances.', icon: <Calendar size={14} /> },
-              { id: 'sett', label: 'Page Paramètres', desc: 'Accès au profil et sécurité.', icon: <Settings size={14} /> }
+              { id: 'dash', label: 'Dashboard Page', desc: 'Access to the overview.', icon: <LayoutDashboard size={14} /> },
+              { id: 'docs', label: 'My Documents Page', desc: 'Access to report uploads.', icon: <FileText size={14} /> },
+              { id: 'eval', label: 'Evaluations Page', desc: 'Access to grades and criteria.', icon: <Award size={14} /> },
+              { id: 'plan', label: 'Defense Planning Page', desc: 'Access to defense schedule.', icon: <Calendar size={14} /> },
+              { id: 'sett', label: 'Settings Page', desc: 'Access to profile and security.', icon: <Settings size={14} /> }
             ] : accessUser?.role === 'Jury Member' ? [
-              { id: 'j-dash', label: 'Page Dashboard Jury', desc: 'Accès aux projets assignés.', icon: <LayoutDashboard size={14} /> },
-              { id: 'j-proj', label: 'Page Projets à Évaluer', desc: 'Accès aux rapports en attente.', icon: <Briefcase size={14} /> },
-              { id: 'j-prog', label: 'Page Mon Programme', desc: 'Accès au calendrier personnel.', icon: <Calendar size={14} /> },
-              { id: 'j-sett', label: 'Page Paramètres', desc: 'Accès aux paramètres du compte.', icon: <Settings size={14} /> }
+              { id: 'j-dash', label: 'Jury Dashboard Page', desc: 'Access to assigned projects.', icon: <LayoutDashboard size={14} /> },
+              { id: 'j-proj', label: 'Projects to Evaluate Page', desc: 'Access to pending reports.', icon: <Briefcase size={14} /> },
+              { id: 'j-prog', label: 'My Schedule Page', desc: 'Access to personal calendar.', icon: <Calendar size={14} /> },
+              { id: 'j-sett', label: 'Settings Page', desc: 'Access to account settings.', icon: <Settings size={14} /> }
             ] : accessUser?.role === 'Supervisor' ? [
-              { id: 's-dash', label: 'Page Dashboard Encadrant', desc: 'Accès au suivi global.', icon: <LayoutDashboard size={14} /> },
-              { id: 's-stu', label: 'Page Mes Étudiants', desc: 'Accès à la liste des étudiants.', icon: <Users size={14} /> },
-              { id: 's-eval', label: 'Page Évaluations', desc: 'Accès aux grilles de notation.', icon: <Award size={14} /> },
-              { id: 's-rdv', label: 'Page Rendez-vous', desc: 'Accès au planning des rencontres.', icon: <Clock size={14} /> },
-              { id: 's-sett', label: 'Page Paramètres', desc: 'Accès au profil.', icon: <Settings size={14} /> }
+              { id: 's-dash', label: 'Supervisor Dashboard Page', desc: 'Access to global tracking.', icon: <LayoutDashboard size={14} /> },
+              { id: 's-stu', label: 'My Students Page', desc: 'Access to the list of students.', icon: <Users size={14} /> },
+              { id: 's-eval', label: 'Evaluations Page', desc: 'Access to grading rubrics.', icon: <Award size={14} /> },
+              { id: 's-rdv', label: 'Meetings Page', desc: 'Access to meeting schedule.', icon: <Clock size={14} /> },
+              { id: 's-sett', label: 'Settings Page', desc: 'Access to profile.', icon: <Settings size={14} /> }
             ] : [
-              { id: 'a-dash', label: 'Page Dashboard Admin', desc: 'Accès aux statistiques globales.', icon: <LayoutDashboard size={14} /> },
-              { id: 'a-user', label: 'Page Gestion Utilisateurs', desc: 'Accès à la liste des membres.', icon: <Users size={14} /> },
-              { id: 'a-plan', label: 'Page Planning Jury', desc: 'Accès à la configuration des sessions.', icon: <Calendar size={14} /> },
-              { id: 'a-sett', label: 'Page Paramètres', desc: 'Accès aux options système.', icon: <Settings size={14} /> }
+              { id: 'a-dash', label: 'Admin Dashboard Page', desc: 'Access to global statistics.', icon: <LayoutDashboard size={14} /> },
+              { id: 'a-user', label: 'User Management Page', desc: 'Access to the list of members.', icon: <Users size={14} /> },
+              { id: 'a-plan', label: 'Jury Planning Page', desc: 'Access to session configuration.', icon: <Calendar size={14} /> },
+              { id: 'a-sett', label: 'Settings Page', desc: 'Access to system options.', icon: <Settings size={14} /> }
             ]).map((perm) => (
               <div key={perm.id} className="p-3 rounded-4 border bg-white d-flex justify-content-between align-items-center hover-bg-surface-alt transition-all shadow-sm">
                 <div className="d-flex align-items-center gap-3">
@@ -1086,10 +1086,10 @@ const UserManagement: React.FC = () => {
         </Modal.Body>
         <Modal.Footer className="border-top-0 pb-4 px-4">
           <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowAccessModal(false)}>
-            Fermer
+            Close
           </Button>
           <Button className="btn-premium px-4" onClick={() => setShowAccessModal(false)}>
-            Sauvegarder les permissions
+            Save permissions
           </Button>
         </Modal.Footer>
       </Modal>
