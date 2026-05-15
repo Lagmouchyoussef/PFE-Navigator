@@ -275,7 +275,15 @@ const INITIAL_RESOURCES = [
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // AUTH
-  const [user, setUser] = useState<Session | null>(null);
+  const [user, setUser] = useState<Session | null>(() => {
+    const saved = localStorage.getItem('pfe-user-session');
+    try {
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error('Failed to parse user session', e);
+      return null;
+    }
+  });
 
   // DATA STORE
   const [scores, setScores] = useState<Scores>(() => {
@@ -441,15 +449,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       account = ACCOUNTS.find(a => a.role === emailOrRole);
     } else {
       // In a real app, we would use email and password. For mock, we just check role if role is provided.
-      account = ACCOUNTS.find(a => a.email === emailOrRole && a.role === role);
+      account = ACCOUNTS.find(a => a.email === emailOrRole && (role === undefined || a.role === role));
     }
 
     if (!account) return false;
-    setUser({ ...account });
+    const session = { ...account };
+    setUser(session);
+    localStorage.setItem('pfe-user-session', JSON.stringify(session));
     return true;
   }, []);
 
-  const logout = useCallback(() => setUser(null), []);
+  const logout = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem('pfe-user-session');
+  }, []);
 
   // ── NOTE CALCULATION ────────────────────────────────────────────────────────
   const computeGlobalGrade = useCallback(() => {
