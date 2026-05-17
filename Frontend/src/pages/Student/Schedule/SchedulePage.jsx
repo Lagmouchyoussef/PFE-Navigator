@@ -34,7 +34,7 @@ const milestoneIcon = (status) => {
 const SchedulePage = () => {
   const { user, appointments: rawAppointments, createAppointment, deleteAppointment, milestones } = useApp();
   const appointments = Array.isArray(rawAppointments) ? rawAppointments : [];
-  const [viewDate, setViewDate] = useState(new Date());
+  const [viewDate, setViewDate] = useState(new Date('2026-05-22'));
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -43,6 +43,27 @@ const SchedulePage = () => {
   const [newEvent, setNewEvent] = useState({
     title: '', date: '', time: '09:00', type: 'meeting', location: 'Online Portal', description: ''
   });
+
+  const handleDateSelect = (e) => {
+    const val = e.target.value;
+    if (val) {
+      const parts = val.split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        setViewDate(new Date(y, m, d));
+      }
+    }
+  };
+
+  const getFormattedValue = () => {
+    const y = viewDate.getFullYear();
+    const m = String(viewDate.getMonth() + 1).padStart(2, '0');
+    const d = String(viewDate.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
 
   const year  = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -106,9 +127,18 @@ const SchedulePage = () => {
               Appointments and deadlines — {user?.name}
             </p>
           </motion.div>
-          <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
-            <Plus size={18} /> Request Appointment
-          </Button>
+          <div className="d-flex align-items-center gap-3">
+            <input 
+              className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0 form-control" 
+              type="date" 
+              value={getFormattedValue()}
+              onChange={handleDateSelect}
+              style={{ maxWidth: '180px', cursor: 'pointer' }}
+            />
+            <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
+              <Plus size={18} /> Request Appointment
+            </Button>
+          </div>
         </header>
 
         {/* Stats */}

@@ -33,7 +33,7 @@ export const authApi = {
 
   me: async () => {
     const response = await apiClient.get('/auth/me/');
-    const user = response.data;
+    const user: any = response.data;
     if (user && typeof user.role === 'string') {
       user.role = user.role.toLowerCase();
     }

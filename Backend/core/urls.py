@@ -1,25 +1,32 @@
-"""URL configuration for PFE Navigator backend."""
-
+from django.contrib import admin
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
-from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    return Response({'status': 'ok', 'version': '1.0.0'})
+
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('api/health/', health_check, name='health'),
+    # Authentication & User Management
+    path('api/', include('apps.authentication.urls')),
+    # Role-based Interfaces
+    path('api/', include('apps.student.urls')),
+    path('api/', include('apps.supervisor.urls')),
+    path('api/', include('apps.jury.urls')),
+    path('api/', include('apps.administration.urls')),
+    # Shared Resources
+    path('api/', include('apps.common.urls')),
+]
 
-    # Auth endpoints (login, logout, refresh, me)
-    path("api/auth/", include("apps.users.urls")),
-
-    # Resource endpoints
-    path("api/students/", include("apps.students.urls")),
-    path("api/supervisors/", include("apps.supervisors.urls")),
-    path("api/juries/", include("apps.juries.urls")),
-    path("api/projects/", include("apps.projects.urls")),
-    path("api/communications/", include("apps.communications.urls")),
-
-    # OpenAPI
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

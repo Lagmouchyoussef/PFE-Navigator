@@ -97,3 +97,26 @@ export interface Appointment {
   status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Rescheduled';
   reminderSent?: boolean;
 }
+
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'in_progress' | 'completed' | 'rejected';
+  start_date: string;
+  end_date: string;
+  student_id?: number;
+  supervisor_id?: number;
+}
+
+export interface Evaluation {
+  id: number;
+  project_id: number;
+  supervisor_score?: number | null;
+  jury_score?: number | null;
+  supervisor_weight?: number;
+  jury_weight?: number;
+  comments?: string;
+  is_published?: boolean;
+  evaluator_id?: number;
+}

@@ -1,8 +1,10 @@
 """
-WSGI config for Scientific Research Portal backend.
+WSGI config for core project.
 
-Exposes the WSGI callable as a module-level variable named ``application``.
-Reference: https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
 
 import os

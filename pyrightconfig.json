@@ -1,0 +1,8 @@
+{
+  "venvPath": "Backend",
+  "venv": "venv",
+  "extraPaths": ["Backend"],
+  "typeCheckingMode": "off",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none"
+}
