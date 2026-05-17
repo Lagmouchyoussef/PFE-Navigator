@@ -88,7 +88,7 @@ const SupervisorMessages = () => {
                     </div>
                     <div className="extra-small text-primary fw-bold mb-1 opacity-75">{conv.desc}</div>
                     <p className="extra-small text-muted mb-0 text-truncate opacity-75 fw-bold">
-                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "No recent messages"}
+                      {(messages || []).filter(m => m && m.sender === conv.id).slice(-1)[0]?.text || "No recent messages"}
                     </p>
                   </div>
                 </motion.div>
@@ -144,7 +144,12 @@ const SupervisorMessages = () => {
                     <p className="mb-0 small fw-bold" style={{ lineHeight: '1.6' }}>{msg.text}</p>
                   </div>
                   <div className={`d-flex align-items-center gap-2 mt-1 px-1 extra-small text-muted fw-bold opacity-50 ${msg.sender === 'supervisor' ? 'flex-row-reverse' : ''}`}>
-                    <span>{new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>
+                      {(() => {
+                        const d = new Date(msg.time || msg.created_at);
+                        return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      })()}
+                    </span>
                     {msg.sender === 'supervisor' && <CheckCheck size={14} className="text-primary"/>}
                   </div>
                 </motion.div>

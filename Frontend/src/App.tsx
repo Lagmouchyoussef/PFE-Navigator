@@ -200,11 +200,22 @@ function App() {
   };
 
   const unreadMsgCount = typeof unreadCountForRole === 'function' ? unreadCountForRole(user.role) : 0;
-  const localUnreadNotifs = Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0;
+  const localUnreadNotifs = Array.isArray(notifications) ? notifications.filter(n => !n.read && !n.is_read).length : 0;
   const recentNotifs = Array.isArray(notifications) ? notifications.slice(0, 4) : [];
   const unreadMessages = (Array.isArray(messages) && user) 
-    ? messages.filter(m => m.sender !== user.role && (user.role === 'student' ? !m.readByStudent : !m.readByJury)).slice(0, 4) 
+    ? messages.filter(m => {
+        if (m.sender === user.role) return false;
+        if (user.role === 'student') return !m.readByStudent && !m.is_read;
+        if (user.role === 'jury') return !m.readByJury && !m.is_read;
+        return !m.is_read;
+      }).slice(0, 4) 
     : [];
+
+  const formatDateSafe = (dateStr: string | undefined | null) => {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
@@ -420,9 +431,9 @@ function App() {
                           </div>
                           <div className="flex-grow-1 overflow-hidden">
                             <div className="d-flex justify-content-between align-items-center mb-1">
-                              <span className="extra-small fw-bold text-navy text-capitalize">{m.sender}</span>
+                              <span className="extra-small fw-bold text-navy text-capitalize">{String(m.sender_role || m.sender || 'User')}</span>
                               <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
-                                {new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {formatDateSafe(m.time || m.created_at)}
                               </span>
                             </div>
                             <div className="extra-small text-muted text-truncate">{m.text}</div>

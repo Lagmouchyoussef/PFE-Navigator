@@ -602,6 +602,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setJuryAssignments(prev => prev.filter(j => j.id !== id));
   }, []);
 
+  const updateSubjectStatus = useCallback(async (id: number, status: string) => {
+    const { projectsApi } = await import('../api/projects');
+    // We use lower case status for the backend model
+    const backendStatus = status.toLowerCase().replace(' ', '_');
+    await projectsApi.update(id, { status: backendStatus });
+    setSubjects(prev => prev.map(s => s.id === id ? { ...s, status } : s));
+    // Also update main projects list if present
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: backendStatus } : p));
+  }, []);
+
+  const deleteSubject = useCallback(async (id: number) => {
+    const { projectsApi } = await import('../api/projects');
+    // Using the generic delete if available or patch to 'rejected'
+    // For now, let's assume we can delete projects if admin
+    await projectsApi.delete(id); 
+    setSubjects(prev => prev.filter(s => s.id !== id));
+    setProjects(prev => prev.filter(p => p.id !== id));
+  }, []);
+
   // ── COMPUTED ───────────────────────────────────────────────────────────────
   const unreadNotificationsCount = notifications.filter(n => !n.is_read).length;
   const approvedDocs = documents.filter(d => d.status === 'approved').length;
@@ -647,7 +666,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const unreadCountForRole = useCallback((_role: UserRole) => {
-    return messages.filter(m => !m.is_read && m.recipient === user?.id).length;
+    if (!user) return 0;
+    return (messages || []).filter(m => m && !m.is_read && m.recipient === user.id).length;
   }, [messages, user]);
 
   const markMessagesRead = useCallback((_role: UserRole) => {
@@ -707,7 +727,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       projectMilestones: milestones,
       unreadCountForRole, markMessagesRead,
       updateStudentEvaluation: (id: number, d: any) => setStudents(prev => prev.map(s => s.id === id ? { ...s, ...d } : s)),
-      updateSubjectStatus: () => {}, deleteSubject: () => {},
+      updateSubjectStatus, deleteSubject,
     }}>
       {children}
     </AppContext.Provider>

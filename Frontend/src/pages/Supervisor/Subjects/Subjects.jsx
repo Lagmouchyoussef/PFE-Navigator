@@ -49,10 +49,11 @@ const Subjects = () => {
   const [editModalSubject, setEditModalSubject] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const filteredSubjects = SUBJECTS_DATA.filter(sub => 
-    sub.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    sub.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSubjects = (SUBJECTS_DATA || []).filter(sub => {
+    if (!sub || !sub.title) return false;
+    return sub.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           (sub.category || '').toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredSubjects.length) {

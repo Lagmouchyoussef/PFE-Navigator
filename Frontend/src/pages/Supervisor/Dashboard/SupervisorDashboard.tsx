@@ -20,23 +20,23 @@ import EmptyState from '../../../components/shared/EmptyState';
 
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, projects, appointments } = useApp();
+  const { user, projects, appointments, students } = useApp();
   const [showSuccessCard, setShowSuccessCard] = useState(false);
 
   // Derive dynamic chart data from real projects
   const DELIVERABLE_STATUS = [
-    { name: 'Completed',   value: projects.filter((p: any) => p.status === 'completed').length,   color: 'var(--color-success)' },
-    { name: 'In Progress', value: projects.filter((p: any) => p.status === 'in_progress').length,  color: 'var(--color-primary)' },
-    { name: 'Pending',     value: projects.filter((p: any) => p.status === 'pending').length,       color: 'var(--color-warning)' },
-    { name: 'Submitted',   value: projects.filter((p: any) => p.status === 'submitted').length,     color: 'var(--color-info)' },
+    { name: 'Completed',   value: (projects || []).filter((p: any) => p && p.status === 'completed').length,   color: 'var(--color-success)' },
+    { name: 'In Progress', value: (projects || []).filter((p: any) => p && p.status === 'in_progress').length,  color: 'var(--color-primary)' },
+    { name: 'Pending',     value: (projects || []).filter((p: any) => p && p.status === 'pending').length,       color: 'var(--color-warning)' },
+    { name: 'Submitted',   value: (projects || []).filter((p: any) => p && p.status === 'submitted').length,     color: 'var(--color-info)' },
   ].filter(d => d.value > 0);
 
-  const WEEKLY_ACTIVITY = projects.length > 0 ? [
-    { day: 'Mon', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 1).length, feedback: 0 },
-    { day: 'Tue', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 2).length, feedback: 0 },
-    { day: 'Wed', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 3).length, feedback: 0 },
-    { day: 'Thu', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 4).length, feedback: 0 },
-    { day: 'Fri', meetings: appointments.filter((a: any) => new Date(a.date).getDay() === 5).length, feedback: 0 },
+  const WEEKLY_ACTIVITY = (projects || []).length > 0 ? [
+    { day: 'Mon', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 1).length, feedback: 0 },
+    { day: 'Tue', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 2).length, feedback: 0 },
+    { day: 'Wed', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 3).length, feedback: 0 },
+    { day: 'Thu', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 4).length, feedback: 0 },
+    { day: 'Fri', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 5).length, feedback: 0 },
   ] : [];
 
   const SKILLS_DISTRIBUTION: any[] = [];
@@ -88,7 +88,7 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard
               label="Supervised Projects"
-              value={projects.length.toString()}
+              value={(projects || []).length.toString()}
               color="primary"
               icon={<Users />}
               trend="Total"
@@ -98,7 +98,7 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard
               label="In Progress"
-              value={projects.filter((p: any) => p.status === 'in_progress').length.toString()}
+              value={(projects || []).filter((p: any) => p && p.status === 'in_progress').length.toString()}
               color="success"
               icon={<TrendingUp />}
               trend="Active"
@@ -107,7 +107,7 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard
               label="Appointments"
-              value={appointments.filter((a: any) => a.status !== 'cancelled').length.toString()}
+              value={(appointments || []).filter((a: any) => a && a.status !== 'cancelled').length.toString()}
               color="info"
               icon={<Clock />}
               trend="Scheduled"
@@ -116,7 +116,7 @@ const SupervisorDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard
               label="Completed"
-              value={projects.filter((p: any) => p.status === 'completed').length.toString()}
+              value={(projects || []).filter((p: any) => p && p.status === 'completed').length.toString()}
               color="warning"
               icon={<Activity />}
               trend="Done"
@@ -246,7 +246,8 @@ const SupervisorDashboard: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {projects.map((proj: any) => {
+                      {(projects || []).map((proj: any) => {
+                        if (!proj) return null;
                         const statusColor = proj.status === 'completed' ? 'success' : proj.status === 'in_progress' ? 'primary' : 'warning';
                         return (
                           <tr key={proj.id} className="border-bottom border-light border-opacity-10">
@@ -314,11 +315,11 @@ const SupervisorDashboard: React.FC = () => {
                 </div>
                   <div className="extra-small text-warning fw-bold mb-1">Upcoming</div>
                   <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small text-muted fw-bold">{students.filter((s: any) => s.status !== 'Validated').length} students remaining</div>
+                  <div className="extra-small text-muted fw-bold">{(students || []).filter((s: any) => s && s.status !== 'Validated').length} students remaining</div>
                 <div className="deadline-item">
                   <div className="extra-small text-warning fw-bold mb-1">Scheduled</div>
                   <div className="small fw-bold mb-1">Next Defense Session</div>
-                  <div className="extra-small text-muted fw-bold">{appointments.length > 0 ? `${appointments[0].location} - ${appointments[0].time}` : "No upcoming defenses"}</div>
+                  <div className="extra-small text-muted fw-bold">{(appointments || []).length > 0 ? `${appointments[0].location} - ${appointments[0].time}` : "No upcoming defenses"}</div>
                 </div>
               </Card>
 

@@ -47,14 +47,14 @@ const JuryDashboard: React.FC = () => {
     id: n.id,
     title: n.title || (n.type ? n.type.charAt(0).toUpperCase() + n.type.slice(1) : 'Notification'),
     desc: n.message,
-    time: timeAgo(n.created_at),
+    time: n.created_at ? timeAgo(n.created_at) : 'Just now',
     icon: typeIcon(n.type),
     color: typeColor(n.type),
     link: n.link || '/jury/notifications',
   }));
 
-  const evaluatedCount = evaluations.filter((e: any) => e.jury_score !== null).length;
-  const pendingEvals   = evaluations.filter((e: any) => e.jury_score === null);
+  const evaluatedCount = (evaluations || []).filter((e: any) => e && e.jury_score !== null).length;
+  const pendingEvals   = (evaluations || []).filter((e: any) => e && e.jury_score === null);
 
   return (
     <div className="jury-modern-layout py-4">
@@ -87,7 +87,7 @@ const JuryDashboard: React.FC = () => {
           <Col lg={3} md={6}>
             <StatCard
               label="Assigned Projects"
-              value={evaluations.length.toString()}
+              value={(evaluations || []).length.toString()}
               icon={<Briefcase />}
               color="primary"
               trend="Total Projects"
@@ -100,14 +100,14 @@ const JuryDashboard: React.FC = () => {
               value={evaluatedCount.toString()}
               icon={<CheckCircle />}
               color="success"
-              trend={`${Math.round((evaluatedCount / (evaluations.length || 1)) * 100)}% completed`}
+              trend={`${Math.round((evaluatedCount / ((evaluations || []).length || 1)) * 100)}% completed`}
               onClick={() => navigate('/jury/evaluation')}
             />
           </Col>
           <Col lg={3} md={6}>
             <StatCard
               label="Defenses"
-              value={appointments.filter((a: any) => (a.type === 'defense' || a.type === 'Defense') && a.status !== 'cancelled').length.toString()}
+              value={(appointments || []).filter((a: any) => a && (a.type === 'defense' || a.type === 'Defense') && a.status !== 'cancelled').length.toString()}
               icon={<Calendar />}
               color="warning"
               trend="Total Planning"
@@ -119,7 +119,7 @@ const JuryDashboard: React.FC = () => {
               label="Avg Grade Given"
               value={
                 evaluatedCount > 0
-                  ? (evaluations.filter((e: any) => e.jury_score !== null).reduce((acc: number, e: any) => acc + Number.parseFloat(e.jury_score), 0) / evaluatedCount).toFixed(1)
+                  ? ((evaluations || []).filter((e: any) => e && e.jury_score !== null).reduce((acc: number, e: any) => acc + Number.parseFloat(e.jury_score), 0) / evaluatedCount).toFixed(1)
                   : '--'
               }
               icon={<Star />}
@@ -182,7 +182,7 @@ const JuryDashboard: React.FC = () => {
             <Button variant="link" className="extra-small fw-bold text-primary p-0 text-decoration-none transition-all hover-opacity-75" onClick={() => navigate('/jury/projects')}>Manage all projects</Button>
           </Card.Header>
           <div className="table-responsive">
-            {evaluations.length > 0 ? (
+            {(evaluations || []).length > 0 ? (
               <Table borderless hover className="align-middle mb-0">
                 <thead className="bg-surface-alt">
                   <tr className="border-bottom opacity-50">

@@ -9,7 +9,7 @@ import {
   Search, Trash2, Eye, Filter, FilePlus, X,
   MessageSquare, AlertCircle
 } from 'lucide-react';
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 
 const statusConfig = {
   approved: { color: 'success', icon: <CheckCircle size={14} />, label: 'Approved' },

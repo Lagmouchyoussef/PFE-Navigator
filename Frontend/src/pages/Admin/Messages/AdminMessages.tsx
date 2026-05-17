@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Badge, InputGroup, Dropdown } from 'react-bootstrap';
-import { 
-  Send, Search, Paperclip, Phone, Video, 
+import {
+  Send, Search, Paperclip, Phone, Video,
   User, Check, CheckCheck, MoreVertical
 } from 'lucide-react';
 import StatCard from '../../../components/shared/StatCard';
@@ -46,8 +46,8 @@ const AdminMessages: React.FC = () => {
                 <InputGroup.Text className="bg-transparent border-0 pe-1">
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
-                <Form.Control 
-                  placeholder="Search..." 
+                <Form.Control
+                  placeholder="Search..."
                   className="bg-transparent border-0 shadow-none small py-2 text-navy"
                 />
               </InputGroup>
@@ -55,8 +55,8 @@ const AdminMessages: React.FC = () => {
 
             <div className="flex-grow-1 overflow-auto conversations-list">
               {roles.map((conv) => (
-                <div 
-                  key={conv.id} 
+                <div
+                  key={conv.id}
                   className={`conv-item p-4 d-flex gap-3 align-items-center cursor-pointer border-bottom transition-all ${conv.id === activeRole ? 'active-conv' : 'hover-bg-surface'}`}
                   onClick={() => setActiveRole(conv.id)}
                 >
@@ -98,15 +98,15 @@ const AdminMessages: React.FC = () => {
                 </div>
               </div>
               <div className="d-flex gap-2">
-                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Phone size={20}/></Button>
-                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Video size={20}/></Button>
+                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Phone size={20} /></Button>
+                <Button variant="link" className="text-muted p-2 rounded-circle hover-bg-surface"><Video size={20} /></Button>
                 <Dropdown align="end">
                   <Dropdown.Toggle variant="link" className="p-1 text-muted shadow-none border-0 no-caret">
                     <MoreVertical size={20} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="shadow-lg border-0 rounded-3 extra-small glass-card">
-                    <Dropdown.Item className="fw-bold"><User size={14} className="me-2"/> View profile</Dropdown.Item>
-                    <Dropdown.Item className="fw-bold"><Search size={14} className="me-2"/> Search</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold"><User size={14} className="me-2" /> View profile</Dropdown.Item>
+                    <Dropdown.Item className="fw-bold"><Search size={14} className="me-2" /> Search</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item className="text-danger fw-bold">Block</Dropdown.Item>
                   </Dropdown.Menu>
@@ -122,9 +122,12 @@ const AdminMessages: React.FC = () => {
                     <p className="mb-0 small fw-bold">{msg.text}</p>
                   </div>
                   <div className="d-flex align-items-center gap-2 mt-1 px-2 extra-small text-muted fw-bold">
-                    {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {(() => {
+                      const d = new Date(msg.time || msg.created_at);
+                      return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    })()}
                     {msg.sender === 'admin' && (
-                      <CheckCheck size={14} className="text-primary"/>
+                      <CheckCheck size={14} className="text-primary" />
                     )}
                   </div>
                 </div>
@@ -140,24 +143,24 @@ const AdminMessages: React.FC = () => {
             <div className="p-3 px-4 border-top bg-surface">
               <div className="d-flex align-items-center gap-3">
                 <Button variant="link" className="p-2 text-muted rounded-circle hover-bg-surface" onClick={() => fileRef.current?.click()}>
-                  <Paperclip size={20}/>
+                  <Paperclip size={20} />
                   <input type="file" ref={fileRef} className="d-none" />
                 </Button>
                 <div className="flex-grow-1 position-relative">
-                  <Form.Control 
-                    placeholder="Type your message..." 
+                  <Form.Control
+                    placeholder="Type your message..."
                     className="rounded-pill border shadow-none px-4 py-2 bg-surface-alt text-navy"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                   />
                 </div>
-                <Button 
-                  className="btn-premium rounded-circle d-flex align-items-center justify-content-center p-0" 
+                <Button
+                  className="btn-premium rounded-circle d-flex align-items-center justify-content-center p-0"
                   style={{ width: '42px', height: '42px' }}
                   onClick={handleSend}
                 >
-                  <Send size={18}/>
+                  <Send size={18} />
                 </Button>
               </div>
             </div>

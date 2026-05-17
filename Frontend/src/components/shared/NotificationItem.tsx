@@ -20,7 +20,7 @@ const NOTIF_COLORS: Record<string, string> = {
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick, onMarkRead, onDelete }) => (
   <div
-    className={`notif-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative transition-all hover-bg-surface-alt ${!notif.read ? 'notif-unread' : ''}`}
+    className={`notif-item px-3 py-3 border-bottom-dashed-light d-flex gap-3 align-items-start position-relative transition-all hover-bg-surface-alt ${(!notif.read && !notif.is_read) ? 'notif-unread' : ''}`}
     onClick={onClick}
     style={{ cursor: 'pointer' }}
   >
@@ -32,12 +32,15 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick, onM
     <div className="flex-grow-1 overflow-hidden text-decoration-none">
       <div className="extra-small text-navy text-truncate mb-1 fw-bold">{notif.text}</div>
       <div className="extra-small text-muted fw-bold opacity-75">
-        {new Date(notif.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+        {(() => {
+          const d = new Date(notif.date || notif.created_at);
+          return isNaN(d.getTime()) ? '-' : d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        })()}
       </div>
     </div>
     
     <div className="d-flex flex-column align-items-end gap-2 ms-2">
-      {!notif.read && (
+      {(!notif.read && !notif.is_read) && (
         <span className="bg-primary rounded-circle mt-1" style={{ width: '6px', height: '6px' }} />
       )}
       <Dropdown align="end" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>

@@ -20,7 +20,7 @@ const JurySchedulePage = () => {
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Filter active defense appointments
-  const defenseAppointments = appointments.filter(app => (app.type === 'Defense' || app.type === 'Review') && app.status !== 'Cancelled');
+  const defenseAppointments = (appointments || []).filter(app => app && (app.type === 'Defense' || app.type === 'Review') && app.status !== 'Cancelled');
 
   return (
     <div className="jury-schedule-layout py-4">

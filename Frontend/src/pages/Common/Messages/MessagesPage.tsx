@@ -205,8 +205,11 @@ const MessagesPage: React.FC = () => {
                             <div className="small">{msg.content}</div>
                             <div className={`d-flex align-items-center gap-1 mt-1 ${isMine ? 'justify-content-end' : ''}`}
                               style={{ opacity: 0.7 }}>
-                              <span style={{ fontSize: '10px' }}>
-                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
+                                {(() => {
+                                  const d = new Date(msg.time || msg.created_at);
+                                  return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                })()}
                               </span>
                               {isMine && (msg.is_read ? <CheckCheck size={12} /> : <Check size={12} />)}
                             </div>

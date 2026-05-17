@@ -44,13 +44,16 @@ const StudentDetail = () => {
     startDate: '2025-10-15',
     endDate: '2026-06-30',
     description: currentStudent.description || 'No description available for this project yet.',
-    deliverables: studentDeliverables.map(d => ({
-      id: d.id,
-      name: d.title,
-      date: new Date(d.date).toLocaleDateString(),
-      status: d.status.charAt(0).toUpperCase() + d.status.slice(1),
-      size: d.size
-    })),
+    deliverables: (studentDeliverables || []).map(d => {
+      const dDate = new Date(d.date || d.created_at);
+      return {
+        id: d.id,
+        name: d.title || 'Untitled Document',
+        date: isNaN(dDate.getTime()) ? '-' : dDate.toLocaleDateString(),
+        status: (d.status || 'pending').charAt(0).toUpperCase() + (d.status || 'pending').slice(1),
+        size: d.size || '--'
+      };
+    }),
     milestones: [
       { id: 1, title: 'Topic Validation', date: '2025-10-20', completed: true },
       { id: 2, title: 'Analysis & Design', date: '2026-01-05', completed: currentStudent.progress > 30 },

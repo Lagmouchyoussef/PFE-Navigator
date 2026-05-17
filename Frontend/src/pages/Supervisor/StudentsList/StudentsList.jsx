@@ -75,7 +75,8 @@ const StudentsList = () => {
     }, 800);
   };
 
-  const filteredStudents = STUDENTS_DATA.filter(student => {
+  const filteredStudents = (STUDENTS_DATA || []).filter(student => {
+    if (!student) return false;
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          student.project.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || student.status === filterStatus;
@@ -192,7 +193,7 @@ const StudentsList = () => {
             <Col md={3} lg={6} className="text-md-end">
               <div className="d-flex justify-content-md-end gap-3 align-items-center">
                 <span className="extra-small text-muted fw-bold opacity-75">
-                  Showing <strong>{filteredStudents.length}</strong> of {STUDENTS_DATA.length} students
+                  Showing <strong>{filteredStudents.length}</strong> of {(STUDENTS_DATA || []).length} students
                 </span>
               </div>
             </Col>
@@ -246,7 +247,7 @@ const StudentsList = () => {
                              {student.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="fw-bold small text-navy">{student.name}</div>
+                            <div className="fw-bold small text-navy">{student.name || 'Unknown Student'}</div>
                             <div className="extra-small text-muted d-flex align-items-center gap-1 fw-bold opacity-75">
                               <Mail size={12} className="text-primary" /> {student.email}
                             </div>
@@ -340,7 +341,7 @@ const StudentsList = () => {
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">Current academic year</p>
                 </div>
               </div>
-              <div className="h3 fw-bold text-navy mb-2">{STUDENTS_DATA.length} Students</div>
+              <div className="h3 fw-bold text-navy mb-2">{(STUDENTS_DATA || []).length} Students</div>
               <ProgressBar now={(STUDENTS_DATA.length / 20) * 100} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
               <div className="extra-small text-muted fw-bold">{Math.round((STUDENTS_DATA.length / 20) * 100)}% Capacity Utilized</div>
             </Card>
@@ -357,7 +358,7 @@ const StudentsList = () => {
                 </div>
               </div>
               <div className="h3 fw-bold text-navy mb-2">
-                {STUDENTS_DATA.length > 0 ? (STUDENTS_DATA.filter(s => s.status === 'Validated').length / STUDENTS_DATA.length * 100).toFixed(1) : '0.0'}%
+                {(STUDENTS_DATA || []).length > 0 ? ((STUDENTS_DATA || []).filter(s => s && s.status === 'Validated').length / (STUDENTS_DATA || []).length * 100).toFixed(1) : '0.0'}%
               </div>
               <div className="extra-small text-success fw-bold d-flex align-items-center gap-1">
                 <TrendingUp size={14} /> Tracking in real-time
@@ -520,7 +521,12 @@ const StudentsList = () => {
                           <span className="small fw-bold text-navy">{doc.title}</span>
                         </div>
                       </td>
-                      <td className="py-3 small text-muted">{new Date(doc.date).toLocaleDateString()}</td>
+                      <td className="py-3 small text-muted">
+                        {(() => {
+                          const d = new Date(doc.date || doc.created_at);
+                          return isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
+                        })()}
+                      </td>
                       <td className="py-3 small text-muted">{doc.size}</td>
                       <td className="px-4 py-3 text-end">
                         <Button variant="link" className="p-1 text-primary shadow-none border-0"><Download size={18}/></Button>

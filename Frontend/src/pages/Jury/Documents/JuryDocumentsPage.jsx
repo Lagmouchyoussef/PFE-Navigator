@@ -5,7 +5,7 @@ import {
   Search, FileText, Download, Eye, CheckCircle, XCircle, 
   Clock, Archive, ChevronRight, Inbox, AlertCircle, X
 } from 'lucide-react';
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 
 const JuryDocumentsPage = () => {
   const { documents = [], approveDocument, rejectDocument } = useApp();
@@ -23,10 +23,10 @@ const JuryDocumentsPage = () => {
   });
 
   const stats = {
-    total: documents.length,
-    pending: documents.filter(d => d.status === 'pending').length,
-    approved: documents.filter(d => d.status === 'approved').length,
-    rejected: documents.filter(d => d.status === 'rejected').length,
+    total: (documents || []).length,
+    pending: (documents || []).filter(d => d && d.status === 'pending').length,
+    approved: (documents || []).filter(d => d && d.status === 'approved').length,
+    rejected: (documents || []).filter(d => d && d.status === 'rejected').length,
   };
 
   const handleApprove = (id) => {
@@ -129,7 +129,7 @@ const JuryDocumentsPage = () => {
                     <td className="py-4">
                       <div className="d-flex align-items-center gap-2">
                         <div className="avatar-xs bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
-                          {(doc.student_name || doc.uploaded_by_name || 'S').split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                          {(doc.student_name || doc.uploaded_by_name || 'S').split(' ').map((n) => n[0]).join('').toUpperCase()}
                         </div>
                         <span className="extra-small fw-bold text-navy opacity-75">{doc.student_name || doc.uploaded_by_name || 'Student'}</span>
                       </div>

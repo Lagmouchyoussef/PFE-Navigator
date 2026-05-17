@@ -10,13 +10,13 @@ const StatusDistribution: React.FC = () => {
   const { students } = useApp();
   
   const statusCounts = {
-    'Validated': students.filter((s: any) => s.status === 'Validated').length,
-    'In Progress': students.filter((s: any) => s.status === 'In Progress').length,
-    'Rejected': students.filter((s: any) => s.status === 'Rejected').length,
-    'Pending': students.filter((s: any) => s.status === 'Pending').length,
+    'Validated': (students || []).filter((s: any) => s && s.status === 'Validated').length,
+    'In Progress': (students || []).filter((s: any) => s && s.status === 'In Progress').length,
+    'Rejected': (students || []).filter((s: any) => s && s.status === 'Rejected').length,
+    'Pending': (students || []).filter((s: any) => s && s.status === 'Pending').length,
   };
 
-  const total = students.length || 1;
+  const total = (students || []).length || 1;
 
   const data = [
     { name: 'Validated', value: statusCounts['Validated'], color: 'var(--color-success)' },
@@ -48,7 +48,7 @@ const StatusDistribution: React.FC = () => {
           </PieChart>
         </ResponsiveContainer>
         <div className="position-absolute text-center">
-          <div className="h3 fw-black mb-0 text-navy">{students.length}</div>
+          <div className="h3 fw-black mb-0 text-navy">{(students || []).length}</div>
           <div className="extra-small text-muted fw-bold uppercase">Projects</div>
         </div>
       </div>

@@ -25,16 +25,20 @@ const AdminDashboard: React.FC = () => {
   const SUBMISSION_DATA = React.useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const counts = new Array(12).fill(0);
-    projects.forEach((p: any) => {
+    (projects || []).forEach((p: any) => {
+      if (!p) return;
       const d = new Date(p.created_at || Date.now());
-      counts[d.getMonth()]++;
+      if (!isNaN(d.getTime())) {
+        counts[d.getMonth()]++;
+      }
     });
     return months.map((m, i) => ({ name: m, count: counts[i] }));
   }, [projects]);
 
   const STATUS_DATA = React.useMemo(() => {
     const statusMap: Record<string, number> = {};
-    projects.forEach((p: any) => {
+    (projects || []).forEach((p: any) => {
+      if (!p) return;
       const st = p.status || 'pending';
       statusMap[st] = (statusMap[st] || 0) + 1;
     });

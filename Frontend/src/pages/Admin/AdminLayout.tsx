@@ -66,7 +66,17 @@ const AdminLayout: React.FC = () => {
     }
   };
 
-  const adminUnreadMsgCount = unreadCountForRole ? unreadCountForRole('admin') : 0;
+  const adminUnreadMsgCount = typeof unreadCountForRole === 'function' ? unreadCountForRole('admin') : 0;
+  const localUnreadNotifs = Array.isArray(notifications) ? notifications.filter(n => n && !n.is_read && !n.read).length : 0;
+  const recentNotifs = Array.isArray(notifications) ? notifications.filter(n => n).slice(0, 4) : [];
+  const safeMessages = Array.isArray(messages) ? messages : [];
+  const adminUnreadMessages = safeMessages.filter(m => m && m.sender !== 'admin').slice(0, 4);
+
+  const formatDateSafe = (dateStr: string | undefined | null) => {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ principal: true, communication: true });
   const toggleGroup = (key: string) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -247,23 +257,25 @@ const AdminLayout: React.FC = () => {
                     <MoreVertical size={16} className="text-muted cursor-pointer" />
                   </div>
                 </div>
-                <div className="p-0 overflow-y-auto" style={{ maxHeight: '400px' }}>
-                  {messages.filter(m => m.sender !== 'admin').length === 0 ? (
-                    <div className="p-4 text-center text-muted extra-small fw-bold">No new messages</div>
+                <div className="message-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                  {adminUnreadMessages.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-muted small">No new messages</div>
                   ) : (
-                    messages.filter(m => m.sender !== 'admin').slice(0, 3).map(msg => (
+                    adminUnreadMessages.map(msg => (
                       <div key={msg.id} className="px-3 py-3 border-bottom d-flex gap-3 position-relative transition-all"
                         style={{ cursor: 'default' }}
                         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-alt)')}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                       >
-                        <div className="avatar-circle small flex-shrink-0" style={{ width: '32px', height: '32px', background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}>
-                          {msg.sender?.charAt(0).toUpperCase()}
+                        <div className="avatar-circle extra-small bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '32px', height: '32px' }}>
+                          {String(msg.sender_role || msg.sender || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div className="overflow-hidden flex-grow-1">
                           <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="fw-bold extra-small text-navy text-capitalize">{msg.sender}</span>
-                            <span className="extra-small text-muted" style={{ fontSize: '10px' }}>{new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="fw-bold extra-small text-navy text-capitalize">{String(msg.sender_role || msg.sender || 'User')}</span>
+                              <span className="extra-small text-muted" style={{ fontSize: '10px' }}>
+                                {formatDateSafe(msg.time)}
+                              </span>
                           </div>
                           <p className="extra-small text-muted text-truncate mb-0 fw-bold">{msg.text}</p>
                         </div>

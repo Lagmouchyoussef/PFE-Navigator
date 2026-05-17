@@ -1,320 +1,183 @@
-# System Architecture
+# Architecture du Projet - Scientific Research Portal
 
-## Overview
+## Vue d'ensemble
 
-The Scientific Research Portal follows a modern, layered architecture pattern with clear separation of concerns between backend and frontend components.
-
-## Backend Architecture
-
-### Layered Structure
-
-```
-┌─────────────────────────────────────────────┐
-│         REST API (Django REST Framework)    │
-├─────────────────────────────────────────────┤
-│         Views/ViewSets (Request Handling)   │
-├─────────────────────────────────────────────┤
-│    Serializers (Data Validation & Formatting)│
-├─────────────────────────────────────────────┤
-│  Business Logic (Services/Managers Layer)   │
-├─────────────────────────────────────────────┤
-│     Models (Data Persistence Layer)         │
-├─────────────────────────────────────────────┤
-│    Database (SQLite/PostgreSQL)             │
-└─────────────────────────────────────────────┘
-```
-
-### Core Components
-
-#### 1. Core Configuration (`Backend/core/`)
-- **settings.py** - Django configuration (environment-based)
-- **urls.py** - Main URL routing
-- **wsgi.py** - WSGI application entry point
-- **asgi.py** - ASGI application entry point (async support)
-
-#### 2. Applications (`Backend/apps/`)
-
-Each application follows Django best practices with:
-- `models.py` - Database models
-- `views.py` - Request handlers (ViewSets)
-- `serializers.py` - Data serialization/validation
-- `urls.py` - Application-specific routing
-- `admin.py` - Django admin configuration
-- `tests.py` - Unit tests
-- `migrations/` - Database migrations
-
-**Applications:**
-- `core/` - Shared functionality and utilities
-- `users/` - User management and authentication
-- `students/` - Student profiles and data
-- `supervisors/` - Supervisor profiles and data
-- `juries/` - Jury member profiles and data
-- `projects/` - Project management and evaluations
-
-#### 3. Shared Utilities (`Backend/shared/`)
-- `exceptions.py` - Custom exception classes
-- `permissions.py` - Role-based permission classes
-- `middleware.py` - Custom middleware
-- `serializers.py` - Base serializer classes
-- `utils.py` - Utility functions
-
-### Database Schema
-
-#### User Relationships
-```
-User (Base)
-├── Student (OneToOne)
-├── Supervisor (OneToOne)
-└── Jury (OneToOne)
-```
-
-#### Project Flow
-```
-Project
-├── Student (ForeignKey)
-├── Supervisor (ForeignKey)
-└── Evaluation (OneToOne)
-    └── Jury/Evaluator (ForeignKey)
-```
-
-### API Design
-
-**RESTful Endpoints Structure:**
-```
-/api/
-├── auth/
-│   ├── login/
-│   └── logout/
-├── students/
-│   └── {id}/projects/
-├── supervisors/
-│   └── {id}/students/
-├── juries/
-│   └── {id}/evaluations/
-└── projects/
-    ├── {id}/submit/
-    └── {id}/evaluate/
-```
-
-**Response Format:**
-```json
-{
-  "success": true,
-  "message": "Operation successful",
-  "data": { /* Response data */ },
-  "errors": null
-}
-```
-
-## Frontend Architecture
-
-### Module-Based Structure
-
-```
-src/
-├── modules/           # Feature modules (feature-based organization)
-│   ├── auth/         # Authentication
-│   ├── dashboard/    # Dashboard views
-│   ├── students/     # Student module
-│   ├── supervisors/  # Supervisor module
-│   ├── juries/       # Jury module
-│   ├── projects/     # Project management
-│   └── admin/        # Admin panel
-│
-├── common/           # Shared across modules
-│   ├── components/   # Reusable components
-│   ├── hooks/        # Custom React hooks
-│   ├── services/     # API services
-│   ├── types/        # TypeScript types
-│   └── utils/        # Utility functions
-│
-├── config/           # Application configuration
-│   ├── constants.ts  # App constants
-│   └── endpoints.ts  # API endpoints
-│
-├── context/          # Global state management
-├── styles/           # Global styles
-├── App.tsx           # Root component
-└── main.tsx          # Application entry
-```
-
-### Component Hierarchy
-
-```
-App
-├── Router Setup
-│   ├── Login (Anonymous)
-│   ├── Student Dashboard
-│   │   ├── ProjectList
-│   │   ├── Evaluation
-│   │   └── Schedule
-│   ├── Supervisor Dashboard
-│   ├── Jury Dashboard
-│   └── Admin Dashboard
-└── Context Providers
-    └── AppProvider (Global State)
-```
-
-### State Management
-
-**Global State (Context API):**
-- User authentication state
-- Notifications
-- Theme (Light/Dark)
-- User permissions
-
-**Local State (React Hooks):**
-- Component-specific data
-- Form state
-- UI state (modals, dropdowns)
-
-### Service Layer
-
-**API Service (`common/services/api.ts`):**
-- Centralized API communication
-- Request/response interceptors
-- Error handling
-- Authentication headers
-
-**Custom Hooks:**
-- `useAuth` - Authentication logic
-- `useNotifications` - Notification handling
-- `useForm` - Form management
-- `useFetch` - Data fetching
-
-## Data Flow
-
-### Authentication Flow
-```
-Login Form
-    ↓
-API Request (POST /api/auth/login/)
-    ↓
-Backend Validation
-    ↓
-Token Generation
-    ↓
-Store Token & User Data (Context)
-    ↓
-Redirect to Dashboard
-```
-
-### Project Submission Flow
-```
-Project Form
-    ↓
-Validation (Frontend + Backend)
-    ↓
-API Request (POST /api/projects/)
-    ↓
-Database Update
-    ↓
-Notification (Email + In-App)
-    ↓
-Update UI State
-```
-
-## Security Architecture
-
-### Backend Security Layers
-1. **CORS Middleware** - Cross-origin request validation
-2. **CSRF Protection** - Token-based protection
-3. **Authentication** - Token or Session-based
-4. **Authorization** - Role-based permissions
-5. **Input Validation** - Serializer-level validation
-6. **SQL Injection Prevention** - ORM usage
-
-### Frontend Security
-1. **HTTPS** - Encrypted communication
-2. **Token Storage** - Secure token management
-3. **XSS Protection** - React's built-in escaping
-4. **CSRF Tokens** - Included in requests
-5. **Input Sanitization** - Client-side validation
-
-## Deployment Architecture
-
-### Development Environment
-```
-Client (localhost:5173)
-    ↓ HTTP
-Server (localhost:8000)
-    ↓
-SQLite Database
-```
-
-### Production Environment
-```
-CDN (Static Files)
-    ↓
-Nginx (Reverse Proxy)
-    ↓
-Docker Container (Django App)
-    ↓
-PostgreSQL Database
-```
-
-## Performance Considerations
-
-### Backend Optimization
-- Database query optimization with `select_related()` and `prefetch_related()`
-- Pagination for list endpoints
-- Caching strategies for frequently accessed data
-- Async task processing for heavy operations
-
-### Frontend Optimization
-- Code splitting and lazy loading
-- Image optimization
-- CSS-in-JS for dynamic styling
-- Component memoization for expensive renders
-- API response caching
-
-## Scalability Design
-
-### Horizontal Scaling
-- Stateless backend services
-- Database replication
-- Load balancing
-- Session management via Redis
-
-### Vertical Scaling
-- Database indexing
-- Query optimization
-- Caching layers
-- Background job processing
-
-## Error Handling
-
-### Backend Error Handling
-```python
-# Custom exception classes
-- InvalidCredentialsException (401)
-- InsufficientPermissionsException (403)
-- ResourceNotFoundException (404)
-- ValidationException (400)
-- ConflictException (409)
-```
-
-### Frontend Error Handling
-- API error catching
-- User-friendly error messages
-- Error logging
-- Retry mechanisms
-
-## Testing Strategy
-
-### Backend Testing
-- Unit tests (models, serializers)
-- Integration tests (views, endpoints)
-- Permission tests (authorization)
-- Database tests (migrations)
-
-### Frontend Testing
-- Component unit tests
-- Integration tests
-- E2E tests
-- Visual regression tests
+Application web fullstack pour la gestion de projets de recherche scientifique avec authentification par rôles.
 
 ---
 
-**Architecture Version**: 1.0  
-**Last Updated**: December 2024
+## Architecture Backend (Django/Python)
+
+```
+Backend/
+├── core/                    # Configuration principale
+│   ├── settings.py          # Django settings (DRF, CORS, JWT)
+│   ├── urls.py              # URL routing principal
+│   └── wsgi/asgi.py
+│
+├── apps/
+│   ├── users/               # Authentification & gestion utilisateurs
+│   │   ├── models.py        # User (AbstractUser) - roles: admin, supervisor, jury, student
+│   │   ├── views.py
+│   │   ├── serializers.py
+│   │   └── urls.py
+│   │
+│   ├── students/            # Profils étudiants
+│   │   └── models.py        # Student (enrollment_number, specialization, academic_year)
+│   │
+│   ├── supervisors/         # Profils superviseurs
+│   │   └── models.py        # Supervisor (employee_id, department, specialization_areas)
+│   │
+│   ├── juries/              # Profils membres jury
+│   │   └── models.py        # Jury (employee_id, expertise_areas, institution)
+│   │
+│   ├── projects/            # Gestion des projets de recherche
+│   │   └── models.py
+│   │       ├── Project              # title, description, status, student, supervisor
+│   │       ├── JuryAssignment       # Assignment jury → projet
+│   │       ├── ProjectMilestone     # Étapes du projet
+│   │       ├── Document             # Fichiers (target: supervisor/jury/admin)
+│   │       ├── DocumentRemark       # Commentaires/notes sur documents
+│   │       ├── Appointment          # Réunions/deadlines
+│   │       ├── Evaluation           # Scores (supervisor + jury avec poids)
+│   │       └── Feedback             # Retours des évaluateurs
+│   │
+│   ├── communications/      # Système de messagerie
+│   │   └── models.py
+│   │       ├── Message              # Messages directs entre utilisateurs
+│   │       ├── Notification         # Notifications système (info, success, warning, error, grade, document...)
+│   │       ├── AdministrativeNote    # Notes publiées par admin (audience: all/students/supervisors/juries)
+│   │       └── Resource             # Ressources partagées (type: report/template/guide/project)
+│   │
+│   ├── student/             # API endpoints étudiants
+│   ├── supervisor/          # API endpoints superviseurs
+│   ├── jury/                # API endpoints jury
+│   └── administration/      # API endpoints administration
+│
+├── shared/                  # Code partagé
+│   ├── permissions.py
+│   ├── utils.py
+│   └── middleware.py
+│
+├── seed_*.py                # Scripts de seed
+└── manage.py
+```
+
+### Modèle de données principal
+
+```
+User (AUTH_USER_MODEL)
+├── Student (OneToOne) → projects (ForeignKey)
+├── Supervisor (OneToOne)
+└── Jury (OneToOne)
+
+Project
+├── JuryAssignment (jury_member → User, role)
+├── ProjectMilestone (title, status, due_date, order)
+├── Document (file, target, status, version)
+├── DocumentRemark (author → User, comment, score)
+├── Appointment (title, date, time, type, status)
+├── Evaluation (supervisor_score, jury_score, final_score)
+└── Feedback (author → User, title, comment)
+
+Message (sender → User, recipient → User, content)
+Notification (recipient → User, type, title, message)
+AdministrativeNote (author → User, audience)
+Resource (uploaded_by → User, type, file/url)
+```
+
+---
+
+## Architecture Frontend (React/TypeScript/Vite)
+
+```
+Frontend/
+├── src/
+│   ├── App.tsx              # Routing principal avec React Router v7
+│   ├── main.tsx             # Entry point
+│   │
+│   ├── components/
+│   │   ├── shared/          # Composants réutilisables
+│   │   │   ├── SidebarLink.tsx
+│   │   │   ├── NotificationItem.tsx
+│   │   │   └── StatCard.tsx
+│   │   └── features/        # Composants métier
+│   │       ├── student/
+│   │       ├── supervisor/
+│   │       └── jury/
+│   │
+│   ├── pages/
+│   │   ├── Auth/
+│   │   │   └── Login/       # LoginPage, AdminLoginPage
+│   │   ├── Student/
+│   │   │   └── Dashboard/
+│   │   ├── Supervisor/
+│   │   │   ├── Dashboard/, StudentsList/, Planning/, Evaluations/, Messages/
+│   │   ├── Jury/
+│   │   │   └── Dashboard/, Projects/, Schedule/, Evaluation/, Documents/
+│   │   ├── Admin/
+│   │   │   ├── Dashboard/, Users/, Projects/, Jury/, Analytics/, Resources/
+│   │   └── Common/
+│   │       ├── Messages/, Notifications/, Settings/, AdministrativeNotes/
+│   │
+│   ├── api/                 # Clients API
+│   │   ├── auth.ts
+│   │   ├── client.ts
+│   │   ├── students.ts
+│   │   ├── supervisors.ts
+│   │   ├── projects.ts
+│   │   └── communications.ts
+│   │
+│   ├── context/
+│   │   └── AppContext.tsx   # State global (user, theme, notifications, messages)
+│   │
+│   ├── types/
+│   │   └── index.ts         # Types TypeScript (UserRole, etc.)
+│   │
+│   └── config/
+│       ├── endpoints.ts     # URLs API
+│       └── constants.ts
+│
+├── package.json             # React 19, Vite 8, TypeScript 6
+└── vite.config.ts
+```
+
+---
+
+## Stack Technique
+
+### Backend
+- Framework: Django 6+, Django REST Framework
+- Base de données: SQLite (développement), extensible à PostgreSQL
+- Auth: Token Authentication, Session Authentication
+- Middleware: CORS, Security headers
+
+### Frontend
+- Framework: React 19 + TypeScript 6 + Vite 8
+- UI: React Bootstrap 5, Framer Motion
+- Icons: Lucide React
+- Charts: Recharts
+- Routing: React Router v7
+
+---
+
+## API Endpoints Principaux
+
+```
+/api/auth/          # Authentification (login, logout, register)
+/api/users/         # Gestion utilisateurs
+/api/students/      # CRUD étudiants
+/api/supervisors/   # CRUD superviseurs
+/api/juries/        # CRUD jury
+/api/projects/      # CRUD projets + documents + évaluations + rendez-vous
+/api/communications/ # Messages, notifications, ressources, notes admin
+```
+
+---
+
+## Fonctionnalités clés
+
+- Étudiants: Soumission documents, suivi milestones, réception feedback
+- Superviseurs: Évaluation documents, planification, suivi étudiants
+- Jury: Évaluation finale projets, notation
+- Admin: Gestion utilisateurs, ressources, analytics, notes administratives

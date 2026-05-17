@@ -8,7 +8,7 @@ import {
   ClipboardCheck, Clock, CheckCircle, AlertCircle,
   Send, FileText, Edit3, Target, Award, X
 } from 'lucide-react';
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 
 const CRITERIA = [
   { id: 'innovation',   label: 'Innovation' },
@@ -59,7 +59,7 @@ const JuryEvaluationPage = () => {
     setTimeout(() => setSuccessMsg(''), 5000);
   };
 
-  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
+  const projectMap = Object.fromEntries((projects || []).map(p => [p.id, p]));
 
   const openEval = (ev) => {
     setSelectedEval(ev);
@@ -88,11 +88,11 @@ const JuryEvaluationPage = () => {
     }
   };
 
-  const evaluated = evaluations.filter(e => e.jury_score !== null);
-  const pending   = evaluations.filter(e => e.jury_score === null);
+  const evaluated = (evaluations || []).filter(e => e && e.jury_score !== null);
+  const pending   = (evaluations || []).filter(e => e && e.jury_score === null);
 
   const stats = [
-    { label: 'Total Assigned', value: evaluations.length, color: 'primary',  icon: <ClipboardCheck size={28} /> },
+    { label: 'Total Assigned', value: (evaluations || []).length, color: 'primary',  icon: <ClipboardCheck size={28} /> },
     { label: 'Evaluated',      value: evaluated.length,   color: 'success',  icon: <CheckCircle size={28} /> },
     { label: 'Pending',        value: pending.length,      color: 'warning',  icon: <Clock size={28} /> },
   ];

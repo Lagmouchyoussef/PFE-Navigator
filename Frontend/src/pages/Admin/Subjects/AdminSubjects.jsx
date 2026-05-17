@@ -95,9 +95,9 @@ const AdminSubjects = () => {
     }, 800);
   };
 
-  const filteredProposals = proposals.filter(p => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.supervisor.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProposals = (proposals || []).filter(p => 
+    (p?.title || p?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (p?.supervisor || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusStyle = (status) => {

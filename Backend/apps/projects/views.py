@@ -437,17 +437,20 @@ class ProjectSubjectsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        subjects = [
-            {"id": 1, "name": "Artificial Intelligence"},
-            {"id": 2, "name": "Web Development"},
-            {"id": 3, "name": "Mobile Development"},
-            {"id": 4, "name": "Cloud Computing"},
-            {"id": 5, "name": "Data Science"},
-            {"id": 6, "name": "Cybersecurity"},
-            {"id": 7, "name": "IoT & Embedded Systems"},
-            {"id": 8, "name": "Software Engineering"},
-        ]
-        return Response(subjects)
+        projects = Project.objects.all().select_related('supervisor', 'student__user')
+        data = []
+        for p in projects:
+            data.append({
+                "id": p.id,
+                "title": p.title,
+                "description": p.description,
+                "supervisor": p.supervisor.get_full_name() if p.supervisor else "Unassigned",
+                "category": "General", # Could be added to model if needed
+                "difficulty": "Intermediate", # Could be added to model if needed
+                "status": p.status.capitalize(),
+                "date": p.created_at.strftime("%Y-%m-%d")
+            })
+        return Response(data)
 
 
 class ProjectRepositoryView(APIView):

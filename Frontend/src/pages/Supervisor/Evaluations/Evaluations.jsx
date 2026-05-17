@@ -54,10 +54,10 @@ const Evaluations = () => {
   };
 
   // Map evaluation → project for title/student name
-  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
+  const projectMap = Object.fromEntries((projects || []).filter(p => p && p.id).map(p => [p.id, p]));
 
-  const evaluated  = evaluations.filter(e => e.supervisor_score !== null);
-  const pending    = evaluations.filter(e => e.supervisor_score === null);
+  const evaluated  = (evaluations || []).filter(e => e && e.supervisor_score !== null);
+  const pending    = (evaluations || []).filter(e => e && e.supervisor_score === null);
 
   return (
     <div className="evaluations-page-layout py-4">

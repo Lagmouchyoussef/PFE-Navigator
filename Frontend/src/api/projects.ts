@@ -38,6 +38,9 @@ export const projectsApi = {
     const res = await fetchClient.patch(`/projects/projects/${id}/`, data);
     return res.data;
   },
+  delete: async (id: number) => {
+    await fetchClient.delete(`/projects/projects/${id}/`);
+  },
   getSubjects: async () => {
     const res = await fetchClient.get('/projects/subjects/');
     return res.data;

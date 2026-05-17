@@ -10,7 +10,7 @@ import {
   Edit, Eye, X, ChevronRight, Activity, Clock
 } from 'lucide-react';
 
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 
 const PROJECTS_DATA = [];
 
@@ -21,9 +21,9 @@ const JuryProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
+  const projectMap = Object.fromEntries((projects || []).map(p => [p.id, p]));
 
-  const rows = evaluations.map(ev => {
+  const rows = (evaluations || []).map(ev => {
     const proj = projectMap[ev.project] || {};
     return {
       id: ev.id,
@@ -42,9 +42,9 @@ const JuryProjectsPage = () => {
   );
 
   const stats = [
-    { label: 'Total Assigned',     value: evaluations.length.toString(),                                    color: 'primary' },
-    { label: 'Pending Evaluation', value: evaluations.filter(e => e.jury_score === null).length.toString(), color: 'warning' },
-    { label: 'Evaluated',          value: evaluations.filter(e => e.jury_score !== null).length.toString(), color: 'success' },
+    { label: 'Total Assigned',     value: (evaluations || []).length.toString(),                                    color: 'primary' },
+    { label: 'Pending Evaluation', value: (evaluations || []).filter(e => e && e.jury_score === null).length.toString(), color: 'warning' },
+    { label: 'Evaluated',          value: (evaluations || []).filter(e => e && e.jury_score !== null).length.toString(), color: 'success' },
   ];
 
   return (

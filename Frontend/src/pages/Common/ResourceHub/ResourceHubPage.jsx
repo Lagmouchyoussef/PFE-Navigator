@@ -9,7 +9,7 @@ import {
   File, Folder, Layers, Book, History, MoreVertical,
   ExternalLink, TrendingUp, Filter, CheckCircle, X
 } from 'lucide-react';
-import { useApp } from '../../../context/AppContext.jsx';
+import { useApp } from '../../../context/AppContext';
 
 
 const ResourceHubPage = () => {

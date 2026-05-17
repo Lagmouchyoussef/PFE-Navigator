@@ -230,7 +230,7 @@ const LoginPage: React.FC = () => {
               <label>{roleConfigs[currentRole].emailLabel}</label>
               <div className="input-wrapper">
                 <input
-                  type="email"
+                  type="text"
                   id="emailInput"
                   className="form-input"
                   placeholder={roleConfigs[currentRole].emailPlaceholder}

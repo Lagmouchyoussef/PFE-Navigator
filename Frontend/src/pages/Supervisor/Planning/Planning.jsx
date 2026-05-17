@@ -16,9 +16,14 @@ import { useNavigate } from 'react-router-dom';
 const Planning = () => {
   const navigate = useNavigate();
   const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder, projects } = useApp();
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const formatDateSafe = (dateStr) => {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('en-US', {month: 'short'}).toUpperCase();
+  };
 
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -49,7 +54,8 @@ const Planning = () => {
     handleAction(`The appointment with ${selectedEvent.student_name || selectedEvent.created_by_name || 'Student'} has been rescheduled to ${newDate} at ${newTime}.`);
   };
 
-  const filteredAppointments = appointments.filter(app => {
+  const filteredAppointments = (appointments || []).filter(app => {
+    if (!app || !app.date) return false;
     if (viewMode === 'month') return true;
     // For 'week', show only events in May 2026 within a certain range (demo logic)
     const day = parseInt(app.date.split('-')[2]);
@@ -144,9 +150,9 @@ const Planning = () => {
               <hr className="opacity-10" />
               <div className="upcoming-summary mt-4">
                 <h6 className="extra-small fw-bold text-navy text-uppercase mb-3 opacity-50">Daily Reminders</h6>
-                {reminders.map(r => (
+                { (reminders || []).map(r => (
                   <div key={r.id} className="d-flex align-items-center gap-3 mb-3">
-                    <div className={`text-${r.type}`}><Clock size={16} /></div>
+                    <div className={`text-${r.type || 'primary'}`}><Clock size={16} /></div>
                     <div className="extra-small fw-bold text-navy opacity-75">{r.text} • {r.time}</div>
                   </div>
                 ))}
@@ -195,7 +201,7 @@ const Planning = () => {
                       <Row className="align-items-center">
                         <Col md={2} className="text-center text-md-start border-md-end mb-3 mb-md-0">
                           <div className="fw-bold text-navy h4 mb-0">{event.date.split('-')[2]}</div>
-                          <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{new Date(event.date).toLocaleDateString('en-US', {month: 'short'}).toUpperCase()}</div>
+                          <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{formatDateSafe(event.date)}</div>
                         </Col>
                         <Col md={6}>
                           <div className="d-flex align-items-center gap-2 mb-1">
@@ -333,7 +339,7 @@ const Planning = () => {
                 onChange={(e) => setNewEvent({...newEvent, target: e.target.value})}
               >
                 <option value="all">All supervised students</option>
-                {projects.filter(p => p.student).map(p => (
+                {(projects || []).filter(p => p && p.student).map(p => (
                   <option key={p.student.id} value={p.student.id}>{p.student.name}</option>
                 ))}
                 <option value="group">Specific Group...</option>
@@ -348,7 +354,7 @@ const Planning = () => {
               >
                 <Form.Label className="extra-small fw-bold text-navy opacity-75 mb-3">SELECT STUDENTS</Form.Label>
                 <div className="d-flex flex-column gap-2">
-                  {projects.filter(p => p.student).map(p => (
+                  {(projects || []).filter(p => p && p.student).map(p => (
                     <Form.Check
                       key={p.student.id}
                       type="checkbox"
@@ -361,7 +367,7 @@ const Planning = () => {
                           ...prev,
                           selectedStudents: checked
                             ? [...prev.selectedStudents, p.student.id]
-                            : prev.selectedStudents.filter(id => id !== p.student.id)
+                            : (prev.selectedStudents || []).filter(id => id !== p.student.id)
                         }));
                       }}
                     />

@@ -144,10 +144,10 @@ const AdminLoginPage: React.FC = () => {
               <label>Admin Email / ID</label>
               <div className="input-wrapper">
                 <input
-                  type="email"
+                  type="text"
                   id="emailInput"
                   className="form-input"
-                  placeholder="admin@emsi.ma"
+                  placeholder="admin@emsi.ma or Admin ID"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
