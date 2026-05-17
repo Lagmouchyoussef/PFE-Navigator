@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  GraduationCap, UserCog, Users, Shield, 
-  Mail, Lock, Eye, EyeOff, 
-  Check, AlertCircle, CheckCircle2, Layout, BookOpen, 
-  Award, ShieldCheck
-} from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { UserRole } from '../../../types';
-import { Link } from 'react-router-dom';
 import './LoginPage.css';
 
 const LoginPage: React.FC = () => {
@@ -16,9 +10,7 @@ const LoginPage: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<UserRole>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [studentId, setStudentId] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isRemembered, setIsRemembered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -29,67 +21,16 @@ const LoginPage: React.FC = () => {
   const [isSendingReset, setIsSendingReset] = useState(false);
 
   useEffect(() => {
-    // Focus email input on mount
-    const timer = setTimeout(() => {
-      const emailInput = document.getElementById('emailInput');
-      if (emailInput) emailInput.focus();
-    }, 500);
-    return () => clearTimeout(timer);
+    const emailInput = document.getElementById('emailInput');
+    if (emailInput) emailInput.focus();
   }, []);
-
-  const roleConfigs = {
-    student: {
-      color: '#3b82f6',
-      badgeBg: '#dbeafe',
-      badgeColor: '#1e40af',
-      emailLabel: 'Email or Student ID',
-      emailPlaceholder: 'Enter your email or student ID',
-      showId: true,
-      btnText: 'Sign In as Student',
-      successRole: 'Student',
-      icon: <GraduationCap size={24} />
-    },
-    supervisor: {
-      color: '#8b5cf6',
-      badgeBg: '#ede9fe',
-      badgeColor: '#5b21b6',
-      emailLabel: 'Faculty Email',
-      emailPlaceholder: 'Enter your faculty email',
-      showId: false,
-      btnText: 'Sign In as Supervisor',
-      successRole: 'Supervisor',
-      icon: <Users size={24} />
-    },
-    jury: {
-      color: '#f59e0b',
-      badgeBg: '#fef3c7',
-      badgeColor: '#92400e',
-      emailLabel: 'Committee Email',
-      emailPlaceholder: 'Enter your committee email',
-      showId: false,
-      btnText: 'Sign In as Jury Member',
-      successRole: 'Jury Member',
-      icon: <UserCog size={24} />
-    },
-    admin: {
-      color: '#0f172a',
-      badgeBg: '#e2e8f0',
-      badgeColor: '#0f172a',
-      emailLabel: 'Admin Email',
-      emailPlaceholder: 'Enter administrator email',
-      showId: false,
-      btnText: 'Sign In as Admin',
-      successRole: 'Administrator',
-      icon: <Shield size={24} />
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!email || !password) {
-      setError('Please enter your credentials.');
+      setError('Veuillez saisir vos identifiants.');
       return;
     }
 
@@ -99,126 +40,57 @@ const LoginPage: React.FC = () => {
       const success = await login(email, password, currentRole);
       if (success) {
         setShowSuccess(true);
-        // Navigation is handled by App.tsx when user state changes
       } else {
-        // Error message is set inside AppContext.login
+        setError('Adresse email ou mot de passe incorrect.');
       }
     } catch (err: any) {
-      setError("An unexpected error occurred. Please try again.");
+      setError('Une erreur réseau est survenue. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const isFormFilled = email.trim() !== '' && password.trim() !== '';
+
   return (
     <div className="login-page-container">
-      {/* Left Panel - Visual Branding */}
-      <div className="left-panel">
-        <div className="floating-shapes">
-          <div className="shape"></div>
-          <div className="shape"></div>
-          <div className="shape"></div>
-          <div className="shape"></div>
-        </div>
-        <div className="left-content">
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="logo-icon"
-          >
-            <img src="/logo_emsi.png" alt="EMSI Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </motion.div>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            PFE Navigator
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            The comprehensive platform for managing end-of-studies projects, 
-            supervision workflows, and academic evaluations.
-          </motion.p>
-          
-          <motion.div 
-            className="feature-list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            {[
-              { icon: <BookOpen size={20} />, text: "Real-time project tracking" },
-              { icon: <Users size={20} />, text: "Seamless supervisor-student communication" },
-              { icon: <Award size={20} />, text: "Integrated jury evaluation system" },
-              { icon: <ShieldCheck size={20} />, text: "Secure role-based access control" }
-            ].map((feature, i) => (
-              <div key={i} className="feature-item">
-                {feature.icon}
-                <span>{feature.text}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Right Panel - Form */}
       <div className="right-panel">
         <div className="login-wrapper">
-          {/* Mobile Header (Visible on small screens) */}
-          <div className="mobile-header">
-            <div className="logo-small">
-              <Layout size={28} color="white" />
-            </div>
-            <h2>PFE Navigator</h2>
+          {/* Logo & Header */}
+          <div className="logo-header">
+            <img src="/logo_emsi.png" alt="EMSI Logo" />
+            <h1>Connexion</h1>
           </div>
 
-          <div className="form-header">
-            <h2>Welcome Back</h2>
-            <p>Select your profile and sign in</p>
-            {import.meta.env.DEV && (
-              <div className="dev-credentials">
-                <strong>Dev login:</strong>
-                <div>Student: student@emsi.ma / password123</div>
-                <div>Admin: admin@emsi.ma / admin123</div>
-              </div>
-            )}
-          </div>
 
-          {/* Role Selector Grid */}
-          <div className="role-selector">
+          {/* Role selector tabs */}
+          <div className="role-tabs">
             {(['student', 'supervisor', 'jury', 'admin'] as UserRole[]).map((role) => (
-              <button 
+              <button
                 key={role}
                 type="button"
-                className={`role-btn ${currentRole === role ? 'active' : ''}`}
-                data-role={role}
+                className={`role-tab-btn ${currentRole === role ? 'active' : ''}`}
                 onClick={() => {
                   setCurrentRole(role);
                   setError(null);
                 }}
               >
-                <div className="role-icon">
-                  {roleConfigs[role].icon}
-                </div>
-                <div className="role-label">{role.charAt(0).toUpperCase() + role.slice(1)}</div>
-                <div className="role-desc">
-                  {role === 'student' ? 'Undergrad' : role === 'supervisor' ? 'Faculty' : role === 'jury' ? 'Committee' : 'Coordination'}
-                </div>
+                {role === 'student' && 'Étudiant'}
+                {role === 'supervisor' && 'Encadrant'}
+                {role === 'jury' && 'Jury'}
+                {role === 'admin' && 'Admin'}
               </button>
             ))}
           </div>
 
+          {/* Error Banner */}
           <AnimatePresence>
             {error && (
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="error-message"
+                className="error-banner"
               >
                 <AlertCircle size={18} />
                 <span>{error}</span>
@@ -226,76 +98,70 @@ const LoginPage: React.FC = () => {
             )}
           </AnimatePresence>
 
+          {/* Login Form */}
           <form className="login-form" onSubmit={handleLogin}>
+            {/* Email Field */}
             <div className="form-group">
-              <label>{roleConfigs[currentRole].emailLabel}</label>
+              <label htmlFor="emailInput">
+                {currentRole === 'student' && 'Identifiant / Email Étudiant*'}
+                {currentRole === 'supervisor' && 'Email Encadrant*'}
+                {currentRole === 'jury' && 'Email Jury*'}
+                {currentRole === 'admin' && 'Email Administrateur*'}
+              </label>
               <div className="input-wrapper">
                 <input
                   type="text"
                   id="emailInput"
                   className="form-input"
-                  placeholder={roleConfigs[currentRole].emailPlaceholder}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <div className="input-icon">
-                  <Mail size={20} />
-                </div>
               </div>
             </div>
 
+            {/* Password Field */}
             <div className="form-group">
-              <label>Password</label>
+              <label htmlFor="passwordInput">Mot de passe*</label>
               <div className="input-wrapper">
                 <input
                   type={isPasswordVisible ? 'text' : 'password'}
+                  id="passwordInput"
                   className="form-input"
-                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <div className="input-icon">
-                  <Lock size={20} />
-                </div>
-                <button 
-                  type="button" 
-                  className="toggle-password" 
+                <button
+                  type="button"
+                  className="toggle-password"
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 >
-                  {isPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {isPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="checkbox-wrapper" onClick={() => setIsRemembered(!isRemembered)}>
-                <div className={`custom-checkbox ${isRemembered ? 'checked' : ''}`}>
-                  {isRemembered && <Check size={14} color="white" strokeWidth={3} />}
-                </div>
-                <span className="checkbox-label">Remember me</span>
-              </div>
-              <button 
-                type="button"
-                className="forgot-link bg-transparent border-0 p-0" 
-                onClick={() => setShowForgotModal(true)}
-              >
-                Forgot password?
-              </button>
-            </div>
-
-            <button 
-              type="submit" 
-              className="submit-btn" 
-              disabled={isLoading}
-              style={{ background: roleConfigs[currentRole].color }}
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className={`submit-button ${isFormFilled ? 'active-btn' : 'disabled-btn'}`}
+              disabled={isLoading || !isFormFilled}
             >
               {isLoading ? (
                 <div className="spinner"></div>
               ) : (
-                roleConfigs[currentRole].btnText
+                <>Se connecter</>
               )}
+            </button>
+
+            {/* Forgot Password Link below the button at bottom left */}
+            <button
+              type="button"
+              className="forgot-password-link"
+              onClick={() => setShowForgotModal(true)}
+            >
+              Mot de passe oublié ?
             </button>
           </form>
         </div>
@@ -304,87 +170,90 @@ const LoginPage: React.FC = () => {
       {/* Forgot Password Modal */}
       <AnimatePresence>
         {showForgotModal && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="success-overlay" 
-            style={{ zIndex: 1100, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+            className="success-overlay"
+            style={{ zIndex: 1300, background: 'rgba(0, 0, 0, 0.32)', backdropFilter: 'blur(2px)' }}
           >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               className="login-wrapper"
-              style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+              style={{ background: 'white', border: 'none', maxWidth: '400px' }}
             >
               {!isResetSent ? (
                 <>
-                  <div className="form-header">
-                    <h2 style={{ fontSize: '1.75rem' }}>Reset Password</h2>
-                    <p>Enter your email to receive a reset link</p>
+                  <div className="logo-header" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#000000', margin: 0 }}>
+                      Mot de passe oublié
+                    </h2>
                   </div>
-                  <div className="form-group mb-4">
-                    <label>Email Address</label>
+                  <div className="form-group mb-4" style={{ position: 'relative' }}>
+                    <label style={{ left: 0, top: '-16px', fontSize: '0.75rem' }}>Adresse email*</label>
                     <div className="input-wrapper">
                       <input
                         type="email"
                         className="form-input"
-                        placeholder="your.email@emsi.ma"
+                        style={{ paddingLeft: '12px' }}
+                        placeholder="votre.email@emsi.ma"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
                         required
                       />
-                      <div className="input-icon">
-                        <Mail size={20} />
-                      </div>
                     </div>
                   </div>
-                  <div className="d-flex gap-3">
-                    <button 
-                      className="submit-btn" 
-                      style={{ background: '#f1f5f9', color: '#64748b', marginTop: 0 }}
-                      onClick={() => setShowForgotModal(false)}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '1.5rem' }}>
+                    <button
+                      type="button"
+                      className="submit-button active-btn"
+                      style={{ background: '#757575', color: '#ffffff', width: 'auto', padding: '0 16px', height: '36px', marginTop: 0 }}
+                      onClick={() => {
+                        setShowForgotModal(false);
+                        setForgotEmail('');
+                      }}
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button
-                      className="submit-btn"
-                      style={{ background: roleConfigs[currentRole].color, marginTop: 0 }}
-                      disabled={isSendingReset}
+                      type="button"
+                      className="submit-button active-btn"
+                      style={{ width: 'auto', padding: '0 16px', height: '36px', marginTop: 0 }}
+                      disabled={isSendingReset || !forgotEmail}
                       onClick={async () => {
-                        if (!forgotEmail) {
-                          setError('Please enter your email first.');
-                          setShowForgotModal(false);
-                          return;
-                        }
                         setIsSendingReset(true);
-                        await new Promise(r => setTimeout(r, 1200));
+                        await new Promise((r) => setTimeout(r, 1000));
                         setIsSendingReset(false);
                         setIsResetSent(true);
                       }}
                     >
-                      {isSendingReset ? <div className="spinner"></div> : 'Send Link'}
+                      {isSendingReset ? <div className="spinner"></div> : 'Envoyer'}
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="text-center py-4">
-                  <div className="success-icon" style={{ width: '80px', height: '80px', marginBottom: '1.5rem', background: '#d1fae5', color: '#10b981' }}>
-                    <CheckCircle2 size={40} />
+                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <div className="success-icon" style={{ background: '#d1fae5', color: '#10b981' }}>
+                    <CheckCircle2 size={36} />
                   </div>
-                  <h3 className="fw-bold mb-2">Link Sent!</h3>
-                  <p className="text-muted small">Please check your inbox at <strong>{forgotEmail}</strong> for instructions.</p>
-                  <button 
-                    className="submit-btn mt-4" 
-                    style={{ background: roleConfigs[currentRole].color }}
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#000000' }}>
+                    Lien envoyé !
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: '#757575', marginTop: '8px' }}>
+                    Un email de réinitialisation a été envoyé à <strong>{forgotEmail}</strong>.
+                  </p>
+                  <button
+                    type="button"
+                    className="submit-button active-btn mt-4"
                     onClick={() => {
                       setShowForgotModal(false);
                       setIsResetSent(false);
                       setForgotEmail('');
                     }}
                   >
-                    Back to Login
+                    Retour
                   </button>
                 </div>
               )}
@@ -393,47 +262,36 @@ const LoginPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Success Animation Overlay */}
+      {/* Success Login Animation */}
       <AnimatePresence>
         {showSuccess && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             className="success-overlay"
           >
             <div className="success-content">
-              <motion.div 
-                initial={{ scale: 0.5, opacity: 0 }}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="success-icon"
               >
-                <CheckCircle2 size={60} />
+                <CheckCircle2 size={40} />
               </motion.div>
               <motion.h3
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.1 }}
               >
-                Login Successful!
+                Connexion réussie
               </motion.h3>
               <motion.p
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.2 }}
               >
-                Redirecting to your dashboard...
+                Redirection vers votre espace...
               </motion.p>
-              <motion.div 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="success-role-badge"
-                style={{ background: roleConfigs[currentRole].badgeBg, color: roleConfigs[currentRole].badgeColor }}
-              >
-                <Check size={16} />
-                <span>Authenticated as {roleConfigs[currentRole].successRole}</span>
-              </motion.div>
             </div>
           </motion.div>
         )}
