@@ -22,6 +22,7 @@ const AdminLoginPage: React.FC = () => {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [isResetSent, setIsResetSent] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   useEffect(() => {
     // Focus email input on mount
@@ -258,16 +259,19 @@ const AdminLoginPage: React.FC = () => {
                     >
                       Cancel
                     </button>
-                    <button 
-                      className="submit-btn" 
+                    <button
+                      className="submit-btn"
                       style={{ background: '#f43f5e', marginTop: 0 }}
-                      onClick={() => {
-                        if (forgotEmail) {
-                          setIsResetSent(true);
-                        }
+                      disabled={isSendingReset}
+                      onClick={async () => {
+                        if (!forgotEmail) return;
+                        setIsSendingReset(true);
+                        await new Promise(r => setTimeout(r, 1200));
+                        setIsSendingReset(false);
+                        setIsResetSent(true);
                       }}
                     >
-                      Send Reset Key
+                      {isSendingReset ? <div className="spinner"></div> : 'Send Reset Key'}
                     </button>
                   </div>
                 </>

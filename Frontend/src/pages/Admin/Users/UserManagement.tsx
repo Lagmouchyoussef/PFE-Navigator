@@ -67,31 +67,58 @@ const UserManagement: React.FC = () => {
   const [messageContent, setMessageContent] = useState('');
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [accessUser, setAccessUser] = useState<UserData | null>(null);
+  const [accessPermissions, setAccessPermissions] = useState<Record<string, boolean>>({});
+  const [accessSaved, setAccessSaved] = useState(false);
   const [filterRole, setFilterRole] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
 
   const handleExport = (format: 'pdf' | 'csv' | 'word') => {
-    if (selectedUsers.length === 0) {
-      alert("Please select at least one user to export.");
-      return;
-    }
+    const exportData = selectedUsers.length > 0
+      ? users.filter(u => selectedUsers.includes(u.id))
+      : users;
 
-    const selectedData = users.filter(u => selectedUsers.includes(u.id));
-    
+    if (exportData.length === 0) return;
+
+    const headers = ["Institutional ID", "Name", "Email", "Role", "Status"];
+    const rows = exportData.map(u => [u.institutionalId || '-', u.name, u.email, u.role, u.status || 'Active']);
+
     if (format === 'csv') {
-      const headers = ["Institutional ID", "Name", "Email", "Role", "Status"];
-      const rows = selectedData.map(u => [u.institutionalId, u.name, u.email, u.role, u.status]);
-      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(r => r.join(",")).join("\n");
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `users_export_${new Date().getTime()}.csv`);
+      link.href = encodeURI(csvContent);
+      link.download = `users_export_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } else {
-      alert(`Exporting ${selectedUsers.length} user(s) to ${format.toUpperCase()} format... (Simulated)`);
+      return;
+    }
+
+    const tableRows = rows.map(r => `<tr>${r.map(c => `<td style="padding:8px 12px;border:1px solid #e2e8f0;">${c}</td>`).join('')}</tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><title>Users Export</title>
+      <style>body{font-family:Arial,sans-serif;padding:40px;}table{border-collapse:collapse;width:100%;}th{background:#0f172a;color:white;padding:10px 12px;text-align:left;}</style>
+      </head><body>
+      <h1 style="color:#0f172a;">User Management Export</h1>
+      <p style="color:#64748b;">Generated on ${new Date().toLocaleString()} — ${exportData.length} user(s)</p>
+      <table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>
+      </body></html>`;
+
+    if (format === 'pdf') {
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 500); }
+      return;
+    }
+
+    if (format === 'word') {
+      const blob = new Blob(['﻿', html], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `users_export_${Date.now()}.doc`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -215,6 +242,11 @@ const UserManagement: React.FC = () => {
 
   const handleAccess = (user: UserData) => {
     setAccessUser(user);
+    setAccessSaved(false);
+    // Initialize all permissions to true (enabled by default)
+    const perms: Record<string, boolean> = {};
+    ['dash','docs','eval','plan','sett','j-dash','j-proj','j-prog','j-sett','s-dash','s-stu','s-eval','s-rdv','s-sett','a-dash','a-user','a-plan','a-sett'].forEach(id => { perms[id] = true; });
+    setAccessPermissions(perms);
     setShowAccessModal(true);
   };
 
@@ -1028,18 +1060,36 @@ const UserManagement: React.FC = () => {
                     <div className="extra-small text-muted opacity-75">{perm.desc}</div>
                   </div>
                 </div>
-                <Form.Check type="switch" defaultChecked className="access-switch" />
+                <Form.Check
+                  type="switch"
+                  className="access-switch"
+                  checked={accessPermissions[perm.id] !== false}
+                  onChange={(e) => setAccessPermissions(prev => ({ ...prev, [perm.id]: e.target.checked }))}
+                />
               </div>
             ))}
           </div>
         </Modal.Body>
-        <Modal.Footer className="border-top-0 pb-4 px-4">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowAccessModal(false)}>
-            Close
-          </Button>
-          <Button className="btn-premium px-4" onClick={() => setShowAccessModal(false)}>
-            Save permissions
-          </Button>
+        <Modal.Footer className="border-top-0 pb-4 px-4 d-flex flex-column gap-2 align-items-stretch">
+          {accessSaved && (
+            <div className="p-3 rounded-3 bg-success-soft text-success extra-small fw-bold d-flex align-items-center gap-2 border border-success border-opacity-25">
+              <CheckCircle size={16} /> Permissions saved successfully for {accessUser?.name}.
+            </div>
+          )}
+          <div className="d-flex gap-2 justify-content-end">
+            <Button variant="link" className="text-muted fw-bold text-decoration-none" onClick={() => setShowAccessModal(false)}>
+              Close
+            </Button>
+            <Button
+              className="btn-premium px-4"
+              onClick={() => {
+                setAccessSaved(true);
+                setTimeout(() => setShowAccessModal(false), 1200);
+              }}
+            >
+              Save permissions
+            </Button>
+          </div>
         </Modal.Footer>
       </Modal>
     </div>

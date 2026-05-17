@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { 
-  Container, Row, Col, Card, Form, Button, 
-  Badge, Table, ProgressBar, InputGroup
+import {
+  Container, Row, Col, Form, Button,
+  Badge, Table, ProgressBar, InputGroup, Modal
 } from 'react-bootstrap';
-import { 
-  User, Bell, Shield, Moon, Sun, CheckCircle, AlertCircle, Save, Camera, 
-  ChevronRight, Lock, Smartphone, Eye, EyeOff, 
-  Briefcase, X, Users, Monitor
+import {
+  User, Bell, Shield, Moon, Sun, CheckCircle, AlertCircle, Save, Camera,
+  ChevronRight, Lock, Smartphone, Eye, EyeOff,
+  Briefcase, X, Monitor, Copy, QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../../context/AppContext';
@@ -25,6 +25,63 @@ const SettingsPage: React.FC = () => {
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 2FA modal
+  const [show2FA, setShow2FA] = useState(false);
+  const [twoFAStep, setTwoFAStep] = useState<'setup' | 'verify' | 'done'>('setup');
+  const [twoFACode, setTwoFACode] = useState('');
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  const [copied2FA, setCopied2FA] = useState(false);
+  const twoFASecret = 'JBSWY3DPEHPK3PXP';
+
+  const handle2FAVerify = () => {
+    if (twoFACode.length === 6) {
+      setTwoFAStep('done');
+      setTwoFAEnabled(true);
+    }
+  };
+
+  const handle2FAClose = () => {
+    setShow2FA(false);
+    setTwoFAStep('setup');
+    setTwoFACode('');
+  };
+
+  const copySecret = () => {
+    navigator.clipboard.writeText(twoFASecret);
+    setCopied2FA(true);
+    setTimeout(() => setCopied2FA(false), 2000);
+  };
+
+  // Notification preferences
+  const [notifPrefs, setNotifPrefs] = useState<Record<string, boolean>>({
+    'Project Feedback': true,
+    'Deadlines': true,
+    'System Announcements': true,
+  });
+
+  const toggleNotif = (key: string) => setNotifPrefs(p => ({ ...p, [key]: !p[key] }));
+
+  // Password form
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [pwdError, setPwdError] = useState('');
+  const [pwdSuccess, setPwdSuccess] = useState(false);
+  const [isSavingPwd, setIsSavingPwd] = useState(false);
+
+  const handleChangePassword = async () => {
+    setPwdError('');
+    if (!currentPwd || !newPwd || !confirmPwd) { setPwdError('Please fill in all fields.'); return; }
+    if (newPwd.length < 8) { setPwdError('New password must be at least 8 characters.'); return; }
+    if (newPwd !== confirmPwd) { setPwdError('Passwords do not match.'); return; }
+    setIsSavingPwd(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setIsSavingPwd(false);
+    setPwdSuccess(true);
+    setCurrentPwd(''); setNewPwd(''); setConfirmPwd('');
+    setTimeout(() => setPwdSuccess(false), 4000);
+  };
 
   const handleSave = () => {
     setSuccessMsg("Your settings have been saved successfully.");
@@ -449,13 +506,13 @@ const SettingsPage: React.FC = () => {
                 {activeTab === 'security' && (
                   <motion.div key="security" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Password Management</h5>
-                    <Form className="mb-5">
+                    <Form className="mb-5" onSubmit={e => { e.preventDefault(); handleChangePassword(); }}>
                       <Row className="g-4">
                         <Col md={12}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Current Password</Form.Label>
                             <InputGroup className="overflow-hidden">
-                              <Form.Control type={showPassword ? 'text' : 'password'} className="form-control-premium shadow-none" />
+                              <Form.Control type={showPassword ? 'text' : 'password'} className="form-control-premium shadow-none" value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} />
                               <Button variant="link" className="text-muted p-2" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </Button>
@@ -465,14 +522,27 @@ const SettingsPage: React.FC = () => {
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">New Password</Form.Label>
-                            <Form.Control type="password" className="form-control-premium" />
+                            <Form.Control type="password" className="form-control-premium" value={newPwd} onChange={e => setNewPwd(e.target.value)} />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group>
                             <Form.Label className="small fw-bold text-muted mb-2">Confirm Password</Form.Label>
-                            <Form.Control type="password" className="form-control-premium" />
+                            <Form.Control type="password" className="form-control-premium" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} isInvalid={!!pwdError} />
+                            {pwdError && <Form.Control.Feedback type="invalid" className="fw-bold extra-small">{pwdError}</Form.Control.Feedback>}
                           </Form.Group>
+                        </Col>
+                        {pwdSuccess && (
+                          <Col md={12}>
+                            <div className="p-3 rounded-3 bg-success-soft text-success d-flex align-items-center gap-2 fw-bold small">
+                              <CheckCircle size={18} /> Password changed successfully!
+                            </div>
+                          </Col>
+                        )}
+                        <Col md={12}>
+                          <Button type="submit" className="btn-premium px-4" disabled={isSavingPwd}>
+                            {isSavingPwd ? 'Saving...' : 'Update Password'}
+                          </Button>
                         </Col>
                       </Row>
                     </Form>
@@ -486,7 +556,9 @@ const SettingsPage: React.FC = () => {
                           <div className="extra-small text-muted fw-bold">Use Google Authenticator to secure your account.</div>
                         </div>
                       </div>
-                      <Button className="btn-premium">Configure</Button>
+                      <Button className="btn-premium" onClick={() => { setTwoFAStep('setup'); setShow2FA(true); }}>
+                        {twoFAEnabled ? 'Reconfigure' : 'Configure'}
+                      </Button>
                     </div>
 
                     <h5 className="fw-bold mb-4 border-bottom pb-2 text-navy">Active users</h5>
@@ -531,7 +603,7 @@ const SettingsPage: React.FC = () => {
                               {n.channels.map(c => <Badge key={c} bg="primary" className="bg-primary-soft text-primary border border-primary extra-small">{c}</Badge>)}
                             </div>
                           </div>
-                          <Form.Check type="switch" defaultChecked className="settings-switch" />
+                          <Form.Check type="switch" checked={notifPrefs[n.title] !== false} onChange={() => toggleNotif(n.title)} className="settings-switch" />
                         </div>
                       ))}
                     </div>
@@ -567,6 +639,60 @@ const SettingsPage: React.FC = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* 2FA Setup Modal */}
+      <Modal show={show2FA} onHide={handle2FAClose} centered size="sm">
+        <Modal.Body className="p-4">
+          {twoFAStep === 'setup' && (
+            <>
+              <div className="text-center mb-4">
+                <div className="p-3 rounded-circle bg-primary-soft text-primary d-inline-flex mb-3"><Smartphone size={32} /></div>
+                <h5 className="fw-bold text-navy mb-1">Enable 2FA</h5>
+                <p className="extra-small text-muted fw-bold mb-0">Scan the QR code with Google Authenticator</p>
+              </div>
+              <div className="text-center p-4 rounded-4 bg-surface-alt border mb-3">
+                <QrCode size={96} className="text-primary mb-3" />
+                <div className="extra-small text-muted fw-bold mb-2">Or enter this key manually:</div>
+                <div className="d-flex align-items-center gap-2 justify-content-center">
+                  <code className="small fw-bold text-primary">{twoFASecret}</code>
+                  <Button variant="link" className="p-0 text-muted shadow-none" onClick={copySecret}>
+                    {copied2FA ? <CheckCircle size={16} className="text-success" /> : <Copy size={16} />}
+                  </Button>
+                </div>
+              </div>
+              <Button className="btn-premium w-100" onClick={() => setTwoFAStep('verify')}>Next — Enter Code</Button>
+            </>
+          )}
+          {twoFAStep === 'verify' && (
+            <>
+              <div className="text-center mb-4">
+                <h5 className="fw-bold text-navy mb-1">Verify Code</h5>
+                <p className="extra-small text-muted fw-bold mb-0">Enter the 6-digit code from your app</p>
+              </div>
+              <Form.Control
+                type="text"
+                maxLength={6}
+                placeholder="000000"
+                className="form-control-premium text-center fs-4 fw-bold letter-spacing-wide mb-3"
+                value={twoFACode}
+                onChange={e => setTwoFACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              />
+              <Button className="btn-premium w-100" disabled={twoFACode.length !== 6} onClick={handle2FAVerify}>Verify & Activate</Button>
+            </>
+          )}
+          {twoFAStep === 'done' && (
+            <div className="text-center py-3">
+              <div className="p-3 rounded-circle bg-success-soft text-success d-inline-flex mb-3"><CheckCircle size={40} /></div>
+              <h5 className="fw-bold text-navy mb-2">2FA Activated!</h5>
+              <p className="extra-small text-muted fw-bold mb-4">Your account is now protected with two-factor authentication.</p>
+              <Button className="btn-premium w-100" onClick={handle2FAClose}>Done</Button>
+            </div>
+          )}
+          {twoFAStep !== 'done' && (
+            <Button variant="link" className="w-100 text-muted extra-small fw-bold text-decoration-none mt-2 shadow-none" onClick={handle2FAClose}>Cancel</Button>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

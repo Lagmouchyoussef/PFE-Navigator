@@ -55,31 +55,56 @@ const AdminDashboard: React.FC = () => {
   const [confirmConfig, setConfirmConfig] = React.useState({ title: '', message: '', action: '', user: null as any });
 
   const generateReport = (format: 'pdf' | 'csv' | 'word') => {
-    const data = [
+    const rows = [
       ["Statistic", "Value"],
       ["Total Users", users.length.toString()],
       ["Total Projects", projects.length.toString()],
       ["Active Projects", projects.filter((p: any) => p.status === 'in_progress').length.toString()],
-      ["Last Update", new Date().toLocaleDateString()]
+      ["Completed Projects", projects.filter((p: any) => p.status === 'completed').length.toString()],
+      ["Last Update", new Date().toLocaleDateString()],
     ];
-    
+
     if (format === 'csv') {
-      const csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(r => r.join(",")).join("\n");
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `global_report_${new Date().getTime()}.csv`);
+      link.href = encodeURI(csvContent);
+      link.download = `global_report_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } else {
-      setConfirmConfig({
-        title: 'Report Export',
-        message: `Are you sure you want to generate the report in ${format.toUpperCase()} format?`,
-        action: 'export',
-        user: { name: format.toUpperCase() }
-      });
-      setShowConfirmModal(true);
+      return;
+    }
+
+    const tableRows = rows.map(r => `<tr><td style="padding:8px 16px;border:1px solid #e2e8f0;">${r[0]}</td><td style="padding:8px 16px;border:1px solid #e2e8f0;font-weight:700;">${r[1]}</td></tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><title>Global Report</title>
+      <style>body{font-family:Arial,sans-serif;padding:40px;}table{border-collapse:collapse;width:100%;}th{background:#0f172a;color:white;padding:10px 16px;text-align:left;}</style>
+      </head><body>
+      <h1 style="color:#0f172a;">Platform Global Report</h1>
+      <p style="color:#64748b;">Generated on ${new Date().toLocaleString()}</p>
+      <table><thead><tr><th>Statistic</th><th>Value</th></tr></thead><tbody>${tableRows}</tbody></table>
+      </body></html>`;
+
+    if (format === 'pdf') {
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 500);
+      }
+      return;
+    }
+
+    if (format === 'word') {
+      const blob = new Blob(['﻿', html], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `global_report_${Date.now()}.doc`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -244,7 +269,7 @@ const AdminDashboard: React.FC = () => {
                   </Button>
                 )}
               </div>
-              <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-muted text-decoration-none border-0 shadow-none opacity-50">Manage full schedule</Button>
+              <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-primary text-decoration-none border-0 shadow-none" onClick={() => navigate('/admin/jury-planning')}>Manage full schedule</Button>
             </div>
           </Col>
         </Row>

@@ -1,32 +1,33 @@
 import React from 'react';
-import { Container, Row, Col, Card, Button, Form, InputGroup, Dropdown, Badge } from 'react-bootstrap';
-import { 
-  Bell, CheckCircle, Mail, AlertCircle, Calendar, 
-  Settings, Clock, MessageSquare, Activity, RefreshCcw, Search, MoreVertical
+import { Container, Row, Col, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import {
+  Bell, CheckCircle, AlertCircle, Calendar,
+  Settings, MessageSquare, Activity, RefreshCcw, Search, MoreVertical
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 
 const NotificationsPage: React.FC = () => {
-  const { 
-    notifications, 
-    markNotificationRead, 
-    deleteNotification, 
+  const {
+    notifications,
+    markNotificationRead,
+    deleteNotification,
     markAllNotificationsRead,
     user,
     unreadNotificationsCount
   } = useApp();
-  const [loading, setLoading] = React.useState(false);
-  const [hasMore, setHasMore] = React.useState(true);
+  const navigate = useNavigate();
+  const [visibleCount, setVisibleCount] = React.useState(20);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
-  const handleShowMore = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setHasMore(false);
-      alert("All notifications have been loaded.");
-    }, 800);
-  };
+  const filtered = notifications.filter(n =>
+    !searchTerm ||
+    n.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    n.message?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
 
   return (
     <div className="notifications-modern-layout py-4">
@@ -41,12 +42,18 @@ const NotificationsPage: React.FC = () => {
           <div className="d-flex gap-2">
             <InputGroup size="sm" className="bg-surface rounded-pill border px-3 shadow-none" style={{ width: '300px' }}>
               <InputGroup.Text className="bg-transparent border-0 text-muted ps-0"><Search size={16}/></InputGroup.Text>
-              <Form.Control 
-                placeholder="Search notifications..." 
+              <Form.Control
+                placeholder="Search notifications..."
                 className="bg-transparent border-0 shadow-none py-2 small fw-bold text-primary-custom"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </InputGroup>
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2">
+            <Button
+              variant="outline-primary"
+              className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2"
+              onClick={() => navigate(`/${user?.role}/settings`)}
+            >
               <Settings size={18} /> Manage
             </Button>
           </div>
@@ -77,12 +84,12 @@ const NotificationsPage: React.FC = () => {
             </Button>
           </div>
           <div className="d-flex flex-column">
-            {notifications.length === 0 && (
+            {filtered.length === 0 && (
               <div className="p-5 text-center text-muted fw-bold extra-small opacity-50">
-                You have no notifications at the moment.
+                {searchTerm ? 'No notifications match your search.' : 'You have no notifications at the moment.'}
               </div>
             )}
-            {notifications.map((notif) => {
+            {visible.map((notif) => {
               const getIcon = () => {
                 switch(notif.type) {
                   case 'approved': return <CheckCircle size={20} />;
@@ -137,22 +144,18 @@ const NotificationsPage: React.FC = () => {
               );
             })}
           </div>
-          <div className="p-3 text-center bg-surface-alt">
-            <Button 
-              variant="link" 
-              className="extra-small fw-bold text-primary text-decoration-none"
-              onClick={handleShowMore}
-              disabled={loading || !hasMore}
-            >
-              {loading ? (
-                <><RefreshCcw size={14} className="me-2 animate-spin" /> Loading...</>
-              ) : hasMore ? (
-                "Show more notifications"
-              ) : (
-                "No more notifications"
-              )}
-            </Button>
-          </div>
+          {hasMore && (
+            <div className="p-3 text-center bg-surface-alt">
+              <Button
+                variant="link"
+                className="extra-small fw-bold text-primary text-decoration-none"
+                onClick={() => setVisibleCount(c => c + 20)}
+              >
+                <RefreshCcw size={14} className="me-2" />
+                Show more notifications
+              </Button>
+            </div>
+          )}
         </div>
       </Container>
     </div>

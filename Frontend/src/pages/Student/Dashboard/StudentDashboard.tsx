@@ -44,12 +44,22 @@ const StudentDashboard: React.FC = () => {
     navigate('/student/reports');
   };
 
-  const handleView = () => {
-    window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
+  const handleView = (doc: any) => {
+    const url = doc?.file_url || doc?.file;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleDownload = (doc: any) => {
-    alert(`Downloading ${doc.title}...`);
+    const url = doc?.file_url || doc?.file;
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = doc?.title || 'document';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const steps: Step[] = (projectMilestones || []).map((m: any) => ({
