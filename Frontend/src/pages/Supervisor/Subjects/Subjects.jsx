@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Table, Form, Modal, InputGroup, Dropdown } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  BookOpen, Plus, Search, Filter, 
-  CheckCircle, Clock, AlertCircle, 
-  MoreVertical, Edit3, Trash2, 
+import {
+  BookOpen, Plus, Search,
+  CheckCircle, Clock,
+  Edit3, Trash2,
   ChevronRight, Users, Target, Layout, X, Eye, Download, FileText
 } from 'lucide-react';
 
@@ -204,10 +204,10 @@ const Subjects = () => {
         {/* Stats Grid */}
         <Row className="g-4 mb-5">
           {[
-            { label: 'Total Subjects', value: '12', icon: <BookOpen />, color: 'primary' },
-            { label: 'Approved', value: '8', icon: <CheckCircle />, color: 'success' },
-            { label: 'Under Revision', value: '3', icon: <Clock />, color: 'warning' },
-            { label: 'Taken by Students', value: '5', icon: <Users />, color: 'info' },
+            { label: 'Total Subjects', value: SUBJECTS_DATA.length, icon: <BookOpen />, color: 'primary' },
+            { label: 'Approved', value: SUBJECTS_DATA.filter(s => s.status === 'approved').length, icon: <CheckCircle />, color: 'success' },
+            { label: 'Under Revision', value: SUBJECTS_DATA.filter(s => s.status === 'revision').length, icon: <Clock />, color: 'warning' },
+            { label: 'Taken by Students', value: SUBJECTS_DATA.filter(s => s.student).length, icon: <Users />, color: 'info' },
           ].map((stat, i) => (
             <Col key={i} sm={6} lg={3}>
               <motion.div 

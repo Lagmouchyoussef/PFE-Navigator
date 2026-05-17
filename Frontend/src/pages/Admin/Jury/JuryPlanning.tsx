@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Plus, ChevronLeft, ChevronRight, MapPin, Users, Clock,
-  MoreVertical, Calendar, XCircle, Trash2, Edit, AlertTriangle
+  MoreVertical, Calendar, XCircle, Trash2, AlertTriangle
 } from 'lucide-react';
 import { Container, Row, Col, Button, Badge, Modal, Form, Dropdown } from 'react-bootstrap';
 
@@ -19,8 +19,16 @@ interface JurySession {
 const AVAILABLE_JURIES: any[] = [];
 const INITIAL_JURIES: JurySession[] = [];
 
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December'
+];
+
 const JuryPlanning: React.FC = () => {
+  const today = new Date();
   const [activeView, setActiveView] = useState('Month');
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [juries, setJuries] = useState<JurySession[]>(INITIAL_JURIES);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ 
@@ -86,17 +94,30 @@ const JuryPlanning: React.FC = () => {
     }
   };
 
-  const days: { day: number, current: boolean }[] = [];
-  for (let i = 27; i <= 30; i++) days.push({ day: i, current: false });
-  for (let i = 1; i <= 31; i++) days.push({ day: i, current: true });
-  while (days.length < 35) days.push({ day: days.length - 31 - 4 + 1, current: false });
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
+  const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+  const days: { day: number; current: boolean }[] = [];
+  for (let i = firstDayOfWeek - 1; i >= 0; i--) days.push({ day: prevMonthDays - i, current: false });
+  for (let i = 1; i <= daysInMonth; i++) days.push({ day: i, current: true });
+  while (days.length % 7 !== 0) days.push({ day: days.length - daysInMonth - firstDayOfWeek + 1, current: false });
+
+  const goToPrevMonth = () => {
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
+    else setCurrentMonth(m => m - 1);
+  };
+
+  const goToNextMonth = () => {
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); }
+    else setCurrentMonth(m => m + 1);
+  };
 
   const handleAddJury = () => {
     const newJury: JurySession = {
       id: juries.length + 1,
       title: formData.title,
       day: formData.day,
-      date: `${formData.day} Jan 2025`,
+      date: `${formData.day} ${MONTH_NAMES[currentMonth]} ${currentYear}`,
       location: formData.location,
       time: formData.time,
       members: formData.selectedMembers
@@ -129,16 +150,10 @@ const JuryPlanning: React.FC = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div className="d-flex align-items-center gap-3">
                 <div className="d-flex align-items-center gap-2">
-                  <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronLeft size={24} /></Button>
-                  <h4 className="fw-bold mb-0 mx-2 text-navy text-nowrap">January 2025</h4>
-                  <Button variant="link" className="p-1 text-primary border-0 shadow-none"><ChevronRight size={24} /></Button>
+                  <Button variant="link" className="p-1 text-primary border-0 shadow-none" onClick={goToPrevMonth}><ChevronLeft size={24} /></Button>
+                  <h4 className="fw-bold mb-0 mx-2 text-navy text-nowrap">{MONTH_NAMES[currentMonth]} {currentYear}</h4>
+                  <Button variant="link" className="p-1 text-primary border-0 shadow-none" onClick={goToNextMonth}><ChevronRight size={24} /></Button>
                 </div>
-                <Form.Control 
-                  type="date" 
-                  defaultValue="2025-01-01"
-                  className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
-                  style={{ maxWidth: '180px', cursor: 'pointer' }}
-                />
               </div>
               <div className="d-flex gap-2 bg-surface p-1 rounded-pill border">
                 {['Month', 'Week'].map(view => (
@@ -197,7 +212,7 @@ const JuryPlanning: React.FC = () => {
                       <div className="flex-grow-1">
                         <div className="small fw-bold text-navy">{j.title}</div>
                         <Badge className={`bg-${j.status === 'Cancelled' ? 'secondary' : 'primary'}-soft text-${j.status === 'Cancelled' ? 'secondary' : 'primary'} border border-opacity-10 extra-small px-2 mt-1`}>
-                          {j.day} Jan {j.status === 'Cancelled' && '• CANCELLED'}
+                          {j.date}{j.status === 'Cancelled' && ' • CANCELLED'}
                         </Badge>
                       </div>
                       <Dropdown align="end">
@@ -241,14 +256,15 @@ const JuryPlanning: React.FC = () => {
                 </div>
                 <h6 className="fw-bold mb-0 text-navy">Jury Availability</h6>
               </div>
-              <div className="extra-small text-muted mb-3 fw-bold opacity-75">Examiner occupancy rate for this week.</div>
-              <div className="mb-2 d-flex justify-content-between align-items-center extra-small fw-bold">
-                <span className="text-muted">Occupation</span>
-                <span className="text-primary">78%</span>
-              </div>
-              <div className="progress rounded-pill shadow-none bg-surface" style={{ height: '6px' }}>
-                <div className="progress-bar bg-primary rounded-pill" style={{ width: '78%' }}></div>
-              </div>
+              {juries.length === 0 ? (
+                <p className="extra-small text-muted fw-bold mb-0 opacity-75">No sessions scheduled yet.</p>
+              ) : (
+                <>
+                  <div className="extra-small text-muted mb-3 fw-bold opacity-75">
+                    {juries.filter(j => j.status !== 'Cancelled').length} active session(s) this month.
+                  </div>
+                </>
+              )}
             </div>
           </Col>
         </Row>
@@ -275,7 +291,7 @@ const JuryPlanning: React.FC = () => {
                 
                 <Row className="g-3">
                   <Col md={4}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Day (January)</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Day ({MONTH_NAMES[currentMonth]})</Form.Label>
                     <Form.Control 
                       type="number" 
                       min="1" max="31" 

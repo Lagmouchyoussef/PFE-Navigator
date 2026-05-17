@@ -2,9 +2,9 @@ import React from 'react';
 import { Container, Row, Col, Card, Badge, Button, Table, ProgressBar, Nav, Tab } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { 
-  User, Mail, Book, Calendar, ChevronLeft, 
-  FileText, Award, Phone, MapPin, Download, 
-  ExternalLink, MessageSquare, CheckCircle, Clock,
+  User, Mail, Book, Calendar, ChevronLeft,
+  FileText, Award, Phone, Download,
+  MessageSquare, CheckCircle, Clock,
   Activity, Target, Shield, Briefcase
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -32,18 +32,17 @@ const StudentDetail = () => {
 
   const student = {
     ...currentStudent,
-    email: currentStudent.email || `${currentStudent.name.toLowerCase().replace(/\s/g, '.')}@emsi.ma`,
-    phone: currentStudent.phone || '+212 6 XX XX XX XX',
-    department: currentStudent.department || 'Software Engineering',
-    type: 'PFE',
-    status: currentStudent.status || 'In Progress',
+    email: currentStudent.email || null,
+    phone: currentStudent.phone || null,
+    department: currentStudent.department || null,
+    type: currentStudent.type || 'PFE',
+    status: currentStudent.status || null,
     progress: currentStudent.progress || 0,
-    projectTitle: currentStudent.project || 'Project Title TBD',
-    supervisor: currentStudent.supervisor || 'Unassigned',
-    institution: 'EMSI - Moroccan School of Engineering Sciences',
-    startDate: '2025-10-15',
-    endDate: '2026-06-30',
-    description: currentStudent.description || 'No description available for this project yet.',
+    projectTitle: currentStudent.project || null,
+    supervisor: currentStudent.supervisor || null,
+    startDate: currentStudent.startDate || null,
+    endDate: currentStudent.endDate || null,
+    description: currentStudent.description || null,
     deliverables: (studentDeliverables || []).map(d => {
       const dDate = new Date(d.date || d.created_at);
       return {
@@ -51,15 +50,9 @@ const StudentDetail = () => {
         name: d.title || 'Untitled Document',
         date: isNaN(dDate.getTime()) ? '-' : dDate.toLocaleDateString(),
         status: (d.status || 'pending').charAt(0).toUpperCase() + (d.status || 'pending').slice(1),
-        size: d.size || '--'
       };
     }),
-    milestones: [
-      { id: 1, title: 'Topic Validation', date: '2025-10-20', completed: true },
-      { id: 2, title: 'Analysis & Design', date: '2026-01-05', completed: currentStudent.progress > 30 },
-      { id: 3, title: 'Implementation Phase 1', date: '2026-03-15', completed: currentStudent.progress > 60 },
-      { id: 4, title: 'Final Report Submission', date: '2026-05-20', completed: currentStudent.isJuryEvaluated },
-    ]
+    milestones: Array.isArray(currentStudent.milestones) ? currentStudent.milestones : [],
   };
 
   return (
@@ -88,15 +81,14 @@ const StudentDetail = () => {
               <div>
                 <h2 className="fw-bold mb-1 text-navy">{student.name}</h2>
                 <div className="d-flex flex-wrap gap-2 align-items-center">
-                  <Badge className="bg-primary-soft text-primary border-0 extra-small px-3 py-1 fw-bold rounded-pill">
-                    {student.department}
-                  </Badge>
+                  {student.department && (
+                    <Badge className="bg-primary-soft text-primary border-0 extra-small px-3 py-1 fw-bold rounded-pill">
+                      {student.department}
+                    </Badge>
+                  )}
                   <Badge className="bg-success-soft text-success border-0 extra-small px-3 py-1 fw-bold rounded-pill">
                     {student.type}
                   </Badge>
-                  <div className="text-muted extra-small fw-bold opacity-75 ms-2 d-flex align-items-center gap-1">
-                    <MapPin size={12} /> Casablanca, EMSI
-                  </div>
                 </div>
               </div>
             </div>
@@ -161,22 +153,33 @@ const StudentDetail = () => {
                             <Activity size={18} className="text-primary" /> Academic Information
                           </h6>
                           <div className="d-flex flex-column gap-3">
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Status</span>
-                              <Badge className="bg-warning-soft text-warning border-0 extra-small px-2 py-1 rounded-pill">{student.status}</Badge>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Supervisor</span>
-                              <span className="extra-small text-navy fw-bold">{student.supervisor}</span>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Start Date</span>
-                              <span className="extra-small text-navy fw-bold">{student.startDate}</span>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Deadline</span>
-                              <span className="extra-small text-navy fw-bold">{student.endDate}</span>
-                            </div>
+                            {student.status && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Status</span>
+                                <Badge className="bg-warning-soft text-warning border-0 extra-small px-2 py-1 rounded-pill">{student.status}</Badge>
+                              </div>
+                            )}
+                            {student.supervisor && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Supervisor</span>
+                                <span className="extra-small text-navy fw-bold">{student.supervisor}</span>
+                              </div>
+                            )}
+                            {student.startDate && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Start Date</span>
+                                <span className="extra-small text-navy fw-bold">{student.startDate}</span>
+                              </div>
+                            )}
+                            {student.endDate && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Deadline</span>
+                                <span className="extra-small text-navy fw-bold">{student.endDate}</span>
+                              </div>
+                            )}
+                            {!student.status && !student.supervisor && !student.startDate && !student.endDate && (
+                              <p className="extra-small text-muted fw-bold mb-0 text-center py-2 opacity-75">No academic information available yet.</p>
+                            )}
                           </div>
                         </Card>
                       </Col>
@@ -186,18 +189,21 @@ const StudentDetail = () => {
                             <Shield size={18} className="text-primary" /> Certification & Access
                           </h6>
                           <div className="d-flex flex-column gap-3">
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Institutional ID</span>
-                              <span className="extra-small text-navy fw-bold">STU-2026-00105</span>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Documents Access</span>
-                              <span className="extra-small text-success fw-bold">Authorized</span>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                              <span className="extra-small text-muted fw-bold">Verification</span>
-                              <span className="extra-small text-info fw-bold">Completed</span>
-                            </div>
+                            {currentStudent.institutionalId && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Institutional ID</span>
+                                <span className="extra-small text-navy fw-bold">{currentStudent.institutionalId}</span>
+                              </div>
+                            )}
+                            {currentStudent.enrollment_number && (
+                              <div className="d-flex justify-content-between">
+                                <span className="extra-small text-muted fw-bold">Enrollment Number</span>
+                                <span className="extra-small text-navy fw-bold">{currentStudent.enrollment_number}</span>
+                              </div>
+                            )}
+                            {!currentStudent.institutionalId && !currentStudent.enrollment_number && (
+                              <p className="extra-small text-muted fw-bold mb-0 text-center py-2 opacity-75">No certification data available yet.</p>
+                            )}
                           </div>
                         </Card>
                       </Col>
@@ -207,68 +213,89 @@ const StudentDetail = () => {
 
                 <Tab.Pane eventKey="deliverables">
                   <Card className="glass-card border-0 p-0 shadow-sm rounded-4 overflow-hidden">
-                    <Table responsive hover className="mb-0 align-middle">
-                      <thead className="bg-surface-alt border-bottom">
-                        <tr>
-                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Document</th>
-                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Date</th>
-                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Status</th>
-                          <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {student.deliverables.map((doc) => (
-                          <tr key={doc.id}>
-                            <td className="px-4 py-3">
-                              <div className="d-flex align-items-center gap-2">
-                                <div className="p-2 rounded bg-surface-alt text-primary">
-                                  <FileText size={18} />
-                                </div>
-                                <div>
-                                  <div className="small fw-bold text-navy">{doc.name}</div>
-                                  <div className="extra-small text-muted">{doc.size}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 small text-muted">{doc.date}</td>
-                            <td className="px-4 py-3">
-                              <Badge className={`bg-${doc.status === 'Validated' ? 'success' : 'warning'}-soft text-${doc.status === 'Validated' ? 'success' : 'warning'} border-0 extra-small px-3 py-1 fw-bold rounded-pill`}>
-                                {doc.status === 'Validated' ? 'Validated' : 'Pending'}
-                              </Badge>
-                            </td>
-                            <td className="px-4 py-3">
-                              <Button variant="link" className="p-0 text-primary shadow-none border-0">
-                                <Download size={18} />
-                              </Button>
-                            </td>
+                    {student.deliverables.length === 0 ? (
+                      <div className="d-flex flex-column align-items-center justify-content-center gap-3 py-5 text-center px-4">
+                        <div className="p-4 rounded-4 bg-surface-alt text-muted">
+                          <FileText size={36} strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <p className="small fw-bold text-navy mb-1">No documents submitted yet</p>
+                          <p className="extra-small text-muted mb-0">Documents uploaded by this student will appear here.</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <Table responsive hover className="mb-0 align-middle">
+                        <thead className="bg-surface-alt border-bottom">
+                          <tr>
+                            <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Document</th>
+                            <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Date</th>
+                            <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Status</th>
+                            <th className="px-4 py-3 text-muted extra-small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Action</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </Table>
+                        </thead>
+                        <tbody>
+                          {student.deliverables.map((doc) => (
+                            <tr key={doc.id}>
+                              <td className="px-4 py-3">
+                                <div className="d-flex align-items-center gap-2">
+                                  <div className="p-2 rounded bg-surface-alt text-primary">
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="small fw-bold text-navy">{doc.name}</div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 small text-muted">{doc.date}</td>
+                              <td className="px-4 py-3">
+                                <Badge className={`bg-${doc.status === 'Approved' ? 'success' : doc.status === 'Rejected' ? 'danger' : 'warning'}-soft text-${doc.status === 'Approved' ? 'success' : doc.status === 'Rejected' ? 'danger' : 'warning'} border-0 extra-small px-3 py-1 fw-bold rounded-pill`}>
+                                  {doc.status}
+                                </Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Button variant="link" className="p-0 text-primary shadow-none border-0">
+                                  <Download size={18} />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    )}
                   </Card>
                 </Tab.Pane>
 
                 <Tab.Pane eventKey="timeline">
                   <Card className="glass-card border-0 p-4 shadow-sm rounded-4">
-                    <div className="position-relative ms-4 border-start border-2 border-primary border-opacity-10 py-2">
-                      {student.milestones.map((ms, i) => (
-                        <div key={ms.id} className="position-relative mb-5 ps-4">
-                          <div 
-                            className={`position-absolute start-0 top-0 translate-middle-x rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center ${ms.completed ? 'bg-success text-white' : 'bg-white text-muted'}`}
-                            style={{ width: '28px', height: '28px', left: '-1px' }}
-                          >
-                            {ms.completed ? <CheckCircle size={14} /> : <div className="rounded-circle bg-surface-alt" style={{ width: '8px', height: '8px' }}></div>}
-                          </div>
-                          <div>
-                            <div className="small fw-bold text-navy mb-1">{ms.title}</div>
-                            <div className="extra-small text-muted fw-bold opacity-75">{ms.date}</div>
-                            <p className="extra-small text-muted mt-2 mb-0">
-                              {ms.completed ? "Step successfully validated by the supervisor and administration." : "This step requires the submission of requested documents."}
-                            </p>
-                          </div>
+                    {student.milestones.length === 0 ? (
+                      <div className="d-flex flex-column align-items-center justify-content-center gap-3 py-4 text-center">
+                        <div className="p-4 rounded-4 bg-surface-alt text-muted">
+                          <Clock size={36} strokeWidth={1.5} />
                         </div>
-                      ))}
-                    </div>
+                        <div>
+                          <p className="small fw-bold text-navy mb-1">No milestones defined yet</p>
+                          <p className="extra-small text-muted mb-0">Project milestones will appear here once created.</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="position-relative ms-4 border-start border-2 border-primary border-opacity-10 py-2">
+                        {student.milestones.map((ms) => (
+                          <div key={ms.id} className="position-relative mb-5 ps-4">
+                            <div
+                              className={`position-absolute start-0 top-0 translate-middle-x rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center ${ms.completed ? 'bg-success text-white' : 'bg-white text-muted'}`}
+                              style={{ width: '28px', height: '28px', left: '-1px' }}
+                            >
+                              {ms.completed ? <CheckCircle size={14} /> : <div className="rounded-circle bg-surface-alt" style={{ width: '8px', height: '8px' }}></div>}
+                            </div>
+                            <div>
+                              <div className="small fw-bold text-navy mb-1">{ms.title}</div>
+                              {ms.date && <div className="extra-small text-muted fw-bold opacity-75">{ms.date}</div>}
+                              <p className="extra-small text-muted mt-2 mb-0">
+                                {ms.completed ? 'Step successfully validated.' : 'Pending completion.'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </Card>
                 </Tab.Pane>
               </Tab.Content>
@@ -312,27 +339,31 @@ const StudentDetail = () => {
               <Card className="glass-card border-0 p-4 shadow-sm rounded-4">
                 <h6 className="fw-bold text-navy mb-4">Contact Information</h6>
                 <div className="d-flex flex-column gap-3">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="p-2 rounded bg-surface-alt text-primary">
-                      <Mail size={18} />
+                  {student.email ? (
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-2 rounded bg-surface-alt text-primary">
+                        <Mail size={18} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <div className="extra-small text-muted fw-bold">Email</div>
+                        <div className="small fw-bold text-navy text-truncate">{student.email}</div>
+                      </div>
                     </div>
-                    <div className="overflow-hidden">
-                      <div className="extra-small text-muted fw-bold">Institutional Email</div>
-                      <div className="small fw-bold text-navy text-truncate">{student.email}</div>
+                  ) : null}
+                  {student.phone ? (
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-2 rounded bg-surface-alt text-success">
+                        <Phone size={18} />
+                      </div>
+                      <div>
+                        <div className="extra-small text-muted fw-bold">Phone</div>
+                        <div className="small fw-bold text-navy">{student.phone}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="p-2 rounded bg-surface-alt text-success">
-                      <Phone size={18} />
-                    </div>
-                    <div>
-                      <div className="extra-small text-muted fw-bold">Phone</div>
-                      <div className="small fw-bold text-navy">{student.phone}</div>
-                    </div>
-                  </div>
-                  <Button className="btn-pro-outline w-100 d-flex align-items-center justify-content-center gap-2 mt-2 border-2 small fw-bold">
-                    <ExternalLink size={16} /> Contact via MS Teams
-                  </Button>
+                  ) : null}
+                  {!student.email && !student.phone && (
+                    <p className="extra-small text-muted fw-bold mb-0 text-center py-2 opacity-75">No contact information available.</p>
+                  )}
                 </div>
               </Card>
 
