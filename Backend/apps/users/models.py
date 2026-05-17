@@ -1,56 +1,39 @@
 """Data models for the users (authentication) application."""
 
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
-    """Extended user model with role-based access."""
-    
+    """Single user model with role support and secure identity fields."""
+
+    ROLE_ADMIN = 'ADMIN'
+    ROLE_SUPERVISOR = 'SUPERVISOR'
+    ROLE_JURY = 'JURY'
+    ROLE_STUDENT = 'STUDENT'
+
     ROLE_CHOICES = [
-        ('admin', 'Administrator'),
-        ('supervisor', 'Supervisor'),
-        ('jury', 'Jury Member'),
-        ('student', 'Student'),
+        (ROLE_ADMIN, 'Admin'),
+        (ROLE_SUPERVISOR, 'Supervisor'),
+        (ROLE_JURY, 'Jury'),
+        (ROLE_STUDENT, 'Student'),
     ]
-    
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='custom_user_set',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        verbose_name='groups',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='custom_user_permissions_set',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
-    
-    role = models.CharField(
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default='student'
-    )
-    institutional_id = models.CharField(
-        max_length=50,
-        unique=True,
-        null=True,
-        blank=True
-    )
-    phone_number = models.CharField(
-        max_length=20,
-        null=True,
-        blank=True
-    )
-    is_active_user = models.BooleanField(default=True)
-    
+
+    username = models.CharField(max_length=150, unique=True, db_index=True)
+    email = models.EmailField(unique=True, db_index=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_STUDENT, db_index=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    institutional_id = models.CharField(max_length=50, unique=True, blank=True, null=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
-        ordering = ['date_joined']
-    
+        ordering = ['-created_at']
+
     def __str__(self):
-        return f"{self.get_full_name()} ({self.role})"
+        return self.get_full_name() or self.email

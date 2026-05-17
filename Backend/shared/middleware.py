@@ -1,51 +1,35 @@
-"""
-Shared middleware for the Scientific Research Portal API.
-
-Defines custom middleware for request/response processing.
-"""
+"""Request logging middleware for PFE Navigator API."""
 
 import logging
 import time
+
 from django.utils.deprecation import MiddlewareMixin
 
 logger = logging.getLogger(__name__)
 
 
 class RequestLoggingMiddleware(MiddlewareMixin):
-    """Middleware to log request details and execution time."""
-    
+    """Logs method, path, user, IP, status code, and duration for every request."""
+
     def process_request(self, request):
-        """Log incoming request."""
-        request.start_time = time.time()
-        logger.info(
-            f'[{request.method}] {request.path} - User: {request.user} - IP: {self._get_client_ip(request)}'
-        )
-        return None
-    
+        request._start_time = time.monotonic()
+
     def process_response(self, request, response):
-        """Log response with execution time."""
-        if hasattr(request, 'start_time'):
-            duration = time.time() - request.start_time
-            logger.info(
-                f'Response: {response.status_code} - Duration: {duration:.2f}s - Path: {request.path}'
-            )
+        duration_ms = round((time.monotonic() - getattr(request, "_start_time", time.monotonic())) * 1000, 1)
+        user = getattr(request, "user", None)
+        user_str = str(user.id) if user and user.is_authenticated else "anon"
+        logger.info(
+            "[%s] %s | user=%s ip=%s status=%s duration=%sms",
+            request.method,
+            request.path,
+            user_str,
+            self._client_ip(request),
+            response.status_code,
+            duration_ms,
+        )
         return response
-    
+
     @staticmethod
-    def _get_client_ip(request):
-        """Extract client IP from request."""
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
-
-
-class APIExceptionMiddleware(MiddlewareMixin):
-    """Middleware for consistent API error responses."""
-    
-    def process_exception(self, request, exception):
-        """Handle exceptions and return consistent error response."""
-        logger.exception(f'Unhandled exception in {request.path}')
-        return None
+    def _client_ip(request) -> str:
+        xff = request.META.get("HTTP_X_FORWARDED_FOR")
+        return xff.split(",")[0].strip() if xff else request.META.get("REMOTE_ADDR", "?")

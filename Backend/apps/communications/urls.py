@@ -1,20 +1,15 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import (
-    MessageViewSet, NotificationViewSet,
-    AdministrativeNoteViewSet, ResourceViewSet,
-    ContactableUsersView
-)
+"""URL routing for the communications application."""
 
-app_name = 'communications'
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+
+from .views import ContactableUsersView, MessageViewSet, NotificationViewSet
 
 router = DefaultRouter()
-router.register(r'messages', MessageViewSet, basename='message')
-router.register(r'notifications', NotificationViewSet, basename='notification')
-router.register(r'admin-notes', AdministrativeNoteViewSet, basename='admin-note')
-router.register(r'resources', ResourceViewSet, basename='resource')
+router.register(r"messages", MessageViewSet, basename="message")
+router.register(r"notifications", NotificationViewSet, basename="notification")
 
 urlpatterns = [
-    path('contactable-users/', ContactableUsersView.as_view(), name='contactable-users'),
-    path('', include(router.urls)),
+    path("contactable-users/", ContactableUsersView.as_view(), name="contactable-users"),
+    path("", include(router.urls)),
 ]

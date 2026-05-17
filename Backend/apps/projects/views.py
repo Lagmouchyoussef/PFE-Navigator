@@ -1,516 +1,276 @@
 """Views for the projects application."""
 
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from django.db import transaction
-from django.shortcuts import get_object_or_404
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
-from .models import (
-    Project, ProjectMilestone, Document, DocumentRemark,
-    Appointment, Evaluation, Feedback, JuryAssignment
-)
+from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.response import Response
+
+from shared.permissions import IsAdmin, IsAdminOrSupervisor
+from .models import Document, Evaluation, Project, Schedule
 from .serializers import (
-    ProjectSerializer, ProjectDetailSerializer, ProjectMilestoneSerializer,
-    DocumentSerializer, DocumentRemarkSerializer, AppointmentSerializer,
-    EvaluationSerializer, FeedbackSerializer, JuryAssignmentSerializer
+    DocumentSerializer,
+    EvaluationSerializer,
+    ProjectCreateSerializer,
+    ProjectSerializer,
+    ScheduleSerializer,
 )
 
 User = get_user_model()
+channel_layer = get_channel_layer()
+
+
+def _push_ws(user_id: int, payload: dict):
+    """Fire-and-forget WebSocket push to a user's group."""
+    if channel_layer:
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user_id}",
+            {"type": "project.updated", "payload": payload},
+        )
+
+
+def _notify(user, title: str, message: str, ntype: str = "INFO"):
+    from apps.communications.models import Notification
+    Notification.objects.create(user=user, title=title, message=message, type=ntype)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    """ViewSet for project operations."""
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["status", "supervisor"]
+    search_fields = ["title", "description"]
+    ordering_fields = ["created_at", "status", "title"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Project.objects.select_related(
+            "student__user", "supervisor__user"
+        )
+        if user.role == "ADMIN":
+            return qs.all()
+        if user.role == "SUPERVISOR":
+            return qs.filter(supervisor__user=user)
+        if user.role == "JURY":
+            return qs.filter(schedules__jury_members__user=user).distinct()
+        # STUDENT
+        if hasattr(user, "student_profile"):
+            return qs.filter(student=user.student_profile)
+        return qs.none()
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'dashboard']:
-            return ProjectDetailSerializer
+        if self.action == "create":
+            return ProjectCreateSerializer
         return ProjectSerializer
 
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx['request'] = self.request
-        return ctx
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return Project.objects.filter(student=user.student_profile).select_related('student__user', 'supervisor')
-            return Project.objects.none()
-        elif user.role == 'supervisor':
-            return Project.objects.filter(supervisor=user).select_related('student__user', 'supervisor')
-        elif user.role == 'jury':
-            return Project.objects.filter(jury_assignments__jury_member=user).select_related('student__user', 'supervisor')
-        return Project.objects.all().select_related('student__user', 'supervisor')
-
     def perform_create(self, serializer):
-        if self.request.user.role == 'student' and hasattr(self.request.user, 'student_profile'):
-            serializer.save(student=self.request.user.student_profile)
+        user = self.request.user
+        if user.role == "STUDENT" and hasattr(user, "student_profile"):
+            project = serializer.save(student=user.student_profile)
         else:
-            serializer.save()
+            project = serializer.save()
+        _notify(
+            project.supervisor.user,
+            f"New project submitted: {project.title}",
+            f"Student {project.student.user.get_full_name()} submitted a new project.",
+            "INFO",
+        )
 
-    @action(detail=False, methods=['get'])
-    def dashboard(self, request):
-        """Returns the main project for the logged-in student."""
-        if request.user.role != 'student' or not hasattr(request.user, 'student_profile'):
-            return Response({"error": "Only students have a project dashboard."}, status=status.HTTP_403_FORBIDDEN)
-        project = Project.objects.filter(student=request.user.student_profile).first()
-        if not project:
-            return Response({"message": "No project assigned."}, status=status.HTTP_200_OK)
-        serializer = ProjectDetailSerializer(project, context={'request': request})
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def stats(self, request):
-        """Project statistics for admin/supervisor."""
-        user = request.user
-        qs = self.get_queryset()
-        return Response({
-            'total': qs.count(),
-            'draft': qs.filter(status='draft').count(),
-            'in_progress': qs.filter(status='in_progress').count(),
-            'completed': qs.filter(status='completed').count(),
-            'submitted': qs.filter(status='submitted').count(),
+    def perform_update(self, serializer):
+        project = serializer.save()
+        _push_ws(project.student.user.id, {
+            "event": "project_updated",
+            "project_id": project.id,
+            "status": project.status,
         })
 
+    # ── Custom actions ────────────────────────────────────────────────────────
 
-class DocumentViewSet(viewsets.ModelViewSet):
-    """ViewSet for document operations."""
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
-    permission_classes = [permissions.IsAuthenticated]
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def submit(self, request, pk=None):
+        project = self.get_object()
+        user = request.user
+        if user.role == "STUDENT" and (
+            not hasattr(user, "student_profile") or project.student != user.student_profile
+        ):
+            return Response({"detail": "You can only submit your own project."}, status=403)
+        if project.status != Project.STATUS_DRAFT:
+            return Response({"detail": "Only DRAFT projects can be submitted."}, status=400)
+        project.status = Project.STATUS_SUBMITTED
+        project.save()
+        _push_ws(project.student.user.id, {"event": "status_changed", "status": project.status})
+        return Response(ProjectSerializer(project).data)
 
-    def get_serializer_class(self):
-        return DocumentSerializer
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx['request'] = self.request
-        return ctx
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return Document.objects.filter(
-                    project__student=user.student_profile
-                ).prefetch_related('remarks__author').select_related('project__student__user')
-            return Document.objects.none()
-        elif user.role == 'supervisor':
-            return Document.objects.filter(
-                project__supervisor=user, target__in=['supervisor', 'administration']
-            ).prefetch_related('remarks__author').select_related('project__student__user')
-        elif user.role == 'jury':
-            return Document.objects.filter(
-                project__jury_assignments__jury_member=user, target__in=['jury', 'administration']
-            ).prefetch_related('remarks__author').select_related('project__student__user')
-        # Admin sees all
-        return Document.objects.all().prefetch_related('remarks__author').select_related('project__student__user')
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        if user.role == 'student' and hasattr(user, 'student_profile'):
-            project = Project.objects.filter(student=user.student_profile).first()
-            if not project:
-                raise ValidationError("Student has no project.")
-            title = serializer.validated_data.get('title', '')
-            # Use atomic + select_for_update to prevent version race condition
-            with transaction.atomic():
-                existing = Document.objects.select_for_update().filter(
-                    project=project, title=title
-                ).count()
-                serializer.save(project=project, version=existing + 1)
-        else:
-            serializer.save()
-
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
     def approve(self, request, pk=None):
-        doc = self.get_object()
-        if request.user.role not in ['supervisor', 'admin']:
-            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        doc.status = 'approved'
-        doc.rejection_reason = ''
-        doc.save()
-        # Notify student
-        self._notify_student(doc, 'approved', f'Your document "{doc.title}" has been approved.')
-        return Response(DocumentSerializer(doc, context={'request': request}).data)
+        project = self.get_object()
+        project.status = Project.STATUS_APPROVED
+        project.save()
+        _notify(project.student.user, "Project Approved", f'Your project "{project.title}" has been approved.', "SUCCESS")
+        _push_ws(project.student.user.id, {"event": "status_changed", "status": project.status})
+        return Response(ProjectSerializer(project).data)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
     def reject(self, request, pk=None):
-        doc = self.get_object()
-        if request.user.role not in ['supervisor', 'admin']:
-            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        reason = str(request.data.get('reason', ''))[:500]
-        doc.status = 'rejected'
-        doc.rejection_reason = reason
-        doc.save()
-        self._notify_student(doc, 'rejected', f'Your document "{doc.title}" was rejected.')
-        return Response(DocumentSerializer(doc, context={'request': request}).data)
+        project = self.get_object()
+        project.status = Project.STATUS_REJECTED
+        project.save()
+        _notify(project.student.user, "Project Rejected", f'Your project "{project.title}" was rejected.', "ERROR")
+        _push_ws(project.student.user.id, {"event": "status_changed", "status": project.status})
+        return Response(ProjectSerializer(project).data)
 
-    def _notify_student(self, doc, ntype, message):
-        from apps.communications.models import Notification
-        student_user = doc.project.student.user
-        Notification.objects.create(
-            recipient=student_user,
-            sender=self.request.user,
-            title=f'Document {ntype.capitalize()}',
-            message=message,
-            type=ntype,
-            link='/student/reports',
+    @action(detail=True, methods=["post"], permission_classes=[IsAdminOrSupervisor])
+    def start(self, request, pk=None):
+        project = self.get_object()
+        if project.status != Project.STATUS_APPROVED:
+            return Response({"detail": "Project must be APPROVED to start."}, status=400)
+        project.status = Project.STATUS_IN_PROGRESS
+        project.save()
+        _push_ws(project.student.user.id, {"event": "status_changed", "status": project.status})
+        return Response(ProjectSerializer(project).data)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAdminOrSupervisor])
+    def complete(self, request, pk=None):
+        project = self.get_object()
+        project.status = Project.STATUS_COMPLETED
+        project.save()
+        _notify(project.student.user, "Project Completed", f'Your project "{project.title}" has been marked as completed.', "SUCCESS")
+        _push_ws(project.student.user.id, {"event": "status_changed", "status": project.status})
+        return Response(ProjectSerializer(project).data)
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAdmin])
+    def stats(self, request):
+        qs = Project.objects.all()
+        by_status = dict(
+            qs.values("status").annotate(count=Count("id")).values_list("status", "count")
         )
-
-
-class DocumentRemarkViewSet(viewsets.ModelViewSet):
-    """Remarks on documents by jury/supervisor."""
-    serializer_class = DocumentRemarkSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'student':
-            return DocumentRemark.objects.filter(document__project__student=user.student_profile)
-        elif user.role == 'supervisor':
-            return DocumentRemark.objects.filter(document__project__supervisor=user)
-        elif user.role == 'jury':
-            return DocumentRemark.objects.filter(document__project__jury_assignments__jury_member=user)
-        return DocumentRemark.objects.all()
-
-    def perform_create(self, serializer):
-        if self.request.user.role not in ['supervisor', 'jury', 'admin']:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only supervisors, jury or admin can add remarks.")
-        remark = serializer.save(author=self.request.user)
-        # Notify student
-        from apps.communications.models import Notification
-        student_user = remark.document.project.student.user
-        Notification.objects.create(
-            recipient=student_user,
-            sender=self.request.user,
-            title=f'New remark on "{remark.document.title}"',
-            message=remark.comment[:200],
-            type='document',
-            link='/student/reports',
-        )
-
-
-class AppointmentViewSet(viewsets.ModelViewSet):
-    """Appointments/calendar events."""
-    serializer_class = AppointmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return Appointment.objects.filter(project__student=user.student_profile)
-            return Appointment.objects.none()
-        elif user.role == 'supervisor':
-            return Appointment.objects.filter(project__supervisor=user)
-        elif user.role == 'jury':
-            return Appointment.objects.filter(project__jury_assignments__jury_member=user)
-        return Appointment.objects.all()
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        appt = serializer.save(created_by=user)
-        # Notify student if supervisor/admin creates appointment
-        if user.role in ['supervisor', 'admin', 'jury'] and appt.project:
-            from apps.communications.models import Notification
-            student_user = appt.project.student.user
-            Notification.objects.create(
-                recipient=student_user,
-                sender=user,
-                title=f'New appointment: {appt.title}',
-                message=f'Scheduled for {appt.date} at {appt.time}',
-                type='defense' if appt.type == 'defense' else 'info',
-                link='/student/schedule',
-            )
-
-    @action(detail=True, methods=['post'])
-    def cancel(self, request, pk=None):
-        appt = self.get_object()
-        appt.status = 'cancelled'
-        appt.save()
-        return Response(AppointmentSerializer(appt).data)
-
-    @action(detail=True, methods=['post'])
-    def confirm(self, request, pk=None):
-        appt = self.get_object()
-        appt.status = 'confirmed'
-        appt.save()
-        return Response(AppointmentSerializer(appt).data)
-
-
-class MilestoneViewSet(viewsets.ModelViewSet):
-    """Project milestones."""
-    serializer_class = ProjectMilestoneSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return ProjectMilestone.objects.filter(project__student=user.student_profile)
-            return ProjectMilestone.objects.none()
-        elif user.role == 'supervisor':
-            return ProjectMilestone.objects.filter(project__supervisor=user)
-        return ProjectMilestone.objects.all()
-
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            if self.request.user.role not in ['supervisor', 'admin']:
-                self.permission_denied(self.request, message="Only supervisors can manage milestones.")
-        return super().get_permissions()
-
-
-STUDENT_EVAL_LINK = '/student/evaluation'
+        from apps.students.models import StudentProfile
+        from apps.supervisors.models import SupervisorProfile
+        from apps.juries.models import JuryProfile
+        return Response({
+            "total_users": User.objects.count(),
+            "total_students": StudentProfile.objects.count(),
+            "total_supervisors": SupervisorProfile.objects.count(),
+            "total_jury": JuryProfile.objects.count(),
+            "total_projects": qs.count(),
+            "projects_by_status": by_status,
+            "total_evaluations": Evaluation.objects.count(),
+            "total_documents": Document.objects.count(),
+        })
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):
-    """Project evaluations."""
     serializer_class = EvaluationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["project"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return Evaluation.objects.filter(
-                    project__student=user.student_profile, is_published=True
-                )
-            return Evaluation.objects.none()
-        elif user.role == 'supervisor':
-            return Evaluation.objects.filter(project__supervisor=user)
-        elif user.role == 'jury':
-            return Evaluation.objects.filter(project__jury_assignments__jury_member=user)
-        return Evaluation.objects.all()
+        qs = Evaluation.objects.select_related("project__student__user", "evaluator")
+        if user.role == "ADMIN":
+            return qs.all()
+        if user.role == "SUPERVISOR":
+            return qs.filter(project__supervisor__user=user)
+        if user.role == "JURY":
+            return qs.filter(evaluator=user)
+        if user.role == "STUDENT" and hasattr(user, "student_profile"):
+            return qs.filter(project__student=user.student_profile)
+        return qs.none()
 
     def perform_create(self, serializer):
-        serializer.save()
-
-    @staticmethod
-    def _validate_score(score):
-        """Validate score is a number between 0 and 100."""
-        try:
-            val = float(score)
-        except (TypeError, ValueError):
-            raise ValidationError("Score must be a number.")
-        if val < 0 or val > 100:
-            raise ValidationError("Score must be between 0 and 100.")
-        return val
-
-    @action(detail=True, methods=['post'])
-    def submit_supervisor(self, request, pk=None):
-        """Supervisor submits their score."""
-        if request.user.role != 'supervisor':
-            return Response({'error': 'Only supervisors can submit supervisor scores.'}, status=403)
-        evaluation = self.get_object()
-        score = request.data.get('score')
-        comment = str(request.data.get('comment', ''))[:2000]
-        criteria = request.data.get('criteria', {})
-        if score is not None:
-            evaluation.supervisor_score = self._validate_score(score)
-            evaluation.supervisor_comment = comment
-            if isinstance(criteria, dict):
-                evaluation.supervisor_criteria = criteria
-            evaluation.save()
-            from apps.communications.models import Notification
-            Notification.objects.create(
-                recipient=evaluation.project.student.user,
-                sender=request.user,
-                title='Supervisor evaluation submitted',
-                message='Your supervisor has submitted an evaluation for your project.',
-                type='grade',
-                link=STUDENT_EVAL_LINK,
-            )
-        return Response(EvaluationSerializer(evaluation).data)
-
-    @action(detail=True, methods=['post'])
-    def submit_jury(self, request, pk=None):
-        """Jury member submits their score."""
-        if request.user.role != 'jury':
-            return Response({'error': 'Only jury members can submit jury scores.'}, status=403)
-        evaluation = self.get_object()
-        score = request.data.get('score')
-        comment = str(request.data.get('comment', ''))[:2000]
-        criteria = request.data.get('criteria', {})
-        if score is not None:
-            evaluation.jury_score = self._validate_score(score)
-            evaluation.jury_comment = comment
-            if isinstance(criteria, dict):
-                evaluation.jury_criteria = criteria
-            evaluation.save()
-            from apps.communications.models import Notification
-            Notification.objects.create(
-                recipient=evaluation.project.student.user,
-                sender=request.user,
-                title='Jury evaluation submitted',
-                message='The jury has submitted an evaluation for your project.',
-                type='grade',
-                link=STUDENT_EVAL_LINK,
-            )
-        return Response(EvaluationSerializer(evaluation).data)
-
-    @action(detail=True, methods=['post'])
-    def publish(self, request, pk=None):
-        """Admin publishes the evaluation."""
-        if request.user.role != 'admin':
-            return Response({'error': 'Only admin can publish evaluations.'}, status=403)
-        evaluation = self.get_object()
-        evaluation.is_published = True
-        evaluation.save()
-        from apps.communications.models import Notification
-        Notification.objects.create(
-            recipient=evaluation.project.student.user,
-            sender=request.user,
-            title='Final grades published',
-            message='Your final PFE grades have been officially published.',
-            type='grade',
-            link=STUDENT_EVAL_LINK,
-        )
-        return Response(EvaluationSerializer(evaluation).data)
-
-    @action(detail=True, methods=['post'])
-    def update_weights(self, request, pk=None):
-        """Admin updates grading weights."""
-        if request.user.role != 'admin':
-            return Response({'error': 'Only admin can update weights.'}, status=403)
-        evaluation = self.get_object()
-        try:
-            sup_w = int(request.data.get('supervisor_weight', evaluation.supervisor_weight))
-            jury_w = int(request.data.get('jury_weight', evaluation.jury_weight))
-        except (TypeError, ValueError):
-            return Response({'error': 'Weights must be integers.'}, status=400)
-        if sup_w < 0 or jury_w < 0 or sup_w + jury_w != 100:
-            return Response({'error': 'Weights must be non-negative and sum to 100.'}, status=400)
-        evaluation.supervisor_weight = sup_w
-        evaluation.jury_weight = jury_w
-        evaluation.save()
-        return Response(EvaluationSerializer(evaluation).data)
-
-
-class FeedbackViewSet(viewsets.ModelViewSet):
-    """Feedback from supervisors/jury."""
-    serializer_class = FeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
         user = self.request.user
-        if user.role == 'student':
-            if hasattr(user, 'student_profile'):
-                return Feedback.objects.filter(project__student=user.student_profile)
-            return Feedback.objects.none()
-        elif user.role == 'supervisor':
-            return Feedback.objects.filter(project__supervisor=user)
-        return Feedback.objects.all()
-
-    def perform_create(self, serializer):
-        feedback = serializer.save(author=self.request.user)
-        from apps.communications.models import Notification
-        Notification.objects.create(
-            recipient=feedback.project.student.user,
-            sender=self.request.user,
-            title=f'New feedback: {feedback.title}',
-            message=feedback.comment[:200],
-            type='document',
-            link=STUDENT_EVAL_LINK,
-        )
-
-
-class JuryAssignmentViewSet(viewsets.ModelViewSet):
-    """Manage jury assignments to projects."""
-    serializer_class = JuryAssignmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'jury':
-            return JuryAssignment.objects.filter(jury_member=user)
-        elif user.role == 'supervisor':
-            return JuryAssignment.objects.filter(project__supervisor=user)
-        return JuryAssignment.objects.all()
-
-    def perform_create(self, serializer):
-        if self.request.user.role != 'admin':
+        if user.role not in ("ADMIN", "SUPERVISOR", "JURY"):
             from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin can assign jury members.")
-        assignment = serializer.save()
-        # Create evaluation if not exists
-        project = assignment.project
-        Evaluation.objects.get_or_create(project=project)
-        # Notify jury member
-        from apps.communications.models import Notification
-        Notification.objects.create(
-            recipient=assignment.jury_member,
-            sender=self.request.user,
-            title=f'New jury assignment',
-            message=f'You have been assigned to evaluate: {project.title}',
-            type='info',
-            link='/jury/projects',
+            raise PermissionDenied("Only supervisors, jury, or admin can evaluate.")
+        evaluation = serializer.save(evaluator=user)
+        _notify(
+            evaluation.project.student.user,
+            "New Evaluation Submitted",
+            f"A new evaluation has been submitted for your project.",
+            "SUCCESS",
         )
+        async_to_sync(channel_layer.group_send)(
+            f"user_{evaluation.project.student.user.id}",
+            {"type": "push.notification", "payload": {
+                "event": "new_evaluation",
+                "project_id": evaluation.project.id,
+                "grade": str(evaluation.grade),
+            }},
+        ) if channel_layer else None
 
 
-class ProjectSubjectsView(APIView):
+class DocumentViewSet(viewsets.ModelViewSet):
+    serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["project"]
+    search_fields = ["title"]
 
-    def get(self, request):
-        projects = Project.objects.all().select_related('supervisor', 'student__user')
-        data = []
-        for p in projects:
-            data.append({
-                "id": p.id,
-                "title": p.title,
-                "description": p.description,
-                "supervisor": p.supervisor.get_full_name() if p.supervisor else "Unassigned",
-                "category": "General", # Could be added to model if needed
-                "difficulty": "Intermediate", # Could be added to model if needed
-                "status": p.status.capitalize(),
-                "date": p.created_at.strftime("%Y-%m-%d")
-            })
-        return Response(data)
+    def get_queryset(self):
+        user = self.request.user
+        qs = Document.objects.select_related("project__student__user", "uploaded_by")
+        if user.role == "ADMIN":
+            return qs.all()
+        if user.role == "SUPERVISOR":
+            return qs.filter(project__supervisor__user=user)
+        if user.role == "JURY":
+            return qs.filter(project__schedules__jury_members__user=user).distinct()
+        if user.role == "STUDENT" and hasattr(user, "student_profile"):
+            return qs.filter(project__student=user.student_profile)
+        return qs.none()
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx["request"] = self.request
+        return ctx
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
 
 
-class ProjectRepositoryView(APIView):
+class ScheduleViewSet(viewsets.ModelViewSet):
+    serializer_class = ScheduleSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["status", "project"]
+    ordering = ["date"]
 
-    def get(self, request):
-        user = request.user
-        if user.role == 'student' and hasattr(user, 'student_profile'):
-            docs = Document.objects.filter(project__student=user.student_profile)
-        elif user.role == 'supervisor':
-            docs = Document.objects.filter(project__supervisor=user)
-        elif user.role == 'jury':
-            docs = Document.objects.filter(project__jury_assignments__jury_member=user)
-        else:
-            docs = Document.objects.all()
-        serializer = DocumentSerializer(docs, many=True, context={'request': request})
-        return Response(serializer.data)
+    def get_queryset(self):
+        user = self.request.user
+        qs = Schedule.objects.select_related("project__student__user").prefetch_related("jury_members__user")
+        if user.role == "ADMIN":
+            return qs.all()
+        if user.role == "SUPERVISOR":
+            return qs.filter(project__supervisor__user=user)
+        if user.role == "JURY":
+            return qs.filter(jury_members__user=user)
+        if user.role == "STUDENT" and hasattr(user, "student_profile"):
+            return qs.filter(project__student=user.student_profile)
+        return qs.none()
 
-
-class AdminDashboardStatsView(APIView):
-    """Admin dashboard statistics."""
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        if request.user.role != 'admin':
-            return Response({'error': 'Admin only'}, status=403)
-        from apps.students.models import Student
-        from apps.supervisors.models import Supervisor
-        from apps.juries.models import Jury
-        return Response({
-            'total_students': Student.objects.count(),
-            'total_supervisors': Supervisor.objects.count(),
-            'total_jury': Jury.objects.count(),
-            'total_projects': Project.objects.count(),
-            'projects_in_progress': Project.objects.filter(status='in_progress').count(),
-            'projects_completed': Project.objects.filter(status='completed').count(),
-            'projects_submitted': Project.objects.filter(status='submitted').count(),
-            'total_documents': Document.objects.count(),
-            'pending_documents': Document.objects.filter(status='pending').count(),
-            'total_evaluations': Evaluation.objects.count(),
-            'published_evaluations': Evaluation.objects.filter(is_published=True).count(),
-        })
+    def perform_create(self, serializer):
+        if self.request.user.role not in ("ADMIN",):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin can create defense schedules.")
+        schedule = serializer.save()
+        _notify(
+            schedule.project.student.user,
+            "Defense Scheduled",
+            f"Your defense has been scheduled on {schedule.date.strftime('%Y-%m-%d %H:%M')} at {schedule.location}.",
+            "INFO",
+        )
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                f"user_{schedule.project.student.user.id}",
+                {"type": "push.notification", "payload": {
+                    "event": "schedule_updated",
+                    "schedule_id": schedule.id,
+                }},
+            )

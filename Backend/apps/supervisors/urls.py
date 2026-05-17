@@ -1,10 +1,11 @@
 """URL routing for the supervisors application."""
 
-from django.urls import path
-from . import views
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-app_name = 'supervisors'
+from .views import SupervisorProfileViewSet
 
-urlpatterns = [
-    # Add supervisor endpoints here
-]
+router = DefaultRouter()
+router.register(r"", SupervisorProfileViewSet, basename="supervisor-profile")
+
+urlpatterns = [path("", include(router.urls))]

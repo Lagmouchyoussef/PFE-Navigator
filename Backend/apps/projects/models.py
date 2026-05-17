@@ -1,202 +1,84 @@
 """Data models for the projects application."""
 
-from django.db import models
 from django.conf import settings
+from django.db import models
+from django.db.models import Q
+from django.core.validators import MaxValueValidator, MinValueValidator
 from apps.core.models import Timestamp
-from apps.students.models import Student
 
 
 class Project(Timestamp):
     """Research project model."""
 
+    STATUS_DRAFT = 'DRAFT'
+    STATUS_SUBMITTED = 'SUBMITTED'
+    STATUS_UNDER_REVIEW = 'UNDER_REVIEW'
+    STATUS_APPROVED = 'APPROVED'
+    STATUS_IN_PROGRESS = 'IN_PROGRESS'
+    STATUS_COMPLETED = 'COMPLETED'
+    STATUS_REJECTED = 'REJECTED'
+
     STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('under_review', 'Under Review'),
-        ('approved', 'Approved'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-        ('rejected', 'Rejected'),
+        (STATUS_DRAFT, 'Draft'),
+        (STATUS_SUBMITTED, 'Submitted'),
+        (STATUS_UNDER_REVIEW, 'Under Review'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_IN_PROGRESS, 'In Progress'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_REJECTED, 'Rejected'),
     ]
 
     title = models.CharField(max_length=255)
     description = models.TextField()
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='projects')
-    supervisor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='supervised_projects'
-    )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DRAFT, db_index=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    student = models.ForeignKey(
+        'students.StudentProfile',
+        on_delete=models.PROTECT,
+        related_name='projects'
+    )
+    supervisor = models.ForeignKey(
+        'supervisors.SupervisorProfile',
+        on_delete=models.PROTECT,
+        related_name='projects'
+    )
 
     class Meta:
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student'],
+                condition=Q(status__in=['IN_PROGRESS', 'APPROVED']),
+                name='unique_active_project_per_student',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+        ]
 
     def __str__(self):
         return self.title
-
-
-class JuryAssignment(Timestamp):
-    """Assignment of jury members to projects."""
-
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='jury_assignments')
-    jury_member = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name='jury_project_assignments'
-    )
-    role = models.CharField(max_length=50, default='evaluator')
-
-    class Meta:
-        unique_together = ('project', 'jury_member')
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.jury_member.get_full_name()} → {self.project.title}"
-
-
-class ProjectMilestone(Timestamp):
-    """Milestones for a project."""
-
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-    ]
-
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='milestones')
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    due_date = models.DateField(null=True, blank=True)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['order', 'created_at']
-
-    def __str__(self):
-        return f"{self.project.title} - {self.title}"
-
-
-class Document(Timestamp):
-    """Documents uploaded by students."""
-
-    TARGET_CHOICES = [
-        ('supervisor', 'Supervisor'),
-        ('jury', 'Jury'),
-        ('administration', 'Administration'),
-    ]
-
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    ]
-
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='documents')
-    title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='project_documents/%Y/%m/%d/')
-    target = models.CharField(max_length=20, choices=TARGET_CHOICES, default='supervisor')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    version = models.PositiveIntegerField(default=1)
-    rejection_reason = models.TextField(blank=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return self.title
-
-
-class DocumentRemark(Timestamp):
-    """Remarks and scores given by jury/supervisor on documents."""
-
-    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='remarks')
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name='document_remarks'
-    )
-    comment = models.TextField()
-    score = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"Remark by {self.author.get_full_name()} on {self.document.title}"
-
-
-class Appointment(Timestamp):
-    """Meetings and deadlines for the calendar."""
-
-    TYPE_CHOICES = [
-        ('meeting', 'Meeting'),
-        ('deadline', 'Deadline'),
-        ('defense', 'Defense'),
-        ('code_review', 'Code Review'),
-    ]
-
-    STATUS_CHOICES = [
-        ('confirmed', 'Confirmed'),
-        ('pending', 'Pending'),
-        ('rescheduled', 'Rescheduled'),
-        ('cancelled', 'Cancelled'),
-        ('completed', 'Completed'),
-    ]
-
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE,
-        related_name='appointments', null=True, blank=True
-    )
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='created_appointments'
-    )
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    date = models.DateField()
-    time = models.TimeField()
-    location = models.CharField(max_length=255, default='Online Portal')
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='meeting')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-
-    class Meta:
-        ordering = ['date', 'time']
-
-    def __str__(self):
-        return f"{self.title} on {self.date}"
 
 
 class Evaluation(Timestamp):
     """Project evaluation model."""
 
-    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='evaluation')
-
-    # Supervisor evaluation
-    supervisor_score = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    supervisor_comment = models.TextField(blank=True)
-    supervisor_criteria = models.JSONField(default=dict, blank=True)
-
-    # Jury evaluation
-    jury_score = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    jury_comment = models.TextField(blank=True)
-    jury_criteria = models.JSONField(default=dict, blank=True)
-
-    # Legacy criteria scores (0-100)
-    technical_quality = models.PositiveIntegerField(default=0)
-    innovation = models.PositiveIntegerField(default=0)
-    documentation = models.PositiveIntegerField(default=0)
-    implementation = models.PositiveIntegerField(default=0)
-    presentation = models.PositiveIntegerField(default=0)
-
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='evaluations')
+    evaluator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='evaluations'
+    )
+    grade = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(20)]
+    )
     comments = models.TextField(blank=True)
-    is_published = models.BooleanField(default=False)
-
-    # Weights
-    supervisor_weight = models.PositiveIntegerField(default=50)
-    jury_weight = models.PositiveIntegerField(default=50)
 
     class Meta:
         verbose_name = 'Evaluation'
@@ -204,31 +86,58 @@ class Evaluation(Timestamp):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Evaluation of {self.project.title}"
-
-    @property
-    def final_score(self):
-        if self.supervisor_score is not None and self.jury_score is not None:
-            return (
-                float(self.supervisor_score) * (self.supervisor_weight / 100) +
-                float(self.jury_score) * (self.jury_weight / 100)
-            )
-        return self.supervisor_score or self.jury_score
+        return f"{self.project.title} evaluation by {self.evaluator.get_full_name()}"
 
 
-class Feedback(Timestamp):
-    """Feedback from supervisor or jury members."""
+class Document(Timestamp):
+    """Documents uploaded for a project."""
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='feedbacks')
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name='given_feedbacks'
-    )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='documents')
     title = models.CharField(max_length=255)
-    comment = models.TextField()
+    file = models.FileField(upload_to='documents/%Y/%m/')
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='uploaded_documents'
+    )
 
     class Meta:
+        verbose_name = 'Document'
+        verbose_name_plural = 'Documents'
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Feedback for {self.project.title} by {self.author.get_full_name()}"
+        return self.title
+
+
+class Schedule(Timestamp):
+    """Project defense / review schedule."""
+
+    STATUS_SCHEDULED = 'SCHEDULED'
+    STATUS_ONGOING = 'ONGOING'
+    STATUS_COMPLETED = 'COMPLETED'
+    STATUS_CANCELLED = 'CANCELLED'
+
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='schedules')
+    jury_members = models.ManyToManyField('juries.JuryProfile', related_name='schedules')
+    date = models.DateTimeField()
+    location = models.CharField(max_length=255)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            (STATUS_SCHEDULED, 'Scheduled'),
+            (STATUS_ONGOING, 'Ongoing'),
+            (STATUS_COMPLETED, 'Completed'),
+            (STATUS_CANCELLED, 'Cancelled'),
+        ],
+        default=STATUS_SCHEDULED,
+        db_index=True,
+    )
+
+    class Meta:
+        verbose_name = 'Schedule'
+        verbose_name_plural = 'Schedules'
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.project.title} @ {self.date.isoformat()}"

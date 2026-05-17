@@ -1,10 +1,11 @@
 """URL routing for the juries application."""
 
-from django.urls import path
-from . import views
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-app_name = 'juries'
+from .views import JuryProfileViewSet
 
-urlpatterns = [
-    # Add jury endpoints here
-]
+router = DefaultRouter()
+router.register(r"", JuryProfileViewSet, basename="jury-profile")
+
+urlpatterns = [path("", include(router.urls))]

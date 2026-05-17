@@ -1,274 +1,157 @@
 """Views for the communications application."""
 
-from rest_framework import viewsets, permissions, status
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from django.contrib.auth import get_user_model
-from django.db.models import Q
-from .models import Message, Notification, AdministrativeNote, Resource
-from .serializers import (
-    MessageSerializer, MessageCreateSerializer,
-    NotificationSerializer, AdministrativeNoteSerializer,
-    ResourceSerializer
-)
+
+from .models import Message, Notification
+from .serializers import MessageSerializer, NotificationSerializer, UserMiniSerializer
 
 User = get_user_model()
+channel_layer = get_channel_layer()
+
+
+def _push_message(receiver_id: int, payload: dict):
+    if channel_layer:
+        async_to_sync(channel_layer.group_send)(
+            f"user_{receiver_id}",
+            {"type": "chat.message", "payload": payload},
+        )
+
+
+def _push_notification(user_id: int, payload: dict):
+    if channel_layer:
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user_id}",
+            {"type": "push.notification", "payload": payload},
+        )
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    """Messages between users."""
+    serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_serializer_class(self):
-        if self.action in ['create']:
-            return MessageCreateSerializer
-        return MessageSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["is_read", "project"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
         return Message.objects.filter(
-            Q(sender=user) | Q(recipient=user)
-        ).select_related('sender', 'recipient').order_by('-created_at')
+            Q(sender=user) | Q(receiver=user)
+        ).select_related("sender", "receiver")
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
-        # Create notification for recipient
-        msg = serializer.instance
+        msg = serializer.save(sender=self.request.user)
+        # Real-time push to receiver
+        _push_message(msg.receiver.id, {
+            "event": "new_message",
+            "id": msg.id,
+            "sender_id": msg.sender.id,
+            "sender_name": msg.sender.get_full_name() or msg.sender.email,
+            "content": msg.content,
+            "created_at": msg.created_at.isoformat(),
+        })
+        # Persist notification
         Notification.objects.create(
-            recipient=msg.recipient,
-            sender=self.request.user,
-            title=f"New message from {self.request.user.get_full_name() or self.request.user.username}",
+            user=msg.receiver,
+            title=f"New message from {msg.sender.get_full_name() or msg.sender.email}",
             message=msg.content[:200],
-            type='message',
-            link='/messages',
+            type=Notification.TYPE_INFO,
+            related_object_id=str(msg.id),
+            related_object_type="message",
         )
 
-    @action(detail=False, methods=['get'])
-    def inbox(self, request):
-        """Messages received by current user."""
-        msgs = Message.objects.filter(recipient=request.user).select_related('sender')
-        serializer = MessageSerializer(msgs, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def sent(self, request):
-        """Messages sent by current user."""
-        msgs = Message.objects.filter(sender=request.user).select_related('recipient')
-        serializer = MessageSerializer(msgs, many=True)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def mark_read(self, request, pk=None):
         msg = self.get_object()
-        if msg.recipient == request.user:
+        if msg.receiver == request.user:
             msg.is_read = True
-            msg.save()
-        return Response({'status': 'read'})
+            msg.save(update_fields=["is_read"])
+        return Response({"status": "read"})
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def mark_all_read(self, request):
-        Message.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
-        return Response({'status': 'all read'})
+        Message.objects.filter(receiver=request.user, is_read=False).update(is_read=True)
+        return Response({"status": "all read"})
+
+    @action(detail=False, methods=["get"])
+    def inbox(self, request):
+        msgs = Message.objects.filter(receiver=request.user).select_related("sender").order_by("-created_at")
+        return Response(MessageSerializer(msgs, many=True).data)
+
+    @action(detail=False, methods=["get"])
+    def sent(self, request):
+        msgs = Message.objects.filter(sender=request.user).select_related("receiver").order_by("-created_at")
+        return Response(MessageSerializer(msgs, many=True).data)
+
+    @action(detail=False, methods=["get"])
+    def unread_count(self, request):
+        count = Message.objects.filter(receiver=request.user, is_read=False).count()
+        return Response({"count": count})
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    """Notifications for users."""
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["is_read", "type"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
-        return Notification.objects.filter(
-            recipient=self.request.user
-        ).select_related('sender').order_by('-created_at')
+        return Notification.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        """Admin/supervisor/jury can send notifications."""
-        user = self.request.user
-        recipients_data = self.request.data.get('recipients', [])
-        audience = self.request.data.get('audience', '')
+        serializer.save(user=self.request.user)
 
-        if audience:
-            role_map = {
-                'students': 'student',
-                'supervisors': 'supervisor',
-                'juries': 'jury',
-                'all': None,
-            }
-            role = role_map.get(audience)
-            if role:
-                recipients = User.objects.filter(role=role)
-            else:
-                recipients = User.objects.all()
-            for recipient in recipients:
-                Notification.objects.create(
-                    recipient=recipient,
-                    sender=user,
-                    title=serializer.validated_data['title'],
-                    message=serializer.validated_data['message'],
-                    type=serializer.validated_data.get('type', 'info'),
-                    link=serializer.validated_data.get('link', ''),
-                )
-        elif recipients_data:
-            for rid in recipients_data:
-                try:
-                    recipient = User.objects.get(id=rid)
-                    Notification.objects.create(
-                        recipient=recipient,
-                        sender=user,
-                        title=serializer.validated_data['title'],
-                        message=serializer.validated_data['message'],
-                        type=serializer.validated_data.get('type', 'info'),
-                        link=serializer.validated_data.get('link', ''),
-                    )
-                except User.DoesNotExist:
-                    pass
-        else:
-            serializer.save(recipient=user, sender=user)
-
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def mark_read(self, request, pk=None):
         notif = self.get_object()
         notif.is_read = True
-        notif.save()
-        return Response({'status': 'read'})
+        notif.save(update_fields=["is_read"])
+        return Response({"status": "read"})
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def mark_all_read(self, request):
-        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
-        return Response({'status': 'all read'})
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({"status": "all read"})
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def unread_count(self, request):
-        count = Notification.objects.filter(recipient=request.user, is_read=False).count()
-        return Response({'count': count})
-
-
-class AdministrativeNoteViewSet(viewsets.ModelViewSet):
-    """Administrative notes from admin to users."""
-    serializer_class = AdministrativeNoteSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'admin':
-            return AdministrativeNote.objects.all()
-        # Map role to audience filter
-        role_to_audience = {
-            'student': ['all', 'students'],
-            'supervisor': ['all', 'supervisors'],
-            'jury': ['all', 'juries'],
-        }
-        audiences = role_to_audience.get(user.role, ['all'])
-        return AdministrativeNote.objects.filter(audience__in=audiences)
-
-    def perform_create(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admins can create administrative notes.")
-        serializer.save(author=self.request.user)
-        # Create notifications for all target users
-        note = serializer.instance
-        role_map = {
-            'students': 'student',
-            'supervisors': 'supervisor',
-            'juries': 'jury',
-            'all': None,
-        }
-        role = role_map.get(note.audience)
-        if role:
-            recipients = User.objects.filter(role=role)
-        else:
-            recipients = User.objects.all()
-        for recipient in recipients:
-            if recipient != self.request.user:
-                Notification.objects.create(
-                    recipient=recipient,
-                    sender=self.request.user,
-                    title=f"Administrative Note: {note.title}",
-                    message=note.content[:200],
-                    type='info',
-                    link='/administrative-notes',
-                )
-
-    def perform_update(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admins can edit notes.")
-        serializer.save()
-
-    def perform_destroy(self, instance):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admins can delete notes.")
-        instance.delete()
-
-
-class ResourceViewSet(viewsets.ModelViewSet):
-    """Resource hub managed by admin."""
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
-
-    def get_serializer_class(self):
-        return ResourceSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'admin':
-            return Resource.objects.all()
-        return Resource.objects.filter(is_public=True)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
-
-    def perform_create(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admins can add resources.")
-        serializer.save(uploaded_by=self.request.user)
-
-    def perform_destroy(self, instance):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admins can delete resources.")
-        instance.delete()
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({"count": count})
 
 
 class ContactableUsersView(APIView):
-    """Return list of users the current user can message."""
+    """Return users the current user is allowed to message."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        if user.role == 'student':
-            # Students can message their supervisor and admin
-            from apps.students.models import Student
-            try:
-                profile = user.student_profile
-                project = profile.projects.first()
-                users = User.objects.filter(
-                    Q(role='admin') |
-                    (Q(id=project.supervisor_id) if project and project.supervisor_id else Q())
-                ).exclude(id=user.id)
-            except Exception:
-                users = User.objects.filter(role='admin').exclude(id=user.id)
-        elif user.role == 'supervisor':
-            # Supervisors can message their students and admin
-            student_user_ids = User.objects.filter(
-                student_profile__projects__supervisor=user
-            ).values_list('id', flat=True)
+        if user.role == "ADMIN":
+            users = User.objects.exclude(id=user.id).order_by("last_name")
+        elif user.role == "SUPERVISOR":
+            student_ids = User.objects.filter(
+                student_profile__supervisor__user=user
+            ).values_list("id", flat=True)
             users = User.objects.filter(
-                Q(role='admin') | Q(id__in=student_user_ids)
+                Q(role="ADMIN") | Q(id__in=student_ids)
             ).exclude(id=user.id)
-        elif user.role == 'jury':
-            users = User.objects.filter(role__in=['admin']).exclude(id=user.id)
+        elif user.role == "STUDENT":
+            try:
+                sup_user_id = user.student_profile.supervisor.user.id if user.student_profile.supervisor else None
+            except Exception:
+                sup_user_id = None
+            q = Q(role="ADMIN")
+            if sup_user_id:
+                q |= Q(id=sup_user_id)
+            users = User.objects.filter(q).exclude(id=user.id)
         else:
-            # Admin can message everyone
-            users = User.objects.exclude(id=user.id)
+            users = User.objects.filter(role="ADMIN").exclude(id=user.id)
 
-        from .serializers import UserMiniSerializer
-        serializer = UserMiniSerializer(users, many=True)
-        return Response(serializer.data)
+        return Response(UserMiniSerializer(users, many=True).data)

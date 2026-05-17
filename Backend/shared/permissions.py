@@ -1,50 +1,62 @@
-"""
-Custom permissions for the Scientific Research Portal API.
+"""Role-based permission classes for PFE Navigator API."""
 
-Defines role-based and resource-level permission classes.
-"""
-
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class IsAdmin(BasePermission):
-    """Allow access only to admin users."""
-    
-    message = 'Admin access required.'
-    
-    def has_permission(self, request, view):
-        return request.user and hasattr(request.user, 'role') and request.user.role == 'admin'
+    message = "Admin access required."
 
-
-class IsStudent(BasePermission):
-    """Allow access only to student users."""
-    
-    message = 'Student access required.'
-    
     def has_permission(self, request, view):
-        return request.user and hasattr(request.user, 'role') and request.user.role == 'student'
+        return bool(request.user and request.user.is_authenticated and request.user.role == "ADMIN")
 
 
 class IsSupervisor(BasePermission):
-    """Allow access only to supervisor users."""
-    
-    message = 'Supervisor access required.'
-    
+    message = "Supervisor access required."
+
     def has_permission(self, request, view):
-        return request.user and hasattr(request.user, 'role') and request.user.role == 'supervisor'
+        return bool(request.user and request.user.is_authenticated and request.user.role == "SUPERVISOR")
 
 
 class IsJury(BasePermission):
-    """Allow access only to jury users."""
-    
-    message = 'Jury access required.'
-    
+    message = "Jury access required."
+
     def has_permission(self, request, view):
-        return request.user and hasattr(request.user, 'role') and request.user.role == 'jury'
+        return bool(request.user and request.user.is_authenticated and request.user.role == "JURY")
 
 
-class IsOwner(BasePermission):
-    """Allow access only to the owner of an object."""
-    
+class IsStudent(BasePermission):
+    message = "Student access required."
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.role == "STUDENT")
+
+
+class IsAdminOrSupervisor(BasePermission):
+    message = "Admin or Supervisor access required."
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in ("ADMIN", "SUPERVISOR")
+        )
+
+
+class IsOwnerOrAdmin(BasePermission):
+    """Object-level: allow if user owns the object or is admin."""
+
     def has_object_permission(self, request, view, obj):
-        return obj.user == request.user
+        if request.user.role == "ADMIN":
+            return True
+        owner = getattr(obj, "user", None) or getattr(obj, "uploaded_by", None) or getattr(obj, "sender", None)
+        return owner == request.user
+
+
+class IsOwnerOrReadOnly(BasePermission):
+    """Object-level: allow safe methods to anyone authenticated; writes only to owner."""
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        owner = getattr(obj, "user", None) or getattr(obj, "uploaded_by", None)
+        return owner == request.user

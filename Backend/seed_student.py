@@ -6,7 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
 from django.contrib.auth import get_user_model
-from apps.students.models import Student
+from apps.students.models import StudentProfile as Student
 
 User = get_user_model()
 
@@ -30,7 +30,7 @@ def seed():
             username=username,
             first_name="Ahmed",
             last_name="Khalil",
-            role="student",
+            role="STUDENT",
             institutional_id="STU-2026-001"
         )
         user.set_password(password)
@@ -47,7 +47,7 @@ def seed():
             username=admin_username,
             first_name="Admin",
             last_name="User",
-            role="admin",
+            role="ADMIN",
             institutional_id="ADM-2026-001"
         )
         admin_user.set_password(admin_password)

@@ -25,12 +25,12 @@ class LoginView(views.APIView):
 
         # Authenticate using email (which is the username in our case or we check by email)
         from django.contrib.auth import get_user_model
-        User = get_user_model()
+        user_model = get_user_model()
         
         try:
-            user_obj = User.objects.get(email=email)
+            user_obj = user_model.objects.get(email=email)
             username = user_obj.username
-        except User.DoesNotExist:
+        except user_model.DoesNotExist:
             return Response(
                 {"detail": "Invalid credentials."},
                 status=status.HTTP_401_UNAUTHORIZED

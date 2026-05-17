@@ -13,6 +13,10 @@ export const authApi = {
     localStorage.setItem('pfe_access_token', access);
     localStorage.setItem('pfe_refresh_token', refresh);
 
+    if (user && typeof user.role === 'string') {
+      user.role = user.role.toLowerCase();
+    }
+
     return user as Session;
   },
 
@@ -29,7 +33,11 @@ export const authApi = {
 
   me: async () => {
     const response = await apiClient.get('/auth/me/');
-    return response.data as Session;
+    const user = response.data;
+    if (user && typeof user.role === 'string') {
+      user.role = user.role.toLowerCase();
+    }
+    return user as Session;
   },
 
   updateSettings: async (settings: any) => {

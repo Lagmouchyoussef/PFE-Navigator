@@ -1,14 +1,94 @@
 /* BLUEPRINT-JS-START */
-// 🚀 Auto-generado para python: 5/15/2026, 7:26:14 PM
+// 🚀 Auto-generado para typescript: 5/17/2026, 4:52:13 AM
 
 'use strict';
 
-console.log('✅ 1 funciones y 0 clases detectadas');
+console.log('✅ 17 funciones y 0 clases detectadas');
 
 // Funciones interactivas
-function demo_seed() {
-    console.log('▶️ Ejecutando: seed()');
-    alert('Función seed() ejecutada');
+function demo_getDashboardPath() {
+    console.log('▶️ Ejecutando: getDashboardPath()');
+    alert('Función getDashboardPath() ejecutada');
+}
+
+function demo_getMessagesPath() {
+    console.log('▶️ Ejecutando: getMessagesPath()');
+    alert('Función getMessagesPath() ejecutada');
+}
+
+function demo_getNotificationsPath() {
+    console.log('▶️ Ejecutando: getNotificationsPath()');
+    alert('Función getNotificationsPath() ejecutada');
+}
+
+function demo_getNotesPath() {
+    console.log('▶️ Ejecutando: getNotesPath()');
+    alert('Función getNotesPath() ejecutada');
+}
+
+function demo_getUserRoleLabel() {
+    console.log('▶️ Ejecutando: getUserRoleLabel()');
+    alert('Función getUserRoleLabel() ejecutada');
+}
+
+function demo_renderCoreSidebarLinks() {
+    console.log('▶️ Ejecutando: renderCoreSidebarLinks()');
+    alert('Función renderCoreSidebarLinks() ejecutada');
+}
+
+function demo_getUnreadMessages() {
+    console.log('▶️ Ejecutando: getUnreadMessages()');
+    alert('Función getUnreadMessages() ejecutada');
+}
+
+function demo_renderUnauthenticatedRoutes() {
+    console.log('▶️ Ejecutando: renderUnauthenticatedRoutes()');
+    alert('Función renderUnauthenticatedRoutes() ejecutada');
+}
+
+function demo_renderAdminRoutes() {
+    console.log('▶️ Ejecutando: renderAdminRoutes()');
+    alert('Función renderAdminRoutes() ejecutada');
+}
+
+function demo_renderProtectedRoutes() {
+    console.log('▶️ Ejecutando: renderProtectedRoutes()');
+    alert('Función renderProtectedRoutes() ejecutada');
+}
+
+function demo_App() {
+    console.log('▶️ Ejecutando: App()');
+    alert('Función App() ejecutada');
+}
+
+function demo_startResizing() {
+    console.log('▶️ Ejecutando: startResizing()');
+    alert('Función startResizing() ejecutada');
+}
+
+function demo_handleMouseMove() {
+    console.log('▶️ Ejecutando: handleMouseMove()');
+    alert('Función handleMouseMove() ejecutada');
+}
+
+function demo_handleMouseUp() {
+    console.log('▶️ Ejecutando: handleMouseUp()');
+    alert('Función handleMouseUp() ejecutada');
+}
+
+function demo_toggleSidebar() {
+    console.log('▶️ Ejecutando: toggleSidebar()');
+    alert('Función toggleSidebar() ejecutada');
+}
+
+function demo_toggleGroup() {
+    console.log('▶️ Ejecutando: toggleGroup()');
+    alert('Función toggleGroup() ejecutada');
+}
+
+function demo_formatDateSafe() {
+    console.log('▶️ Ejecutando: formatDateSafe()');
+    alert('Función formatDateSafe() ejecutada');
 }
 
 

@@ -26,7 +26,7 @@ async function request(endpoint: string, options: Record<string, unknown> = {}) 
 
   const headers: Record<string, string> = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-    ...(token ? { 'Authorization': `Token ${token}` } : {}),
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string> | undefined),
   };
 

@@ -10,7 +10,7 @@ class UserAdmin(BaseUserAdmin):
     """Custom admin configuration for User model."""
     
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('role', 'institutional_id', 'phone_number', 'is_active_user')}),
+        ('Additional Info', {'fields': ('role', 'institutional_id', 'phone_number')}),
     )
     list_display = ['username', 'email', 'role', 'is_active']
     list_filter = ['role', 'is_active', 'date_joined']

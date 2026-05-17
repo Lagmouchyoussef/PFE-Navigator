@@ -22,7 +22,7 @@ def seed_all_roles():
             username=username,
             first_name=first,
             last_name=last,
-            role=role,
+            role=role.upper(),
             institutional_id=f"{role.upper()}-2026-001"
         )
         user.set_password(password)

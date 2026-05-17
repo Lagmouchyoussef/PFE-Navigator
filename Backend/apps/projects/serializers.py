@@ -1,175 +1,154 @@
 """Serializers for the projects application."""
 
 import os
-from rest_framework import serializers
+
 from django.contrib.auth import get_user_model
-from .models import (
-    Project, ProjectMilestone, Document, DocumentRemark,
-    Appointment, Evaluation, Feedback, JuryAssignment
-)
+from rest_framework import serializers
+
+from .models import Document, Evaluation, Project, Schedule
 
 User = get_user_model()
 
-ALLOWED_DOCUMENT_EXTENSIONS = {'.pdf', '.doc', '.docx', '.odt', '.txt', '.zip', '.png', '.jpg', '.jpeg'}
-MAX_UPLOAD_SIZE_MB = 20
-MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
+ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".odt", ".txt", ".zip", ".png", ".jpg", ".jpeg"}
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
 
 
-class UserSimpleSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
+class UserMiniSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'role']
+        fields = ["id", "full_name", "email", "role"]
 
-    def get_name(self, obj):
-        full = f"{obj.first_name} {obj.last_name}".strip()
-        return full or obj.username
-
-
-class StudentSimpleSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    email = serializers.CharField(source='user.email', read_only=True)
-
-    class Meta:
-        from apps.students.models import Student
-        model = Student
-        fields = ['id', 'name', 'email', 'enrollment_number', 'specialization', 'academic_year']
-
-    def get_name(self, obj):
-        full = f"{obj.user.first_name} {obj.user.last_name}".strip()
-        return full or obj.user.username
-
-
-class ProjectMilestoneSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProjectMilestone
-        fields = ['id', 'project', 'title', 'description', 'status', 'due_date', 'order', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-
-class DocumentRemarkSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
-    author_role = serializers.CharField(source='author.role', read_only=True)
-
-    class Meta:
-        model = DocumentRemark
-        fields = ['id', 'document', 'author', 'author_name', 'author_role', 'comment', 'score', 'created_at']
-        read_only_fields = ['id', 'author', 'created_at']
-
-
-class DocumentSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(source='project.student.user.get_full_name', read_only=True)
-    remarks = DocumentRemarkSerializer(many=True, read_only=True)
-    file_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Document
-        fields = [
-            'id', 'title', 'file', 'file_url', 'target', 'status',
-            'version', 'rejection_reason', 'created_at', 'student_name', 'remarks'
-        ]
-        read_only_fields = ['id', 'version', 'created_at']
-
-    def get_file_url(self, obj):
-        request = self.context.get('request')
-        if obj.file and request:
-            return request.build_absolute_uri(obj.file.url)
-        return None
-
-    def validate_file(self, value):
-        ext = os.path.splitext(value.name)[1].lower()
-        if ext not in ALLOWED_DOCUMENT_EXTENSIONS:
-            raise serializers.ValidationError(
-                f"File type '{ext}' is not allowed. Allowed types: {', '.join(sorted(ALLOWED_DOCUMENT_EXTENSIONS))}"
-            )
-        if value.size > MAX_UPLOAD_SIZE_BYTES:
-            raise serializers.ValidationError(
-                f"File size must not exceed {MAX_UPLOAD_SIZE_MB} MB."
-            )
-        return value
-
-    def validate_title(self, value):
-        if len(value.strip()) == 0:
-            raise serializers.ValidationError("Title cannot be empty.")
-        return value[:255]
-
-
-class AppointmentSerializer(serializers.ModelSerializer):
-    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
-
-    class Meta:
-        model = Appointment
-        fields = [
-            'id', 'project', 'created_by', 'created_by_name', 'title', 'description',
-            'date', 'time', 'location', 'type', 'status', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
-
-
-class EvaluationSerializer(serializers.ModelSerializer):
-    final_score = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Evaluation
-        fields = [
-            'id', 'supervisor_score', 'supervisor_comment', 'supervisor_criteria',
-            'jury_score', 'jury_comment', 'jury_criteria',
-            'technical_quality', 'innovation', 'documentation',
-            'implementation', 'presentation', 'comments',
-            'is_published', 'supervisor_weight', 'jury_weight',
-            'final_score', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-
-class FeedbackSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
-    author_role = serializers.CharField(source='author.role', read_only=True)
-
-    class Meta:
-        model = Feedback
-        fields = ['id', 'title', 'comment', 'author_name', 'author_role', 'created_at']
-
-
-class JuryAssignmentSerializer(serializers.ModelSerializer):
-    jury_member_name = serializers.CharField(source='jury_member.get_full_name', read_only=True)
-    jury_member_email = serializers.CharField(source='jury_member.email', read_only=True)
-
-    class Meta:
-        model = JuryAssignment
-        fields = ['id', 'project', 'jury_member', 'jury_member_name', 'jury_member_email', 'role', 'created_at']
-        read_only_fields = ['id', 'created_at']
+    def get_full_name(self, obj):
+        return obj.get_full_name() or obj.email
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    supervisor = UserSimpleSerializer(read_only=True)
-    supervisor_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.filter(role='supervisor'),
-        source='supervisor', write_only=True, required=False, allow_null=True
-    )
-    student = StudentSimpleSerializer(read_only=True)
+    student_name = serializers.SerializerMethodField()
+    supervisor_name = serializers.SerializerMethodField()
+    student_id = serializers.IntegerField(source="student.id", read_only=True)
+    supervisor_id = serializers.IntegerField(source="supervisor.id", read_only=True)
 
     class Meta:
         model = Project
         fields = [
-            'id', 'title', 'description', 'status',
-            'start_date', 'end_date', 'supervisor', 'supervisor_id',
-            'student', 'created_at', 'updated_at'
+            "id", "title", "description", "status",
+            "start_date", "end_date",
+            "student_id", "student_name",
+            "supervisor_id", "supervisor_name",
+            "created_at", "updated_at",
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_student_name(self, obj):
+        return obj.student.user.get_full_name() or obj.student.user.email
+
+    def get_supervisor_name(self, obj):
+        return obj.supervisor.user.get_full_name() or obj.supervisor.user.email
+
+    def validate(self, attrs):
+        # A student can have only one IN_PROGRESS or APPROVED project
+        status = attrs.get("status", Project.STATUS_DRAFT)
+        student = attrs.get("student", getattr(self.instance, "student", None))
+        if student and status in (Project.STATUS_IN_PROGRESS, Project.STATUS_APPROVED):
+            qs = Project.objects.filter(
+                student=student,
+                status__in=[Project.STATUS_IN_PROGRESS, Project.STATUS_APPROVED],
+            )
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError(
+                    "This student already has an active project."
+                )
+        return attrs
 
 
-class ProjectDetailSerializer(ProjectSerializer):
-    milestones = ProjectMilestoneSerializer(many=True, read_only=True)
-    documents = DocumentSerializer(many=True, read_only=True)
-    appointments = AppointmentSerializer(many=True, read_only=True)
-    feedbacks = FeedbackSerializer(many=True, read_only=True)
-    evaluation = EvaluationSerializer(read_only=True)
-    jury_assignments = JuryAssignmentSerializer(many=True, read_only=True)
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ["title", "description", "start_date", "end_date", "supervisor"]
 
-    class Meta(ProjectSerializer.Meta):
-        fields = ProjectSerializer.Meta.fields + [
-            'milestones', 'documents', 'appointments',
-            'feedbacks', 'evaluation', 'jury_assignments'
+
+class EvaluationSerializer(serializers.ModelSerializer):
+    evaluator_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Evaluation
+        fields = [
+            "id", "project", "evaluator", "evaluator_name",
+            "grade", "comments", "created_at", "updated_at",
         ]
+        read_only_fields = ["id", "evaluator", "created_at", "updated_at"]
+
+    def get_evaluator_name(self, obj):
+        return obj.evaluator.get_full_name() or obj.evaluator.email
+
+    def validate_grade(self, value):
+        if value < 0 or value > 20:
+            raise serializers.ValidationError("Grade must be between 0 and 20.")
+        return value
+
+
+class DocumentSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+    uploaded_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Document
+        fields = [
+            "id", "project", "title", "file", "file_url",
+            "uploaded_by", "uploaded_by_name",
+            "created_at",
+        ]
+        read_only_fields = ["id", "uploaded_by", "created_at"]
+
+    def get_file_url(self, obj):
+        request = self.context.get("request")
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
+
+    def get_uploaded_by_name(self, obj):
+        return obj.uploaded_by.get_full_name() or obj.uploaded_by.email
+
+    def validate_file(self, value):
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            raise serializers.ValidationError(
+                f"File type '{ext}' not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+            )
+        if value.size > MAX_UPLOAD_BYTES:
+            raise serializers.ValidationError("File must not exceed 20 MB.")
+        return value
+
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    project_title = serializers.CharField(source="project.title", read_only=True)
+    jury_names = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Schedule
+        fields = [
+            "id", "project", "project_title", "jury_members", "jury_names",
+            "date", "location", "status", "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def get_jury_names(self, obj):
+        return [
+            jp.user.get_full_name() or jp.user.email
+            for jp in obj.jury_members.select_related("user").all()
+        ]
+
+
+class AdminDashboardStatsSerializer(serializers.Serializer):
+    total_users = serializers.IntegerField()
+    total_students = serializers.IntegerField()
+    total_supervisors = serializers.IntegerField()
+    total_jury = serializers.IntegerField()
+    total_projects = serializers.IntegerField()
+    projects_by_status = serializers.DictField(child=serializers.IntegerField())
+    total_evaluations = serializers.IntegerField()
+    total_documents = serializers.IntegerField()

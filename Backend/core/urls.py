@@ -1,27 +1,25 @@
-"""
-URL configuration for Scientific Research Portal backend.
-"""
+"""URL configuration for PFE Navigator backend."""
 
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
 
-    # Auth & Users
-    path('api/auth/', include('apps.users.urls', namespace='auth')),
-    path('api/users/', include('apps.users.urls', namespace='users')),
+    # Auth endpoints (login, logout, refresh, me)
+    path("api/auth/", include("apps.users.urls")),
 
-    # Role profiles
-    path('api/students/', include('apps.students.urls', namespace='students')),
-    path('api/supervisors/', include('apps.supervisors.urls', namespace='supervisors')),
-    path('api/juries/', include('apps.juries.urls', namespace='juries')),
+    # Resource endpoints
+    path("api/students/", include("apps.students.urls")),
+    path("api/supervisors/", include("apps.supervisors.urls")),
+    path("api/juries/", include("apps.juries.urls")),
+    path("api/projects/", include("apps.projects.urls")),
+    path("api/communications/", include("apps.communications.urls")),
 
-    # Projects (documents, evaluations, milestones, appointments, jury assignments)
-    path('api/projects/', include('apps.projects.urls', namespace='projects')),
-
-    # Communications (messages, notifications, admin notes, resources)
-    path('api/communications/', include('apps.communications.urls', namespace='communications')),
+    # OpenAPI
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
