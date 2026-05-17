@@ -7,7 +7,8 @@ export interface LoginCredentials {
 }
 
 export interface User {
-  id: string;
+  id: string | number;
+  username?: string;
   institutionalId?: string;
   email: string;
   name: string;
@@ -15,6 +16,10 @@ export interface User {
   initials?: string;
   status?: 'Active' | 'Inactive';
   lastLogin?: string;
+  phone_number?: string;
+  first_name?: string;
+  last_name?: string;
+  supervisor?: { name: string; department?: string };
 }
 
 export interface Session extends User {}
@@ -52,11 +57,15 @@ export interface Defense {
 
 export interface Notification {
   id: number;
-  type: 'approved' | 'rejected' | 'grade' | 'defense' | 'message';
-  text: string;
-  date: string;
-  read: boolean;
-  link: string;
+  type: 'approved' | 'rejected' | 'grade' | 'defense' | 'message' | string;
+  title?: string;
+  message?: string;
+  text?: string;
+  date?: string;
+  created_at?: string;
+  read?: boolean;
+  is_read?: boolean;
+  link?: string;
 }
 
 export interface Scores {

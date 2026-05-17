@@ -24,7 +24,7 @@ const AdminMessages: React.FC = () => {
 
   const handleSend = () => {
     if (!inputText.trim()) return;
-    sendMessage(inputText, 'admin');
+    sendMessage(0, inputText, activeRole);
     setInputText('');
   };
 

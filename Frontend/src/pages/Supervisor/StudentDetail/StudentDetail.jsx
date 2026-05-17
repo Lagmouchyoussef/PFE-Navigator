@@ -16,7 +16,7 @@ const StudentDetail = () => {
   const { students, documents = [] } = useApp();
 
   // Find the real student from context
-  const currentStudent = students.find(s => s.id.toString() === id?.toString());
+  const currentStudent = (students || []).find(s => String(s?.id) === String(id));
   
   if (!currentStudent) {
     return (

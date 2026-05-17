@@ -4,7 +4,7 @@ import { Session, LoginCredentials } from '../types';
 export const authApi = {
   login: async (credentials: LoginCredentials) => {
     const response = await apiClient.post('/auth/login/', credentials);
-    const { access, refresh, user } = response.data;
+    const { access, refresh, user } = response.data as { access: string; refresh: string; user: any };
 
     if (!access || !user) {
       throw new Error('Invalid response from server.');

@@ -8,14 +8,15 @@ import {
   AreaChart, Area
 } from 'recharts';
 import { motion } from 'framer-motion';
-import { Container, Row, Col, Button, ProgressBar, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, ProgressBar, Dropdown } from 'react-bootstrap';
 import StatCard from '../../../components/shared/StatCard';
 
 
 import { useApp } from '../../../context/AppContext';
 
 const AnalyticsCenter: React.FC = () => {
-  const { evaluations, pfeWeights } = useApp();
+  const { evaluations: rawEvaluations, pfeWeights } = useApp();
+  const evaluations = Array.isArray(rawEvaluations) ? rawEvaluations : [];
   const [timePeriod, setTimePeriod] = React.useState('All');
   const [showExportSuccess, setShowExportSuccess] = React.useState(false);
 

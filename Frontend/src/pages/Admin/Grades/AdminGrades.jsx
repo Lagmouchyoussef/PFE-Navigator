@@ -32,10 +32,13 @@ const AdminGrades = () => {
 
   const flash = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
 
-  const projectMap = Object.fromEntries(projects.map(p => [p.id, p]));
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  const safeEvals    = Array.isArray(evaluations) ? evaluations : [];
 
-  const rows = evaluations.map(ev => {
-    const proj = projectMap[ev.project] || projects.find(p => p.evaluation?.id === ev.id) || {};
+  const projectMap = Object.fromEntries(safeProjects.map(p => [p.id, p]));
+
+  const rows = safeEvals.map(ev => {
+    const proj = projectMap[ev.project] || safeProjects.find(p => p.evaluation?.id === ev.id) || {};
     return {
       ...ev,
       studentName:  proj.student?.name  || 'Unknown Student',
@@ -46,8 +49,8 @@ const AdminGrades = () => {
   });
 
   const filtered = rows.filter(r =>
-    r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
+    (r.studentName  || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.projectTitle || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handlePublish = async (ev) => {
@@ -63,10 +66,10 @@ const AdminGrades = () => {
   };
 
   const stats = {
-    total: evaluations.length,
-    published:   evaluations.filter(e => e.is_published).length,
-    withSupScore: evaluations.filter(e => e.supervisor_score !== null).length,
-    withJuryScore: evaluations.filter(e => e.jury_score !== null).length,
+    total: safeEvals.length,
+    published:    safeEvals.filter(e => e.is_published).length,
+    withSupScore: safeEvals.filter(e => e.supervisor_score !== null).length,
+    withJuryScore:safeEvals.filter(e => e.jury_score !== null).length,
   };
 
   return (
@@ -126,7 +129,7 @@ const AdminGrades = () => {
               />
             </div>
             <Badge className="bg-primary-soft text-primary border-0 px-3 py-1 rounded-pill extra-small fw-bold">
-              {evaluations.length} evaluations
+              {safeEvals.length} evaluations
             </Badge>
           </Card.Header>
 

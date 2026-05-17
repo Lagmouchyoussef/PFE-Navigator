@@ -36,7 +36,8 @@ const SUBJECTS_DATA = [];
 
 const Subjects = () => {
   const navigate = useNavigate();
-  const { students } = useApp();
+  const { students: rawStudents } = useApp();
+  const students = Array.isArray(rawStudents) ? rawStudents : [];
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteModalSubject, setDeleteModalSubject] = useState(null);
@@ -573,7 +574,7 @@ const Subjects = () => {
                       <div key={i} className="p-3 bg-white rounded-4 border border-light-soft shadow-sm hover-shadow-md transition-all">
                         <div className="d-flex align-items-center gap-3 mb-2">
                           <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '36px', height: '36px', fontSize: '12px' }}>
-                            {stu.name.charAt(0)}
+                            {(stu?.name || '?').charAt(0)}
                           </div>
                           <div>
                             <div className="extra-small fw-bold text-navy">{stu.name}</div>

@@ -9,7 +9,8 @@ import StatCard from '../../../components/shared/StatCard';
 import { useApp } from '../../../context/AppContext';
 
 const ResourceHub: React.FC = () => {
-  const { resourceCenter, uploadResource, deleteResource } = useApp();
+  const { resourceCenter: rawResources, uploadResource, deleteResource } = useApp();
+  const resourceCenter = Array.isArray(rawResources) ? rawResources : [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showUploadModal, setShowUploadModal] = useState(false);

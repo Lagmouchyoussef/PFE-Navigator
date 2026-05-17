@@ -2,7 +2,7 @@ import fetchClient from './client';
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-const authHeaders = () => {
+const authHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('pfe_access_token');
   return token ? { Authorization: `Token ${token}` } : {};
 };

@@ -8,6 +8,9 @@ Reference: https://docs.djangoproject.com/en/6.0/topics/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
 
 # ============================================================================
 # BUILD PATHS

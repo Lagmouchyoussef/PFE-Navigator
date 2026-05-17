@@ -10,6 +10,7 @@ import {
 
 import { useApp } from '../../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { ErrorBoundary } from '../../../components/shared/ErrorBoundary';
 
 const JurySchedulePage = () => {
   const navigate = useNavigate();
@@ -108,7 +109,7 @@ const JurySchedulePage = () => {
                 >
                   <div className="d-flex gap-3 align-items-center">
                     <div className="p-3 bg-primary-soft text-primary rounded-4 text-center" style={{ minWidth: '65px' }}>
-                      <div className="fw-bold h4 mb-0">{item.date.split('-')[2]}</div>
+                      <div className="fw-bold h4 mb-0">{(item.date || '').split('-')[2] || '—'}</div>
                       <div className="extra-small fw-bold opacity-75 uppercase">MAY</div>
                     </div>
                     <div className="flex-grow-1 overflow-hidden">

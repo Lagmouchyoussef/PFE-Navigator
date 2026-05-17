@@ -17,6 +17,7 @@ import StatCard from '../../../components/shared/StatCard';
 import ProjectStepper, { Step } from '../../../components/features/student/ProjectStepper';
 import AnalyticsView from '../../../components/features/student/AnalyticsView';
 import DocumentsList from '../../../components/features/student/DocumentsList';
+import { ErrorBoundary } from '../../../components/shared/ErrorBoundary';
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -162,18 +163,24 @@ const StudentDashboard: React.FC = () => {
 
         <Row className="g-4">
           <Col lg={8}>
-            <ProjectStepper steps={steps} />
-            <AnalyticsView />
-            <DocumentsList 
-              documents={globalDocs.slice(0, 5)} 
-              onView={handleView} 
-              onDownload={handleDownload} 
-              onViewAll={() => navigate('/student/reports')}
-              onDelete={(id) => {
-                setDocToDelete(id);
-                setShowDeleteModal(true);
-              }} 
-            />
+            <ErrorBoundary>
+              <ProjectStepper steps={steps} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <AnalyticsView />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <DocumentsList
+                documents={globalDocs.slice(0, 5)}
+                onView={handleView}
+                onDownload={handleDownload}
+                onViewAll={() => navigate('/student/reports')}
+                onDelete={(id) => {
+                  setDocToDelete(id);
+                  setShowDeleteModal(true);
+                }}
+              />
+            </ErrorBoundary>
           </Col>
           <Col lg={4}>
             <div className="d-flex flex-column gap-4">
@@ -184,13 +191,15 @@ const StudentDashboard: React.FC = () => {
                   <Activity size={18} className="text-primary" />
                 </div>
                 <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '160px' }}>
-                  <ResponsiveContainer width="100%" height="100%" minWidth={150} minHeight={160}>
-                    <PieChart>
-                      <Pie data={progressData} innerRadius={55} outerRadius={75} paddingAngle={4} dataKey="value" stroke="none">
-                        {progressData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <ErrorBoundary>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={150} minHeight={160}>
+                      <PieChart>
+                        <Pie data={progressData} innerRadius={55} outerRadius={75} paddingAngle={4} dataKey="value" stroke="none">
+                          {progressData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ErrorBoundary>
                   <div className="position-absolute text-center">
                     <div className="h3 fw-bold mb-0 text-navy">{progressPct}%</div>
                     <div className="extra-small text-muted fw-bold">COMPLETED</div>

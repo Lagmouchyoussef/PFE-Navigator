@@ -32,7 +32,8 @@ const milestoneIcon = (status) => {
 };
 
 const SchedulePage = () => {
-  const { user, appointments, createAppointment, deleteAppointment, milestones } = useApp();
+  const { user, appointments: rawAppointments, createAppointment, deleteAppointment, milestones } = useApp();
+  const appointments = Array.isArray(rawAppointments) ? rawAppointments : [];
   const [viewDate, setViewDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);

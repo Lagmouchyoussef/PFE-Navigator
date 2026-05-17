@@ -52,9 +52,9 @@ const ProjectsArchive: React.FC = () => {
     setSelectedProjects([]);
   };
 
-  const filteredProjects = archives.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.desc.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProjects = (archives || []).filter(p =>
+    (p?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p?.desc || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (project: any) => {

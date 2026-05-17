@@ -81,7 +81,7 @@ const AdminLayout: React.FC = () => {
   const toggleGroup = (key: string) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
-    <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div className="app-shell d-flex" data-role="admin" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <aside 
         ref={sidebarRef}
         className={`sidebar-nav shadow-lg flex-shrink-0 ${isSidebarCollapsed ? 'collapsed' : ''}`}

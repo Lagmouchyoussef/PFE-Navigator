@@ -50,6 +50,7 @@ import AdminMessages from './pages/Admin/Messages/AdminMessages';
 import ResourceHub from './pages/Admin/Resources/ResourceHub';
 
 import AdministrativeNotesPage from './pages/Common/AdministrativeNotes/AdministrativeNotesPage';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import './App.css';
 import { UserRole } from './types/index';
 
@@ -218,7 +219,7 @@ function App() {
   };
 
   return (
-    <div className="app-shell d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div className="app-shell d-flex" data-role={user.role} style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <aside
         ref={sidebarRef}
         className={`sidebar-nav shadow-lg ${isSidebarCollapsed ? 'collapsed' : ''}`}
@@ -592,6 +593,7 @@ function App() {
         )}
 
         <div className="content-area flex-grow-1" style={{ minHeight: 'calc(100vh - 80px)', position: 'relative' }}>
+          <ErrorBoundary>
           <Routes>
             <Route path="/student/dashboard" element={<RequireAuth requiredRole="student"><StudentDashboard /></RequireAuth>} />
             <Route path="/student/reports" element={<RequireAuth requiredRole="student"><ReportsPage /></RequireAuth>} />
@@ -634,6 +636,7 @@ function App() {
               } replace />
             } />
           </Routes>
+          </ErrorBoundary>
         </div>
       </main>
     </div>

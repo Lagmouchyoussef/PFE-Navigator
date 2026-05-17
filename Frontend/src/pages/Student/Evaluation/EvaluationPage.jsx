@@ -51,7 +51,8 @@ const buildResultVariant = (isPublished, grade) => {
 // ── component ─────────────────────────────────────────────────────────────────
 
 const EvaluationPage = () => {
-  const { evaluations, currentProject, user, isGradesPublished, pfeWeights } = useApp();
+  const { evaluations: rawEvals, currentProject, user, isGradesPublished, pfeWeights } = useApp();
+  const evaluations = Array.isArray(rawEvals) ? rawEvals : [];
 
   const evaluation = evaluations[0] ?? null;
   const supScore  = evaluation ? toNum(evaluation.supervisor_score) : null;

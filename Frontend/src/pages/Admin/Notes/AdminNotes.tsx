@@ -9,7 +9,8 @@ import { useApp } from '../../../context/AppContext';
 import StatCard from '../../../components/shared/StatCard';
 
 const AdminNotes: React.FC = () => {
-  const { administrativeNotes, createAdminNote, deleteAdminNote } = useApp();
+  const { administrativeNotes: rawNotes, createAdminNote, deleteAdminNote } = useApp();
+  const administrativeNotes = Array.isArray(rawNotes) ? rawNotes : [];
 
   const [searchTerm, setSearchTerm]     = useState('');
   const [audienceFilter, setAudienceFilter] = useState('all');

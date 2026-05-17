@@ -48,7 +48,7 @@ export const notificationsApi = {
   },
   getUnreadCount: async () => {
     const res = await fetchClient.get('/communications/notifications/unread_count/');
-    return res.data.count as number;
+    return (res.data as any).count as number;
   },
   markRead: async (id: number) => {
     const res = await fetchClient.post(`/communications/notifications/${id}/mark_read/`, {});

@@ -33,7 +33,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick, onM
       <div className="extra-small text-navy text-truncate mb-1 fw-bold">{notif.text}</div>
       <div className="extra-small text-muted fw-bold opacity-75">
         {(() => {
-          const d = new Date(notif.date || notif.created_at);
+          const d = new Date(notif.date || notif.created_at || '');
           return isNaN(d.getTime()) ? '-' : d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         })()}
       </div>

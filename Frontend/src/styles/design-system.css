@@ -1,0 +1,1009 @@
+/*
+  PFE-Navigator — Unified Design System
+  =======================================
+  Role-aware, theme-aware, consistent across every page.
+  Each role gets its own primary accent color.
+  All shared components (cards, buttons, tables, badges,
+  headers, calendar, modals) follow a single visual grammar.
+*/
+
+/* ─────────────────────────────────────────────
+   1. ROLE ACCENT COLORS
+   Each role overrides --color-primary and its
+   variants so every component picks the right
+   accent automatically.
+───────────────────────────────────────────── */
+
+/* Role tokens on :root (data-role is set on <html> by AppContext) */
+:root[data-role='student'] {
+  --color-primary:        #3b82f6;
+  --color-primary-hover:  #2563eb;
+  --color-primary-soft:   rgba(59, 130, 246, 0.12);
+  --role-gradient:        linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  --role-gradient-soft:   linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(96,165,250,0.04) 100%);
+}
+
+:root[data-role='supervisor'] {
+  --color-primary:        #8b5cf6;
+  --color-primary-hover:  #7c3aed;
+  --color-primary-soft:   rgba(139, 92, 246, 0.12);
+  --role-gradient:        linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --role-gradient-soft:   linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(167,139,250,0.04) 100%);
+}
+
+:root[data-role='jury'] {
+  --color-primary:        #f59e0b;
+  --color-primary-hover:  #d97706;
+  --color-primary-soft:   rgba(245, 158, 11, 0.12);
+  --role-gradient:        linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --role-gradient-soft:   linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(251,191,36,0.04) 100%);
+}
+
+:root[data-role='admin'] {
+  --color-primary:        #f43f5e;
+  --color-primary-hover:  #e11d48;
+  --color-primary-soft:   rgba(244, 63, 94, 0.12);
+  --role-gradient:        linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+  --role-gradient-soft:   linear-gradient(135deg, rgba(244,63,94,0.08) 0%, rgba(251,113,133,0.04) 100%);
+}
+
+/* Dark mode — both attributes live on <html> */
+:root[data-theme='dark'][data-role='student']    { --color-primary: #60a5fa; --color-primary-soft: rgba(96,165,250,0.15); }
+:root[data-theme='dark'][data-role='supervisor'] { --color-primary: #a78bfa; --color-primary-soft: rgba(167,139,250,0.15); }
+:root[data-theme='dark'][data-role='jury']       { --color-primary: #fbbf24; --color-primary-soft: rgba(251,191,36,0.15); }
+:root[data-theme='dark'][data-role='admin']      { --color-primary: #fb7185; --color-primary-soft: rgba(251,113,133,0.15); }
+
+/* ─────────────────────────────────────────────
+   2. SIDEBAR — role-aware active state
+───────────────────────────────────────────── */
+
+.nav-link-custom.active {
+  background: var(--role-gradient-soft, linear-gradient(135deg, rgba(37,99,235,0.12), rgba(37,99,235,0.04)));
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary-soft) !important;
+}
+
+.nav-link-custom.active .label-text {
+  color: #fff;
+}
+
+.nav-link-custom.active::after {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+.nav-link-custom.active .sidebar-icon-wrapper {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-soft);
+}
+
+.nav-link-custom.active .sidebar-icon-wrapper svg {
+  color: var(--color-primary) !important;
+}
+
+/* ─────────────────────────────────────────────
+   3. AVATAR — role-aware gradient
+───────────────────────────────────────────── */
+
+.avatar-circle {
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+}
+
+/* ─────────────────────────────────────────────
+   4. PAGE HEADER — unified across all pages
+   Usage: <div className="ds-page-header">
+───────────────────────────────────────────── */
+
+.ds-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-page-header-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ds-page-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.ds-page-subtitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.ds-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+}
+
+.ds-breadcrumb-sep {
+  opacity: 0.4;
+}
+
+.ds-breadcrumb-active {
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────
+   5. STAT CARD — unified stat widget
+───────────────────────────────────────────── */
+
+.ds-stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.ds-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.ds-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ds-stat-card:hover::before { opacity: 1; }
+
+.ds-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.ds-stat-icon.success { background: var(--color-success-soft); color: var(--color-success); }
+.ds-stat-icon.warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.ds-stat-icon.danger  { background: var(--color-danger-soft);  color: var(--color-danger); }
+.ds-stat-icon.info    { background: var(--color-info-soft);    color: var(--color-info); }
+
+.ds-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--color-text-primary);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.ds-stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.ds-stat-trend {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-top: 0.4rem;
+  display: inline-block;
+}
+
+/* ─────────────────────────────────────────────
+   6. GLASS CARD — refined
+───────────────────────────────────────────── */
+
+.ds-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+  overflow: hidden;
+}
+
+.ds-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.ds-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+
+.ds-card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ds-card-title-icon {
+  color: var(--color-primary);
+}
+
+.ds-card-body {
+  padding: 1.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   7. BUTTONS — unified, role-aware
+───────────────────────────────────────────── */
+
+/* Primary action */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ds-btn-primary {
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  color: #fff;
+  box-shadow: 0 2px 10px var(--color-primary-soft);
+}
+
+.ds-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-primary-soft);
+  opacity: 0.92;
+}
+
+.ds-btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+.ds-btn-outline:hover {
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+.ds-btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.ds-btn-ghost:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+}
+
+.ds-btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.ds-btn-danger:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.ds-btn-success {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.ds-btn-success:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.ds-btn-sm {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.ds-btn-lg {
+  font-size: 1rem;
+  padding: 0.75rem 1.75rem;
+}
+
+.ds-btn-pill { border-radius: var(--radius-full) !important; }
+
+.ds-btn-icon {
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  line-height: 1;
+}
+
+/* Keep existing .btn-premium consistent with role */
+.btn-premium {
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  color: #fff !important;
+  box-shadow: 0 2px 12px var(--color-primary-soft);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-primary-soft);
+  opacity: 0.92;
+}
+
+.btn-pro-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-pro-outline:hover {
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────
+   8. BADGES — unified semantic + role-aware
+───────────────────────────────────────────── */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.3em 0.7em;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.ds-badge-primary  { background: var(--color-primary-soft);  color: var(--color-primary); }
+.ds-badge-success  { background: var(--color-success-soft);  color: var(--color-success); }
+.ds-badge-warning  { background: var(--color-warning-soft);  color: var(--color-warning); }
+.ds-badge-danger   { background: var(--color-danger-soft);   color: var(--color-danger); }
+.ds-badge-info     { background: var(--color-info-soft);     color: var(--color-info); }
+.ds-badge-muted    { background: var(--color-surface-alt);   color: var(--color-text-muted); }
+
+/* Status dots */
+.ds-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.ds-status::before {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ds-status-active::before   { background: var(--color-success); box-shadow: 0 0 6px var(--color-success); }
+.ds-status-pending::before  { background: var(--color-warning); }
+.ds-status-rejected::before { background: var(--color-danger); }
+.ds-status-draft::before    { background: var(--color-text-muted); }
+
+/* ─────────────────────────────────────────────
+   9. TABLES — unified
+───────────────────────────────────────────── */
+
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ds-table thead tr {
+  background: var(--color-surface-alt);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.ds-table th {
+  padding: 0.85rem 1rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ds-table td {
+  padding: 0.9rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.ds-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.ds-table tbody tr:hover td {
+  background: var(--color-surface-alt);
+}
+
+.ds-table tbody tr:last-child td { border-bottom: none; }
+
+/* ─────────────────────────────────────────────
+   10. FORM CONTROLS — unified
+───────────────────────────────────────────── */
+
+.ds-input {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.ds-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.ds-input::placeholder { color: var(--color-text-muted); opacity: 0.8; }
+
+.ds-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ds-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 0.45rem 1rem;
+  transition: all var(--transition-fast);
+}
+
+.ds-search:focus-within {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.ds-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+/* Toggle / Switch */
+.ds-switch .form-check-input {
+  width: 2.4em;
+  height: 1.3em;
+  cursor: pointer;
+}
+
+.ds-switch .form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.ds-switch .form-check-input:focus {
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+
+/* ─────────────────────────────────────────────
+   11. CALENDAR — unified
+───────────────────────────────────────────── */
+
+.ds-calendar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.ds-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  color: #fff;
+}
+
+.ds-calendar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ds-calendar-nav-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.ds-calendar-nav-btn:hover { background: rgba(255,255,255,0.35); }
+
+.ds-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-calendar-weekday {
+  padding: 0.5rem 0;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.ds-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--color-border);
+}
+
+.ds-calendar-cell {
+  background: var(--color-surface);
+  padding: 0.5rem;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  cursor: default;
+  transition: background var(--transition-fast);
+}
+
+.ds-calendar-cell:hover { background: var(--color-surface-alt); }
+
+.ds-calendar-day {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.ds-calendar-cell.today .ds-calendar-day {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px var(--color-primary-soft);
+}
+
+.ds-calendar-cell.other-month .ds-calendar-day { color: var(--color-text-muted); opacity: 0.4; }
+
+.ds-calendar-event {
+  width: 100%;
+  margin-top: 2px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─────────────────────────────────────────────
+   12. MODALS — unified
+───────────────────────────────────────────── */
+
+.ds-modal .modal-content {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+
+.ds-modal .modal-header {
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem 1.5rem;
+}
+
+.ds-modal .modal-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.ds-modal .modal-body {
+  padding: 1.75rem 1.5rem;
+}
+
+.ds-modal .modal-footer {
+  background: var(--color-surface-alt);
+  border-top: 1px solid var(--color-border);
+  padding: 1rem 1.5rem;
+  gap: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   13. EMPTY STATES — unified
+───────────────────────────────────────────── */
+
+.ds-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.ds-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.ds-empty-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.ds-empty-desc {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0;
+  max-width: 280px;
+}
+
+/* ─────────────────────────────────────────────
+   14. NOTIFICATION ITEMS — unified
+───────────────────────────────────────────── */
+
+.ds-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-fast);
+}
+
+.ds-notif-item:hover { background: var(--color-surface-alt); }
+
+.ds-notif-item.unread {
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.ds-notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ─────────────────────────────────────────────
+   15. PROGRESS INDICATORS — unified
+───────────────────────────────────────────── */
+
+.ds-progress-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.ds-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--role-gradient, linear-gradient(90deg, var(--color-primary), var(--color-info)));
+  transition: width 0.6s ease;
+}
+
+/* ─────────────────────────────────────────────
+   16. AVATAR — unified
+───────────────────────────────────────────── */
+
+.ds-avatar {
+  border-radius: 50%;
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ds-avatar-sm  { width: 32px;  height: 32px;  font-size: 0.75rem; }
+.ds-avatar-md  { width: 44px;  height: 44px;  font-size: 1rem; }
+.ds-avatar-lg  { width: 60px;  height: 60px;  font-size: 1.25rem; }
+.ds-avatar-xl  { width: 80px;  height: 80px;  font-size: 1.6rem; }
+
+.ds-avatar-sq { border-radius: var(--radius-md) !important; }
+
+/* ─────────────────────────────────────────────
+   17. TIMELINE / STEPPER — unified
+───────────────────────────────────────────── */
+
+.ds-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ds-step {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.ds-step:not(:last-child) .ds-step-line {
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  width: 2px;
+  bottom: -4px;
+  background: var(--color-border);
+}
+
+.ds-step.completed .ds-step-line { background: var(--color-primary); }
+
+.ds-step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.ds-step.completed .ds-step-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.ds-step.active .ds-step-dot {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.ds-step-content {
+  padding-bottom: 1.5rem;
+  padding-top: 0.25rem;
+}
+
+.ds-step-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.ds-step-meta {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────────────────────
+   18. HOVER UTILITIES (global)
+───────────────────────────────────────────── */
+
+.hover-primary:hover {
+  color: var(--color-primary) !important;
+}
+
+.hover-scale:hover {
+  transform: scale(1.04);
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-bg-surface:hover {
+  background: var(--color-surface) !important;
+}
+
+.cursor-pointer { cursor: pointer; }
+
+/* ─────────────────────────────────────────────
+   19. TRANSITIONS
+───────────────────────────────────────────── */
+
+.transition-all {
+  transition: all var(--transition-normal);
+}
+
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+
+/* ─────────────────────────────────────────────
+   20. SETTINGS NAV — unified
+───────────────────────────────────────────── */
+
+.settings-nav-btn {
+  transition: all var(--transition-fast);
+}
+
+.settings-nav-btn.active-nav {
+  background: var(--color-primary-soft);
+  color: var(--color-primary) !important;
+  border-left: 3px solid var(--color-primary);
+}
+
+/* ─────────────────────────────────────────────
+   21. MAIN HEADER — role-aware accent strip
+───────────────────────────────────────────── */
+
+.main-header {
+  border-bottom: 2px solid var(--color-border);
+  position: relative;
+}
+
+.main-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  border-radius: var(--radius-full);
+}
+
+/* ─────────────────────────────────────────────
+   22. TEXT GRADIENT — role-aware
+───────────────────────────────────────────── */
+
+.text-gradient {
+  background: var(--role-gradient, linear-gradient(135deg, var(--color-primary), var(--color-info)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────
+   23. SCROLL REVEAL ANIMATION
+───────────────────────────────────────────── */
+
+@keyframes ds-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ds-animate {
+  animation: ds-fade-up 0.4s ease forwards;
+}
+
+.ds-animate-delay-1 { animation-delay: 0.05s; opacity: 0; }
+.ds-animate-delay-2 { animation-delay: 0.1s;  opacity: 0; }
+.ds-animate-delay-3 { animation-delay: 0.15s; opacity: 0; }
+.ds-animate-delay-4 { animation-delay: 0.2s;  opacity: 0; }
+
+/* ─────────────────────────────────────────────
+   24. RESPONSIVE
+───────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .ds-page-title   { font-size: 1.25rem; }
+  .ds-card-body    { padding: 1rem; }
+  .ds-stat-value   { font-size: 1.4rem; }
+  .ds-calendar-cell { min-height: 44px; }
+}

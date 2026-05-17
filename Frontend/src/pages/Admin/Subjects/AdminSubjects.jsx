@@ -32,7 +32,8 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
 import { useApp } from '../../../context/AppContext';
 
 const AdminSubjects = () => {
-  const { subjects: proposals, updateSubjectStatus, deleteSubject } = useApp();
+  const { subjects: rawProposals, updateSubjectStatus, deleteSubject } = useApp();
+  const proposals = Array.isArray(rawProposals) ? rawProposals : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [viewModalSubject, setViewModalSubject] = useState(null);
   const [editModalSubject, setEditModalSubject] = useState(null);

@@ -17,7 +17,9 @@ const CRITERIA = [
 ];
 
 const Evaluations = () => {
-  const { evaluations, projects, submitSupervisorScore, user } = useApp();
+  const { evaluations: rawEvals, projects: rawProjects, submitSupervisorScore, user } = useApp();
+  const evaluations = Array.isArray(rawEvals) ? rawEvals : [];
+  const projects    = Array.isArray(rawProjects) ? rawProjects : [];
 
   const [showModal, setShowModal] = useState(false);
   const [selectedEval, setSelectedEval] = useState(null);

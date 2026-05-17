@@ -1,19 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { UserRole } from '../types';
+import { UserRole, Session } from '../types';
 
-// ─── TYPES ────────────────────────────────────────────────────────────────────
-
-export interface Session {
-  id: number;
-  username: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  institutionalId?: string;
-  phone_number?: string;
-  first_name?: string;
-  last_name?: string;
-}
+export type { Session };
 
 // ─── CONTEXT INTERFACE ────────────────────────────────────────────────────────
 
@@ -220,6 +208,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     applyTheme(theme);
   }, [theme, applyTheme]);
 
+  // Apply role accent on login/logout
+  useEffect(() => {
+    if (user?.role) {
+      document.documentElement.setAttribute('data-role', user.role);
+    } else {
+      document.documentElement.removeAttribute('data-role');
+    }
+  }, [user]);
+
   // ── AUTH ───────────────────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string, role?: UserRole) => {
     setIsLoading(true);
@@ -265,7 +262,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const { projectsApi } = await import('../api/projects');
       if (user.role === 'student') {
-        const data = await projectsApi.getDashboard();
+        const data = await projectsApi.getDashboard() as any;
         if (data && data.id) {
           setCurrentProject(data);
           setDocuments(data.documents || []);
@@ -274,7 +271,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           setFeedbacks(data.feedbacks || []);
           if (data.evaluation) {
             setEvaluations([data.evaluation]);
-            // Sync legacy scores
             if (data.evaluation.supervisor_score) {
               setScores((prev: any) => ({ ...prev, pfeSupervisor: parseFloat(data.evaluation.supervisor_score) }));
             }
@@ -285,8 +281,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
         }
       } else {
-        const data = await projectsApi.getAll();
-        setProjects(Array.isArray(data) ? data : (data.results || []));
+        const data = await projectsApi.getAll() as any;
+        setProjects(Array.isArray(data) ? data : (data?.results || []));
       }
     } catch (err) {
       console.error('Project refresh error:', err);
@@ -315,43 +311,43 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const promises: Promise<any>[] = [
         refreshProject(),
-        notificationsApi.getAll().then(data => setNotifications(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        adminNotesApi.getAll().then(data => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        resourcesApi.getAll().then(data => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        messagesApi.getAll().then(data => setMessages(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        messagesApi.getContactableUsers().then(data => setContactableUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        projectsApi.getSubjects().then(data => setSubjects(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        notificationsApi.getAll().then((data: any) => setNotifications(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        adminNotesApi.getAll().then((data: any) => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        resourcesApi.getAll().then((data: any) => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        messagesApi.getAll().then((data: any) => setMessages(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        messagesApi.getContactableUsers().then((data: any) => setContactableUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        projectsApi.getSubjects().then((data: any) => setSubjects(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
       ];
 
       if (user.role === 'student') {
         // appointments & evaluations already loaded via refreshProject
       } else if (user.role === 'supervisor' || user.role === 'jury') {
         promises.push(
-          studentsApi.getAll().then(data => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          studentsApi.getAll().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
-            const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
+            const evalData: any = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
           })(),
           (async () => {
-            const apptData = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
+            const apptData: any = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
             setAppointments(Array.isArray(apptData) ? apptData : (apptData?.results || []));
           })(),
         );
       } else if (user.role === 'admin') {
         const { usersApi } = await import('../api/users');
         promises.push(
-        usersApi.getAll().then(data => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-          studentsApi.getAll().then(data => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        usersApi.getAll().then((data: any) => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          studentsApi.getAll().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
-            const evalData = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
+            const evalData: any = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
           })(),
           (async () => {
-            const apptData = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
+            const apptData: any = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
             setAppointments(Array.isArray(apptData) ? apptData : (apptData?.results || []));
           })(),
           (async () => {
-            const jaData = await (await import('../api/projects')).juryAssignmentsApi.getAll().catch(() => []);
+            const jaData: any = await (await import('../api/projects')).juryAssignmentsApi.getAll().catch(() => []);
             setJuryAssignments(Array.isArray(jaData) ? jaData : (jaData?.results || []));
           })(),
         );

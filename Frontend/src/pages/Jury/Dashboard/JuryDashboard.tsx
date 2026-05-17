@@ -17,7 +17,7 @@ const JuryDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, notifications, evaluations, appointments } = useApp();
 
-  const typeIcon = (type: string): JSX.Element => {
+  const typeIcon = (type: string): React.ReactElement => {
     if (type === 'grade')    return <Clock size={16} />;
     if (type === 'defense')  return <Calendar size={16} />;
     if (type === 'message')  return <MessageSquare size={16} />;

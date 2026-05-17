@@ -33,8 +33,29 @@ const AnimatedTrash = ({ isDeleting, size = 32 }) => {
   );
 };
 
+// Normalize a raw student object from the API into the shape the UI needs
+const normalizeStudent = (s) => {
+  if (!s) return null;
+  const proj = s.project || {};
+  const projectTitle = typeof proj === 'string' ? proj : (proj.title || s.project_title || '—');
+  const status = s.status || proj.status || 'In Progress';
+  return {
+    ...s,
+    name: s.name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
+    email: s.email || '—',
+    project: projectTitle,
+    type: s.type || proj.type || 'Graduation Project',
+    department: s.department || s.field || '—',
+    progress: typeof s.progress === 'number' ? s.progress : (proj.progress || 0),
+    lastActivity: s.lastActivity || s.last_login || '—',
+    status: status === 'completed' ? 'Validated' : status === 'in_progress' ? 'In Progress' : status,
+    documents: s.documents || [],
+  };
+};
+
 const StudentsList = () => {
-  const { students: STUDENTS_DATA } = useApp();
+  const { students: rawStudents } = useApp();
+  const STUDENTS_DATA = (rawStudents || []).map(normalizeStudent).filter(Boolean);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -75,10 +96,11 @@ const StudentsList = () => {
     }, 800);
   };
 
-  const filteredStudents = (STUDENTS_DATA || []).filter(student => {
-    if (!student) return false;
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         student.project.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredStudents = STUDENTS_DATA.filter(student => {
+    const name = (student.name || '').toLowerCase();
+    const project = (student.project || '').toLowerCase();
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = !searchTerm || name.includes(term) || project.includes(term);
     const matchesStatus = filterStatus === 'All' || student.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -223,6 +245,15 @@ const StudentsList = () => {
                 </tr>
               </thead>
               <tbody>
+                {filteredStudents.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-5 text-muted fw-bold extra-small opacity-50">
+                      {searchTerm || filterStatus !== 'All'
+                        ? 'No students match your search criteria.'
+                        : 'No students assigned to you yet.'}
+                    </td>
+                  </tr>
+                )}
                 <AnimatePresence mode='popLayout'>
                   {filteredStudents.map((student, index) => (
                     <motion.tr 
@@ -342,8 +373,8 @@ const StudentsList = () => {
                 </div>
               </div>
               <div className="h3 fw-bold text-navy mb-2">{(STUDENTS_DATA || []).length} Students</div>
-              <ProgressBar now={(STUDENTS_DATA.length / 20) * 100} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
-              <div className="extra-small text-muted fw-bold">{Math.round((STUDENTS_DATA.length / 20) * 100)}% Capacity Utilized</div>
+              <ProgressBar now={Math.min((STUDENTS_DATA.length / 20) * 100, 100)} variant="primary" style={{ height: '8px' }} className="rounded-pill mb-3 bg-surface-alt border-0" />
+              <div className="extra-small text-muted fw-bold">{Math.round(Math.min((STUDENTS_DATA.length / 20) * 100, 100))}% Capacity Utilized</div>
             </Card>
           </Col>
           <Col lg={4}>
@@ -376,7 +407,7 @@ const StudentsList = () => {
                   <p className="extra-small text-muted mb-0 fw-bold opacity-75">Needs your attention</p>
                 </div>
               </div>
-              <div className="h3 fw-bold text-navy mb-2">{STUDENTS_DATA.filter(s => s.status !== 'Validated').length} Students</div>
+              <div className="h3 fw-bold text-navy mb-2">{STUDENTS_DATA.filter(s => s && s.status !== 'Validated').length} Students</div>
               <div className="extra-small text-muted fw-bold text-danger">Active follow-ups required</div>
             </Card>
           </Col>

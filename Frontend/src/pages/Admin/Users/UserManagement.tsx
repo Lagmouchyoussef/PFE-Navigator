@@ -229,7 +229,7 @@ const UserManagement: React.FC = () => {
   const sendMessage = () => {
     if (messageRecipient && messageContent.trim()) {
       // Send to global context to make it "arrive" for the user
-      globalSendMessage(messageContent, 'admin');
+      globalSendMessage(messageRecipient.id ? Number(messageRecipient.id) : 0, messageContent);
       
       alert(`Message sent successfully to ${messageRecipient.name}. They will receive it in their messaging interface.`);
       setShowMessageModal(false);
