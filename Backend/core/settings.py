@@ -19,11 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY SETTINGS
 # ============================================================================
 
-# SECRET_KEY: Use environment variable in production
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-change-me-in-production'
-)
+# SECRET_KEY: Must be set via environment variable in production
+_secret_key = os.environ.get('DJANGO_SECRET_KEY', '')
+if not _secret_key:
+    if os.environ.get('DEBUG', 'False') != 'True':
+        raise ValueError("DJANGO_SECRET_KEY environment variable must be set in production.")
+    _secret_key = 'django-insecure-dev-only-key-do-not-use-in-production'
+SECRET_KEY = _secret_key
 
 # DEBUG: Disable in production
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -179,6 +181,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/minute',
+        'user': '200/minute',
+        'login': '5/minute',
+    },
 }
 
 # ============================================================================
@@ -190,7 +201,7 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     'http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173'
 ).split(',')
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',

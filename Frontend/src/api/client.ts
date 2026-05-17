@@ -1,41 +1,53 @@
-/**
- * Custom Fetch Client for Production
- * Mimics Axios behavior for consistent API handling
- */
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
-  data: any;
-  constructor(status: number, data: any) {
+  data: unknown;
+  constructor(status: number, data: unknown) {
     super(`API Error: ${status}`);
     this.status = status;
     this.data = data;
   }
 }
 
-async function request(endpoint: string, options: any = {}) {
+function clearSession() {
+  localStorage.removeItem('pfe_access_token');
+  localStorage.removeItem('pfe_refresh_token');
+  // Redirect to login page without a full page reload loop
+  if (!window.location.pathname.includes('/login')) {
+    window.location.href = '/login';
+  }
+}
+
+async function request(endpoint: string, options: Record<string, unknown> = {}) {
   const token = localStorage.getItem('pfe_access_token');
-  
-  const headers = {
-    'Content-Type': 'application/json',
+
+  const isFormData = options.body instanceof FormData;
+
+  const headers: Record<string, string> = {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { 'Authorization': `Token ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers as Record<string, string> | undefined),
   };
 
-  const config = {
-    ...options,
+  const config: RequestInit = {
+    ...(options as RequestInit),
     headers,
   };
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
-  
-  if (response.status === 401 && !options._retry) {
-    // Handle Refresh Token Logic here if needed
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${endpoint}`, config);
+  } catch {
+    throw new ApiError(0, { detail: 'Network error. Please check your connection.' });
   }
 
-  const data = await response.json().catch(() => ({}));
+  if (response.status === 401) {
+    clearSession();
+    throw new ApiError(401, { detail: 'Session expired. Please log in again.' });
+  }
+
+  const data: unknown = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     throw new ApiError(response.status, data);
@@ -45,10 +57,22 @@ async function request(endpoint: string, options: any = {}) {
 }
 
 export const fetchClient = {
-  get: (url: string, options?: any) => request(url, { ...options, method: 'GET' }),
-  post: (url: string, body: any, options?: any) => request(url, { ...options, method: 'POST', body: JSON.stringify(body) }),
-  patch: (url: string, body: any, options?: any) => request(url, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
-  delete: (url: string, options?: any) => request(url, { ...options, method: 'DELETE' }),
+  get: (url: string, options?: Record<string, unknown>) =>
+    request(url, { ...options, method: 'GET' }),
+  post: (url: string, body: unknown, options?: Record<string, unknown>) =>
+    request(url, {
+      ...options,
+      method: 'POST',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
+  patch: (url: string, body: unknown, options?: Record<string, unknown>) =>
+    request(url, {
+      ...options,
+      method: 'PATCH',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
+  delete: (url: string, options?: Record<string, unknown>) =>
+    request(url, { ...options, method: 'DELETE' }),
 };
 
 export default fetchClient;

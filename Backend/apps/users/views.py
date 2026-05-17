@@ -3,19 +3,28 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, viewsets, authentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
+from rest_framework.throttling import AnonRateThrottle
 from django.contrib.auth import authenticate, get_user_model
 from .serializers import UserSerializer
 
 User = get_user_model()
 
+_INVALID_CREDENTIALS_MSG = "Invalid credentials."
+
+
+class LoginRateThrottle(AnonRateThrottle):
+    rate = '5/minute'
+    scope = 'login'
+
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [LoginRateThrottle]
 
     def post(self, request):
-        identifier = request.data.get('email')
-        password = request.data.get('password')
-        role = request.data.get('role')
+        identifier = request.data.get('email', '').strip()
+        password = request.data.get('password', '')
+        role = request.data.get('role', '').strip()
 
         if not identifier or not password:
             return Response(
@@ -29,15 +38,23 @@ class LoginView(APIView):
             User.objects.filter(username__iexact=identifier).first()
         )
 
-        if not user_obj:
-            return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+        # Always run authenticate to prevent timing attacks
+        auth_username = user_obj.username if user_obj else identifier
+        user = authenticate(username=auth_username, password=password)
 
-        user = authenticate(username=user_obj.username, password=password)
-        if not user:
-            return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+        if not user or not user_obj:
+            return Response({"detail": _INVALID_CREDENTIALS_MSG}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if role and user.role != role:
-            return Response({"detail": f"Unauthorized role: {role}"}, status=status.HTTP_403_FORBIDDEN)
+        # Check if account is active
+        if not user.is_active or not getattr(user, 'is_active_user', True):
+            return Response({"detail": "This account is disabled."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Role must be provided and must match the user's actual role
+        if not role:
+            return Response({"detail": "Role is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.role != role:
+            return Response({"detail": _INVALID_CREDENTIALS_MSG}, status=status.HTTP_401_UNAUTHORIZED)
 
         token, _ = Token.objects.get_or_create(user=user)
         return Response({

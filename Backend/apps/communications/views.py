@@ -164,6 +164,9 @@ class AdministrativeNoteViewSet(viewsets.ModelViewSet):
         return AdministrativeNote.objects.filter(audience__in=audiences)
 
     def perform_create(self, serializer):
+        if self.request.user.role != 'admin':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admins can create administrative notes.")
         serializer.save(author=self.request.user)
         # Create notifications for all target users
         note = serializer.instance

@@ -2,9 +2,11 @@
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from .models import (
@@ -114,12 +116,14 @@ class DocumentViewSet(viewsets.ModelViewSet):
         if user.role == 'student' and hasattr(user, 'student_profile'):
             project = Project.objects.filter(student=user.student_profile).first()
             if not project:
-                from rest_framework.exceptions import ValidationError
                 raise ValidationError("Student has no project.")
-            # Auto-increment version for same title
             title = serializer.validated_data.get('title', '')
-            existing = Document.objects.filter(project=project, title=title).count()
-            serializer.save(project=project, version=existing + 1)
+            # Use atomic + select_for_update to prevent version race condition
+            with transaction.atomic():
+                existing = Document.objects.select_for_update().filter(
+                    project=project, title=title
+                ).count()
+                serializer.save(project=project, version=existing + 1)
         else:
             serializer.save()
 
@@ -140,11 +144,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
         doc = self.get_object()
         if request.user.role not in ['supervisor', 'admin']:
             return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-        reason = request.data.get('reason', '')
+        reason = str(request.data.get('reason', ''))[:500]
         doc.status = 'rejected'
         doc.rejection_reason = reason
         doc.save()
-        self._notify_student(doc, 'rejected', f'Your document "{doc.title}" was rejected: {reason}')
+        self._notify_student(doc, 'rejected', f'Your document "{doc.title}" was rejected.')
         return Response(DocumentSerializer(doc, context={'request': request}).data)
 
     def _notify_student(self, doc, ntype, message):
@@ -288,6 +292,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+    @staticmethod
+    def _validate_score(score):
+        """Validate score is a number between 0 and 100."""
+        try:
+            val = float(score)
+        except (TypeError, ValueError):
+            raise ValidationError("Score must be a number.")
+        if val < 0 or val > 100:
+            raise ValidationError("Score must be between 0 and 100.")
+        return val
+
     @action(detail=True, methods=['post'])
     def submit_supervisor(self, request, pk=None):
         """Supervisor submits their score."""
@@ -295,14 +310,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only supervisors can submit supervisor scores.'}, status=403)
         evaluation = self.get_object()
         score = request.data.get('score')
-        comment = request.data.get('comment', '')
+        comment = str(request.data.get('comment', ''))[:2000]
         criteria = request.data.get('criteria', {})
         if score is not None:
-            evaluation.supervisor_score = float(score)
+            evaluation.supervisor_score = self._validate_score(score)
             evaluation.supervisor_comment = comment
-            evaluation.supervisor_criteria = criteria
+            if isinstance(criteria, dict):
+                evaluation.supervisor_criteria = criteria
             evaluation.save()
-            # Notify student
             from apps.communications.models import Notification
             Notification.objects.create(
                 recipient=evaluation.project.student.user,
@@ -321,12 +336,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only jury members can submit jury scores.'}, status=403)
         evaluation = self.get_object()
         score = request.data.get('score')
-        comment = request.data.get('comment', '')
+        comment = str(request.data.get('comment', ''))[:2000]
         criteria = request.data.get('criteria', {})
         if score is not None:
-            evaluation.jury_score = float(score)
+            evaluation.jury_score = self._validate_score(score)
             evaluation.jury_comment = comment
-            evaluation.jury_criteria = criteria
+            if isinstance(criteria, dict):
+                evaluation.jury_criteria = criteria
             evaluation.save()
             from apps.communications.models import Notification
             Notification.objects.create(
@@ -364,8 +380,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if request.user.role != 'admin':
             return Response({'error': 'Only admin can update weights.'}, status=403)
         evaluation = self.get_object()
-        sup_w = request.data.get('supervisor_weight', evaluation.supervisor_weight)
-        jury_w = request.data.get('jury_weight', evaluation.jury_weight)
+        try:
+            sup_w = int(request.data.get('supervisor_weight', evaluation.supervisor_weight))
+            jury_w = int(request.data.get('jury_weight', evaluation.jury_weight))
+        except (TypeError, ValueError):
+            return Response({'error': 'Weights must be integers.'}, status=400)
+        if sup_w < 0 or jury_w < 0 or sup_w + jury_w != 100:
+            return Response({'error': 'Weights must be non-negative and sum to 100.'}, status=400)
         evaluation.supervisor_weight = sup_w
         evaluation.jury_weight = jury_w
         evaluation.save()
