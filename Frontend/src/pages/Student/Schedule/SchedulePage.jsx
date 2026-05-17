@@ -127,18 +127,9 @@ const SchedulePage = () => {
               Appointments and deadlines — {user?.name}
             </p>
           </motion.div>
-          <div className="d-flex align-items-center gap-3">
-            <input 
-              className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0 form-control" 
-              type="date" 
-              value={getFormattedValue()}
-              onChange={handleDateSelect}
-              style={{ maxWidth: '180px', cursor: 'pointer' }}
-            />
-            <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
-              <Plus size={18} /> Request Appointment
-            </Button>
-          </div>
+          <Button className="btn-premium d-flex align-items-center gap-2" onClick={() => setShowAddModal(true)}>
+            <Plus size={18} /> Request Appointment
+          </Button>
         </header>
 
         {/* Stats */}
@@ -164,14 +155,23 @@ const SchedulePage = () => {
           <Col lg={7}>
             <Card className="glass-card border-0 shadow-sm">
               <Card.Header className="bg-transparent border-bottom p-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <Button variant="link" className="p-0 text-navy border-0 shadow-none" onClick={() => setViewDate(new Date(year, month - 1, 1))}>
-                    <ChevronLeft size={20} />
-                  </Button>
-                  <h5 className="fw-bold text-navy mb-0">{MONTHS[month]} {year}</h5>
-                  <Button variant="link" className="p-0 text-navy border-0 shadow-none" onClick={() => setViewDate(new Date(year, month + 1, 1))}>
-                    <ChevronRight size={20} />
-                  </Button>
+                <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <Button variant="link" className="p-0 text-navy border-0 shadow-none" onClick={() => setViewDate(new Date(year, month - 1, 1))}>
+                      <ChevronLeft size={20} />
+                    </Button>
+                    <h5 className="fw-bold text-navy mb-0" style={{ minWidth: '120px', textAlign: 'center' }}>{MONTHS[month]} {year}</h5>
+                    <Button variant="link" className="p-0 text-navy border-0 shadow-none" onClick={() => setViewDate(new Date(year, month + 1, 1))}>
+                      <ChevronRight size={20} />
+                    </Button>
+                  </div>
+                  <input 
+                    className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0 form-control" 
+                    type="date" 
+                    value={getFormattedValue()}
+                    onChange={handleDateSelect}
+                    style={{ maxWidth: '180px', cursor: 'pointer' }}
+                  />
                 </div>
               </Card.Header>
               <Card.Body className="p-4">

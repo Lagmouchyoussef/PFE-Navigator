@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Form, Button, Badge, InputGroup, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Badge, InputGroup, Spinner, Modal } from 'react-bootstrap';
 import { Send, Search, User, Check, CheckCheck } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
@@ -15,12 +15,27 @@ const MessagesPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Users Modal States
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [programUsers, setProgramUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [usersSearch, setUsersSearch] = useState('');
+
+  // Local list of contacts that can be expanded dynamically when selecting someone from the "All Users" list
+  const [localContacts, setLocalContacts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (contactableUsers) {
+      setLocalContacts(contactableUsers);
+    }
+  }, [contactableUsers]);
+
   // Auto-select first contactable user
   useEffect(() => {
-    if (!selectedUserId && contactableUsers.length > 0) {
-      setSelectedUserId(contactableUsers[0].id);
+    if (!selectedUserId && localContacts.length > 0) {
+      setSelectedUserId(localContacts[0].id);
     }
-  }, [contactableUsers, selectedUserId]);
+  }, [localContacts, selectedUserId]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -63,7 +78,7 @@ const MessagesPage: React.FC = () => {
     }
   };
 
-  const filteredContacts = contactableUsers.filter(u =>
+  const filteredContacts = localContacts.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) ||
     u.email?.toLowerCase().includes(search.toLowerCase())
   );
@@ -79,7 +94,7 @@ const MessagesPage: React.FC = () => {
     return msgs.at(-1);
   };
 
-  const selectedContact = contactableUsers.find(u => u.id === selectedUserId);
+  const selectedContact = localContacts.find(u => u.id === selectedUserId);
 
   const roleColor: Record<string, string> = {
     admin: 'var(--color-rose)',
@@ -95,6 +110,33 @@ const MessagesPage: React.FC = () => {
     student: 'Student',
   };
 
+  const fetchProgramUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { usersApi } = await import('../../../api/users');
+      const data = await usersApi.getUsersList();
+      setProgramUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Fetch program users error:', err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showUsersModal) {
+      fetchProgramUsers();
+    }
+  }, [showUsersModal]);
+
+  const handleSelectContactFromModal = (contact: any) => {
+    if (!localContacts.some(c => c.id === contact.id)) {
+      setLocalContacts(prev => [contact, ...prev]);
+    }
+    setSelectedUserId(contact.id);
+    setShowUsersModal(false);
+  };
+
   return (
     <div className="messages-modern-layout h-100 py-3">
       <Container fluid className="h-100 p-0 overflow-hidden">
@@ -106,7 +148,17 @@ const MessagesPage: React.FC = () => {
             {/* Sidebar */}
             <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end bg-surface-alt">
               <div className="p-4 bg-white border-bottom">
-                <h4 className="fw-bold mb-3 text-navy">Messaging</h4>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h4 className="fw-bold mb-0 text-navy">Messaging</h4>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    className="rounded-pill extra-small fw-bold px-3 py-1.5"
+                    onClick={() => setShowUsersModal(true)}
+                  >
+                    All Users
+                  </Button>
+                </div>
                 <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
                   <InputGroup.Text className="bg-transparent border-0 pe-1">
                     <Search size={18} className="text-muted" />
@@ -253,6 +305,91 @@ const MessagesPage: React.FC = () => {
           </Row>
         </div>
       </Container>
+
+      {/* Program Users Modal */}
+      <Modal show={showUsersModal} onHide={() => setShowUsersModal(false)} size="lg" centered>
+        <Modal.Header closeButton className="border-bottom px-4 py-3 bg-surface-alt">
+          <Modal.Title className="fw-bold fs-6 text-navy">Program Users</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden mb-4">
+            <InputGroup.Text className="bg-transparent border-0 pe-1">
+              <Search size={18} className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control
+              placeholder="Search by name, ID, or email..."
+              className="bg-transparent border-0 shadow-none extra-small py-2 text-navy fw-bold"
+              value={usersSearch}
+              onChange={e => setUsersSearch(e.target.value)}
+            />
+          </InputGroup>
+
+          {loadingUsers ? (
+            <div className="text-center py-5"><Spinner size="md" /></div>
+          ) : (
+            <div className="overflow-auto" style={{ maxHeight: '400px' }}>
+              <table className="table table-hover align-middle border-0">
+                <thead>
+                  <tr className="extra-small text-muted fw-bold border-bottom">
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th className="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {programUsers.filter(u => 
+                    u.name?.toLowerCase().includes(usersSearch.toLowerCase()) ||
+                    u.email?.toLowerCase().includes(usersSearch.toLowerCase()) ||
+                    u.institutional_id?.toLowerCase().includes(usersSearch.toLowerCase())
+                  ).map(u => {
+                    const initials = (u.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                    const color = roleColor[u.role] || '#888';
+                    return (
+                      <tr key={u.id} className="border-bottom">
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            <div
+                              className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                              style={{ backgroundColor: color, width: '36px', height: '36px', fontSize: '12px' }}
+                            >
+                              {initials}
+                            </div>
+                            <span className="small fw-bold text-navy">{u.name}</span>
+                          </div>
+                        </td>
+                        <td className="small text-muted fw-bold">{u.institutional_id || 'N/A'}</td>
+                        <td className="extra-small">
+                          <Badge bg="transparent" style={{ border: `1px solid ${color}`, color: color }} className="extra-small text-capitalize">
+                            {roleLabel[u.role] || u.role}
+                          </Badge>
+                        </td>
+                        <td className="small text-muted">{u.email}</td>
+                        <td className="text-end">
+                          <Button 
+                            variant="primary" 
+                            size="sm" 
+                            className="rounded-pill extra-small fw-bold px-3 py-1.5"
+                            onClick={() => handleSelectContactFromModal(u)}
+                          >
+                            Message
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {programUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="text-center py-4 text-muted small">No users found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

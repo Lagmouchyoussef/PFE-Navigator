@@ -65,6 +65,34 @@ class ChangePasswordView(APIView):
         return Response({'detail': 'Password updated successfully.'})
 
 
+class UsersListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        role = user.role
+        
+        if role == 'student' or role == 'supervisor':
+            allowed_roles = ['admin', 'supervisor', 'student']
+        else: # jury or admin
+            allowed_roles = ['admin', 'supervisor', 'student', 'jury']
+            
+        queryset = User.objects.filter(role__in=allowed_roles, is_active=True)
+        
+        data = []
+        for u in queryset:
+            data.append({
+                'id': u.id,
+                'email': u.email,
+                'first_name': u.first_name,
+                'last_name': u.last_name,
+                'name': f"{u.first_name} {u.last_name}".strip(),
+                'role': u.role,
+                'institutional_id': u.institutional_id,
+            })
+        return Response(data)
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [IsAdmin]

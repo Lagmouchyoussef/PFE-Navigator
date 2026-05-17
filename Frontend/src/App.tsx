@@ -186,7 +186,7 @@ function App() {
           <Route path="projects" element={<ProjectsArchive />} />
           <Route path="analytics" element={<AnalyticsCenter />} />
           <Route path="resources" element={<ResourceHub />} />
-          <Route path="messages" element={<AdminMessages />} />
+          <Route path="messages" element={<MessagesPage />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="notes" element={<AdminNotes />} />
           <Route path="settings" element={<PortalSettings />} />
@@ -622,7 +622,7 @@ function App() {
             <Route path="/supervisor/student/:id" element={<RequireAuth requiredRole="supervisor"><StudentDetail /></RequireAuth>} />
             <Route path="/supervisor/subjects" element={<RequireAuth requiredRole="supervisor"><SupervisorSubjects /></RequireAuth>} />
             <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluations /></RequireAuth>} />
-            <Route path="/supervisor/messages" element={<RequireAuth requiredRole="supervisor"><SupervisorMessages /></RequireAuth>} />
+            <Route path="/supervisor/messages" element={<RequireAuth requiredRole="supervisor"><MessagesPage /></RequireAuth>} />
             <Route path="/supervisor/schedule" element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
             <Route path="/supervisor/notifications" element={<RequireAuth requiredRole="supervisor"><NotificationsPage /></RequireAuth>} />
             <Route path="/supervisor/notes" element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />

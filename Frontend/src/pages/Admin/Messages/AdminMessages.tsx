@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Badge, InputGroup, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Badge, InputGroup, Dropdown, Modal, Spinner } from 'react-bootstrap';
 import {
   Send, Search, Paperclip, Phone, Video,
   User, Check, CheckCheck, MoreVertical
@@ -13,6 +13,12 @@ const AdminMessages: React.FC = () => {
   const [activeRole, setActiveRole] = useState<string>('student');
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Users Modal States
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [programUsers, setProgramUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [usersSearch, setUsersSearch] = useState('');
 
   const roles = [
     { id: 'student', name: 'Students Channel', avatar: 'ST', color: '#10b981', desc: 'Student messages' },
@@ -34,6 +40,39 @@ const AdminMessages: React.FC = () => {
     }
   }, []);
 
+  const fetchProgramUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { usersApi } = await import('../../../api/users');
+      const data = await usersApi.getUsersList();
+      setProgramUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Fetch program users error:', err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showUsersModal) {
+      fetchProgramUsers();
+    }
+  }, [showUsersModal]);
+
+  const roleColor: Record<string, string> = {
+    admin: 'var(--color-rose)',
+    supervisor: 'var(--color-primary)',
+    jury: 'var(--color-warning)',
+    student: 'var(--color-success)',
+  };
+
+  const roleLabel: Record<string, string> = {
+    admin: 'Administrator',
+    supervisor: 'Supervisor',
+    jury: 'Jury Member',
+    student: 'Student',
+  };
+
   return (
     <div className="admin-messages-pro-layout">
       <Container fluid className="h-100 p-0 overflow-hidden">
@@ -41,7 +80,17 @@ const AdminMessages: React.FC = () => {
           {/* Sidebar */}
           <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end shadow-sm">
             <div className="p-4 border-bottom">
-              <h4 className="fw-bold mb-4 text-navy">Messages</h4>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="fw-bold mb-0 text-navy">Messages</h4>
+                <Button 
+                  variant="outline-primary" 
+                  size="sm" 
+                  className="rounded-pill extra-small fw-bold px-3 py-1.5"
+                  onClick={() => setShowUsersModal(true)}
+                >
+                  All Users
+                </Button>
+              </div>
               <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
                 <InputGroup.Text className="bg-transparent border-0 pe-1">
                   <Search size={18} className="text-muted" />
@@ -167,6 +216,81 @@ const AdminMessages: React.FC = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Program Users Modal */}
+      <Modal show={showUsersModal} onHide={() => setShowUsersModal(false)} size="lg" centered>
+        <Modal.Header closeButton className="border-bottom px-4 py-3 bg-surface-alt">
+          <Modal.Title className="fw-bold fs-6 text-navy">Program Users</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden mb-4">
+            <InputGroup.Text className="bg-transparent border-0 pe-1">
+              <Search size={18} className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control
+              placeholder="Search by name, ID, or email..."
+              className="bg-transparent border-0 shadow-none extra-small py-2 text-navy fw-bold"
+              value={usersSearch}
+              onChange={e => setUsersSearch(e.target.value)}
+            />
+          </InputGroup>
+
+          {loadingUsers ? (
+            <div className="text-center py-5"><Spinner size="md" /></div>
+          ) : (
+            <div className="overflow-auto" style={{ maxHeight: '400px' }}>
+              <table className="table table-hover align-middle border-0">
+                <thead>
+                  <tr className="extra-small text-muted fw-bold border-bottom">
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {programUsers.filter(u => 
+                    u.name?.toLowerCase().includes(usersSearch.toLowerCase()) ||
+                    u.email?.toLowerCase().includes(usersSearch.toLowerCase()) ||
+                    u.institutional_id?.toLowerCase().includes(usersSearch.toLowerCase())
+                  ).map(u => {
+                    const initials = (u.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                    const color = roleColor[u.role] || '#888';
+                    return (
+                      <tr key={u.id} className="border-bottom">
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            <div
+                              className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                              style={{ backgroundColor: color, width: '36px', height: '36px', fontSize: '12px' }}
+                            >
+                              {initials}
+                            </div>
+                            <span className="small fw-bold text-navy">{u.name}</span>
+                          </div>
+                        </td>
+                        <td className="small text-muted fw-bold">{u.institutional_id || 'N/A'}</td>
+                        <td className="extra-small">
+                          <Badge bg="transparent" style={{ border: `1px solid ${color}`, color: color }} className="extra-small text-capitalize">
+                            {roleLabel[u.role] || u.role}
+                          </Badge>
+                        </td>
+                        <td className="small text-muted">{u.email}</td>
+                      </tr>
+                    );
+                  })}
+                  {programUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4 text-muted small">No users found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
+
       <style>{`
         .admin-messages-pro-layout {
           height: calc(100vh - 80px);

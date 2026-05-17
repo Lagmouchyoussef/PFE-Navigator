@@ -37,4 +37,8 @@ export const usersApi = {
   delete: async (id: number) => {
     await fetchClient.delete(`/users/${id}/`);
   },
+  getUsersList: async () => {
+    const res = await fetchClient.get('/auth/users-list/');
+    return res.data;
+  },
 };
