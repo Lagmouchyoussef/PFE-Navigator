@@ -28,7 +28,7 @@ const AdminLoginPage: React.FC = () => {
     setError(null);
 
     if (!email || !password) {
-      setError('Veuillez saisir vos identifiants administrateur.');
+      setError('Please enter your administrator credentials.');
       return;
     }
 
@@ -39,10 +39,10 @@ const AdminLoginPage: React.FC = () => {
       if (success) {
         setShowSuccess(true);
       } else {
-        setError('Adresse email ou mot de passe incorrect.');
+        setError('Incorrect email address or password.');
       }
     } catch (err: any) {
-      setError('Une erreur réseau est survenue. Veuillez réessayer.');
+      setError('A network error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -55,8 +55,8 @@ const AdminLoginPage: React.FC = () => {
           {/* Logo & Header */}
           <div className="logo-header">
             <img src="/logo_emsi.png" alt="EMSI Logo" />
-            <h1>Portail Administrateur</h1>
-            <p>Accès au panneau de configuration système</p>
+            <h1>Administrator Portal</h1>
+            <p>Access to system configuration panel</p>
           </div>
 
 
@@ -78,7 +78,7 @@ const AdminLoginPage: React.FC = () => {
           {/* Login Form */}
           <form className="login-form" onSubmit={handleLogin}>
             <div className="form-group">
-              <label htmlFor="emailInput">Email Administrateur</label>
+              <label htmlFor="emailInput">Administrator Email</label>
               <div className="input-wrapper">
                 <input
                   type="text"
@@ -96,7 +96,7 @@ const AdminLoginPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="passwordInput">Mot de passe de sécurité</label>
+              <label htmlFor="passwordInput">Security Password</label>
               <div className="input-wrapper">
                 <input
                   type={isPasswordVisible ? 'text' : 'password'}
@@ -127,7 +127,7 @@ const AdminLoginPage: React.FC = () => {
                 className="forgot-password-link"
                 onClick={() => setShowForgotModal(true)}
               >
-                Identifiant perdu ?
+                Forgot credentials?
               </button>
             </div>
 
@@ -141,7 +141,7 @@ const AdminLoginPage: React.FC = () => {
               {isLoading ? (
                 <div className="spinner"></div>
               ) : (
-                <>S'authentifier</>
+                <>Sign In</>
               )}
             </button>
           </form>
@@ -169,12 +169,12 @@ const AdminLoginPage: React.FC = () => {
                 <>
                   <div className="logo-header" style={{ marginBottom: '1.5rem' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
-                      Récupération Administrateur
+                      Administrator Recovery
                     </h2>
-                    <p>Entrez votre email pour réinitialiser vos accès de sécurité</p>
+                    <p>Enter your email to reset your security access</p>
                   </div>
                   <div className="form-group mb-4">
-                    <label>Adresse email administrateur</label>
+                    <label>Administrator email address</label>
                     <div className="input-wrapper">
                       <input
                         type="email"
@@ -199,7 +199,7 @@ const AdminLoginPage: React.FC = () => {
                         setForgotEmail('');
                       }}
                     >
-                      Annuler
+                      Cancel
                     </button>
                     <button
                       type="button"
@@ -213,7 +213,7 @@ const AdminLoginPage: React.FC = () => {
                         setIsResetSent(true);
                       }}
                     >
-                      {isSendingReset ? <div className="spinner"></div> : 'Envoyer'}
+                      {isSendingReset ? <div className="spinner"></div> : 'Send'}
                     </button>
                   </div>
                 </>
@@ -223,10 +223,10 @@ const AdminLoginPage: React.FC = () => {
                     <CheckCircle2 size={36} />
                   </div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
-                    Lien envoyé !
+                    Link sent!
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                    Veuillez vérifier votre boîte de réception à l'adresse <strong>{forgotEmail}</strong>.
+                    Please check your inbox at <strong>{forgotEmail}</strong>.
                   </p>
                   <button
                     type="button"
@@ -237,7 +237,7 @@ const AdminLoginPage: React.FC = () => {
                       setForgotEmail('');
                     }}
                   >
-                    Retour
+                    Back
                   </button>
                 </div>
               )}
@@ -268,14 +268,14 @@ const AdminLoginPage: React.FC = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                Connexion réussie
+                Login successful
               </motion.h3>
               <motion.p
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                Accès au panneau d'administration autorisé...
+                Access to administration panel granted...
               </motion.p>
             </div>
           </motion.div>

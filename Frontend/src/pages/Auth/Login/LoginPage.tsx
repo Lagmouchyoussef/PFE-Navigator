@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
     setError(null);
 
     if (!email || !password) {
-      setError('Veuillez saisir vos identifiants.');
+      setError('Please enter your credentials.');
       return;
     }
 
@@ -41,10 +41,10 @@ const LoginPage: React.FC = () => {
       if (success) {
         setShowSuccess(true);
       } else {
-        setError('Adresse email ou mot de passe incorrect.');
+        setError('Incorrect email address or password.');
       }
     } catch (err: any) {
-      setError('Une erreur réseau est survenue. Veuillez réessayer.');
+      setError('A network error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
           {/* Logo & Header */}
           <div className="logo-header">
             <img src="/logo_emsi.png" alt="EMSI Logo" />
-            <h1>Connexion</h1>
+            <h1>Sign In</h1>
           </div>
 
 
@@ -75,8 +75,8 @@ const LoginPage: React.FC = () => {
                   setError(null);
                 }}
               >
-                {role === 'student' && 'Étudiant'}
-                {role === 'supervisor' && 'Encadrant'}
+                {role === 'student' && 'Student'}
+                {role === 'supervisor' && 'Supervisor'}
                 {role === 'jury' && 'Jury'}
                 {role === 'admin' && 'Admin'}
               </button>
@@ -103,10 +103,10 @@ const LoginPage: React.FC = () => {
             {/* Email Field */}
             <div className="form-group">
               <label htmlFor="emailInput">
-                {currentRole === 'student' && 'Identifiant / Email Étudiant*'}
-                {currentRole === 'supervisor' && 'Email Encadrant*'}
-                {currentRole === 'jury' && 'Email Jury*'}
-                {currentRole === 'admin' && 'Email Administrateur*'}
+                {currentRole === 'student' && 'Student ID / Email*'}
+                {currentRole === 'supervisor' && 'Supervisor Email*'}
+                {currentRole === 'jury' && 'Jury Email*'}
+                {currentRole === 'admin' && 'Administrator Email*'}
               </label>
               <div className="input-wrapper">
                 <input
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
 
             {/* Password Field */}
             <div className="form-group">
-              <label htmlFor="passwordInput">Mot de passe*</label>
+              <label htmlFor="passwordInput">Password*</label>
               <div className="input-wrapper">
                 <input
                   type={isPasswordVisible ? 'text' : 'password'}
@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
               {isLoading ? (
                 <div className="spinner"></div>
               ) : (
-                <>Se connecter</>
+                <>Sign In</>
               )}
             </button>
 
@@ -161,7 +161,7 @@ const LoginPage: React.FC = () => {
               className="forgot-password-link"
               onClick={() => setShowForgotModal(true)}
             >
-              Mot de passe oublié ?
+              Forgot password?
             </button>
           </form>
         </div>
@@ -188,17 +188,17 @@ const LoginPage: React.FC = () => {
                 <>
                   <div className="logo-header" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#000000', margin: 0 }}>
-                      Mot de passe oublié
+                      Forgot Password
                     </h2>
                   </div>
                   <div className="form-group mb-4" style={{ position: 'relative' }}>
-                    <label style={{ left: 0, top: '-16px', fontSize: '0.75rem' }}>Adresse email*</label>
+                    <label style={{ left: 0, top: '-16px', fontSize: '0.75rem' }}>Email address*</label>
                     <div className="input-wrapper">
                       <input
                         type="email"
                         className="form-input"
                         style={{ paddingLeft: '12px' }}
-                        placeholder="votre.email@emsi.ma"
+                        placeholder="your.email@emsi.ma"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
                         required
@@ -215,7 +215,7 @@ const LoginPage: React.FC = () => {
                         setForgotEmail('');
                       }}
                     >
-                      Annuler
+                      Cancel
                     </button>
                     <button
                       type="button"
@@ -229,7 +229,7 @@ const LoginPage: React.FC = () => {
                         setIsResetSent(true);
                       }}
                     >
-                      {isSendingReset ? <div className="spinner"></div> : 'Envoyer'}
+                      {isSendingReset ? <div className="spinner"></div> : 'Send'}
                     </button>
                   </div>
                 </>
@@ -239,10 +239,10 @@ const LoginPage: React.FC = () => {
                     <CheckCircle2 size={36} />
                   </div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#000000' }}>
-                    Lien envoyé !
+                    Link sent!
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: '#757575', marginTop: '8px' }}>
-                    Un email de réinitialisation a été envoyé à <strong>{forgotEmail}</strong>.
+                    A reset email has been sent to <strong>{forgotEmail}</strong>.
                   </p>
                   <button
                     type="button"
@@ -253,7 +253,7 @@ const LoginPage: React.FC = () => {
                       setForgotEmail('');
                     }}
                   >
-                    Retour
+                    Back
                   </button>
                 </div>
               )}
@@ -283,14 +283,14 @@ const LoginPage: React.FC = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                Connexion réussie
+                Login successful
               </motion.h3>
               <motion.p
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                Redirection vers votre espace...
+                Redirecting to your workspace...
               </motion.p>
             </div>
           </motion.div>

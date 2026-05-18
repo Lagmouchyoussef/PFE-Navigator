@@ -66,18 +66,18 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
     const isLinkToAdmin = location.pathname.startsWith('/admin');
     return <Navigate to={isLinkToAdmin ? "/admin-login" : "/login"} replace />;
   }
-  if (requiredRole && user.role !== requiredRole) {
+  if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
     const rolePath =
-      user.role === 'admin' ? '/admin/dashboard' :
-        user.role === 'jury' ? '/jury/dashboard' :
-          user.role === 'supervisor' ? '/supervisor/dashboard' :
-            '/student/dashboard';
+      user.role === 'jury' ? '/jury/dashboard' :
+        user.role === 'supervisor' ? '/supervisor/dashboard' :
+          '/student/dashboard';
     return <Navigate to={rolePath} replace />;
   }
   return <>{children}</>;
 };
 
 import AdminGrades from './pages/Admin/Grades/AdminGrades';
+import PortalHome from './pages/Portal/PortalHome';
 
 function App() {
   const location = useLocation();
@@ -164,16 +164,21 @@ function App() {
     );
   }
 
-  if (location.pathname === '/login' || location.pathname === '/') {
-    const dashPath =
-      user.role === 'admin' ? '/admin/dashboard' :
-        user.role === 'jury' ? '/jury/dashboard' :
-          user.role === 'supervisor' ? '/supervisor/dashboard' :
-            '/student/dashboard';
-    return <Navigate to={dashPath} replace />;
+  const excluded = ['/login', '/admin-login', '/portal', '/'];
+  if (!excluded.includes(location.pathname)) {
+    localStorage.setItem('pfe_last_path', location.pathname);
   }
 
-  if (user.role === 'admin') {
+  if (excluded.includes(location.pathname)) {
+    const saved = localStorage.getItem('pfe_last_path');
+    const isValidSaved = saved && (
+      user.role === 'admin' ||
+      saved.startsWith(`/${user.role}/`)
+    );
+    return <Navigate to={isValidSaved ? saved : '/portal'} replace />;
+  }
+
+  if (user.role === 'admin' && (location.pathname === '/admin' || location.pathname.startsWith('/admin/'))) {
     return (
       <Routes>
         <Route path="/admin" element={<AdminLayout />}>
@@ -192,9 +197,16 @@ function App() {
           <Route path="settings" element={<PortalSettings />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     );
   }
+
+  const activeInterface: 'student' | 'supervisor' | 'jury' | 'admin' =
+    user.role !== 'admin' ? user.role :
+    location.pathname.startsWith('/student') ? 'student' :
+    location.pathname.startsWith('/supervisor') ? 'supervisor' :
+    location.pathname.startsWith('/jury') ? 'jury' : 'admin';
 
   const toggleGroup = (group: 'core' | 'resources') => {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
@@ -253,14 +265,14 @@ function App() {
 
         {expandedGroups.core && (
           <nav className="nav flex-column px-3">
-            {user.role === 'jury' ? (
+            {activeInterface === 'jury' ? (
               <>
                 <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/jury/projects" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Assigned Projects"} />
                 <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
                 <SidebarLink to="/jury/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Calendar"} />
               </>
-            ) : user.role === 'supervisor' ? (
+            ) : activeInterface === 'supervisor' ? (
               <>
                 <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/supervisor/students" icon={<GraduationCap size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "My Students"} />
@@ -301,20 +313,23 @@ function App() {
           <nav className="nav flex-column px-3">
             <SidebarLink to="/resources" icon={<Briefcase size={20} />} iconClassName="icon-orange" label={!isSidebarCollapsed && "Resource Hub"} />
             <SidebarLink
-              to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+              to={activeInterface === 'supervisor' ? '/supervisor/messages' : activeInterface === 'jury' ? '/jury/messages' : '/student/messages'}
               icon={<MessageSquare size={20} />}
               iconClassName="icon-teal"
               label={!isSidebarCollapsed && "Messages"}
               badge={unreadMsgCount > 0 ? unreadMsgCount : null}
             />
             <SidebarLink
-              to={user.role === 'student' ? '/student/notifications' : user.role === 'supervisor' ? '/supervisor/notifications' : '/jury/notifications'}
+              to={activeInterface === 'supervisor' ? '/supervisor/notifications' : activeInterface === 'jury' ? '/jury/notifications' : '/student/notifications'}
               icon={<Bell size={20} />}
               iconClassName="icon-rose"
               label={!isSidebarCollapsed && "Notifications"}
               badge={unreadNotificationsCount > 0 ? unreadNotificationsCount : null}
             />
-            <SidebarLink to={user.role === 'student' ? '/student/notes' : user.role === 'supervisor' ? '/supervisor/notes' : '/jury/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
+            <SidebarLink to={activeInterface === 'supervisor' ? '/supervisor/notes' : activeInterface === 'jury' ? '/jury/notes' : '/student/notes'} icon={<FileText size={20} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Admin Notes"} />
+            {user.role === 'admin' && (
+              <SidebarLink to="/portal" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Switch Interface"} />
+            )}
           </nav>
         )}
 
@@ -374,7 +389,7 @@ function App() {
               <div className="breadcrumb-box d-none d-xl-flex align-items-center gap-2 extra-small text-muted fw-bold text-uppercase tracking-wider">
                 <span className="opacity-50">Portal</span>
                 <ChevronRight size={12} className="opacity-25" />
-                <span className="text-primary text-capitalize">{user.role} Workspace</span>
+                <span className="text-primary text-capitalize">{activeInterface} Workspace</span>
               </div>
             )}
           </div>
@@ -408,7 +423,7 @@ function App() {
                 <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
                   <span className="fw-bold text-navy">Messages</span>
                   <div className="d-flex align-items-center gap-2">
-                    <Link to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
+                    <Link to={activeInterface === 'supervisor' ? '/supervisor/messages' : activeInterface === 'jury' ? '/jury/messages' : '/student/messages'} className="extra-small text-primary fw-bold text-decoration-none">View All</Link>
                     <MoreVertical size={16} className="text-muted cursor-pointer" />
                   </div>
                 </div>
@@ -425,7 +440,7 @@ function App() {
                         <Link
                           className="d-flex gap-3 align-items-start text-decoration-none flex-grow-1 overflow-hidden"
                           onClick={() => markMessagesRead(user.role)}
-                          to={user.role === 'student' ? '/student/messages' : user.role === 'supervisor' ? '/supervisor/messages' : '/jury/messages'}
+                          to={activeInterface === 'supervisor' ? '/supervisor/messages' : activeInterface === 'jury' ? '/jury/messages' : '/student/messages'}
                         >
                           <div className="p-2 rounded-circle bg-primary bg-opacity-10 text-primary mt-1 flex-shrink-0">
                             <MessageSquare size={14} />
@@ -595,6 +610,8 @@ function App() {
         <div className="content-area flex-grow-1" style={{ minHeight: 'calc(100vh - 80px)', position: 'relative' }}>
           <ErrorBoundary>
           <Routes>
+            <Route path="/portal" element={<RequireAuth><PortalHome /></RequireAuth>} />
+
             <Route path="/student/dashboard" element={<RequireAuth requiredRole="student"><StudentDashboard /></RequireAuth>} />
             <Route path="/student/reports" element={<RequireAuth requiredRole="student"><ReportsPage /></RequireAuth>} />
             <Route path="/student/evaluation" element={<RequireAuth requiredRole="student"><EvaluationPage /></RequireAuth>} />
@@ -628,13 +645,7 @@ function App() {
             <Route path="/supervisor/notes" element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />
             <Route path="/supervisor/settings" element={<RequireAuth requiredRole="supervisor"><SettingsPage /></RequireAuth>} />
 
-            <Route path="*" element={
-              <Navigate to={
-                user.role === 'jury' ? '/jury/dashboard' :
-                  user.role === 'supervisor' ? '/supervisor/dashboard' :
-                    '/student/dashboard'
-              } replace />
-            } />
+            <Route path="*" element={<Navigate to="/portal" replace />} />
           </Routes>
           </ErrorBoundary>
         </div>
