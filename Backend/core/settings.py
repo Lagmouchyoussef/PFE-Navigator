@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'apps.supervisor',
     'apps.jury',
     'apps.administration',
+    'apps.projects',
 ]
 
 MIDDLEWARE = [
@@ -113,8 +114,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
+    'DEFAULT_PAGINATION_CLASS': None,
 }
 
 # ── JWT ───────────────────────────────────────────────────────────────────────

@@ -166,10 +166,9 @@ const AdminLayout: React.FC = () => {
 
         <div className="sidebar-footer mt-auto p-3 border-top border-secondary border-opacity-10">
           <div className="d-flex flex-column gap-1">
-            <SidebarLink to="/portal" icon={<LayoutDashboard size={18} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Switch Interface"} />
             <SidebarLink to="/admin/settings" icon={<Settings size={18} />} iconClassName="icon-slate" label={!isSidebarCollapsed && "Settings"} />
             {!isSidebarCollapsed && (
-              <button
+              <button 
                 onClick={logout}
                 className="nav-link-custom w-100 text-danger border-0 bg-transparent"
                 style={{ textAlign: 'left' }}

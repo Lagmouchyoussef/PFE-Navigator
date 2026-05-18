@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Form, Button, Badge, InputGroup, Spinner, Modal } from 'react-bootstrap';
-import { Send, Search, User, Check, CheckCheck } from 'lucide-react';
+import { Send, Search, User, Users, Check, CheckCheck, Trash2 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 const MessagesPage: React.FC = () => {
   const {
-    messages, sendMessage, markMessageRead,
+    messages, sendMessage, markMessageRead, deleteMessage,
     contactableUsers, user, isLoading
   } = useApp();
 
@@ -13,6 +13,8 @@ const MessagesPage: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [search, setSearch] = useState('');
   const [sending, setSending] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingConversation, setDeletingConversation] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Users Modal States
@@ -20,8 +22,17 @@ const MessagesPage: React.FC = () => {
   const [programUsers, setProgramUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [usersSearch, setUsersSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  // Local list of contacts that can be expanded dynamically when selecting someone from the "All Users" list
+  // Roles visible per connected user role
+  const allowedRolesByUser: Record<string, string[]> = {
+    student:    ['student', 'supervisor', 'admin'],
+    supervisor: ['student', 'supervisor', 'jury', 'admin'],
+    jury:       ['student', 'supervisor', 'jury', 'admin'],
+    admin:      ['student', 'supervisor', 'jury', 'admin'],
+  };
+  const visibleRoles = allowedRolesByUser[user?.role || 'student'] || [];
+
   const [localContacts, setLocalContacts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -30,21 +41,24 @@ const MessagesPage: React.FC = () => {
     }
   }, [contactableUsers]);
 
-  // Auto-select first contactable user
   useEffect(() => {
-    if (!selectedUserId && localContacts.length > 0) {
-      setSelectedUserId(localContacts[0].id);
+    if (!selectedUserId && messages.length > 0 && localContacts.length > 0) {
+      const first = localContacts.find(contact =>
+        messages.some(m =>
+          (m.sender === user?.id && m.recipient === contact.id) ||
+          (m.recipient === user?.id && m.sender === contact.id)
+        )
+      );
+      if (first) setSelectedUserId(first.id);
     }
-  }, [localContacts, selectedUserId]);
+  }, [localContacts, selectedUserId, messages, user?.id]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, selectedUserId]);
 
-  // Mark messages as read when opening conversation
   useEffect(() => {
     if (!selectedUserId) return;
     const unread = messages.filter(
@@ -78,7 +92,29 @@ const MessagesPage: React.FC = () => {
     }
   };
 
-  const filteredContacts = localContacts.filter(u =>
+  const handleDeleteConversation = useCallback(async () => {
+    if (!selectedUserId) return;
+    setDeletingConversation(true);
+    try {
+      await Promise.all(conversationMessages.map(m => deleteMessage(m.id)));
+      setLocalContacts(prev => prev.filter(c => c.id !== selectedUserId));
+      setSelectedUserId(null);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error('Delete conversation error:', err);
+    } finally {
+      setDeletingConversation(false);
+    }
+  }, [selectedUserId, conversationMessages, deleteMessage]);
+
+  const contactsWithConversation = localContacts.filter(contact =>
+    messages.some(m =>
+      (m.sender === user?.id && m.recipient === contact.id) ||
+      (m.recipient === user?.id && m.sender === contact.id)
+    )
+  );
+
+  const filteredContacts = contactsWithConversation.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) ||
     u.email?.toLowerCase().includes(search.toLowerCase())
   );
@@ -150,13 +186,14 @@ const MessagesPage: React.FC = () => {
               <div className="p-4 bg-white border-bottom">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h4 className="fw-bold mb-0 text-navy">Messaging</h4>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm" 
-                    className="rounded-pill extra-small fw-bold px-3 py-1.5"
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="rounded-pill extra-small fw-bold px-3 d-flex align-items-center gap-1"
                     onClick={() => setShowUsersModal(true)}
                   >
-                    All Users
+                    <Users size={13} />
+                    New Chat
                   </Button>
                 </div>
                 <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
@@ -226,10 +263,20 @@ const MessagesPage: React.FC = () => {
                     >
                       {(selectedContact.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
-                    <div>
+                    <div className="flex-grow-1">
                       <div className="fw-bold text-navy">{selectedContact.name}</div>
                       <div className="extra-small text-muted">{roleLabel[selectedContact.role] || selectedContact.role} • {selectedContact.email}</div>
                     </div>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      className="rounded-pill d-flex align-items-center gap-2 fw-bold extra-small px-3"
+                      onClick={() => setShowDeleteModal(true)}
+                      title="Delete conversation"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </Button>
                   </div>
 
                   {/* Messages */}
@@ -245,7 +292,7 @@ const MessagesPage: React.FC = () => {
                       return (
                         <div key={msg.id} className={`d-flex ${isMine ? 'justify-content-end' : 'justify-content-start'}`}>
                           <div
-                            className={`px-3 py-2 rounded-3 shadow-sm`}
+                            className="px-3 py-2 rounded-3 shadow-sm"
                             style={{
                               maxWidth: '70%',
                               backgroundColor: isMine ? 'var(--color-primary)' : 'white',
@@ -306,86 +353,177 @@ const MessagesPage: React.FC = () => {
         </div>
       </Container>
 
+      {/* Delete Conversation Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered size="sm">
+        <Modal.Body className="p-4 text-center">
+          <div
+            className="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
+            style={{ width: 56, height: 56 }}
+          >
+            <Trash2 size={24} className="text-danger" />
+          </div>
+          <h6 className="fw-bold text-navy mb-1">Delete conversation?</h6>
+          <p className="text-muted small mb-4">
+            All messages with <strong>{selectedContact?.name}</strong> will be permanently deleted.
+          </p>
+          <div className="d-flex gap-2 justify-content-center">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="rounded-pill px-4 fw-bold"
+              onClick={() => setShowDeleteModal(false)}
+              disabled={deletingConversation}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              className="rounded-pill px-4 fw-bold d-flex align-items-center gap-2"
+              onClick={handleDeleteConversation}
+              disabled={deletingConversation}
+            >
+              {deletingConversation ? <Spinner size="sm" /> : <Trash2 size={14} />}
+              Delete
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
       {/* Program Users Modal */}
-      <Modal show={showUsersModal} onHide={() => setShowUsersModal(false)} size="lg" centered>
+      <Modal show={showUsersModal} onHide={() => { setShowUsersModal(false); setUsersSearch(''); setRoleFilter('all'); }} size="lg" centered>
         <Modal.Header closeButton className="border-bottom px-4 py-3 bg-surface-alt">
-          <Modal.Title className="fw-bold fs-6 text-navy">Program Users</Modal.Title>
+          <div>
+            <Modal.Title className="fw-bold fs-6 text-navy">Program Directory</Modal.Title>
+            <p className="text-muted extra-small mb-0 mt-1">Select a user to start a conversation</p>
+          </div>
         </Modal.Header>
         <Modal.Body className="p-4">
-          <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden mb-4">
+
+          {/* Search */}
+          <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden mb-3">
             <InputGroup.Text className="bg-transparent border-0 pe-1">
-              <Search size={18} className="text-muted" />
+              <Search size={16} className="text-muted" />
             </InputGroup.Text>
             <Form.Control
-              placeholder="Search by name, ID, or email..."
+              placeholder="Search by name or ID..."
               className="bg-transparent border-0 shadow-none extra-small py-2 text-navy fw-bold"
               value={usersSearch}
               onChange={e => setUsersSearch(e.target.value)}
             />
           </InputGroup>
 
+          {/* Role filter tabs */}
+          <div className="d-flex gap-2 flex-wrap mb-4">
+            {(['all', ...visibleRoles]).map(role => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => setRoleFilter(role)}
+                style={{
+                  padding: '4px 14px',
+                  borderRadius: 20,
+                  border: `1.5px solid ${roleFilter === role ? (roleColor[role] || 'var(--color-primary)') : '#e2e8f0'}`,
+                  background: roleFilter === role ? (roleColor[role] || 'var(--color-primary)') : 'transparent',
+                  color: roleFilter === role ? '#fff' : '#64748b',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {role === 'all' ? 'All' : roleLabel[role] || role}
+              </button>
+            ))}
+          </div>
+
           {loadingUsers ? (
-            <div className="text-center py-5"><Spinner size="md" /></div>
+            <div className="text-center py-5"><Spinner size="sm" /></div>
           ) : (
-            <div className="overflow-auto" style={{ maxHeight: '400px' }}>
-              <table className="table table-hover align-middle border-0">
-                <thead>
-                  <tr className="extra-small text-muted fw-bold border-bottom">
-                    <th>Name</th>
-                    <th>ID</th>
-                    <th>Role</th>
-                    <th>Email</th>
-                    <th className="text-end">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {programUsers.filter(u => 
+            <div className="overflow-auto" style={{ maxHeight: '420px' }}>
+              {(() => {
+                const filtered = programUsers
+                  .filter(u => u.id !== user?.id)
+                  .filter(u => visibleRoles.includes(u.role))
+                  .filter(u => roleFilter === 'all' || u.role === roleFilter)
+                  .filter(u =>
+                    !usersSearch ||
                     u.name?.toLowerCase().includes(usersSearch.toLowerCase()) ||
-                    u.email?.toLowerCase().includes(usersSearch.toLowerCase()) ||
                     u.institutional_id?.toLowerCase().includes(usersSearch.toLowerCase())
-                  ).map(u => {
-                    const initials = (u.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-                    const color = roleColor[u.role] || '#888';
-                    return (
-                      <tr key={u.id} className="border-bottom">
-                        <td>
-                          <div className="d-flex align-items-center gap-2">
-                            <div
-                              className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
-                              style={{ backgroundColor: color, width: '36px', height: '36px', fontSize: '12px' }}
-                            >
-                              {initials}
-                            </div>
-                            <span className="small fw-bold text-navy">{u.name}</span>
+                  );
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-5 text-muted">
+                      <User size={36} className="mb-2 opacity-30" />
+                      <p className="small fw-bold">No users found</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="d-flex flex-column gap-2">
+                    {filtered.map(u => {
+                      const initials = (u.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                      const color = roleColor[u.role] || '#888';
+                      return (
+                        <div
+                          key={u.id}
+                          className="d-flex align-items-center gap-3 p-3 rounded-4 border"
+                          style={{ background: '#fafafa', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '#fafafa')}
+                        >
+                          {/* Avatar */}
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+                            style={{ backgroundColor: color, width: 44, height: 44, fontSize: 14 }}
+                          >
+                            {initials}
                           </div>
-                        </td>
-                        <td className="small text-muted fw-bold">{u.institutional_id || 'N/A'}</td>
-                        <td className="extra-small">
-                          <Badge bg="transparent" style={{ border: `1px solid ${color}`, color: color }} className="extra-small text-capitalize">
-                            {roleLabel[u.role] || u.role}
-                          </Badge>
-                        </td>
-                        <td className="small text-muted">{u.email}</td>
-                        <td className="text-end">
-                          <Button 
-                            variant="primary" 
-                            size="sm" 
-                            className="rounded-pill extra-small fw-bold px-3 py-1.5"
+
+                          {/* Info */}
+                          <div className="flex-grow-1 overflow-hidden">
+                            <div className="fw-bold small text-navy text-truncate">{u.name}</div>
+                            <div className="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                              <span
+                                className="extra-small fw-bold"
+                                style={{
+                                  background: color + '18',
+                                  color,
+                                  padding: '2px 8px',
+                                  borderRadius: 10,
+                                  border: `1px solid ${color}44`,
+                                }}
+                              >
+                                {roleLabel[u.role] || u.role}
+                              </span>
+                              {u.institutional_id && (
+                                <span className="extra-small text-muted fw-bold">
+                                  ID: <strong className="text-navy">{u.institutional_id}</strong>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action */}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="rounded-pill fw-bold extra-small px-3 flex-shrink-0"
+                            style={{ whiteSpace: 'nowrap' }}
                             onClick={() => handleSelectContactFromModal(u)}
                           >
+                            <Send size={12} className="me-1" />
                             Message
                           </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {programUsers.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="text-center py-4 text-muted small">No users found</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </Modal.Body>

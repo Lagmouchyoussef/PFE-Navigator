@@ -25,6 +25,8 @@ urlpatterns = [
     path('api/', include('apps.administration.urls')),
     # Shared Resources
     path('api/', include('apps.common.urls')),
+    # Unified Projects API
+    path('api/projects/', include('apps.projects.urls')),
 ]
 
 if settings.DEBUG:

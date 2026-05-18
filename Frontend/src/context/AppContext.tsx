@@ -384,6 +384,56 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (user) refreshData();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── REAL-TIME POLLING ──────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    const pollMessages = async () => {
+      try {
+        const { messagesApi } = await import('../api/communications');
+        const data = await messagesApi.getAll() as any;
+        setMessages(Array.isArray(data) ? data : (data?.results || []));
+      } catch {}
+    };
+
+    const pollNotifications = async () => {
+      try {
+        const { notificationsApi } = await import('../api/communications');
+        const data = await notificationsApi.getAll() as any;
+        setNotifications(Array.isArray(data) ? data : (data?.results || []));
+      } catch {}
+    };
+
+    const pollProjectData = async () => {
+      try {
+        const { projectsApi } = await import('../api/projects');
+        if (user.role === 'student') {
+          const data = await projectsApi.getDashboard() as any;
+          if (data?.id) {
+            setCurrentProject(data);
+            setDocuments(data.documents || []);
+            setMilestones(data.milestones || []);
+            setAppointments(data.appointments || []);
+            if (data.evaluation) setEvaluations([data.evaluation]);
+          }
+        } else {
+          const data = await projectsApi.getAll() as any;
+          setProjects(Array.isArray(data) ? data : (data?.results || []));
+        }
+      } catch {}
+    };
+
+    const msgId   = setInterval(() => { if (!document.hidden) pollMessages(); }, 5000);
+    const notifId = setInterval(() => { if (!document.hidden) pollNotifications(); }, 10000);
+    const projId  = setInterval(() => { if (!document.hidden) pollProjectData(); }, 20000);
+
+    return () => {
+      clearInterval(msgId);
+      clearInterval(notifId);
+      clearInterval(projId);
+    };
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── DOCUMENTS ──────────────────────────────────────────────────────────────
   const uploadDocument = useCallback(async (formData: FormData) => {
     const { documentsApi } = await import('../api/projects');
