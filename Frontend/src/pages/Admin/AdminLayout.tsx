@@ -90,7 +90,7 @@ const AdminLayout: React.FC = () => {
         <div className="sidebar-header d-flex align-items-center px-4 py-3" style={{ height: '80px' }}>
           {!isSidebarCollapsed && (
             <div className="d-flex align-items-center animate-fade-in overflow-hidden flex-grow-1">
-              <img src="/logo_emsi.png" alt="EMSI Logo" className="logo-img-sidebar" />
+              <img src="/logo_emsi_white.png" alt="EMSI Logo" className="logo-img-sidebar" />
             </div>
           )}
         </div>
