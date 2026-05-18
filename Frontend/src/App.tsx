@@ -164,12 +164,13 @@ function App() {
     );
   }
 
-  const excluded = ['/login', '/admin-login', '/portal', '/'];
-  if (!excluded.includes(location.pathname)) {
+  const noSavePaths = ['/login', '/admin-login', '/portal', '/'];
+  if (!noSavePaths.includes(location.pathname)) {
     localStorage.setItem('pfe_last_path', location.pathname);
   }
 
-  if (excluded.includes(location.pathname)) {
+  const redirectPaths = ['/', '/login', '/admin-login'];
+  if (redirectPaths.includes(location.pathname)) {
     const saved = localStorage.getItem('pfe_last_path');
     const isValidSaved = saved && (
       user.role === 'admin' ||
