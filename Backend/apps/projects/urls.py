@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    ProjectViewSet, SubjectViewSet, RepositoryView,
+    ProjectViewSet, SubjectViewSet, ChooseSubjectView, RepositoryView,
     DocumentViewSet, DocumentRemarkViewSet,
     AppointmentViewSet, MilestoneViewSet,
     EvaluationViewSet, FeedbackViewSet,
@@ -24,5 +24,6 @@ urlpatterns = [
     path('admin-stats/', AdminStatsView.as_view(), name='projects-admin-stats'),
     path('repository/', RepositoryView.as_view(), name='projects-repository'),
     path('students/', StudentsView.as_view(), name='projects-students'),
+    path('subjects/choose/', ChooseSubjectView.as_view(), name='subjects-choose'),
     path('', include(router.urls)),
 ]

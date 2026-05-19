@@ -52,9 +52,49 @@ export const projectsApi = {
     const res = await fetchClient.get('/projects/subjects/');
     return res.data;
   },
+  chooseSubject: async (subjectId: number) => {
+    const res = await fetchClient.post('/projects/subjects/choose/', { subject_id: subjectId });
+    return res.data;
+  },
   getRepository: async () => {
     const res = await fetchClient.get('/projects/repository/');
     return res.data;
+  },
+};
+
+export const supervisorSubjectsApi = {
+  getAll: async () => {
+    const res = await fetchClient.get('/supervisor/subjects/');
+    return res.data;
+  },
+  create: async (data: { title: string; description?: string; year?: string }) => {
+    const res = await fetchClient.post('/supervisor/subjects/', data);
+    return res.data;
+  },
+  update: async (id: number, data: any) => {
+    const res = await fetchClient.patch(`/supervisor/subjects/${id}/`, data);
+    return res.data;
+  },
+  delete: async (id: number) => {
+    await fetchClient.delete(`/supervisor/subjects/${id}/`);
+  },
+};
+
+export const adminSubjectsApi = {
+  getAll: async () => {
+    const res = await fetchClient.get('/admin/subjects/');
+    return res.data;
+  },
+  approve: async (id: number) => {
+    const res = await fetchClient.post(`/admin/subjects/${id}/approve/`, {});
+    return res.data;
+  },
+  reject: async (id: number) => {
+    const res = await fetchClient.post(`/admin/subjects/${id}/reject/`, {});
+    return res.data;
+  },
+  delete: async (id: number) => {
+    await fetchClient.delete(`/admin/subjects/${id}/`);
   },
 };
 

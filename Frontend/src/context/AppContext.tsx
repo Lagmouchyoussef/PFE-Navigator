@@ -138,6 +138,10 @@ interface AppContextType {
   updateStudentEvaluation: (id: number, d: any) => void;
   updateSubjectStatus: (id: number, s: string) => void;
   deleteSubject: (id: number) => void;
+  createSubject: (data: { title: string; description?: string; year?: string }) => Promise<void>;
+  approveSubject: (id: number) => Promise<void>;
+  rejectSubject: (id: number) => Promise<void>;
+  chooseSubject: (subjectId: number) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -701,23 +705,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setProjects(prev => prev.map(p => p.id === projectId ? { ...p, jury_documents_open: result.jury_documents_open } : p));
   }, []);
 
-  const updateSubjectStatus = useCallback(async (id: number, status: string) => {
+  const createSubject = useCallback(async (data: { title: string; description?: string; year?: string }) => {
+    const { supervisorSubjectsApi } = await import('../api/projects');
+    const created = await supervisorSubjectsApi.create(data);
+    setSubjects(prev => [created, ...prev]);
+  }, []);
+
+  const approveSubject = useCallback(async (id: number) => {
+    const { adminSubjectsApi } = await import('../api/projects');
+    const updated = await adminSubjectsApi.approve(id);
+    setSubjects(prev => prev.map(s => s.id === id ? updated : s));
+  }, []);
+
+  const rejectSubject = useCallback(async (id: number) => {
+    const { adminSubjectsApi } = await import('../api/projects');
+    const updated = await adminSubjectsApi.reject(id);
+    setSubjects(prev => prev.map(s => s.id === id ? updated : s));
+  }, []);
+
+  const chooseSubject = useCallback(async (subjectId: number) => {
     const { projectsApi } = await import('../api/projects');
-    // We use lower case status for the backend model
-    const backendStatus = status.toLowerCase().replace(' ', '_');
-    await projectsApi.update(id, { status: backendStatus });
-    setSubjects(prev => prev.map(s => s.id === id ? { ...s, status } : s));
-    // Also update main projects list if present
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: backendStatus } : p));
+    const updatedProject = await projectsApi.chooseSubject(subjectId);
+    setCurrentProject(updatedProject);
+    setSubjects(prev => prev.filter(s => s.id !== subjectId));
+  }, []);
+
+  const updateSubjectStatus = useCallback(async (id: number, status: string) => {
+    const { adminSubjectsApi } = await import('../api/projects');
+    if (status === 'Approved' || status === 'available') {
+      const updated = await adminSubjectsApi.approve(id);
+      setSubjects(prev => prev.map(s => s.id === id ? updated : s));
+    } else {
+      const updated = await adminSubjectsApi.reject(id);
+      setSubjects(prev => prev.map(s => s.id === id ? updated : s));
+    }
   }, []);
 
   const deleteSubject = useCallback(async (id: number) => {
-    const { projectsApi } = await import('../api/projects');
-    // Using the generic delete if available or patch to 'rejected'
-    // For now, let's assume we can delete projects if admin
-    await projectsApi.delete(id); 
+    const { adminSubjectsApi } = await import('../api/projects');
+    await adminSubjectsApi.delete(id);
     setSubjects(prev => prev.filter(s => s.id !== id));
-    setProjects(prev => prev.filter(p => p.id !== id));
   }, []);
 
   // ── COMPUTED ───────────────────────────────────────────────────────────────
@@ -799,6 +826,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       allUsers, createUser, updateUser, deleteUser,
 
       students, subjects,
+      createSubject, approveSubject, rejectSubject, chooseSubject,
 
       feedbacks, createFeedback,
 

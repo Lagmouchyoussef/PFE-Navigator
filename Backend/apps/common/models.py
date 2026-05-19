@@ -14,6 +14,7 @@ class Subject(models.Model):
     description = models.TextField(blank=True)
     year = models.CharField(max_length=10, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    is_approved = models.BooleanField(default=False)
     supervisor = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='subjects',

@@ -7,8 +7,10 @@ from rest_framework.views import APIView
 from apps.authentication.models import User
 from apps.authentication.permissions import IsSupervisor
 from apps.common.models import (
-    Project, Document, Milestone, Appointment, Feedback, Evaluation,
+    Project, Document, Milestone, Appointment, Feedback, Evaluation, Subject,
 )
+
+from apps.projects.serializers import SubjectSerializer
 
 from .serializers import (
     SupervisorStudentSerializer, SupervisorProjectSerializer,
@@ -187,6 +189,19 @@ class SupervisorEvaluationViewSet(viewsets.ModelViewSet):
             evaluation.supervisor_criteria = criteria
         evaluation.save()
         return Response(SupervisorEvaluationSerializer(evaluation).data)
+
+
+class SupervisorSubjectViewSet(viewsets.ModelViewSet):
+    """Supervisors create and manage their own subject proposals."""
+    permission_classes = [IsSupervisor]
+    serializer_class = SubjectSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        return Subject.objects.filter(supervisor=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(supervisor=self.request.user, is_approved=False)
 
 
 class SupervisorDashboardView(APIView):

@@ -55,6 +55,37 @@ class AdminSubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = AdminSubjectSerializer
 
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        subject = self.get_object()
+        subject.is_approved = True
+        subject.status = 'available'
+        subject.save()
+        if subject.supervisor:
+            Notification.objects.create(
+                recipient=subject.supervisor,
+                title='Votre sujet a été approuvé',
+                message=f'Votre sujet "{subject.title}" a été approuvé par l\'administration et est maintenant visible par les étudiants.',
+                type='approved',
+                link='/supervisor/subjects',
+            )
+        return Response(AdminSubjectSerializer(subject).data)
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        subject = self.get_object()
+        subject.is_approved = False
+        subject.save()
+        if subject.supervisor:
+            Notification.objects.create(
+                recipient=subject.supervisor,
+                title='Votre sujet a été refusé',
+                message=f'Votre sujet "{subject.title}" a été refusé par l\'administration.',
+                type='rejected',
+                link='/supervisor/subjects',
+            )
+        return Response(AdminSubjectSerializer(subject).data)
+
 
 class AdminProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdmin]

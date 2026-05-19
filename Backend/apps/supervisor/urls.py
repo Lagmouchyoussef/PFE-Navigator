@@ -5,7 +5,8 @@ from .views import (
     SupervisorStudentViewSet, SupervisorProjectViewSet,
     SupervisorDocumentViewSet, SupervisorMilestoneViewSet,
     SupervisorAppointmentViewSet, SupervisorFeedbackViewSet,
-    SupervisorEvaluationViewSet, SupervisorDashboardView,
+    SupervisorEvaluationViewSet, SupervisorSubjectViewSet,
+    SupervisorDashboardView,
 )
 
 router = DefaultRouter()
@@ -16,6 +17,7 @@ router.register('supervisor/milestones',   SupervisorMilestoneViewSet,   basenam
 router.register('supervisor/appointments', SupervisorAppointmentViewSet, basename='supervisor-appointments')
 router.register('supervisor/feedback',     SupervisorFeedbackViewSet,    basename='supervisor-feedback')
 router.register('supervisor/evaluations',  SupervisorEvaluationViewSet,  basename='supervisor-evaluations')
+router.register('supervisor/subjects',     SupervisorSubjectViewSet,     basename='supervisor-subjects')
 
 urlpatterns = [
     path('supervisor/dashboard/', SupervisorDashboardView.as_view(), name='supervisor-dashboard'),

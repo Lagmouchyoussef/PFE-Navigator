@@ -5,7 +5,7 @@ import {
   LayoutDashboard, FileUp, GraduationCap,
   Calendar, MessageSquare, Settings, Bell, Search,
   Sun, Moon, LogOut, Briefcase, Activity, FileText,
-  ChevronRight, Menu, X, MoreVertical, FolderOpen, Trophy
+  ChevronRight, Menu, X, MoreVertical, FolderOpen, Trophy, BookOpen
 } from 'lucide-react';
 import { Container, Button, Dropdown, Form } from 'react-bootstrap';
 import { useApp } from './context/AppContext';
@@ -19,6 +19,7 @@ import StudentDashboard from './pages/Student/Dashboard/StudentDashboard';
 import ReportsPage from './pages/Student/Reports/ReportsPage';
 import EvaluationPage from './pages/Student/Evaluation/EvaluationPage';
 import SchedulePage from './pages/Student/Schedule/SchedulePage';
+import StudentSubjectsPage from './pages/Student/Subjects/StudentSubjectsPage';
 import MessagesPage from './pages/Common/Messages/MessagesPage';
 import NotificationsPage from './pages/Common/Notifications/NotificationsPage';
 import SettingsPage from './pages/Common/Settings/SettingsPage';
@@ -281,6 +282,7 @@ function App() {
               <>
                 <SidebarLink to="/student/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/student/reports" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Documents"} />
+                <SidebarLink to="/student/subjects" icon={<BookOpen size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Sujets"} />
                 <SidebarLink to="/student/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
                 <SidebarLink to="/student/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Schedule"} />
               </>
@@ -606,6 +608,7 @@ function App() {
           <Routes>
             <Route path="/student/dashboard" element={<RequireAuth requiredRole="student"><StudentDashboard /></RequireAuth>} />
             <Route path="/student/reports" element={<RequireAuth requiredRole="student"><ReportsPage /></RequireAuth>} />
+            <Route path="/student/subjects" element={<RequireAuth requiredRole="student"><StudentSubjectsPage /></RequireAuth>} />
             <Route path="/student/evaluation" element={<RequireAuth requiredRole="student"><EvaluationPage /></RequireAuth>} />
             <Route path="/student/schedule" element={<RequireAuth requiredRole="student"><SchedulePage /></RequireAuth>} />
             <Route path="/student/messages" element={<RequireAuth requiredRole="student"><MessagesPage /></RequireAuth>} />

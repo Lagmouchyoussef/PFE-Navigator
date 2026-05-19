@@ -40,7 +40,7 @@ class AdminSubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = [
-            'id', 'title', 'description', 'year', 'status',
+            'id', 'title', 'description', 'year', 'status', 'is_approved',
             'supervisor', 'supervisor_name', 'created_at',
         ]
         read_only_fields = ['created_at']

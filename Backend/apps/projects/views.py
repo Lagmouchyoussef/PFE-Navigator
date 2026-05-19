@@ -131,7 +131,49 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SubjectSerializer
-    queryset = Subject.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'student':
+            return Subject.objects.filter(is_approved=True, status='available')
+        if user.role == 'supervisor':
+            return Subject.objects.filter(supervisor=user)
+        return Subject.objects.all()
+
+
+class ChooseSubjectView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.role != 'student':
+            return Response({'detail': 'Students only.'}, status=status.HTTP_403_FORBIDDEN)
+        subject_id = request.data.get('subject_id')
+        try:
+            subject = Subject.objects.get(id=subject_id, is_approved=True, status='available')
+        except Subject.DoesNotExist:
+            return Response({'detail': 'Subject not found or not available.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            project = Project.objects.get(student=request.user)
+        except Project.DoesNotExist:
+            return Response({'detail': 'No project found for this student.'}, status=status.HTTP_404_NOT_FOUND)
+
+        project.subject = subject
+        project.supervisor = subject.supervisor
+        project.save()
+
+        subject.status = 'taken'
+        subject.save()
+
+        if subject.supervisor:
+            Notification.objects.create(
+                recipient=subject.supervisor,
+                title='Sujet choisi par un étudiant',
+                message=f'{request.user.name} a choisi votre sujet "{subject.title}" pour son PFE.',
+                type='info',
+                link='/supervisor/subjects',
+            )
+
+        return Response(ProjectDashboardSerializer(project, context={'request': request}).data)
 
 
 class RepositoryView(APIView):

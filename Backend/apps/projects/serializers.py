@@ -19,7 +19,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ['id', 'title', 'description', 'year', 'status', 'supervisor', 'supervisor_name', 'created_at']
+        fields = ['id', 'title', 'description', 'year', 'status', 'is_approved', 'supervisor', 'supervisor_name', 'created_at']
 
 
 class MilestoneSerializer(serializers.ModelSerializer):
