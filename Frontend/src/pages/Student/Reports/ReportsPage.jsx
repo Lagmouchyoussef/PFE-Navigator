@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Container, Row, Col, Card, Badge,
   Button, Form, InputGroup, Modal, Spinner
@@ -19,8 +19,19 @@ const statusConfig = {
 };
 
 const ReportsPage = () => {
-  const { user, documents = [], deleteDocument, uploadDocument, currentProject } = useApp();
-  const juryOpen = currentProject?.jury_documents_open === true;
+  const { user, documents = [], deleteDocument, uploadDocument, currentProject, appointments, refreshProject } = useApp();
+
+  useEffect(() => {
+    refreshProject();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-unlock Jury option when today is the student's defense day
+  const d = new Date();
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const isDefenseToday = (Array.isArray(appointments) ? appointments : []).some(
+    a => a && a.type?.toLowerCase() === 'defense' && a.date === todayStr
+  );
+  const juryOpen = currentProject?.jury_documents_open === true || isDefenseToday;
   const [searchTerm, setSearchTerm] = useState('');
   const [targetFilter, setTargetFilter] = useState('All');
   const [uploadTarget, setUploadTarget] = useState('supervisor');
@@ -203,11 +214,15 @@ const ReportsPage = () => {
                 <Form.Check type="radio" id="target-jury" label="Jury"
                   checked={uploadTarget === 'jury'} onChange={() => juryOpen && setUploadTarget('jury')}
                   disabled={!juryOpen} className="fw-bold small" />
-                {!juryOpen && (
+                {!juryOpen ? (
                   <span className="extra-small text-warning fw-bold d-flex align-items-center gap-1">
                     <Lock size={13} /> Deadline not open
                   </span>
-                )}
+                ) : isDefenseToday ? (
+                  <span className="extra-small text-success fw-bold d-flex align-items-center gap-1">
+                    <CheckCircle size={13} /> Defense day — open now
+                  </span>
+                ) : null}
               </div>
             </div>
             <label

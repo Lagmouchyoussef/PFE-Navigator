@@ -4,8 +4,8 @@ import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileUp, GraduationCap,
   Calendar, MessageSquare, Settings, Bell, Search,
-  Sun, Moon, LogOut, Users, Briefcase, Activity, History, FileText,
-  ChevronRight, Menu, X, MoreVertical
+  Sun, Moon, LogOut, Briefcase, Activity, FileText,
+  ChevronRight, Menu, X, MoreVertical, FolderOpen, Trophy
 } from 'lucide-react';
 import { Container, Button, Dropdown, Form } from 'react-bootstrap';
 import { useApp } from './context/AppContext';
@@ -28,6 +28,8 @@ import JuryProjectsPage from './pages/Jury/Projects/JuryProjectsPage';
 import JurySchedulePage from './pages/Jury/Schedule/JurySchedulePage';
 import JuryEvaluationPage from './pages/Jury/Evaluation/JuryEvaluationPage';
 import JuryDocumentsPage from './pages/Jury/Documents/JuryDocumentsPage';
+import JuryResultsPage from './pages/Jury/Results/JuryResultsPage';
+import SupervisorResultsPage from './pages/Supervisor/Results/SupervisorResultsPage';
 import SupervisorDashboard from './pages/Supervisor/Dashboard/SupervisorDashboard';
 import StudentsList from './pages/Supervisor/StudentsList/StudentsList';
 import StudentDetail from './pages/Supervisor/StudentDetail/StudentDetail';
@@ -260,7 +262,9 @@ function App() {
               <>
                 <SidebarLink to="/jury/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/jury/projects" icon={<FileUp size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Assigned Projects"} />
+                <SidebarLink to="/jury/documents" icon={<FolderOpen size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Deliverables Repository"} />
                 <SidebarLink to="/jury/evaluation" icon={<GraduationCap size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluation"} />
+                <SidebarLink to="/jury/results" icon={<Trophy size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Student Results"} />
                 <SidebarLink to="/jury/schedule" icon={<Calendar size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "Calendar"} />
               </>
             ) : user.role === 'supervisor' ? (
@@ -270,6 +274,7 @@ function App() {
                 <SidebarLink to="/supervisor/documents" icon={<FileUp size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Documents"} />
                 <SidebarLink to="/supervisor/subjects" icon={<FileText size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Subjects"} />
                 <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluations"} />
+                <SidebarLink to="/supervisor/results" icon={<Trophy size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Student Results"} />
                 <SidebarLink to="/supervisor/schedule" icon={<Calendar size={20} />} iconClassName="icon-purple" label={!isSidebarCollapsed && "Planning"} />
               </>
             ) : (
@@ -616,6 +621,7 @@ function App() {
             <Route path="/jury/schedule" element={<RequireAuth requiredRole="jury"><JurySchedulePage /></RequireAuth>} />
             <Route path="/jury/documents" element={<RequireAuth requiredRole="jury"><JuryDocumentsPage /></RequireAuth>} />
             <Route path="/jury/evaluation" element={<RequireAuth requiredRole="jury"><JuryEvaluationPage /></RequireAuth>} />
+            <Route path="/jury/results" element={<RequireAuth requiredRole="jury"><JuryResultsPage /></RequireAuth>} />
             <Route path="/jury/messages" element={<RequireAuth requiredRole="jury"><MessagesPage /></RequireAuth>} />
             <Route path="/jury/notifications" element={<RequireAuth requiredRole="jury"><NotificationsPage /></RequireAuth>} />
             <Route path="/jury/notes" element={<RequireAuth requiredRole="jury"><AdministrativeNotesPage /></RequireAuth>} />
@@ -626,6 +632,7 @@ function App() {
             <Route path="/supervisor/student/:id" element={<RequireAuth requiredRole="supervisor"><StudentDetail /></RequireAuth>} />
             <Route path="/supervisor/subjects" element={<RequireAuth requiredRole="supervisor"><SupervisorSubjects /></RequireAuth>} />
             <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluations /></RequireAuth>} />
+            <Route path="/supervisor/results" element={<RequireAuth requiredRole="supervisor"><SupervisorResultsPage /></RequireAuth>} />
             <Route path="/supervisor/messages" element={<RequireAuth requiredRole="supervisor"><MessagesPage /></RequireAuth>} />
             <Route path="/supervisor/schedule" element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
             <Route path="/supervisor/documents" element={<RequireAuth requiredRole="supervisor"><SupervisorDocuments /></RequireAuth>} />

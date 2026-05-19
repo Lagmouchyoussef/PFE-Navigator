@@ -61,9 +61,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         except Project.DoesNotExist:
             return Response({'detail': 'No project found.'}, status=404)
 
-        # Send a one-time "defense is today" notification using the reminder_sent flag
         from django.utils import timezone
         today = timezone.localdate()
+
+        # Auto-open jury document submission on defense day
+        if not project.jury_documents_open:
+            if Appointment.objects.filter(project=project, type='defense', date=today).exists():
+                project.jury_documents_open = True
+                project.save(update_fields=['jury_documents_open'])
+
+        # Send a one-time "defense is today" notification
         defense_today = Appointment.objects.filter(
             project=project,
             type='defense',
@@ -87,6 +94,26 @@ class ProjectViewSet(viewsets.ModelViewSet):
             defense_today.save(update_fields=['reminder_sent'])
 
         return Response(ProjectDashboardSerializer(project, context={'request': request}).data)
+
+    @action(detail=True, methods=['post'], url_path='toggle_jury_deadline')
+    def toggle_jury_deadline(self, request, pk=None):
+        if request.user.role != 'admin':
+            return Response({'detail': 'Admin only.'}, status=status.HTTP_403_FORBIDDEN)
+        project = self.get_object()
+        project.jury_documents_open = not project.jury_documents_open
+        project.save(update_fields=['jury_documents_open'])
+        if project.jury_documents_open and project.student:
+            Notification.objects.create(
+                recipient=project.student,
+                title='Jury Document Submission Open',
+                message=(
+                    'The jury document deadline for your project has been opened by the administrator. '
+                    'You can now submit documents for the jury from the My Documents page.'
+                ),
+                type='info',
+                link='/student/reports',
+            )
+        return Response({'id': project.id, 'jury_documents_open': project.jury_documents_open})
 
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
@@ -148,7 +175,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
             target = serializer.validated_data.get('target', 'supervisor')
             if target == 'jury' and not project.jury_documents_open:
-                raise ValidationError({'detail': 'Jury document submission is not open yet. Wait for the administrator to open the deadline.'})
+                from django.utils import timezone
+                if Appointment.objects.filter(project=project, type='defense', date=timezone.localdate()).exists():
+                    project.jury_documents_open = True
+                    project.save(update_fields=['jury_documents_open'])
+                else:
+                    raise ValidationError({'detail': 'Jury document submission is not open yet. Wait for the administrator to open the deadline.'})
 
             doc = serializer.save(student=user, project=project)
 
@@ -169,6 +201,19 @@ class DocumentViewSet(viewsets.ModelViewSet):
                     type='info',
                     link='/admin/documents',
                 )
+
+            if target == 'jury':
+                for ja in JuryAssignment.objects.filter(project=project).select_related('jury_member'):
+                    Notification.objects.create(
+                        recipient=ja.jury_member,
+                        title='New Jury Document Submitted',
+                        message=(
+                            f'{user.name} submitted a document for your review: '
+                            f'"{doc.title}". Open Jury Documents to review it.'
+                        ),
+                        type='info',
+                        link='/jury/documents',
+                    )
         else:
             serializer.save()
 
@@ -373,7 +418,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         project_ids = get_user_projects(self.request.user).values_list('id', flat=True)
-        return Evaluation.objects.filter(project_id__in=project_ids).select_related('project__student')
+        return Evaluation.objects.filter(project_id__in=project_ids).select_related(
+            'project__student', 'project__supervisor'
+        )
 
     @action(detail=True, methods=['post'], url_path='submit_supervisor')
     def submit_supervisor(self, request, pk=None):
@@ -398,14 +445,71 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         evaluation = self.get_object()
         evaluation.is_published = True
         evaluation.save()
-        if evaluation.project.student:
+
+        project = evaluation.project
+        student = project.student
+        supervisor = project.supervisor
+        student_name = student.name if student else 'the student'
+
+        # Compute final grade for notification messages
+        sup = float(evaluation.supervisor_score) if evaluation.supervisor_score is not None else None
+        jury = float(evaluation.jury_score) if evaluation.jury_score is not None else None
+        sup_w = (evaluation.supervisor_weight or 50) / 100
+        jury_w = (evaluation.jury_weight or 50) / 100
+        if sup is not None and jury is not None:
+            final = sup * sup_w + jury * jury_w
+        elif sup is not None:
+            final = sup
+        elif jury is not None:
+            final = jury
+        else:
+            final = None
+        final_str = f'{final:.2f}/20' if final is not None else 'N/A'
+        passed = final is not None and final >= 10
+        result_str = 'PASSED ✓' if passed else ('FAILED ✗' if final is not None else 'pending')
+
+        # Notify student
+        if student:
             Notification.objects.create(
-                recipient=evaluation.project.student,
-                title='Grades Published',
-                message='Your evaluation grades have been published by the administrator. You can now view your final score.',
+                recipient=student,
+                title='Your Grades Have Been Published',
+                message=(
+                    f'Your PFE evaluation grades have been published by the administrator. '
+                    f'Final grade: {final_str} — {result_str}. '
+                    f'(Supervisor: {f"{sup:.2f}/20" if sup is not None else "N/A"}, '
+                    f'Jury: {f"{jury:.2f}/20" if jury is not None else "N/A"}). '
+                    f'Open the Evaluation page to view the details.'
+                ),
                 type='grade',
                 link='/student/evaluation',
             )
+
+        # Notify supervisor
+        if supervisor:
+            Notification.objects.create(
+                recipient=supervisor,
+                title='Grades Published for Your Student',
+                message=(
+                    f'The evaluation grades for {student_name} have been published. '
+                    f'Final grade: {final_str} — {result_str}.'
+                ),
+                type='grade',
+                link='/supervisor/evaluation',
+            )
+
+        # Notify all assigned jury members
+        for ja in JuryAssignment.objects.filter(project=project).select_related('jury_member'):
+            Notification.objects.create(
+                recipient=ja.jury_member,
+                title='Grades Published',
+                message=(
+                    f'The evaluation grades for {student_name} have been published by the administrator. '
+                    f'Final grade: {final_str} — {result_str}.'
+                ),
+                type='grade',
+                link='/jury/evaluation',
+            )
+
         return Response(EvaluationSerializer(evaluation).data)
 
     @action(detail=True, methods=['post'], url_path='update_weights')

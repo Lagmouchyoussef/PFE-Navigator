@@ -308,12 +308,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         import('../api/communications'),
       ]);
 
+      const { resourcesApi, adminNotesApi: notesApi } = await import('../api/communications');
+
       const promises: Promise<any>[] = [
         refreshProject(),
         notificationsApi.getAll().then((data: any) => setNotifications(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         messagesApi.getAll().then((data: any) => setMessages(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         messagesApi.getContactableUsers().then((data: any) => setContactableUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         projectsApi.getSubjects().then((data: any) => setSubjects(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        resourcesApi.getAll().then((data: any) => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+        notesApi.getAll().then((data: any) => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
       ];
 
       if (user.role === 'student') {
@@ -336,12 +340,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         );
       } else if (user.role === 'admin') {
         const { usersApi } = await import('../api/users');
-        const { adminNotesApi, resourcesApi } = await import('../api/communications');
         promises.push(
           usersApi.getAll().then((data: any) => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           usersApi.getStudents().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-          adminNotesApi.getAll().then((data: any) => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-          resourcesApi.getAll().then((data: any) => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
             const evalData: any = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
@@ -432,14 +433,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       } catch {}
     };
 
-    const msgId   = setInterval(() => { if (!document.hidden) pollMessages(); }, 5000);
-    const notifId = setInterval(() => { if (!document.hidden) pollNotifications(); }, 10000);
-    const projId  = setInterval(() => { if (!document.hidden) pollProjectData(); }, 10000);
+    const pollDocuments = async () => {
+      if (user.role !== 'jury' && user.role !== 'admin') return;
+      try {
+        const { documentsApi } = await import('../api/projects');
+        const docsData: any = await documentsApi.getAll();
+        setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
+      } catch {}
+    };
+
+    const pollResources = async () => {
+      try {
+        const { resourcesApi } = await import('../api/communications');
+        const data: any = await resourcesApi.getAll();
+        setResourceCenter(Array.isArray(data) ? data : (data?.results || []));
+      } catch {}
+    };
+
+    const pollNotes = async () => {
+      try {
+        const { adminNotesApi } = await import('../api/communications');
+        const data: any = await adminNotesApi.getAll();
+        setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []));
+      } catch {}
+    };
+
+    const msgId       = setInterval(() => { if (!document.hidden) pollMessages(); }, 5000);
+    const notifId     = setInterval(() => { if (!document.hidden) pollNotifications(); }, 10000);
+    const projId      = setInterval(() => { if (!document.hidden) pollProjectData(); }, 10000);
+    const docsId      = setInterval(() => { if (!document.hidden) pollDocuments(); }, 10000);
+    const resourcesId = setInterval(() => { if (!document.hidden) pollResources(); }, 30000);
+    const notesId     = setInterval(() => { if (!document.hidden) pollNotes(); }, 30000);
 
     return () => {
       clearInterval(msgId);
       clearInterval(notifId);
       clearInterval(projId);
+      clearInterval(docsId);
+      clearInterval(resourcesId);
+      clearInterval(notesId);
     };
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 

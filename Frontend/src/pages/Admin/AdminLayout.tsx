@@ -5,7 +5,7 @@ import {
   MessageSquare, Bell, FileEdit, Settings,
   LogOut, Search, Menu, X, ChevronRight, Briefcase,
   Sun, Moon, User, MoreVertical, CheckCircle, Trash2,
-  ChevronDown, BookOpen, Award, FileText
+  ChevronDown, BookOpen, Award, FolderOpen
 } from 'lucide-react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -125,7 +125,7 @@ const AdminLayout: React.FC = () => {
                 <SidebarLink to="/admin/grades" icon={<Award size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Grades Management"} />
                 <SidebarLink to="/admin/jury" icon={<Calendar size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Jury Planning"} />
                 <SidebarLink to="/admin/projects" icon={<Briefcase size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Project Archive"} />
-                <SidebarLink to="/admin/documents" icon={<FileText size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Documents"} />
+                <SidebarLink to="/admin/documents" icon={<FolderOpen size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Deliverables Repository"} />
                 <SidebarLink to="/admin/analytics" icon={<BarChartIcon size={20} />} iconClassName="icon-danger" label={!isSidebarCollapsed && "Analytics"} />
               </motion.nav>
             )}

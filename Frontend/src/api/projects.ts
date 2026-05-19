@@ -11,7 +11,7 @@ const authHeaders = (): Record<string, string> => {
 
 export const adminProjectsApi = {
   toggleJuryDocs: async (projectId: number) => {
-    const res = await fetchClient.post(`/administration/projects/${projectId}/toggle-jury-docs/`, {});
+    const res = await fetchClient.post(`/projects/projects/${projectId}/toggle_jury_deadline/`, {});
     return res.data as { jury_documents_open: boolean };
   },
 };

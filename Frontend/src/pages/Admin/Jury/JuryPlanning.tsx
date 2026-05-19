@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, ChevronLeft, ChevronRight, MapPin, Users, Clock,
-  MoreVertical, Calendar, XCircle, Trash2, AlertTriangle, CheckCircle, X
+  MoreVertical, Calendar, XCircle, Trash2, AlertTriangle, CheckCircle, X,
+  Lock, Unlock
 } from 'lucide-react';
-import { Container, Row, Col, Button, Badge, Modal, Form, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge, Modal, Form, Dropdown, Spinner } from 'react-bootstrap';
 import fetchClient from '../../../api/client';
 import { useApp } from '../../../context/AppContext';
 
@@ -130,10 +131,33 @@ const JuryPlanning: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [togglingDeadline, setTogglingDeadline] = useState<number | null>(null);
 
   const flashSuccess = (msg: string) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(''), 6000);
+  };
+
+  const handleToggleJuryDeadline = async (projectId: number, currentlyOpen: boolean) => {
+    setTogglingDeadline(projectId);
+    try {
+      await fetchClient.post(`/projects/projects/${projectId}/toggle_jury_deadline/`, {});
+      setProjects(prev => prev.map((p: any) =>
+        p.id === projectId ? { ...p, jury_documents_open: !currentlyOpen } : p
+      ));
+      flashSuccess(
+        currentlyOpen
+          ? 'Jury deadline closed. The student can no longer submit jury documents.'
+          : 'Jury deadline opened. The student can now submit documents for the jury.'
+      );
+    } catch (err: any) {
+      const status = err?.status;
+      const detail = err?.data?.detail;
+      console.error('Failed to toggle jury deadline:', status, detail, err);
+      alert(`Erreur lors de la mise à jour du délai jury. (${status || 'réseau'}: ${detail || 'voir console'})`);
+    } finally {
+      setTogglingDeadline(null);
+    }
   };
 
   useEffect(() => {
@@ -558,6 +582,45 @@ const JuryPlanning: React.FC = () => {
                   <span>{juries.filter(j => j.status !== 'Cancelled').length} active session(s) this month.</span>
                 </div>
               )}
+            </div>
+
+            {/* Jury Deadlines Toggle */}
+            <div className="glass-card p-4 rounded-4 shadow-sm mt-4">
+              <div className="d-flex align-items-center gap-2 mb-3">
+                <Lock size={18} className="text-warning" />
+                <h6 className="fw-bold mb-0 text-navy">Jury Deadlines</h6>
+              </div>
+              <p className="extra-small text-muted fw-bold opacity-75 mb-3">
+                Control whether students can submit jury documents for each project.
+              </p>
+              <div className="d-flex flex-column gap-2">
+                {projects.length === 0 && (
+                  <p className="extra-small text-muted fw-bold mb-0 opacity-75">No projects found.</p>
+                )}
+                {projects.map((p: any) => (
+                  <div key={p.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-surface-alt border">
+                    <div className="overflow-hidden me-2">
+                      <div className="extra-small fw-bold text-navy text-truncate" style={{ maxWidth: '140px' }}>{p.title}</div>
+                      <div className="extra-small text-muted opacity-75">{p.student_name || p.student?.name || '—'}</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={p.jury_documents_open ? 'success' : 'outline-warning'}
+                      className="rounded-pill extra-small fw-bold d-flex align-items-center gap-1 flex-shrink-0 px-2 py-1"
+                      disabled={togglingDeadline === p.id}
+                      onClick={() => handleToggleJuryDeadline(p.id, p.jury_documents_open)}
+                    >
+                      {togglingDeadline === p.id ? (
+                        <Spinner animation="border" size="sm" style={{ width: 12, height: 12 }} />
+                      ) : p.jury_documents_open ? (
+                        <><Unlock size={12} /> Open</>
+                      ) : (
+                        <><Lock size={12} /> Closed</>
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </Col>
         </Row>

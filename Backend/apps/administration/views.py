@@ -157,7 +157,18 @@ class AdminResourceViewSet(viewsets.ModelViewSet):
     serializer_class = AdminResourceSerializer
 
     def perform_create(self, serializer):
-        serializer.save(uploaded_by=self.request.user)
+        resource = serializer.save(uploaded_by=self.request.user)
+        recipients = User.objects.filter(is_active=True).exclude(role='admin')
+        Notification.objects.bulk_create([
+            Notification(
+                recipient=u,
+                title='New Resource Available',
+                message=f'A new resource "{resource.title}" has been shared in the Resource Center.',
+                type='info',
+                link=f'/{u.role}/resources',
+            )
+            for u in recipients
+        ])
 
 
 class AdminNoteViewSet(viewsets.ModelViewSet):
@@ -181,7 +192,26 @@ class AdminNoteViewSet(viewsets.ModelViewSet):
         return AdminNote.objects.filter(audience__in=allowed)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        note = serializer.save(author=self.request.user)
+        audience_role_map = {
+            'students':    ['student'],
+            'supervisors': ['supervisor'],
+            'juries':      ['jury'],
+            'all':         ['student', 'supervisor', 'jury'],
+        }
+        target_roles = audience_role_map.get(note.audience, [])
+        if target_roles:
+            recipients = User.objects.filter(role__in=target_roles, is_active=True)
+            Notification.objects.bulk_create([
+                Notification(
+                    recipient=u,
+                    title=f'New Announcement: {note.title}',
+                    message=f'The administrator published a new note: "{note.title}".',
+                    type='info',
+                    link=f'/{u.role}/notes',
+                )
+                for u in recipients
+            ])
 
     def perform_update(self, serializer):
         serializer.save()
