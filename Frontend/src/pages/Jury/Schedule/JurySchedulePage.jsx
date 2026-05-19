@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { 
+import { useState } from 'react';
+import {
   Container, Row, Col, Card, Badge, Button, Dropdown, Form
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { 
-  Calendar as CalendarIcon, Clock, MapPin, Users, 
-  ChevronLeft, ChevronRight, Download, Info, Video, MoreVertical, X
+import {
+  Clock, MapPin,
+  ChevronLeft, ChevronRight, Download, MoreVertical
 } from 'lucide-react';
 
 import { useApp } from '../../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ErrorBoundary } from '../../../components/shared/ErrorBoundary';
 
 const JurySchedulePage = () => {
   const navigate = useNavigate();
-  const { user, appointments, cancelAppointment } = useApp();
+  const { appointments, cancelAppointment } = useApp();
   const now = new Date();
   const [selectedDay, setSelectedDay] = useState(now.getDate());
   const [openMenuId, setOpenMenuId] = useState(null);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Row, Col, Card, Badge, ProgressBar } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { Award, TrendingUp, CheckCircle, Clock, Activity, Star, FileText, Lock, Eye } from 'lucide-react';

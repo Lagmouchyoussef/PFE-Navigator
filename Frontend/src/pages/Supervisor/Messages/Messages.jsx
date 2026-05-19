@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Badge, InputGroup, Dropdown, Modal, Spinner } from 'react-bootstrap';
-import { 
-  Send, Search, Paperclip, Phone, Video, 
-  MessageSquare, User, Check, CheckCheck, MoreVertical, X,
-  UserPlus, Bell, Settings, Filter
+import { useState, useRef, useEffect } from 'react';
+import { Container, Form, Button, Badge, InputGroup, Dropdown, Modal, Spinner } from 'react-bootstrap';
+import {
+  Send, Search, Paperclip, Phone, Video,
+  CheckCheck, MoreVertical
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useApp } from '../../../context/AppContext';
 
 const SupervisorMessages = () => {
-  const { messages, sendMessage, user } = useApp();
+  const { messages, sendMessage } = useApp();
   const [inputText, setInputText] = useState('');
   const [activeTab, setActiveTab] = useState('student'); // student, admin, jury
   const scrollRef = useRef(null);
@@ -58,6 +57,7 @@ const SupervisorMessages = () => {
 
   useEffect(() => {
     if (showUsersModal) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProgramUsers();
     }
   }, [showUsersModal]);

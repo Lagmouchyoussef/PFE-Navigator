@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Table, Form, Modal, Spinner } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Award, Star, CheckCircle, AlertCircle,
-  Edit3, Save, Search, Share2, Eye, Download, FileText
+  Edit3, Save, Search, Share2, Eye
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 

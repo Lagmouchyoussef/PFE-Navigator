@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Container, Row, Col, Badge, 
-  Form, Button, Table, InputGroup, Dropdown, Card
+import {
+  Container, Row, Col, Badge,
+  Form, Button, Table, InputGroup, Card
 } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, Download, Search, Star, 
-  File, Folder, Layers, Book, History, MoreVertical,
-  ExternalLink, TrendingUp, Filter, CheckCircle, X
+import {
+  FileText, Download, Search, Star,
+  File, Folder, Layers, Book, History,
+  TrendingUp, Filter, CheckCircle, X
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 

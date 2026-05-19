@@ -13,6 +13,14 @@ import JuryPerformanceChart from '../../../components/features/jury/JuryPerforma
 
 import EmptyState from '../../../components/shared/EmptyState';
 
+const timeAgo = (dateStr: string) => {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+  if (diff < 1)    return 'Just now';
+  if (diff < 60)   return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  return `${Math.floor(diff / 1440)}d ago`;
+};
+
 const JuryDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, notifications, evaluations, appointments } = useApp();
@@ -35,13 +43,6 @@ const JuryDashboard: React.FC = () => {
     return 'primary';
   };
 
-  const timeAgo = (dateStr: string) => {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-    if (diff < 1)    return 'Just now';
-    if (diff < 60)   return `${diff}m ago`;
-    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
-    return `${Math.floor(diff / 1440)}d ago`;
-  };
 
   const recentNotifs = (Array.isArray(notifications) ? notifications : []).slice(0, 4).map(n => ({
     id: n.id,

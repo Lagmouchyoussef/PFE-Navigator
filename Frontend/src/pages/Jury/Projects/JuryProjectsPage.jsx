@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Container, Row, Col, Card, Badge,
   Form, Button, Table, Dropdown, Modal, InputGroup
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Download, Search, Calendar, MoreVertical, 
-  Edit, Eye, X, ChevronRight, Activity, Clock
+import {
+  Download, Search, MoreVertical,
+  Edit, Eye, X
 } from 'lucide-react';
 
 import { useApp } from '../../../context/AppContext';
-
-const PROJECTS_DATA = [];
 
 const JuryProjectsPage = () => {
   const navigate = useNavigate();

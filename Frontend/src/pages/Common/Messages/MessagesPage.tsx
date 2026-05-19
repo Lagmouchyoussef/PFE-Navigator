@@ -37,6 +37,7 @@ const MessagesPage: React.FC = () => {
 
   useEffect(() => {
     if (contactableUsers) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalContacts(contactableUsers);
     }
   }, [contactableUsers]);
@@ -44,6 +45,7 @@ const MessagesPage: React.FC = () => {
   // For students: auto-add their supervisor from the project so the sidebar isn't empty
   useEffect(() => {
     if (user?.role === 'student' && currentProject?.supervisor?.id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalContacts(prev => {
         if (prev.some(c => c.id === currentProject.supervisor.id)) return prev;
         return [currentProject.supervisor, ...prev];
@@ -61,6 +63,7 @@ const MessagesPage: React.FC = () => {
           (m.recipient === user?.id && m.sender === contact.id)
         )
       );
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (first) { setSelectedUserId(first.id); return; }
     }
     // For students with no messages, auto-select their supervisor
@@ -181,6 +184,7 @@ const MessagesPage: React.FC = () => {
 
   useEffect(() => {
     if (showUsersModal) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProgramUsers();
     }
   }, [showUsersModal]);

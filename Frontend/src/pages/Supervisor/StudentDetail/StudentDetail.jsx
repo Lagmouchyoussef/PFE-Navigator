@@ -1,11 +1,10 @@
-import React from 'react';
 import { Container, Row, Col, Card, Badge, Button, Table, ProgressBar, Nav, Tab } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { 
-  User, Mail, Book, Calendar, ChevronLeft,
+import {
+  Mail, Book, ChevronLeft,
   FileText, Award, Phone, Download,
   MessageSquare, CheckCircle, Clock,
-  Activity, Target, Shield, Briefcase
+  Activity, Target, Shield
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';

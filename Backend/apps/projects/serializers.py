@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.common.models import (
-    Subject, Project, Document, DocumentRemark,
+    Subject, SubjectRequest, Project, Document, DocumentRemark,
     Milestone, Appointment, Evaluation, Feedback, JuryAssignment,
 )
 from apps.authentication.models import User
@@ -20,6 +20,22 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = ['id', 'title', 'description', 'year', 'status', 'is_approved', 'supervisor', 'supervisor_name', 'created_at']
+
+
+class SubjectRequestSerializer(serializers.ModelSerializer):
+    student_name  = serializers.CharField(source='student.name',  read_only=True)
+    student_email = serializers.CharField(source='student.email', read_only=True)
+    subject_title = serializers.CharField(source='subject.title', read_only=True)
+    supervisor_name = serializers.CharField(source='subject.supervisor.name', read_only=True)
+
+    class Meta:
+        model  = SubjectRequest
+        fields = [
+            'id', 'student', 'student_name', 'student_email',
+            'subject', 'subject_title', 'supervisor_name',
+            'status', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['status', 'created_at', 'updated_at']
 
 
 class MilestoneSerializer(serializers.ModelSerializer):

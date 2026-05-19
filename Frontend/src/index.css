@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+2026-05-19 20:24:38 [DEBUG] Resource server started on port 8829
 @import './styles/design-system.css';
 
 :root {
@@ -33,11 +33,11 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
-}
+    last_name = serializers.CharField(required=False, allow_blank=True, default='')
 
 /* --- Global Utility Classes --- */
 .glass-card {
-  background: var(--glass-bg);
+    name = serializers.ReadOnlyField()
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border) !important;
@@ -54,7 +54,7 @@ body {
 .bg-transparent-light { background-color: rgba(255, 255, 255, 0.4) !important; }
 .bg-transparent-dark { background-color: rgba(0, 0, 0, 0.2) !important; }
 
-.bg-surface-alt { background-color: var(--color-surface-alt) !important; }
+    name = serializers.ReadOnlyField()r(--color-surface-alt) !important; }
 .bg-primary-soft { background-color: var(--color-primary-soft) !important; }
 .bg-success-soft { background-color: var(--color-success-soft) !important; }
 .bg-warning-soft { background-color: var(--color-warning-soft) !important; }
@@ -149,3 +149,4 @@ body {
   box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
 
+    // Extract only the fields the backend's UserUpdateSerializer accepts    // Extract only the fields the backend accepts

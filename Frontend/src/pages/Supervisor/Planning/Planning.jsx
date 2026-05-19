@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Table, Dropdown, Modal, Form } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Row, Col, Card, Badge, Button, Dropdown, Modal, Form } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext';
 import { motion } from 'framer-motion';
-import { 
-  Calendar as CalendarIcon, Clock, MapPin, 
-  ChevronLeft, ChevronRight, Plus, 
-  Users, Video, MoreHorizontal,
-  Bell, CheckCircle, AlertTriangle, X, Trash2, ChevronDown
+import {
+  Calendar as CalendarIcon, Clock, MapPin,
+  ChevronLeft, ChevronRight, Plus,
+  Users, MoreHorizontal,
+  Bell, CheckCircle, X, Trash2
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
@@ -210,7 +210,7 @@ const Planning = () => {
                     <p className="fw-bold mb-0">No events scheduled for this period.</p>
                   </div>
                 ) : (
-                  filteredAppointments.slice(0, visibleCount).map((event, index) => (
+                  filteredAppointments.slice(0, visibleCount).map((event) => (
                     <div 
                       key={event.id}
                       className={`p-4 border-bottom hover-bg-light transition-all ${event.status === 'cancelled' ? 'bg-light opacity-50' : ''}`}

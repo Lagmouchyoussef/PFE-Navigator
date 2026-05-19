@@ -185,26 +185,31 @@ const UserManagement: React.FC = () => {
 
   const handleSave = async () => {
     const now = new Date().toLocaleString();
-    if (editingUser) {
-      const newHistory = [...(editingUser.history || []), { action: 'Profile modification by Admin', date: now }];
-      await updateUser(editingUser.id, { ...formData, history: newHistory });
-    } else {
-      const role = formData.role || 'Student';
-      const userData = {
-        institutionalId: generateInstitutionalId(role),
-        name: formData.name || '',
-        email: formData.email || '',
-        password: formData.password || 'Emsi2026!',
-        role: role,
-        status: (formData.status as any) || 'Active',
-        lastLogin: 'Never',
-        avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`,
-        history: [{ action: 'Account creation', date: now }],
-        confirmationStatus: 'None'
-      };
-      await createUser(userData);
+    try {
+      if (editingUser) {
+        const newHistory = [...(editingUser.history || []), { action: 'Profile modification by Admin', date: now }];
+        await updateUser(editingUser.id, { ...formData, history: newHistory });
+      } else {
+        const role = formData.role || 'Student';
+        const userData = {
+          institutionalId: generateInstitutionalId(role),
+          name: formData.name || '',
+          email: formData.email || '',
+          password: formData.password || 'Emsi2026!',
+          role: role,
+          status: (formData.status as any) || 'Active',
+          lastLogin: 'Never',
+          avatar: formData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=3b82f6&color=fff`,
+          history: [{ action: 'Account creation', date: now }],
+          confirmationStatus: 'None'
+        };
+        await createUser(userData);
+      }
+      closeModal();
+    } catch (err: any) {
+      const msg = err?.data?.detail || err?.data?.email?.[0] || err?.data?.first_name?.[0] || err?.message || 'An error occurred while saving.';
+      alert(`Save failed: ${msg}`);
     }
-    closeModal();
   };
 
   const handleDelete = (user: UserData) => {

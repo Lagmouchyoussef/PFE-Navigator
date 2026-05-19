@@ -9,12 +9,13 @@ from rest_framework.views import APIView
 from apps.authentication.models import User
 from apps.authentication.serializers import UserSerializer as AuthUserSerializer
 from apps.common.models import (
-    Subject, Project, Document, DocumentRemark,
+    Subject, SubjectRequest, Project, Document, DocumentRemark,
     Milestone, Appointment, Evaluation, Feedback, JuryAssignment,
     Notification,
 )
 from .serializers import (
-    SubjectSerializer, ProjectListSerializer, ProjectCreateSerializer,
+    SubjectSerializer, SubjectRequestSerializer,
+    ProjectListSerializer, ProjectCreateSerializer,
     ProjectDashboardSerializer,
     DocumentSerializer, DocumentCreateSerializer, DocumentRemarkSerializer,
     AppointmentSerializer, MilestoneSerializer, EvaluationSerializer,
@@ -141,39 +142,149 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
         return Subject.objects.all()
 
 
-class ChooseSubjectView(APIView):
+class SubjectRequestView(APIView):
+    """Student: create or cancel a subject choice request."""
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def get(self, request):
+        """Return the student's own pending/approved/rejected request."""
         if request.user.role != 'student':
             return Response({'detail': 'Students only.'}, status=status.HTTP_403_FORBIDDEN)
+        req = SubjectRequest.objects.filter(student=request.user).first()
+        if not req:
+            return Response(None)
+        return Response(SubjectRequestSerializer(req).data)
+
+    def post(self, request):
+        """Create a new subject choice request."""
+        if request.user.role != 'student':
+            return Response({'detail': 'Students only.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Cancel any previous rejected request so the student can try again
+        SubjectRequest.objects.filter(student=request.user, status='rejected').delete()
+
+        if SubjectRequest.objects.filter(student=request.user).exists():
+            return Response({'detail': 'You already have a pending or approved request.'}, status=400)
+
         subject_id = request.data.get('subject_id')
         try:
             subject = Subject.objects.get(id=subject_id, is_approved=True, status='available')
         except Subject.DoesNotExist:
             return Response({'detail': 'Subject not found or not available.'}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            project = Project.objects.get(student=request.user)
-        except Project.DoesNotExist:
-            return Response({'detail': 'No project found for this student.'}, status=status.HTTP_404_NOT_FOUND)
 
-        project.subject = subject
-        project.supervisor = subject.supervisor
-        project.save()
+        req = SubjectRequest.objects.create(student=request.user, subject=subject)
 
-        subject.status = 'taken'
-        subject.save()
-
+        # Notify supervisor
         if subject.supervisor:
             Notification.objects.create(
                 recipient=subject.supervisor,
-                title='Sujet choisi par un étudiant',
-                message=f'{request.user.name} a choisi votre sujet "{subject.title}" pour son PFE.',
+                title='Nouvelle demande de sujet',
+                message=f'{request.user.name} a demandé votre sujet "{subject.title}". Veuillez confirmer ou refuser.',
                 type='info',
                 link='/supervisor/subjects',
             )
 
-        return Response(ProjectDashboardSerializer(project, context={'request': request}).data)
+        # Notify admin
+        from apps.authentication.models import User as AuthUser
+        for admin in AuthUser.objects.filter(role='admin', is_active=True):
+            Notification.objects.create(
+                recipient=admin,
+                title='Nouvelle demande de sujet PFE',
+                message=f'{request.user.name} a demandé le sujet "{subject.title}". En attente de confirmation.',
+                type='info',
+                link='/admin/subjects',
+            )
+
+        return Response(SubjectRequestSerializer(req).data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        """Student cancels their own pending request."""
+        if request.user.role != 'student':
+            return Response({'detail': 'Students only.'}, status=status.HTTP_403_FORBIDDEN)
+        SubjectRequest.objects.filter(student=request.user, status='pending').delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SubjectRequestListView(APIView):
+    """Supervisor / Admin: list requests they can act on."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role == 'supervisor':
+            qs = SubjectRequest.objects.filter(
+                subject__supervisor=request.user
+            ).select_related('student', 'subject')
+        elif request.user.role == 'admin':
+            qs = SubjectRequest.objects.all().select_related('student', 'subject')
+        else:
+            return Response({'detail': 'Not authorized.'}, status=status.HTTP_403_FORBIDDEN)
+        return Response(SubjectRequestSerializer(qs, many=True).data)
+
+
+class SubjectRequestActionView(APIView):
+    """Supervisor / Admin: approve or reject a specific request."""
+    permission_classes = [IsAuthenticated]
+
+    def _get_request(self, pk, user):
+        try:
+            req = SubjectRequest.objects.select_related(
+                'student', 'subject', 'subject__supervisor'
+            ).get(pk=pk)
+        except SubjectRequest.DoesNotExist:
+            return None, Response({'detail': 'Request not found.'}, status=404)
+        if user.role == 'supervisor' and req.subject.supervisor != user:
+            return None, Response({'detail': 'Not your subject.'}, status=403)
+        if user.role not in ('supervisor', 'admin'):
+            return None, Response({'detail': 'Not authorized.'}, status=403)
+        return req, None
+
+    def post(self, request, pk, action):
+        req, err = self._get_request(pk, request.user)
+        if err:
+            return err
+        if req.status != 'pending':
+            return Response({'detail': 'Request already processed.'}, status=400)
+
+        if action == 'approve':
+            req.status = 'approved'
+            req.save()
+
+            # Assign subject to project
+            subject = req.subject
+            try:
+                project = Project.objects.get(student=req.student)
+                project.subject = subject
+                project.supervisor = subject.supervisor
+                project.save()
+            except Project.DoesNotExist:
+                pass
+
+            subject.status = 'taken'
+            subject.save()
+
+            Notification.objects.create(
+                recipient=req.student,
+                title='Demande de sujet approuvée',
+                message=f'Votre demande pour le sujet "{subject.title}" a été approuvée. Il est maintenant attribué à votre projet.',
+                type='approved',
+                link='/student/subjects',
+            )
+
+        elif action == 'reject':
+            req.status = 'rejected'
+            req.save()
+
+            Notification.objects.create(
+                recipient=req.student,
+                title='Demande de sujet refusée',
+                message=f'Votre demande pour le sujet "{req.subject.title}" a été refusée. Vous pouvez choisir un autre sujet.',
+                type='rejected',
+                link='/student/subjects',
+            )
+        else:
+            return Response({'detail': 'Invalid action.'}, status=400)
+
+        return Response(SubjectRequestSerializer(req).data)
 
 
 class RepositoryView(APIView):

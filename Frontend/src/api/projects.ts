@@ -80,6 +80,32 @@ export const supervisorSubjectsApi = {
   },
 };
 
+export const subjectRequestsApi = {
+  getMyRequest: async () => {
+    const res = await fetchClient.get('/projects/subject-requests/');
+    return res.data;
+  },
+  create: async (subjectId: number) => {
+    const res = await fetchClient.post('/projects/subject-requests/', { subject_id: subjectId });
+    return res.data;
+  },
+  cancel: async () => {
+    await fetchClient.delete('/projects/subject-requests/');
+  },
+  list: async () => {
+    const res = await fetchClient.get('/projects/subject-requests/list/');
+    return res.data;
+  },
+  approve: async (id: number) => {
+    const res = await fetchClient.post(`/projects/subject-requests/${id}/approve/`, {});
+    return res.data;
+  },
+  reject: async (id: number) => {
+    const res = await fetchClient.post(`/projects/subject-requests/${id}/reject/`, {});
+    return res.data;
+  },
+};
+
 export const adminSubjectsApi = {
   getAll: async () => {
     const res = await fetchClient.get('/admin/subjects/');

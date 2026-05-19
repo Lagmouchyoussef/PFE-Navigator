@@ -55,6 +55,7 @@ const AdminMessages: React.FC = () => {
 
   useEffect(() => {
     if (showUsersModal) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProgramUsers();
     }
   }, [showUsersModal]);
@@ -236,7 +237,7 @@ const AdminMessages: React.FC = () => {
           </InputGroup>
 
           {loadingUsers ? (
-            <div className="text-center py-5"><Spinner size="md" /></div>
+            <div className="text-center py-5"><Spinner size="sm" /></div>
           ) : (
             <div className="overflow-auto" style={{ maxHeight: '400px' }}>
               <table className="table table-hover align-middle border-0">
@@ -254,7 +255,7 @@ const AdminMessages: React.FC = () => {
                     u.email?.toLowerCase().includes(usersSearch.toLowerCase()) ||
                     u.institutional_id?.toLowerCase().includes(usersSearch.toLowerCase())
                   ).map(u => {
-                    const initials = (u.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                    const initials = (u.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
                     const color = roleColor[u.role] || '#888';
                     return (
                       <tr key={u.id} className="border-bottom">

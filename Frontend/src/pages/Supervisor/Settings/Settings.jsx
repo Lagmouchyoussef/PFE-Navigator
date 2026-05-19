@@ -1,7 +1,7 @@
-import React from 'react';
+// React is not needed for JSX in modern React (17+)
 import { Container } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, User, Bell, Shield, Mail, Globe } from 'lucide-react';
+import { Settings as SettingsIcon } from 'lucide-react';
 
 const Settings = () => {
   return (

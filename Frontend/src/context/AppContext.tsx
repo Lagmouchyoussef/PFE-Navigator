@@ -141,10 +141,43 @@ interface AppContextType {
   createSubject: (data: { title: string; description?: string; year?: string }) => Promise<void>;
   approveSubject: (id: number) => Promise<void>;
   rejectSubject: (id: number) => Promise<void>;
-  chooseSubject: (subjectId: number) => Promise<void>;
+  // Subject requests
+  mySubjectRequest: any | null;
+  subjectRequests: any[];
+  requestSubject: (subjectId: number) => Promise<void>;
+  cancelSubjectRequest: () => Promise<void>;
+  approveSubjectRequest: (id: number) => Promise<void>;
+  rejectSubjectRequest: (id: number) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
+
+const ROLE_MAP: Record<string, string> = {
+  student: 'Student',
+  supervisor: 'Supervisor',
+  jury: 'Jury Member',
+  admin: 'Admin',
+};
+
+const ROLE_MAP_REVERSE: Record<string, string> = {
+  Student: 'student',
+  Supervisor: 'supervisor',
+  'Jury Member': 'jury',
+  Admin: 'admin',
+};
+
+function normalizeUser(u: any) {
+  const role = ROLE_MAP[u.role] || u.role;
+  return {
+    ...u,
+    role,
+    institutionalId: u.institutional_id || u.institutionalId || '',
+    status: u.status || (u.is_active === false ? 'Inactive' : 'Active'),
+    lastLogin: u.lastLogin || u.last_login || 'Never',
+    avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || u.first_name || '')}&background=3b82f6&color=fff`,
+    confirmationStatus: u.confirmationStatus || 'None',
+  };
+}
 
 const SCORE_LABELS: Record<string, string> = {
   pfeSupervisor: 'Supervisor Score',
@@ -171,6 +204,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [messages, setMessages] = useState<any[]>([]);
   const [contactableUsers, setContactableUsers] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [mySubjectRequest, setMySubjectRequest] = useState<any | null>(null);
+  const [subjectRequests, setSubjectRequests] = useState<any[]>([]);
   const [administrativeNotes, setAdministrativeNotes] = useState<any[]>([]);
   const [resourceCenter, setResourceCenter] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -325,7 +360,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ];
 
       if (user.role === 'student') {
-        // appointments & evaluations already loaded via refreshProject
+        promises.push(
+          (async () => {
+            const { subjectRequestsApi } = await import('../api/projects');
+            const req: any = await subjectRequestsApi.getMyRequest().catch(() => null);
+            setMySubjectRequest(req);
+          })(),
+        );
       } else if (user.role === 'supervisor' || user.role === 'jury') {
         promises.push(
           studentsApi.getAll().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
@@ -341,11 +382,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const docsData: any = await (await import('../api/projects')).documentsApi.getAll().catch(() => []);
             setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
           })(),
+          (async () => {
+            const { subjectRequestsApi } = await import('../api/projects');
+            const reqs: any = await subjectRequestsApi.list().catch(() => []);
+            setSubjectRequests(Array.isArray(reqs) ? reqs : (reqs?.results || []));
+          })(),
         );
       } else if (user.role === 'admin') {
         const { usersApi } = await import('../api/users');
         promises.push(
-          usersApi.getAll().then((data: any) => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          usersApi.getAll().then((data: any) => {
+            const raw = Array.isArray(data) ? data : (data?.results || []);
+            setAllUsers(raw.map(normalizeUser));
+          }).catch(() => {}),
           usersApi.getStudents().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
             const evalData: any = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
@@ -362,6 +411,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           (async () => {
             const docsData: any = await (await import('../api/projects')).documentsApi.getAll().catch(() => []);
             setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
+          })(),
+          (async () => {
+            const { subjectRequestsApi } = await import('../api/projects');
+            const reqs: any = await subjectRequestsApi.list().catch(() => []);
+            setSubjectRequests(Array.isArray(reqs) ? reqs : (reqs?.results || []));
           })(),
         );
       }
@@ -394,6 +448,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user) refreshData();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -406,7 +461,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { messagesApi } = await import('../api/communications');
         const data = await messagesApi.getAll() as any;
         setMessages(Array.isArray(data) ? data : (data?.results || []));
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const pollNotifications = async () => {
@@ -414,7 +469,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { notificationsApi } = await import('../api/communications');
         const data = await notificationsApi.getAll() as any;
         setNotifications(Array.isArray(data) ? data : (data?.results || []));
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const pollProjectData = async () => {
@@ -434,7 +489,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           const data = await projectsApi.getAll() as any;
           setProjects(Array.isArray(data) ? data : (data?.results || []));
         }
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const pollDocuments = async () => {
@@ -443,7 +498,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { documentsApi } = await import('../api/projects');
         const docsData: any = await documentsApi.getAll();
         setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const pollResources = async () => {
@@ -451,7 +506,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { resourcesApi } = await import('../api/communications');
         const data: any = await resourcesApi.getAll();
         setResourceCenter(Array.isArray(data) ? data : (data?.results || []));
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const pollNotes = async () => {
@@ -459,7 +514,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { adminNotesApi } = await import('../api/communications');
         const data: any = await adminNotesApi.getAll();
         setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []));
-      } catch {}
+      } catch { /* ignore polling errors */ }
     };
 
     const msgId       = setInterval(() => { if (!document.hidden) pollMessages(); }, 5000);
@@ -477,7 +532,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       clearInterval(resourcesId);
       clearInterval(notesId);
     };
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // ── DOCUMENTS ──────────────────────────────────────────────────────────────
   const uploadDocument = useCallback(async (formData: FormData) => {
@@ -663,14 +718,59 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // ── USERS ──────────────────────────────────────────────────────────────────
   const createUser = useCallback(async (data: any) => {
     const { usersApi } = await import('../api/users');
-    const newUser = await usersApi.create(data);
-    setAllUsers(prev => [...prev, newUser]);
+    const nameParts = (data.name || '').trim().split(' ');
+    const backendData = {
+      email: data.email,
+      password: data.password || 'Emsi2026!',
+      first_name: nameParts[0] || '',
+      last_name: nameParts.slice(1).join(' ') || '',
+      role: ROLE_MAP_REVERSE[data.role] || data.role,
+      institutional_id: data.institutionalId || data.institutional_id || '',
+      phone_number: data.phone_number || '',
+      department: data.department || '',
+    };
+    const newUser = await usersApi.create(backendData);
+    setAllUsers(prev => [...prev, normalizeUser(newUser)]);
   }, []);
 
   const updateUser = useCallback(async (id: number, data: any) => {
-    const { usersApi } = await import('../api/users');
-    const updated = await usersApi.update(id, data);
-    setAllUsers(prev => prev.map(u => u.id === id ? updated : u));
+    const backendFields: Record<string, any> = {};
+
+    // Use `name` (combined) as the source of truth; ignore stale first_name/last_name
+    if (data.name !== undefined) {
+      const parts = (data.name || '').trim().split(/\s+/);
+      backendFields.first_name = parts[0] || '';
+      backendFields.last_name = parts.slice(1).join(' ') || '';
+    } else {
+      if (data.first_name !== undefined) backendFields.first_name = data.first_name;
+      if (data.last_name !== undefined) backendFields.last_name = data.last_name;
+    }
+
+    if (data.phone_number !== undefined) backendFields.phone_number = data.phone_number;
+    if (data.department !== undefined) backendFields.department = data.department;
+    if (data.institutionalId !== undefined) backendFields.institutional_id = data.institutionalId;
+    if (data.institutional_id !== undefined) backendFields.institutional_id = data.institutional_id;
+
+    // Map frontend status → backend is_active (status takes priority over is_active)
+    if (data.status !== undefined) {
+      backendFields.is_active = data.status === 'Active';
+    } else if (data.is_active !== undefined) {
+      backendFields.is_active = data.is_active;
+    }
+
+    if (Object.keys(backendFields).length > 0) {
+      const { usersApi } = await import('../api/users');
+      const updated = await usersApi.update(id, backendFields);
+      // normalizeUser(updated) has correct first_name/last_name/name from backend.
+      // frontendOnly keeps frontend-only fields (history, confirmationStatus, avatar…)
+      // but we remove backend-managed fields so the backend response wins.
+      const frontendOnly = { ...data };
+      ['name', 'first_name', 'last_name', 'is_active', 'institutional_id', 'phone_number', 'department'].forEach(k => delete frontendOnly[k]);
+      setAllUsers(prev => prev.map(u => (u.id === id ? { ...normalizeUser(updated), ...frontendOnly } : u)));
+    } else {
+      // Only frontend-only fields changed (history, confirmationStatus, etc.)
+      setAllUsers(prev => prev.map(u => (u.id === id ? { ...u, ...data } : u)));
+    }
   }, []);
 
   const deleteUser = useCallback(async (id: number) => {
@@ -723,11 +823,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setSubjects(prev => prev.map(s => s.id === id ? updated : s));
   }, []);
 
-  const chooseSubject = useCallback(async (subjectId: number) => {
-    const { projectsApi } = await import('../api/projects');
-    const updatedProject = await projectsApi.chooseSubject(subjectId);
-    setCurrentProject(updatedProject);
-    setSubjects(prev => prev.filter(s => s.id !== subjectId));
+  const requestSubject = useCallback(async (subjectId: number) => {
+    const { subjectRequestsApi } = await import('../api/projects');
+    const req = await subjectRequestsApi.create(subjectId);
+    setMySubjectRequest(req);
+  }, []);
+
+  const cancelSubjectRequest = useCallback(async () => {
+    const { subjectRequestsApi } = await import('../api/projects');
+    await subjectRequestsApi.cancel();
+    setMySubjectRequest(null);
+  }, []);
+
+  const approveSubjectRequest = useCallback(async (id: number) => {
+    const { subjectRequestsApi } = await import('../api/projects');
+    const updated: any = await subjectRequestsApi.approve(id);
+    setSubjectRequests(prev => prev.map(r => r.id === id ? updated : r));
+    if (updated.status === 'approved') {
+      setSubjects(prev => prev.filter(s => s.id !== updated.subject));
+    }
+  }, []);
+
+  const rejectSubjectRequest = useCallback(async (id: number) => {
+    const { subjectRequestsApi } = await import('../api/projects');
+    const updated: any = await subjectRequestsApi.reject(id);
+    setSubjectRequests(prev => prev.map(r => r.id === id ? updated : r));
   }, []);
 
   const updateSubjectStatus = useCallback(async (id: number, status: string) => {
@@ -826,7 +946,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       allUsers, createUser, updateUser, deleteUser,
 
       students, subjects,
-      createSubject, approveSubject, rejectSubject, chooseSubject,
+      createSubject, approveSubject, rejectSubject,
+      mySubjectRequest, subjectRequests,
+      requestSubject, cancelSubjectRequest, approveSubjectRequest, rejectSubjectRequest,
 
       feedbacks, createFeedback,
 
@@ -861,6 +983,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useApp = () => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('useApp must be used inside AppProvider');

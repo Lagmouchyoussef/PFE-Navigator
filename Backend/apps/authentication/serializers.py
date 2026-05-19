@@ -33,13 +33,21 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    last_name = serializers.CharField(required=False, allow_blank=True, default='')
+    institutional_id = serializers.CharField(required=False, allow_blank=True, default='')
+    phone_number = serializers.CharField(required=False, allow_blank=True, default='')
+    department = serializers.CharField(required=False, allow_blank=True, default='')
+    name = serializers.ReadOnlyField()
+    initials = serializers.ReadOnlyField()
 
     class Meta:
         model = User
         fields = [
-            'email', 'password', 'first_name', 'last_name', 'role',
-            'institutional_id', 'phone_number', 'department',
+            'id', 'email', 'password', 'first_name', 'last_name', 'name', 'initials',
+            'role', 'institutional_id', 'phone_number', 'department',
+            'is_active', 'date_joined',
         ]
+        read_only_fields = ['id', 'name', 'initials', 'is_active', 'date_joined']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -50,9 +58,21 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField()
+    initials = serializers.ReadOnlyField()
+    last_name = serializers.CharField(required=False, allow_blank=True, default='')
+    institutional_id = serializers.CharField(required=False, allow_blank=True, default='')
+    phone_number = serializers.CharField(required=False, allow_blank=True, default='')
+    department = serializers.CharField(required=False, allow_blank=True, default='')
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'department']
+        fields = [
+            'id', 'email', 'first_name', 'last_name', 'name', 'initials',
+            'role', 'institutional_id', 'phone_number', 'department',
+            'is_active', 'date_joined',
+        ]
+        read_only_fields = ['id', 'email', 'role', 'date_joined', 'name', 'initials']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

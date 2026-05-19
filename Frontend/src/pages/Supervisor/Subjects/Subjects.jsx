@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Badge, Button, Table, Form, Modal, InputGrou
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Plus, Search, CheckCircle, Clock, XCircle,
-  Trash2, Eye, Users,
+  Trash2, Eye, Users, Bell, User,
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
@@ -19,7 +19,14 @@ const APPROVAL_CONFIG = {
 };
 
 const Subjects = () => {
-  const { subjects: rawSubjects, createSubject, deleteSubject } = useApp();
+  const {
+    subjects: rawSubjects,
+    subjectRequests: rawRequests,
+    createSubject, deleteSubject,
+    approveSubjectRequest, rejectSubjectRequest,
+  } = useApp();
+  const requests = Array.isArray(rawRequests) ? rawRequests : [];
+  const pendingRequests = requests.filter(r => r.status === 'pending');
   const subjects = Array.isArray(rawSubjects) ? rawSubjects : [];
 
   const [searchTerm, setSearchTerm]       = useState('');
@@ -29,6 +36,19 @@ const Subjects = () => {
   const [saving, setSaving]               = useState(false);
   const [deleting, setDeleting]           = useState(false);
   const [form, setForm]                   = useState({ title: '', description: '', year: '' });
+  const [busyReq, setBusyReq]            = useState({});
+
+  const handleApproveReq = async (req) => {
+    setBusyReq(b => ({ ...b, [req.id]: 'approve' }));
+    try { await approveSubjectRequest(req.id); }
+    finally { setBusyReq(b => ({ ...b, [req.id]: null })); }
+  };
+
+  const handleRejectReq = async (req) => {
+    setBusyReq(b => ({ ...b, [req.id]: 'reject' }));
+    try { await rejectSubjectRequest(req.id); }
+    finally { setBusyReq(b => ({ ...b, [req.id]: null })); }
+  };
 
   const filtered = subjects.filter(s =>
     !searchTerm ||
@@ -105,6 +125,69 @@ const Subjects = () => {
             </Col>
           ))}
         </Row>
+
+        {/* Pending requests */}
+        {pendingRequests.length > 0 && (
+          <div className="mb-5">
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <Bell size={18} className="text-warning" />
+              <h5 className="fw-bold text-navy mb-0">
+                Demandes en attente
+                <Badge bg="warning" className="ms-2 extra-small fw-bold px-2 py-1 rounded-pill">
+                  {pendingRequests.length}
+                </Badge>
+              </h5>
+            </div>
+            <div className="d-flex flex-column gap-3">
+              {pendingRequests.map(req => (
+                <motion.div
+                  key={req.id}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  className="glass-card border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between gap-3 border-start border-4 border-warning"
+                >
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="p-2 rounded-circle bg-primary-soft text-primary flex-shrink-0" style={{ width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <User size={16} />
+                    </div>
+                    <div>
+                      <div className="fw-bold text-navy small">{req.student_name}</div>
+                      <div className="extra-small text-muted fw-bold opacity-75">
+                        a demandé : <strong>{req.subject_title}</strong>
+                      </div>
+                      <div className="extra-small text-muted opacity-50">
+                        {new Date(req.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex gap-2 flex-shrink-0">
+                    <Button
+                      variant="success"
+                      size="sm"
+                      className="rounded-pill fw-bold extra-small px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleApproveReq(req)}
+                      disabled={!!busyReq[req.id]}
+                    >
+                      {busyReq[req.id] === 'approve'
+                        ? <span className="spinner-border spinner-border-sm" />
+                        : <><CheckCircle size={13} /> Confirmer</>}
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      className="rounded-pill fw-bold extra-small px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleRejectReq(req)}
+                      disabled={!!busyReq[req.id]}
+                    >
+                      {busyReq[req.id] === 'reject'
+                        ? <span className="spinner-border spinner-border-sm" />
+                        : <><XCircle size={13} /> Refuser</>}
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         <Card className="glass-card border-0 shadow-sm overflow-hidden">

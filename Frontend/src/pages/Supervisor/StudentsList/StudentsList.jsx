@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Table, Form, InputGroup, Dropdown, ProgressBar, Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, Search, Filter, MoreHorizontal, 
-  MessageSquare, FileText, ChevronRight, 
-  Mail, Phone, ExternalLink, Download,
+import {
+  Users, Search, MoreHorizontal,
+  MessageSquare, FileText,
+  Mail, Download,
   UserPlus, UserCheck, Clock, CheckCircle, TrendingUp, X, Trash2, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

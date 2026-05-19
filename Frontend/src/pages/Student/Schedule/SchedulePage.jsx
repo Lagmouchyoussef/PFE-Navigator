@@ -89,6 +89,8 @@ const SchedulePage = () => {
   const supervisorAppts  = appointments.filter(a => a && a.type?.toLowerCase() !== 'defense');
   const defenseAppts     = appointments.filter(a => a && a.type?.toLowerCase() === 'defense');
 
+  const [viewDate, setViewDate] = useState(new Date());
+
   // Auto-navigate calendar to the first upcoming defense month (only once)
   const hasAutoNavigated = useRef(false);
   useEffect(() => {
@@ -98,13 +100,12 @@ const SchedulePage = () => {
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .find(a => new Date(a.date + 'T00:00:00') >= new Date());
     if (upcoming) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewDate(new Date(upcoming.date + 'T00:00:00'));
       hasAutoNavigated.current = true;
     }
   }, [defenseAppts.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const juryMembers = allJury;
-
-  const [viewDate, setViewDate] = useState(new Date());
   const [showAddModal, setShowAddModal]   = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent]  = useState(null);

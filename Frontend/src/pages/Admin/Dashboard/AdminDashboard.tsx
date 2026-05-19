@@ -27,7 +27,7 @@ const AdminDashboard: React.FC = () => {
     const counts = new Array(12).fill(0);
     (projects || []).forEach((p: any) => {
       if (!p) return;
-      const d = new Date(p.created_at || Date.now());
+      const d = new Date(p.created_at || new Date().toISOString());
       if (!isNaN(d.getTime())) {
         counts[d.getMonth()]++;
       }
