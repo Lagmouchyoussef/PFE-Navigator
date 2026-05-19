@@ -1,44 +1,62 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Form, Button, Badge, InputGroup, Dropdown, Modal, Spinner } from 'react-bootstrap';
-import {
-  Send, Search, Paperclip, Phone, Video,
-  User, Check, CheckCheck, MoreVertical
-} from 'lucide-react';
-import StatCard from '../../../components/shared/StatCard';
+import { Send, Search, Paperclip, Phone, Video, User, MoreVertical, CheckCheck } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 const AdminMessages: React.FC = () => {
-  const { messages, sendMessage, user } = useApp();
+  const { messages, sendMessage, contactableUsers, user } = useApp();
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [inputText, setInputText] = useState('');
-  const [activeRole, setActiveRole] = useState<string>('student');
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  // Users Modal States
+  const [search, setSearch] = useState('');
   const [showUsersModal, setShowUsersModal] = useState(false);
   const [programUsers, setProgramUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [usersSearch, setUsersSearch] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const roles = [
-    { id: 'student', name: 'Students Channel', avatar: 'ST', color: '#10b981', desc: 'Student messages' },
-    { id: 'supervisor', name: 'Supervisors Channel', avatar: 'EN', color: 'var(--color-primary)', desc: 'Pedagogical coordination' },
-    { id: 'jury', name: 'Jury Channel', avatar: 'JU', color: '#f59e0b', desc: 'Evaluations and defenses' },
-  ];
-
-  const filteredMessages = (messages || []).filter(m => m.sender === activeRole || (m.sender === 'admin' && activeRole === 'student'));
-
-  const handleSend = () => {
-    if (!inputText.trim()) return;
-    sendMessage(0, inputText, activeRole);
-    setInputText('');
-  };
+  const localContacts = Array.isArray(contactableUsers) ? contactableUsers : [];
+  const activeUserId = selectedUserId ?? localContacts[0]?.id ?? null;
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, []);
+  }, [messages, activeUserId]);
+
+  const sortedConversationMessages = (messages || [])
+    .filter((m: any) =>
+      (m.sender === user?.id && m.recipient === activeUserId) ||
+      (m.recipient === user?.id && m.sender === activeUserId)
+    )
+    .slice()
+    .sort((a: any, b: any) => new Date(a.created_at || a.createdAt || 0).getTime() - new Date(b.created_at || b.createdAt || 0).getTime());
+
+  const activeUser = localContacts.find((u) => u.id === activeUserId);
+
+  const filteredContacts = localContacts.filter((contact) =>
+    contact.name?.toLowerCase().includes(search.toLowerCase()) ||
+    contact.email?.toLowerCase().includes(search.toLowerCase()) ||
+    contact.institutional_id?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const getLastMessage = (contactId: number) => {
+    const msgs = (messages || []).filter((m: any) =>
+      (m.sender === user?.id && m.recipient === contactId) ||
+      (m.recipient === user?.id && m.sender === contactId)
+    );
+    return msgs.at(-1);
+  };
+
+  const handleSend = async () => {
+    if (!inputText.trim() || !activeUserId) return;
+    try {
+      await sendMessage(activeUserId, inputText.trim());
+      setInputText('');
+    } catch (err) {
+      console.error('Send message error:', err);
+    }
+  };
 
   const fetchProgramUsers = async () => {
     setLoadingUsers(true);
@@ -53,12 +71,10 @@ const AdminMessages: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (showUsersModal) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      fetchProgramUsers();
-    }
-  }, [showUsersModal]);
+  const openUsersModal = async () => {
+    setShowUsersModal(true);
+    await fetchProgramUsers();
+  };
 
   const roleColor: Record<string, string> = {
     admin: 'var(--color-rose)',
@@ -74,77 +90,98 @@ const AdminMessages: React.FC = () => {
     student: 'Student',
   };
 
+  const selectedUserName = activeUser?.name || 'No conversation selected';
+
   return (
     <div className="admin-messages-pro-layout">
       <Container fluid className="h-100 p-0 overflow-hidden">
         <Row className="g-0 h-100" style={{ height: 'calc(100vh - 80px)' }}>
-          {/* Sidebar */}
           <Col lg={4} xl={3} className="messages-sidebar h-100 d-flex flex-column border-end shadow-sm">
             <div className="p-4 border-bottom">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold mb-0 text-navy">Messages</h4>
-                <Button 
-                  variant="outline-primary" 
-                  size="sm" 
-                  className="rounded-pill extra-small fw-bold px-3 py-1.5"
-                  onClick={() => setShowUsersModal(true)}
-                >
-                  All Users
-                </Button>
+                <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="rounded-pill extra-small fw-bold px-3 py-1.5"
+                    onClick={openUsersModal}
+                  >
+                    All Users
+                  </Button>
               </div>
               <InputGroup className="bg-surface-alt rounded-pill border px-2 overflow-hidden">
                 <InputGroup.Text className="bg-transparent border-0 pe-1">
                   <Search size={18} className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search..."
                   className="bg-transparent border-0 shadow-none small py-2 text-navy"
                 />
               </InputGroup>
             </div>
 
-            <div className="flex-grow-1 overflow-auto conversations-list">
-              {roles.map((conv) => (
-                <div
-                  key={conv.id}
-                  className={`conv-item p-4 d-flex gap-3 align-items-center cursor-pointer border-bottom transition-all ${conv.id === activeRole ? 'active-conv' : 'hover-bg-surface'}`}
-                  onClick={() => setActiveRole(conv.id)}
-                >
-                  <div className="position-relative">
-                    <div className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style={{ backgroundColor: conv.color, width: '48px', height: '48px' }}>{conv.avatar}</div>
-                    <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '12px', height: '12px' }}></div>
-                  </div>
-                  <div className="flex-grow-1 overflow-hidden">
-                    <div className="d-flex justify-content-between mb-1">
-                      <div className="fw-bold small text-truncate text-navy">{conv.name}</div>
-                      <div className="extra-small text-muted fw-bold">Live</div>
-                    </div>
-                    <div className="extra-small text-muted mb-1 fw-bold opacity-75">{conv.desc}</div>
-                    <p className="extra-small text-muted mb-0 text-truncate fw-bold opacity-75">
-                      {messages.filter(m => m.sender === conv.id).slice(-1)[0]?.text || "No recent messages"}
-                    </p>
-                  </div>
+            <div className="grow overflow-auto conversations-list">
+              {filteredContacts.length === 0 ? (
+                <div className="p-4 text-center text-muted small">
+                  No conversations yet.
+                  <br />Open "All Users" to start chatting with program members.
                 </div>
-              ))}
+              ) : (
+                filteredContacts.map((contact) => {
+                  const lastMessage = getLastMessage(contact.id);
+                  return (
+                    <button
+                      type="button"
+                      key={contact.id}
+                      className={`conv-item w-100 text-start p-4 d-flex gap-3 align-items-center border-bottom transition-all ${contact.id === activeUserId ? 'active-conv' : 'hover-bg-surface'}`}
+                      style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+                      onClick={() => setSelectedUserId(contact.id)}
+                    >
+                      <div className="position-relative">
+                        <div className="avatar-circle rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style={{ backgroundColor: roleColor[contact.role] || '#888', width: '48px', height: '48px' }}>
+                          {contact.name ? contact.name.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '12px', height: '12px' }} />
+                      </div>
+                      <div className="grow overflow-hidden">
+                        <div className="d-flex justify-content-between mb-1">
+                          <div className="fw-bold small text-truncate text-navy">{contact.name}</div>
+                          <div className="extra-small text-muted fw-bold">{roleLabel[contact.role] || contact.role}</div>
+                        </div>
+                        <div className="extra-small text-muted mb-1 fw-bold opacity-75">{contact.email || 'No email available'}</div>
+                        <p className="extra-small text-muted mb-0 text-truncate fw-bold opacity-75">
+                          {lastMessage?.text || 'No recent messages'}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </Col>
 
-          {/* Chat Area */}
           <Col lg={8} xl={9} className="h-100 d-flex flex-column bg-surface-alt">
-            {/* Chat Header */}
             <header className="p-3 px-4 d-flex justify-content-between align-items-center bg-surface border-bottom shadow-sm">
               <div className="d-flex align-items-center gap-3">
                 <div className="position-relative">
                   <div className="avatar-circle sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '40px', height: '40px' }}>
-                    {roles.find(r => r.id === activeRole)?.avatar}
+                    {selectedUserName.charAt(0).toUpperCase() || '?'}
                   </div>
-                  <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '10px', height: '10px' }}></div>
+                  {activeUser && (
+                    <div className="status-dot position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style={{ width: '10px', height: '10px' }} />
+                  )}
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-navy">{roles.find(r => r.id === activeRole)?.name}</h6>
-                  <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
-                    <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }}></div> Online
-                  </span>
+                  <h6 className="fw-bold mb-0 text-navy">{selectedUserName}</h6>
+                  {activeUser ? (
+                    <span className="extra-small text-muted fw-bold d-flex align-items-center gap-1">
+                      <div className="bg-success rounded-circle" style={{ width: '6px', height: '6px' }} /> Online
+                    </span>
+                  ) : (
+                    <span className="extra-small text-muted fw-bold">Select a user to start a conversation</span>
+                  )}
                 </div>
               </div>
               <div className="d-flex gap-2">
@@ -164,51 +201,51 @@ const AdminMessages: React.FC = () => {
               </div>
             </header>
 
-            {/* Messages Feed */}
-            <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-4" ref={scrollRef}>
-              {filteredMessages.map((msg) => (
-                <div key={msg.id} className={`d-flex flex-column ${msg.sender === 'admin' ? 'align-items-end' : 'align-items-start'}`}>
-                  <div className={`message-bubble p-3 rounded-4 shadow-sm max-w-75 ${msg.sender === 'admin' ? 'bg-primary text-white' : 'glass-card'}`}>
-                    <p className="mb-0 small fw-bold">{msg.text}</p>
+            <div className="grow overflow-auto p-4 d-flex flex-column gap-4" ref={scrollRef}>
+              {sortedConversationMessages.map((msg: any) => (
+                <div key={msg.id} className={`d-flex flex-column ${msg.sender === user?.id ? 'align-items-end' : 'align-items-start'}`}>
+                  <div className={`message-bubble p-3 rounded-4 shadow-sm max-w-75 ${msg.sender === user?.id ? 'bg-primary text-white' : 'glass-card'}`}>
+                    <p className="mb-0 small fw-bold">{msg.text || msg.content || '...'}</p>
                   </div>
                   <div className="d-flex align-items-center gap-2 mt-1 px-2 extra-small text-muted fw-bold">
                     {(() => {
-                      const d = new Date(msg.time || msg.created_at);
-                      return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const d = new Date(msg.time || msg.created_at || msg.createdAt || Date.now());
+                      return Number.isNaN(d.getTime()) ? '—' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     })()}
-                    {msg.sender === 'admin' && (
+                    {msg.sender === user?.id && (
                       <CheckCheck size={14} className="text-primary" />
                     )}
                   </div>
                 </div>
               ))}
-              {filteredMessages.length === 0 && (
+              {sortedConversationMessages.length === 0 && (
                 <div className="text-center p-5 text-muted extra-small fw-bold opacity-50">
-                  No messages in this channel.
+                  No messages in this conversation.
                 </div>
               )}
             </div>
 
-            {/* Chat Input */}
             <div className="p-3 px-4 border-top bg-surface">
               <div className="d-flex align-items-center gap-3">
                 <Button variant="link" className="p-2 text-muted rounded-circle hover-bg-surface" onClick={() => fileRef.current?.click()}>
                   <Paperclip size={20} />
                   <input type="file" ref={fileRef} className="d-none" />
                 </Button>
-                <div className="flex-grow-1 position-relative">
+                <div className="grow position-relative">
                   <Form.Control
-                    placeholder="Type your message..."
+                    placeholder={activeUserId ? 'Type your message...' : 'Select a conversation first'}
                     className="rounded-pill border shadow-none px-4 py-2 bg-surface-alt text-navy"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                    disabled={!activeUserId}
                   />
                 </div>
                 <Button
                   className="btn-premium rounded-circle d-flex align-items-center justify-content-center p-0"
                   style={{ width: '42px', height: '42px' }}
                   onClick={handleSend}
+                  disabled={!activeUserId || !inputText.trim()}
                 >
                   <Send size={18} />
                 </Button>
@@ -218,7 +255,6 @@ const AdminMessages: React.FC = () => {
         </Row>
       </Container>
 
-      {/* Program Users Modal */}
       <Modal show={showUsersModal} onHide={() => setShowUsersModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-bottom px-4 py-3 bg-surface-alt">
           <Modal.Title className="fw-bold fs-6 text-navy">Program Users</Modal.Title>
@@ -232,7 +268,7 @@ const AdminMessages: React.FC = () => {
               placeholder="Search by name, ID, or email..."
               className="bg-transparent border-0 shadow-none extra-small py-2 text-navy fw-bold"
               value={usersSearch}
-              onChange={e => setUsersSearch(e.target.value)}
+              onChange={(e) => setUsersSearch(e.target.value)}
             />
           </InputGroup>
 
@@ -250,15 +286,15 @@ const AdminMessages: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {programUsers.filter(u => 
+                  {programUsers.filter((u) =>
                     u.name?.toLowerCase().includes(usersSearch.toLowerCase()) ||
                     u.email?.toLowerCase().includes(usersSearch.toLowerCase()) ||
                     u.institutional_id?.toLowerCase().includes(usersSearch.toLowerCase())
-                  ).map(u => {
+                  ).map((u) => {
                     const initials = (u.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
                     const color = roleColor[u.role] || '#888';
                     return (
-                      <tr key={u.id} className="border-bottom">
+                      <tr key={u.id} className="border-bottom cursor-pointer" onClick={() => { setSelectedUserId(u.id); setShowUsersModal(false); }}>
                         <td>
                           <div className="d-flex align-items-center gap-2">
                             <div

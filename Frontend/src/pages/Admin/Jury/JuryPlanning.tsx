@@ -37,9 +37,9 @@ const mapAppointmentToJury = (app: any): JurySession => {
     month: dateObj.getMonth(),
     year: dateObj.getFullYear(),
     date: `${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getFullYear()}`,
-    location: app.location || 'Salle TBD',
+    location: app.location || 'Room TBD',
     time: app.time ? app.time.substring(0, 5) : '08:30',
-    members: app.supervisor_name ? [app.supervisor_name, 'Prof. Invité'] : ['Jury A', 'Jury B'],
+    members: app.supervisor_name ? [app.supervisor_name, 'Guest Prof.'] : ['Jury A', 'Jury B'],
     status: app.status === 'Cancelled' ? 'Cancelled' : 'Active'
   };
 };
@@ -119,12 +119,12 @@ const JuryPlanning: React.FC = () => {
   });
   const [showUnifiedModal, setShowUnifiedModal] = useState(false);
   const [unifiedFormData, setUnifiedFormData] = useState({
-    title: 'Journée Unifiée des Soutenances PFE',
+    title: 'Unified Defense Day',
     day: 25,
     month: today.getMonth(),
     year: today.getFullYear(),
     time: '08:30',
-    location: 'Salles des Examens'
+    location: 'Exam Halls'
   });
   const [showReschedule, setShowReschedule] = useState(false);
   const [sessionToReschedule, setSessionToReschedule] = useState<JurySession | null>(null);
@@ -154,7 +154,7 @@ const JuryPlanning: React.FC = () => {
       const status = err?.status;
       const detail = err?.data?.detail;
       console.error('Failed to toggle jury deadline:', status, detail, err);
-      alert(`Erreur lors de la mise à jour du délai jury. (${status || 'réseau'}: ${detail || 'voir console'})`);
+      alert(`Failed to update the jury deadline. (${status || 'network'}: ${detail || 'see console'})`);
     } finally {
       setTogglingDeadline(null);
     }
@@ -189,7 +189,7 @@ const JuryPlanning: React.FC = () => {
       setJuries(juries.map(j => j.id === id ? { ...j, status: 'Cancelled' as const } : j));
     } catch (err) {
       console.error("Failed to cancel appointment:", err);
-      alert("Erreur lors de la mise à jour sur le serveur.");
+      alert("Failed to update on the server.");
     }
   };
 
@@ -207,7 +207,7 @@ const JuryPlanning: React.FC = () => {
         setSessionToDelete(null);
       } catch (err) {
         console.error("Failed to delete appointment:", err);
-        alert("Erreur lors de la suppression sur le serveur.");
+        alert("Failed to delete on the server.");
       }
     }
   };
@@ -234,7 +234,7 @@ const JuryPlanning: React.FC = () => {
         date: dateStr,
         time: formData.time,
         location: formData.location,
-        notes: `Membres du jury: ${formData.selectedMembers.join(', ')}`
+        notes: `Jury members: ${formData.selectedMembers.join(', ')}`
       };
 
       try {
@@ -244,7 +244,7 @@ const JuryPlanning: React.FC = () => {
         setSessionToReschedule(null);
       } catch (err) {
         console.error("Failed to reschedule session:", err);
-        alert("Erreur lors de la mise à jour sur le serveur.");
+        alert("Failed to update on the server.");
       }
     }
   };
@@ -277,7 +277,7 @@ const JuryPlanning: React.FC = () => {
 
   const handleAddJury = async () => {
     if (!selectedProjectId) {
-      alert("Veuillez sélectionner un projet pour cette soutenance.");
+      alert("Please select a project for this defense.");
       return;
     }
     
@@ -288,7 +288,7 @@ const JuryPlanning: React.FC = () => {
     
     const newAppointmentData = {
       project: project.id,
-      title: formData.title || `Soutenance PFE - ${project.title}`,
+      title: formData.title || `Defense - ${project.title}`,
       student: project.student?.id || project.student,
       supervisor: project.supervisor?.id || project.supervisor,
       date: dateStr,
@@ -296,7 +296,7 @@ const JuryPlanning: React.FC = () => {
       location: formData.location,
       type: 'defense',
       status: 'Confirmed',
-      notes: `Membres du jury: ${formData.selectedMembers.join(', ')}`
+      notes: `Jury members: ${formData.selectedMembers.join(', ')}`
     };
 
     try {
@@ -326,13 +326,13 @@ const JuryPlanning: React.FC = () => {
       flashSuccess(`Defense scheduled for "${newJury.title}" on ${newJury.date}. Student, supervisor, jury members and admins have been notified.`);
     } catch (err) {
       console.error("Failed to save jury session:", err);
-      alert("Erreur lors de la sauvegarde sur le serveur.");
+      alert("Failed to save to the server.");
     }
   };
 
   const handleAddUnifiedDay = async () => {
     if (projects.length === 0) {
-      alert("Aucun projet actif trouvé pour planifier la journée unifiée.");
+      alert("No active projects found to schedule a unified day.");
       return;
     }
 
@@ -341,7 +341,7 @@ const JuryPlanning: React.FC = () => {
     const year = unifiedFormData.year;
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-    const roomSuffixes = ['Amphi A', 'Salle B2', 'Labo 4'];
+    const roomSuffixes = ['Hall A', 'Room B2', 'Lab 4'];
     const rooms = roomSuffixes.map(s => `${unifiedFormData.location} - ${s}`);
 
     const chunkSize = 2;
@@ -370,7 +370,7 @@ const JuryPlanning: React.FC = () => {
           location: room,
           type: 'defense',
           status: 'Confirmed',
-          notes: `Membres du jury: ${members.join(', ')}`
+          notes: `Jury members: ${members.join(', ')}`
         };
 
         const res = await fetchClient.post('/projects/appointments/', newAppointmentData);
@@ -397,7 +397,7 @@ const JuryPlanning: React.FC = () => {
       flashSuccess(`Unified defense day scheduled for ${createdJuries.length} project(s) on ${dateStr}. All students, supervisors, jury members and admins have been notified.`);
     } catch (err) {
       console.error("Failed to plan unified day:", err);
-      alert("Erreur lors de la création de la journée unifiée.");
+      alert("Failed to create a unified day.");
     }
   };
 
@@ -427,7 +427,7 @@ const JuryPlanning: React.FC = () => {
               className="rounded-pill d-flex align-items-center gap-2 px-4 fw-bold shadow-sm"
               onClick={() => setShowUnifiedModal(true)}
             >
-              <Calendar size={18} /> Journée unifiée
+              <Calendar size={18} /> Unified Day
             </Button>
             <Button 
               className="btn-premium d-flex align-items-center gap-2"
@@ -563,7 +563,7 @@ const JuryPlanning: React.FC = () => {
                 className="w-100 btn-premium d-flex align-items-center justify-content-center gap-2 py-2 fw-bold mt-4"
                 onClick={() => setShowUnifiedModal(true)}
               >
-                <Calendar size={16} /> Organiser Journée Unifiée
+                <Calendar size={16} /> Organize Unified Day
               </Button>
               <Button variant="link" className="w-100 mt-2 extra-small fw-bold text-primary text-decoration-none border-0 shadow-none">View full calendar</Button>
             </div>
@@ -636,7 +636,7 @@ const JuryPlanning: React.FC = () => {
             <Row className="g-4 mb-4">
               <Col lg={8}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Projet / Étudiant</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Project / Student</Form.Label>
                   <Form.Select
                     className="form-control-premium fw-bold select-premium"
                     value={selectedProjectId}
@@ -646,15 +646,15 @@ const JuryPlanning: React.FC = () => {
                       if (proj) {
                         setFormData({
                           ...formData,
-                          title: `Soutenance PFE - ${proj.title}`
+                          title: `Defense - ${proj.title}`
                         });
                       }
                     }}
                   >
-                    <option value="">Sélectionner un projet...</option>
+                    <option value="">Select a project...</option>
                     {projects.map((p: any) => (
                       <option key={p.id} value={p.id}>
-                        {p.title} ({p.student_name || p.student?.name || 'Étudiant'})
+                        {p.title} ({p.student_name || p.student?.name || 'Student'})
                       </option>
                     ))}
                   </Form.Select>
@@ -671,7 +671,7 @@ const JuryPlanning: React.FC = () => {
                 </Form.Group>
                 
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Date de Soutenance</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Defense Date</Form.Label>
                   <input 
                     className="rounded-4 border-light-soft bg-surface-alt py-3 px-3 fw-bold shadow-none text-navy border-0 form-control" 
                     type="date" 
@@ -693,7 +693,7 @@ const JuryPlanning: React.FC = () => {
                 
                 <Row className="g-3">
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Heure</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Time</Form.Label>
                     <Form.Control 
                       type="time" 
                       className="form-control-premium fw-bold"
@@ -702,9 +702,9 @@ const JuryPlanning: React.FC = () => {
                     />
                   </Col>
                   <Col md={6}>
-                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Salle / Lieu</Form.Label>
+                    <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Room / Location</Form.Label>
                     <Form.Control 
-                      placeholder="Ex: Salle B2" 
+                      placeholder="Ex: Room B2" 
                       className="form-control-premium fw-bold"
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
@@ -764,7 +764,7 @@ const JuryPlanning: React.FC = () => {
                 </Form.Group>
                 
                 <Form.Group className="mb-4">
-                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Nouvelle Date de Soutenance</Form.Label>
+                  <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">New Defense Date</Form.Label>
                   <input 
                     className="rounded-4 border-light-soft bg-surface-alt py-3 px-3 fw-bold shadow-none text-navy border-0 form-control" 
                     type="date" 
@@ -834,17 +834,17 @@ const JuryPlanning: React.FC = () => {
       </Modal>
 
       {/* Modal Confirmation Suppression */}
-      {/* Modal Organiser une Journée Unifiée */}
+      {/* Modal Organize a Unified Defense Day */}
       <Modal show={showUnifiedModal} onHide={() => setShowUnifiedModal(false)} centered size="lg" className="glass-modal">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
-          <Modal.Title className="fw-bold fs-5 text-navy">Organiser une Journée de Soutenance Unifiée</Modal.Title>
+          <Modal.Title className="fw-bold fs-5 text-navy">Organize a Unified Defense Day</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           <Form>
             <Form.Group className="mb-4">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Titre de l'Événement</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Event Title</Form.Label>
               <Form.Control 
-                placeholder="Ex: Journée Nationale des Soutenances PFE" 
+                placeholder="Ex: National Defense Day" 
                 className="form-control-premium fw-bold py-3"
                 value={unifiedFormData.title}
                 onChange={(e) => setUnifiedFormData({...unifiedFormData, title: e.target.value})}
@@ -852,7 +852,7 @@ const JuryPlanning: React.FC = () => {
             </Form.Group>
             
             <Form.Group className="mb-4">
-              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Date de l'Événement</Form.Label>
+              <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Event Date</Form.Label>
               <input 
                 className="rounded-4 border-light-soft bg-surface-alt py-3 px-3 fw-bold shadow-none text-navy border-0 form-control" 
                 type="date" 
@@ -874,7 +874,7 @@ const JuryPlanning: React.FC = () => {
             
             <Row className="g-3">
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Heure de Début</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Start Time</Form.Label>
                 <Form.Control 
                   type="time" 
                   className="form-control-premium fw-bold"
@@ -883,9 +883,9 @@ const JuryPlanning: React.FC = () => {
                 />
               </Col>
               <Col md={6}>
-                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Lieu Principal</Form.Label>
+                <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Main Venue</Form.Label>
                 <Form.Control 
-                  placeholder="Ex: Salles des Examens" 
+                  placeholder="Ex: Exam Halls" 
                   className="form-control-premium fw-bold"
                   value={unifiedFormData.location}
                   onChange={(e) => setUnifiedFormData({...unifiedFormData, location: e.target.value})}
@@ -894,16 +894,16 @@ const JuryPlanning: React.FC = () => {
             </Row>
             
             <div className="mt-4 p-3 bg-primary-soft rounded-4 border border-primary border-opacity-10">
-              <h6 className="fw-bold mb-2 text-primary extra-small text-uppercase">Génération automatique des Jurys</h6>
+              <h6 className="fw-bold mb-2 text-primary extra-small text-uppercase">Automatic Jury Generation</h6>
               <p className="extra-small text-muted mb-0 fw-bold opacity-75">
-                Cette option va automatiquement planifier et répartir <strong>tous les jurys disponibles</strong> (Jury A, Jury B, et Jury C) dans des salles dédiées (Amphi A, Salle B2, Labo 4) le même jour à la même heure en un seul clic !
+                This option will automatically schedule and assign <strong>all available juries</strong> (Jury A, Jury B, and Jury C) into dedicated rooms (Amphi A, Room B2, Lab 4) on the same day at the same time with one click!
               </p>
             </div>
           </Form>
         </Modal.Body>
         <Modal.Footer className="border-0 p-4 pt-0">
-          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowUnifiedModal(false)}>Annuler</Button>
-          <Button className="btn-premium px-4 py-2" onClick={handleAddUnifiedDay}>Confirmer la Journée Unifiée</Button>
+          <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowUnifiedModal(false)}>Cancel</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleAddUnifiedDay}>Confirm Unified Day</Button>
         </Modal.Footer>
       </Modal>
 

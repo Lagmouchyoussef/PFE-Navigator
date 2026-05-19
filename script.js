@@ -1,39 +1,44 @@
 /* BLUEPRINT-JS-START */
-// 🚀 Auto-generado para typescript: 5/19/2026, 10:25:04 PM
+// 🚀 Auto-generado para typescript: 5/19/2026, 11:18:24 PM
 
 'use strict';
 
-console.log('✅ 6 funciones y 0 clases detectadas');
+console.log('✅ 7 funciones y 0 clases detectadas');
 
 // Funciones interactivas
-function demo_startResizing() {
-    console.log('▶️ Ejecutando: startResizing()');
-    alert('Función startResizing() ejecutada');
+function demo_sortedConversationMessages() {
+    console.log('▶️ Ejecutando: sortedConversationMessages()');
+    alert('Función sortedConversationMessages() ejecutada');
 }
 
-function demo_handleMouseMove() {
-    console.log('▶️ Ejecutando: handleMouseMove()');
-    alert('Función handleMouseMove() ejecutada');
+function demo_getLastMessage() {
+    console.log('▶️ Ejecutando: getLastMessage()');
+    alert('Función getLastMessage() ejecutada');
 }
 
-function demo_handleMouseUp() {
-    console.log('▶️ Ejecutando: handleMouseUp()');
-    alert('Función handleMouseUp() ejecutada');
+function demo_msgs() {
+    console.log('▶️ Ejecutando: msgs()');
+    alert('Función msgs() ejecutada');
 }
 
-function demo_toggleSidebar() {
-    console.log('▶️ Ejecutando: toggleSidebar()');
-    alert('Función toggleSidebar() ejecutada');
+function demo_handleSend() {
+    console.log('▶️ Ejecutando: handleSend()');
+    alert('Función handleSend() ejecutada');
 }
 
-function demo_formatDateSafe() {
-    console.log('▶️ Ejecutando: formatDateSafe()');
-    alert('Función formatDateSafe() ejecutada');
+function demo_fetchProgramUsers() {
+    console.log('▶️ Ejecutando: fetchProgramUsers()');
+    alert('Función fetchProgramUsers() ejecutada');
 }
 
-function demo_toggleGroup() {
-    console.log('▶️ Ejecutando: toggleGroup()');
-    alert('Función toggleGroup() ejecutada');
+function demo_openUsersModal() {
+    console.log('▶️ Ejecutando: openUsersModal()');
+    alert('Función openUsersModal() ejecutada');
+}
+
+function demo_initials() {
+    console.log('▶️ Ejecutando: initials()');
+    alert('Función initials() ejecutada');
 }
 
 

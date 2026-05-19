@@ -34,7 +34,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick, onM
       <div className="extra-small text-muted fw-bold opacity-75">
         {(() => {
           const d = new Date(notif.date || notif.created_at || '');
-          return isNaN(d.getTime()) ? '-' : d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+          return isNaN(d.getTime()) ? '-' : d.toLocaleString('en-US', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         })()}
       </div>
     </div>
@@ -50,11 +50,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notif, onClick, onM
         <Dropdown.Menu className="border-0 shadow-lg extra-small py-1">
           {!notif.read && (
             <Dropdown.Item className="fw-bold py-2" onClick={onMarkRead}>
-              <CheckCircle size={12} className="me-2 text-success" /> Lu
+              <CheckCircle size={12} className="me-2 text-success" /> Mark as read
             </Dropdown.Item>
           )}
           <Dropdown.Item className="fw-bold py-2 text-danger" onClick={onDelete}>
-            <Trash2 size={12} className="me-2" /> Supprimer
+            <Trash2 size={12} className="me-2" /> Delete
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>

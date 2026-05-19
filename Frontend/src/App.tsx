@@ -502,7 +502,7 @@ function App() {
                 </div>
                 <button onClick={logout} className="sidebar-logout-btn">
                   <LogOut size={15} />
-                  <span>Déconnexion</span>
+                  <span>Logout</span>
                 </button>
               </>
             )}
