@@ -1,341 +1,351 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Table, Dropdown } from 'react-bootstrap';
+import React from 'react';
+import { Container, Row, Col, Button, Badge, Table } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { 
-  Users, Calendar, CheckCircle, Clock, 
-  TrendingUp, FileText, MessageSquare, Plus,
-  ChevronRight, MoreHorizontal, Activity, Star
-} from 'lucide-react';
-import { 
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis
-} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import {
+  Users, Calendar, CheckCircle, Clock,
+  TrendingUp, FileText, MessageSquare, Plus,
+  ChevronRight, Activity, Target,
+  MapPin, GraduationCap,
+} from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
-import StatCard from '../../../components/shared/StatCard';
-import PerformanceChart from '../../../components/features/supervisor/PerformanceChart';
-import StatusDistribution from '../../../components/features/supervisor/StatusDistribution';
 
-import EmptyState from '../../../components/shared/EmptyState';
+const STATUS_COLOR: Record<string, string> = {
+  completed: 'success', in_progress: 'primary', approved: 'success',
+  submitted: 'info', draft: 'secondary', pending: 'warning', rejected: 'danger',
+};
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
 
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, projects, appointments, students } = useApp();
-  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const { user, projects, appointments } = useApp() as any;
 
-  // Derive dynamic chart data from real projects
-  const DELIVERABLE_STATUS = [
-    { name: 'Completed',   value: (projects || []).filter((p: any) => p && p.status === 'completed').length,   color: 'var(--color-success)' },
-    { name: 'In Progress', value: (projects || []).filter((p: any) => p && p.status === 'in_progress').length,  color: 'var(--color-primary)' },
-    { name: 'Pending',     value: (projects || []).filter((p: any) => p && p.status === 'pending').length,       color: 'var(--color-warning)' },
-    { name: 'Submitted',   value: (projects || []).filter((p: any) => p && p.status === 'submitted').length,     color: 'var(--color-info)' },
+  const projs: any[] = Array.isArray(projects)    ? projects    : [];
+  const appts: any[] = Array.isArray(appointments) ? appointments : [];
+
+  const inProgress  = projs.filter((p: any) => p?.status === 'in_progress').length;
+  const completed   = projs.filter((p: any) => p?.status === 'completed').length;
+  const today       = new Date();
+  const upcoming    = appts
+    .filter((a: any) => a?.date && new Date(a.date) >= today && a.status !== 'Cancelled')
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const pieData = [
+    { name: 'In Progress', value: projs.filter((p: any) => p?.status === 'in_progress').length,  color: 'var(--color-primary)' },
+    { name: 'Completed',   value: projs.filter((p: any) => p?.status === 'completed').length,     color: 'var(--color-success)' },
+    { name: 'Submitted',   value: projs.filter((p: any) => p?.status === 'submitted').length,     color: 'var(--color-info)'    },
+    { name: 'Draft',       value: projs.filter((p: any) => p?.status === 'draft').length,         color: 'var(--color-text-muted)' },
+    { name: 'Pending',     value: projs.filter((p: any) => p?.status === 'pending').length,       color: 'var(--color-warning)' },
   ].filter(d => d.value > 0);
 
-  const WEEKLY_ACTIVITY = (projects || []).length > 0 ? [
-    { day: 'Mon', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 1).length, feedback: 0 },
-    { day: 'Tue', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 2).length, feedback: 0 },
-    { day: 'Wed', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 3).length, feedback: 0 },
-    { day: 'Thu', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 4).length, feedback: 0 },
-    { day: 'Fri', meetings: (appointments || []).filter((a: any) => a && a.date && new Date(a.date).getDay() === 5).length, feedback: 0 },
-  ] : [];
-
-  const SKILLS_DISTRIBUTION: any[] = [];
+  const stats = [
+    { label: 'Total Projects', value: projs.length, icon: Users,       color: 'primary', link: '/supervisor/students'  },
+    { label: 'In Progress',    value: inProgress,   icon: TrendingUp,  color: 'success', link: '/supervisor/students'  },
+    { label: 'Appointments',   value: upcoming.length, icon: Calendar, color: 'info',    link: '/supervisor/schedule'  },
+    { label: 'Completed',      value: completed,    icon: CheckCircle, color: 'warning', link: '/supervisor/students'  },
+  ];
 
   return (
-    <div className="supervisor-dashboard-layout py-4">
+    <div className="py-4">
       <Container fluid className="px-4">
-        
-        {/* Success Notification Card */}
-        {showSuccessCard && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-3 mb-4 d-flex align-items-center justify-content-between shadow-sm bg-success-soft text-success border border-success border-opacity-25 rounded-4"
-          >
-            <div className="d-flex align-items-center gap-3">
-              <div className="p-2 rounded-circle bg-success bg-opacity-10 text-success">
-                <CheckCircle size={20} />
-              </div>
-              <div>
-                <h6 className="mb-0 fw-bold small">Reports Updated</h6>
-                <p className="extra-small mb-0 opacity-75 fw-bold">3 new reports have been submitted by your students and are awaiting your review.</p>
-              </div>
-            </div>
-            <Button variant="link" className="text-success p-0 extra-small fw-bold text-decoration-none" onClick={() => setShowSuccessCard(false)}>Dismiss</Button>
-          </motion.div>
-        )}
-        
-        {/* Welcome Header */}
-        <header className="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h2>
-            <p className="text-muted small mb-0 fw-bold opacity-75">
-              Academic Year {(() => { const n = new Date(); const y = n.getFullYear(); return n.getMonth() >= 8 ? `${y}/${y+1}` : `${y-1}/${y}`; })()} • Great to see you again, Prof. {user?.name}
+
+        {/* ── Header ─────────────────────────────────────────────────────────── */}
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
+          <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}>
+            <h4 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h4>
+            <p className="text-muted small mb-0">
+              Academic Year {(() => { const n = new Date(); const y = n.getFullYear(); return n.getMonth() >= 8 ? `${y}/${y+1}` : `${y-1}/${y}`; })()}
+              {user?.name ? ` · Prof. ${user.name}` : ''}
             </p>
           </motion.div>
-          <div className="d-flex gap-2">
-            <Button variant="outline-primary" className="fw-bold small px-4 py-2 rounded-pill border-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/schedule')}>
-              <Calendar size={18} /> Defense Planning
+          <div className="d-flex gap-2 flex-wrap">
+            <Button variant="outline-primary" size="sm" className="rounded-pill fw-bold d-flex align-items-center gap-2 px-3"
+              onClick={() => navigate('/supervisor/schedule')}>
+              <Calendar size={15} /> Planning
             </Button>
-            <Button className="btn-premium d-flex align-items-center gap-2 shadow-sm" onClick={() => navigate('/supervisor/subjects')}>
-              <Plus size={18} /> Propose Subject
+            <Button size="sm" className="btn-premium d-flex align-items-center gap-2 px-3"
+              onClick={() => navigate('/supervisor/subjects')}>
+              <Plus size={15} /> Propose Subject
             </Button>
           </div>
-        </header>
+        </div>
 
-        {/* Global Statistics Grid */}
-        <Row className="g-4 mb-5">
-          <Col lg={3} md={6}>
-            <StatCard
-              label="Supervised Projects"
-              value={(projects || []).length.toString()}
-              color="primary"
-              icon={<Users />}
-              trend="Total"
-              onClick={() => navigate('/supervisor/students')}
-            />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard
-              label="In Progress"
-              value={(projects || []).filter((p: any) => p && p.status === 'in_progress').length.toString()}
-              color="success"
-              icon={<TrendingUp />}
-              trend="Active"
-            />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard
-              label="Appointments"
-              value={(appointments || []).filter((a: any) => a && a.status !== 'cancelled').length.toString()}
-              color="info"
-              icon={<Clock />}
-              trend="Scheduled"
-            />
-          </Col>
-          <Col lg={3} md={6}>
-            <StatCard
-              label="Completed"
-              value={(projects || []).filter((p: any) => p && p.status === 'completed').length.toString()}
-              color="warning"
-              icon={<Activity />}
-              trend="Done"
-              onClick={() => navigate('/supervisor/subjects')}
-            />
-          </Col>
-        </Row>
-
-
-        <Row className="g-4 mb-5">
-          <Col lg={8}>
-            <PerformanceChart />
-          </Col>
-          <Col lg={4}>
-            <StatusDistribution />
-          </Col>
-        </Row>
-
-        <Row className="g-4 mb-5">
-          {/* Weekly Activity Bar Chart */}
-          <Col lg={4}>
-            <Card className="glass-card border p-4 h-100 shadow-sm">
-              <div className="d-flex justify-content-between align-items-start mb-4">
-                <div>
-                  <h6 className="fw-bold text-navy mb-1">Weekly Activity</h6>
-                  <p className="extra-small text-muted mb-0 fw-bold">Meetings and feedback sessions</p>
-                </div>
-              </div>
-              <div style={{ height: '250px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <BarChart data={WEEKLY_ACTIVITY}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: 'var(--color-text-muted)', fontWeight: 700}} />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
-                    <Bar dataKey="meetings" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Meetings" barSize={12} />
-                    <Bar dataKey="feedback" fill="var(--color-info)" radius={[4, 4, 0, 0]} name="Feedback" barSize={12} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </Col>
-
-          {/* Skills Radar Chart */}
-          <Col lg={4}>
-            <Card className="glass-card border p-4 h-100 shadow-sm">
-              <div className="d-flex justify-content-between align-items-start mb-4">
-                <div>
-                  <h6 className="fw-bold text-navy mb-1">Skills Analysis</h6>
-                  <p className="extra-small text-muted mb-0 fw-bold">Cohort strengths vs target</p>
-                </div>
-              </div>
-              <div style={{ height: '250px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DISTRIBUTION}>
-                    <PolarGrid strokeOpacity={0.1} />
-                    <PolarAngleAxis dataKey="subject" tick={{fontSize: 10, fontWeight: 700, fill: 'var(--color-text-muted)'}} />
-                    <Radar name="Current" dataKey="A" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.6} />
-                    <Radar name="Target" dataKey="B" stroke="var(--color-success)" fill="var(--color-success)" fillOpacity={0.2} />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </Col>
-
-          {/* Deliverables Pie Chart */}
-          <Col lg={4}>
-            <Card className="glass-card border p-4 h-100 shadow-sm">
-              <div className="d-flex justify-content-between align-items-start mb-4">
-                <div>
-                  <h6 className="fw-bold text-navy mb-1">Deliverables</h6>
-                  <p className="extra-small text-muted mb-0 fw-bold">Submission status by phase</p>
-                </div>
-              </div>
-              <div style={{ height: '200px', width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <PieChart>
-                    <Pie
-                      data={DELIVERABLE_STATUS}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {DELIVERABLE_STATUS.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface)', borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 600, color: 'var(--color-text-primary)' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="d-flex flex-wrap gap-2 justify-content-center mt-4">
-                {DELIVERABLE_STATUS.map((item, i) => (
-                  <div key={i} className="d-flex align-items-center gap-1 extra-small fw-bold px-3 py-1 rounded-pill bg-surface-alt text-navy">
-                    <div style={{ backgroundColor: item.color, width: '8px', height: '8px', borderRadius: '50%' }}></div>
-                    {item.name}
+        {/* ── Stat Cards ───────────────────────────────────────────────────────── */}
+        <Row className="g-3 mb-5">
+          {stats.map((s, i) => (
+            <Col key={i} lg={3} sm={6}>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <div className="glass-card p-4 rounded-4 shadow-sm h-100"
+                  style={{ cursor: 'pointer', borderLeft: `4px solid var(--color-${s.color})` }}
+                  onClick={() => navigate(s.link)}>
+                  <div className="d-flex align-items-start justify-content-between mb-3">
+                    <div className={`p-2 rounded-3 bg-${s.color}-soft`}>
+                      <s.icon size={18} className={`text-${s.color}`} />
+                    </div>
+                    <ChevronRight size={14} className="text-muted opacity-40 mt-1" />
                   </div>
-                ))}
-              </div>
-            </Card>
-          </Col>
+                  <div className={`fs-3 fw-bold text-${s.color} mb-1`}>{s.value}</div>
+                  <div className="small fw-bold text-muted">{s.label}</div>
+                </div>
+              </motion.div>
+            </Col>
+          ))}
         </Row>
 
+        {/* ── Main Content ─────────────────────────────────────────────────────── */}
         <Row className="g-4">
+
+          {/* ════════ Left Column (8) ════════ */}
           <Col lg={8}>
-            <div className="glass-card border shadow-sm rounded-4 overflow-hidden">
-              <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
-                <h5 className="mb-0 fw-bold text-navy">Supervised Students</h5>
-                <Button variant="link" className="text-primary p-0 fw-bold text-decoration-none extra-small" onClick={() => navigate('/supervisor/students')}>
-                  View full list <ChevronRight size={14} />
+
+            {/* Students / Projects Table */}
+            <div className="glass-card rounded-4 shadow-sm mb-4 overflow-hidden">
+              <div className="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+                <div className="d-flex align-items-center gap-2">
+                  <div className="p-2 rounded-3 bg-primary-soft">
+                    <Users size={15} className="text-primary" />
+                  </div>
+                  <span className="fw-bold text-navy">Supervised Students</span>
+                </div>
+                <Button variant="link" size="sm" className="p-0 text-primary fw-bold extra-small text-decoration-none shadow-none d-flex align-items-center gap-1"
+                  onClick={() => navigate('/supervisor/students')}>
+                  View all <ChevronRight size={14} />
                 </Button>
               </div>
-              <div className="table-responsive">
-                {projects.length > 0 ? (
+
+              {projs.length === 0 ? (
+                <div className="p-5 text-center">
+                  <Users size={40} className="text-muted opacity-25 mb-3" />
+                  <p className="fw-bold text-muted mb-0">No supervised projects yet.</p>
+                </div>
+              ) : (
+                <div className="table-responsive">
                   <Table hover className="mb-0 align-middle">
-                    <thead className="bg-surface-alt">
-                      <tr>
-                        <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">Student</th>
-                        <th className="py-3 extra-small fw-bold text-muted text-uppercase">Project Title</th>
-                        <th className="py-3 extra-small fw-bold text-muted text-uppercase">Status</th>
-                        <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase text-end">Actions</th>
+                    <thead>
+                      <tr className="bg-surface-alt">
+                        <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase border-0">Student</th>
+                        <th className="py-3 extra-small fw-bold text-muted text-uppercase border-0">Project</th>
+                        <th className="py-3 extra-small fw-bold text-muted text-uppercase border-0">Status</th>
+                        <th className="px-4 py-3 extra-small fw-bold text-muted text-uppercase border-0 text-end">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {(projects || []).map((proj: any) => {
+                      {projs.map((proj: any) => {
                         if (!proj) return null;
-                        const statusColor = proj.status === 'completed' ? 'success' : proj.status === 'in_progress' ? 'primary' : 'warning';
+                        const c = STATUS_COLOR[proj.status] || 'secondary';
                         return (
-                          <tr key={proj.id} className="border-bottom border-light border-opacity-10">
+                          <tr key={proj.id} className="border-bottom">
                             <td className="px-4 py-3">
                               <div className="d-flex align-items-center gap-3">
-                                <div className="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: '40px', height: '40px' }}>
-                                  {proj.student?.name?.charAt(0) || 'S'}
+                                <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                  style={{ width: '36px', height: '36px', fontSize: '14px' }}>
+                                  {proj.student?.name?.charAt(0)?.toUpperCase() || 'S'}
                                 </div>
                                 <div>
-                                  <div className="fw-bold small text-navy">{proj.student?.name || 'Student'}</div>
-                                  <div className="extra-small text-muted opacity-75 fw-bold">PFE CANDIDATE</div>
+                                  <div className="small fw-bold text-navy">{proj.student?.name || 'Student'}</div>
+                                  <div className="extra-small text-muted">PFE Candidate</div>
                                 </div>
                               </div>
                             </td>
-                            <td>
-                              <div className="extra-small fw-bold text-navy opacity-75 text-wrap" style={{ maxWidth: '220px', lineHeight: '1.4' }}>
-                                {proj.title}
-                              </div>
+                            <td style={{ maxWidth: '200px' }}>
+                              <div className="extra-small fw-bold text-navy text-wrap lh-base">{proj.title}</div>
                             </td>
                             <td>
-                              <Badge className={`bg-${statusColor}-soft text-${statusColor} border-0 extra-small px-3 py-1 fw-bold text-capitalize`}>
-                                {proj.status?.replace('_', ' ') || 'Pending'}
+                              <Badge className={`bg-${c}-soft text-${c} extra-small px-2 py-1 rounded-pill fw-bold text-capitalize border-0`}>
+                                {(proj.status || 'pending').replace('_', ' ')}
                               </Badge>
                             </td>
                             <td className="px-4 py-3 text-end">
-                              <Dropdown align="end">
-                                <Dropdown.Toggle variant="link" className="p-2 text-muted hover-bg-surface rounded-circle no-caret shadow-none border-0">
-                                  <MoreHorizontal size={20} />
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className="shadow border-0 rounded-4 extra-small">
-                                  <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/students')}>
-                                    <ChevronRight size={14} className="text-primary" /> View Details
-                                  </Dropdown.Item>
-                                  <Dropdown.Item className="py-2 d-flex align-items-center gap-2" onClick={() => navigate('/supervisor/messages')}>
-                                    <MessageSquare size={14} className="text-info" /> Send Message
-                                  </Dropdown.Item>
-                                </Dropdown.Menu>
-                              </Dropdown>
+                              <div className="d-flex justify-content-end gap-1">
+                                <Button variant="outline-primary" size="sm"
+                                  className="rounded-pill extra-small fw-bold px-2 py-1 d-flex align-items-center gap-1"
+                                  onClick={() => navigate('/supervisor/students')}>
+                                  <FileText size={11} /> View
+                                </Button>
+                                <Button variant="outline-secondary" size="sm"
+                                  className="rounded-pill extra-small fw-bold px-2 py-1 d-flex align-items-center gap-1"
+                                  onClick={() => navigate('/supervisor/messages')}>
+                                  <MessageSquare size={11} /> Message
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         );
                       })}
                     </tbody>
                   </Table>
-                ) : (
-                  <div className="py-5">
-                    <EmptyState
-                      title="No Supervised Projects"
-                      message="You are not currently supervising any end-of-studies projects. New assignments will appear here."
-                      icon={<Users size={48} />}
-                    />
+                </div>
+              )}
+            </div>
+
+            {/* Upcoming Appointments */}
+            <div className="glass-card rounded-4 shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-surface-alt">
+                <div className="d-flex align-items-center gap-2">
+                  <div className="p-2 rounded-3 bg-info-soft">
+                    <Calendar size={15} className="text-info" />
                   </div>
-                )}
+                  <span className="fw-bold text-navy">Upcoming Appointments</span>
+                </div>
+                <Button variant="link" size="sm" className="p-0 text-primary fw-bold extra-small text-decoration-none shadow-none d-flex align-items-center gap-1"
+                  onClick={() => navigate('/supervisor/schedule')}>
+                  Full schedule <ChevronRight size={14} />
+                </Button>
               </div>
+              {upcoming.length === 0 ? (
+                <div className="p-5 text-center">
+                  <Calendar size={36} className="text-muted opacity-25 mb-2" />
+                  <p className="extra-small fw-bold text-muted mb-0">No upcoming appointments.</p>
+                </div>
+              ) : (
+                <div>
+                  {upcoming.slice(0, 4).map((a: any, i: number) => (
+                    <div key={a.id} className={`px-4 py-3 d-flex align-items-center gap-4 ${i < upcoming.length - 1 ? 'border-bottom' : ''} hover-bg-surface-alt`}>
+                      <div className="text-center rounded-3 p-2 bg-info-soft flex-shrink-0" style={{ minWidth: '52px' }}>
+                        <div className="fw-bold text-info" style={{ fontSize: '1.3rem', lineHeight: 1 }}>
+                          {new Date(a.date).getDate()}
+                        </div>
+                        <div className="extra-small text-muted fw-bold text-uppercase">
+                          {new Date(a.date).toLocaleDateString('en-US', { month: 'short' })}
+                        </div>
+                      </div>
+                      <div className="flex-grow-1 overflow-hidden">
+                        <div className="small fw-bold text-navy">{a.title}</div>
+                        <div className="extra-small text-muted d-flex align-items-center gap-3 flex-wrap mt-1">
+                          {a.time && <span className="d-flex align-items-center gap-1"><Clock size={10} />{a.time}</span>}
+                          {a.location && <span className="d-flex align-items-center gap-1"><MapPin size={10} />{a.location}</span>}
+                        </div>
+                      </div>
+                      {a.type && (
+                        <Badge bg={a.type?.toLowerCase() === 'defense' ? 'danger' : 'info'}
+                          className="extra-small text-capitalize rounded-pill px-2 flex-shrink-0">
+                          {a.type}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </Col>
 
+          {/* ════════ Right Column (4) ════════ */}
           <Col lg={4}>
             <div className="d-flex flex-column gap-4">
-              {/* Upcoming Deadlines */}
-              <Card className="glass-card border p-4 shadow-sm border-0">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-primary">Upcoming Deadlines</h6>
-                  <Clock size={18} className="text-warning" />
-                </div>
-                  <div className="extra-small text-warning fw-bold mb-1">Upcoming</div>
-                  <div className="small fw-bold mb-1">Final Report Submission</div>
-                  <div className="extra-small text-muted fw-bold">{(students || []).filter((s: any) => s && s.status !== 'Validated').length} students remaining</div>
-                <div className="deadline-item">
-                  <div className="extra-small text-warning fw-bold mb-1">Scheduled</div>
-                  <div className="small fw-bold mb-1">Next Defense Session</div>
-                  <div className="extra-small text-muted fw-bold">{(appointments || []).length > 0 ? `${appointments[0].location} - ${appointments[0].time}` : "No upcoming defenses"}</div>
-                </div>
-              </Card>
 
-              {/* Message Preview */}
-              <Card className="glass-card border p-4 shadow-sm">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="fw-bold mb-0 text-navy">Recent Messages</h6>
-                  <MessageSquare size={18} className="text-primary" />
+              {/* Project Status Donut */}
+              <div className="glass-card p-4 rounded-4 shadow-sm">
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <div className="p-2 rounded-3 bg-primary-soft">
+                    <Activity size={15} className="text-primary" />
+                  </div>
+                  <span className="fw-bold text-navy">Project Status</span>
+                </div>
+
+                {projs.length === 0 ? (
+                  <div className="py-4 text-center extra-small text-muted fw-bold opacity-50">No projects yet.</div>
+                ) : (
+                  <>
+                    <div className="position-relative d-flex justify-content-center align-items-center" style={{ height: '160px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={pieData} innerRadius={52} outerRadius={68} paddingAngle={4} dataKey="value" stroke="none">
+                            {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ borderRadius: '10px', border: '1px solid var(--color-border)', fontSize: '12px', fontWeight: 600 }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="position-absolute text-center">
+                        <div className="h4 fw-bold mb-0 text-primary">{projs.length}</div>
+                        <div className="extra-small text-muted fw-bold">Total</div>
+                      </div>
+                    </div>
+                    <div className="d-flex flex-column gap-2 mt-3 pt-3 border-top">
+                      {pieData.map((item, i) => (
+                        <div key={i} className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center gap-2 extra-small fw-bold text-navy">
+                            <div className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', background: item.color }} />
+                            {item.name}
+                          </div>
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="extra-small fw-bold text-navy">{item.value}</span>
+                            <span className="extra-small text-muted">
+                              ({Math.round((item.value / projs.length) * 100)}%)
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Next Defense */}
+              {(() => {
+                const defense = upcoming.find((a: any) => a.type?.toLowerCase() === 'defense');
+                return defense ? (
+                  <div className="p-4 rounded-4 shadow-sm" style={{ background: 'linear-gradient(135deg, #1972d2, #1e40af)', color: '#fff' }}>
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                      <GraduationCap size={15} className="opacity-75" />
+                      <span className="fw-bold small">Upcoming Defense</span>
+                    </div>
+                    <div className="fw-bold mb-1">{defense.title}</div>
+                    <div className="small opacity-90 mb-1">{formatDate(defense.date)}</div>
+                    <div className="extra-small opacity-75 d-flex align-items-center gap-2">
+                      {defense.time && <span className="d-flex align-items-center gap-1"><Clock size={10} />{defense.time}</span>}
+                      {defense.location && <span className="d-flex align-items-center gap-1"><MapPin size={10} />{defense.location}</span>}
+                    </div>
+                    <Button variant="light" size="sm" className="w-100 rounded-pill fw-bold extra-small mt-3 border-0"
+                      onClick={() => navigate('/supervisor/schedule')} style={{ color: '#1972d2' }}>
+                      View Schedule
+                    </Button>
+                  </div>
+                ) : null;
+              })()}
+
+              {/* Progress Overview */}
+              <div className="glass-card p-4 rounded-4 shadow-sm">
+                <div className="d-flex align-items-center gap-2 mb-4">
+                  <div className="p-2 rounded-3 bg-success-soft">
+                    <Target size={15} className="text-success" />
+                  </div>
+                  <span className="fw-bold text-navy">Progress Overview</span>
                 </div>
                 <div className="d-flex flex-column gap-3">
-                  <div className="text-center py-4 text-muted extra-small fw-bold opacity-50">No recent messages</div>
+                  {[
+                    { label: 'Completed',   value: completed,  total: projs.length, color: 'success', bg: '#d1fae5', fg: '#059669' },
+                    { label: 'In Progress', value: inProgress, total: projs.length, color: 'primary', bg: '#dbeafe', fg: '#1972d2' },
+                    {
+                      label: 'Pending',
+                      value: projs.filter((p: any) => p?.status === 'pending' || p?.status === 'draft').length,
+                      total: projs.length,
+                      color: 'warning', bg: '#fef9c3', fg: '#ca8a04',
+                    },
+                  ].map((item, i) => {
+                    const pct = projs.length > 0 ? Math.round((item.value / item.total) * 100) : 0;
+                    return (
+                      <div key={i}>
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="extra-small fw-bold" style={{ color: item.fg, minWidth: '80px' }}>{item.label}</span>
+                            <span className="fw-bold small text-navy">{item.value}</span>
+                          </div>
+                          <span className="extra-small fw-bold" style={{ color: item.fg }}>{pct}%</span>
+                        </div>
+                        <div className="rounded-pill overflow-hidden" style={{ height: '10px', background: item.bg }}>
+                          <div className="h-100 rounded-pill" style={{ width: `${pct}%`, background: item.fg, transition: 'width 0.6s ease' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <Button variant="link" className="w-100 text-primary extra-small fw-bold text-decoration-none mt-2" onClick={() => navigate('/supervisor/messages')}>
-                  Go to Messages
-                </Button>
-              </Card>
+              </div>
+
             </div>
           </Col>
         </Row>

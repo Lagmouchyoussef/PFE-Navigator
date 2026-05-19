@@ -109,10 +109,14 @@ class DocumentSerializer(serializers.ModelSerializer):
         read_only_fields = ['project', 'student', 'student_name', 'size', 'supervisor_approved_for_jury', 'jury_confirmed', 'uploaded_at']
 
     def get_file_url(self, obj):
+        if not obj.file:
+            return None
         request = self.context.get('request')
-        if obj.file and request:
+        if request:
             return request.build_absolute_uri(obj.file.url)
-        return None
+        from django.conf import settings
+        base = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+        return f'{base}{obj.file.url}'
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
