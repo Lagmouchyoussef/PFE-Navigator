@@ -37,6 +37,7 @@ interface AppContextType {
   createAppointment: (data: any) => Promise<any>;
   updateAppointment: (id: number, data: any) => Promise<any>;
   cancelAppointment: (id: number) => Promise<void>;
+  confirmAppointment: (id: number) => Promise<void>;
   deleteAppointment: (id: number) => Promise<void>;
 
   // Milestones
@@ -87,6 +88,7 @@ interface AppContextType {
   juryAssignments: any[];
   assignJury: (projectId: number, juryMemberId: number, role?: string) => Promise<void>;
   removeJuryAssignment: (id: number) => Promise<void>;
+  toggleJuryDocs: (projectId: number) => Promise<void>;
 
   // Theme
   theme: string;
@@ -240,8 +242,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await authApi.logout();
     } finally {
       setUser(null);
-      localStorage.removeItem('pfe_access_token');
-      localStorage.removeItem('pfe_refresh_token');
+      sessionStorage.removeItem('pfe_access_token');
+      sessionStorage.removeItem('pfe_refresh_token');
       setProjects([]);
       setCurrentProject(null);
       setDocuments([]);
@@ -269,6 +271,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           setMilestones(data.milestones || []);
           setAppointments(data.appointments || []);
           setFeedbacks(data.feedbacks || []);
+          if (data.jury_assignments) setJuryAssignments(data.jury_assignments);
           if (data.evaluation) {
             setEvaluations([data.evaluation]);
             if (data.evaluation.supervisor_score) {
@@ -298,13 +301,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         { studentsApi },
         { messagesApi },
         { notificationsApi },
-        { adminNotesApi },
-        { resourcesApi },
       ] = await Promise.all([
         import('../api/projects'),
         import('../api/students'),
-        import('../api/communications'),
-        import('../api/communications'),
         import('../api/communications'),
         import('../api/communications'),
       ]);
@@ -312,8 +311,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const promises: Promise<any>[] = [
         refreshProject(),
         notificationsApi.getAll().then((data: any) => setNotifications(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        adminNotesApi.getAll().then((data: any) => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-        resourcesApi.getAll().then((data: any) => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         messagesApi.getAll().then((data: any) => setMessages(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         messagesApi.getContactableUsers().then((data: any) => setContactableUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
         projectsApi.getSubjects().then((data: any) => setSubjects(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
@@ -332,12 +329,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const apptData: any = await (await import('../api/projects')).appointmentsApi.getAll().catch(() => []);
             setAppointments(Array.isArray(apptData) ? apptData : (apptData?.results || []));
           })(),
+          (async () => {
+            const docsData: any = await (await import('../api/projects')).documentsApi.getAll().catch(() => []);
+            setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
+          })(),
         );
       } else if (user.role === 'admin') {
         const { usersApi } = await import('../api/users');
+        const { adminNotesApi, resourcesApi } = await import('../api/communications');
         promises.push(
-        usersApi.getAll().then((data: any) => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
-          studentsApi.getAll().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          usersApi.getAll().then((data: any) => setAllUsers(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          usersApi.getStudents().then((data: any) => setStudents(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          adminNotesApi.getAll().then((data: any) => setAdministrativeNotes(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
+          resourcesApi.getAll().then((data: any) => setResourceCenter(Array.isArray(data) ? data : (data?.results || []))).catch(() => {}),
           (async () => {
             const evalData: any = await (await import('../api/projects')).evaluationsApi.getAll().catch(() => []);
             setEvaluations(Array.isArray(evalData) ? evalData : (evalData?.results || []));
@@ -349,6 +353,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           (async () => {
             const jaData: any = await (await import('../api/projects')).juryAssignmentsApi.getAll().catch(() => []);
             setJuryAssignments(Array.isArray(jaData) ? jaData : (jaData?.results || []));
+          })(),
+          (async () => {
+            const docsData: any = await (await import('../api/projects')).documentsApi.getAll().catch(() => []);
+            setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
           })(),
         );
       }
@@ -366,14 +374,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // ── INIT AUTH ──────────────────────────────────────────────────────────────
   useEffect(() => {
     (async () => {
-      const token = localStorage.getItem('pfe_access_token');
+      const token = sessionStorage.getItem('pfe_access_token');
       if (token) {
         try {
           const { authApi } = await import('../api/auth');
           const userData = await authApi.me();
           setUser(userData);
         } catch {
-          localStorage.removeItem('pfe_access_token');
+          sessionStorage.removeItem('pfe_access_token');
         }
       }
       setIsLoading(false);
@@ -414,6 +422,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setDocuments(data.documents || []);
             setMilestones(data.milestones || []);
             setAppointments(data.appointments || []);
+            if (data.jury_assignments) setJuryAssignments(data.jury_assignments);
             if (data.evaluation) setEvaluations([data.evaluation]);
           }
         } else {
@@ -425,7 +434,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const msgId   = setInterval(() => { if (!document.hidden) pollMessages(); }, 5000);
     const notifId = setInterval(() => { if (!document.hidden) pollNotifications(); }, 10000);
-    const projId  = setInterval(() => { if (!document.hidden) pollProjectData(); }, 20000);
+    const projId  = setInterval(() => { if (!document.hidden) pollProjectData(); }, 10000);
 
     return () => {
       clearInterval(msgId);
@@ -518,6 +527,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const cancelAppointment = useCallback(async (id: number) => {
     const { appointmentsApi } = await import('../api/projects');
     const updated = await appointmentsApi.cancel(id);
+    setAppointments(prev => prev.map(a => a.id === id ? updated : a));
+  }, []);
+
+  const confirmAppointment = useCallback(async (id: number) => {
+    const { appointmentsApi } = await import('../api/projects');
+    const updated = await appointmentsApi.confirm(id);
     setAppointments(prev => prev.map(a => a.id === id ? updated : a));
   }, []);
 
@@ -648,6 +663,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setJuryAssignments(prev => prev.filter(j => j.id !== id));
   }, []);
 
+  const toggleJuryDocs = useCallback(async (projectId: number) => {
+    const { adminProjectsApi } = await import('../api/projects');
+    const result = await adminProjectsApi.toggleJuryDocs(projectId);
+    setProjects(prev => prev.map(p => p.id === projectId ? { ...p, jury_documents_open: result.jury_documents_open } : p));
+  }, []);
+
   const updateSubjectStatus = useCallback(async (id: number, status: string) => {
     const { projectsApi } = await import('../api/projects');
     // We use lower case status for the backend model
@@ -730,7 +751,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       evaluations, submitSupervisorScore, submitJuryScore, publishEvaluation, updateEvaluationWeights,
 
-      appointments, createAppointment, updateAppointment, cancelAppointment, deleteAppointment,
+      appointments, createAppointment, updateAppointment, cancelAppointment, confirmAppointment, deleteAppointment,
 
       milestones, updateMilestone,
 
@@ -749,7 +770,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       feedbacks, createFeedback,
 
-      juryAssignments, assignJury, removeJuryAssignment,
+      juryAssignments, assignJury, removeJuryAssignment, toggleJuryDocs,
 
       theme, setTheme,
 

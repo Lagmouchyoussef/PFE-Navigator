@@ -1,8 +1,19 @@
 {
   "venvPath": "Backend",
   "venv": "venv",
-  "extraPaths": ["Backend"],
+  "extraPaths": [
+    "Backend",
+    "Backend/venv/Lib/site-packages"
+  ],
   "typeCheckingMode": "off",
   "reportMissingImports": "none",
-  "reportMissingModuleSource": "none"
+  "reportMissingModuleSource": "none",
+  "reportUndefinedVariable": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportCallIssue": "none",
+  "reportIndexIssue": "none",
+  "reportOperatorIssue": "none",
+  "reportReturnType": "none",
+  "reportArgumentType": "none"
 }

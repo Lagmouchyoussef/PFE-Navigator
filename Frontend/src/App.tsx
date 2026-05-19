@@ -48,6 +48,8 @@ import PortalSettings from './pages/Admin/Settings/PortalSettings';
 import AdminNotifications from './pages/Admin/Notifications/AdminNotifications';
 import AdminMessages from './pages/Admin/Messages/AdminMessages';
 import ResourceHub from './pages/Admin/Resources/ResourceHub';
+import AdminDocuments from './pages/Admin/Documents/AdminDocuments';
+import SupervisorDocuments from './pages/Supervisor/Documents/SupervisorDocuments';
 
 import AdministrativeNotesPage from './pages/Common/AdministrativeNotes/AdministrativeNotesPage';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
@@ -189,6 +191,7 @@ function App() {
           <Route path="messages" element={<MessagesPage />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="notes" element={<AdminNotes />} />
+          <Route path="documents" element={<AdminDocuments />} />
           <Route path="settings" element={<PortalSettings />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
@@ -264,6 +267,7 @@ function App() {
               <>
                 <SidebarLink to="/supervisor/dashboard" icon={<LayoutDashboard size={20} />} iconClassName="icon-primary" label={!isSidebarCollapsed && "Dashboard"} />
                 <SidebarLink to="/supervisor/students" icon={<GraduationCap size={20} />} iconClassName="icon-indigo" label={!isSidebarCollapsed && "My Students"} />
+                <SidebarLink to="/supervisor/documents" icon={<FileUp size={20} />} iconClassName="icon-teal" label={!isSidebarCollapsed && "Documents"} />
                 <SidebarLink to="/supervisor/subjects" icon={<FileText size={20} />} iconClassName="icon-success" label={!isSidebarCollapsed && "Subjects"} />
                 <SidebarLink to="/supervisor/evaluation" icon={<MessageSquare size={20} />} iconClassName="icon-warning" label={!isSidebarCollapsed && "Evaluations"} />
                 <SidebarLink to="/supervisor/schedule" icon={<Calendar size={20} />} iconClassName="icon-purple" label={!isSidebarCollapsed && "Planning"} />
@@ -624,6 +628,7 @@ function App() {
             <Route path="/supervisor/evaluation" element={<RequireAuth requiredRole="supervisor"><SupervisorEvaluations /></RequireAuth>} />
             <Route path="/supervisor/messages" element={<RequireAuth requiredRole="supervisor"><MessagesPage /></RequireAuth>} />
             <Route path="/supervisor/schedule" element={<RequireAuth requiredRole="supervisor"><SupervisorPlanning /></RequireAuth>} />
+            <Route path="/supervisor/documents" element={<RequireAuth requiredRole="supervisor"><SupervisorDocuments /></RequireAuth>} />
             <Route path="/supervisor/notifications" element={<RequireAuth requiredRole="supervisor"><NotificationsPage /></RequireAuth>} />
             <Route path="/supervisor/notes" element={<RequireAuth requiredRole="supervisor"><AdministrativeNotesPage /></RequireAuth>} />
             <Route path="/supervisor/settings" element={<RequireAuth requiredRole="supervisor"><SettingsPage /></RequireAuth>} />

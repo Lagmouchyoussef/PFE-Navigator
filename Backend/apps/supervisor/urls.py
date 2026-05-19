@@ -5,16 +5,19 @@ from .views import (
     SupervisorStudentViewSet, SupervisorProjectViewSet,
     SupervisorDocumentViewSet, SupervisorMilestoneViewSet,
     SupervisorAppointmentViewSet, SupervisorFeedbackViewSet,
+    SupervisorEvaluationViewSet, SupervisorDashboardView,
 )
 
 router = DefaultRouter()
-router.register('supervisor/students', SupervisorStudentViewSet, basename='supervisor-students')
-router.register('supervisor/projects', SupervisorProjectViewSet, basename='supervisor-projects')
-router.register('supervisor/documents', SupervisorDocumentViewSet, basename='supervisor-documents')
-router.register('supervisor/milestones', SupervisorMilestoneViewSet, basename='supervisor-milestones')
+router.register('supervisor/students',     SupervisorStudentViewSet,     basename='supervisor-students')
+router.register('supervisor/projects',     SupervisorProjectViewSet,     basename='supervisor-projects')
+router.register('supervisor/documents',    SupervisorDocumentViewSet,    basename='supervisor-documents')
+router.register('supervisor/milestones',   SupervisorMilestoneViewSet,   basename='supervisor-milestones')
 router.register('supervisor/appointments', SupervisorAppointmentViewSet, basename='supervisor-appointments')
-router.register('supervisor/feedback', SupervisorFeedbackViewSet, basename='supervisor-feedback')
+router.register('supervisor/feedback',     SupervisorFeedbackViewSet,    basename='supervisor-feedback')
+router.register('supervisor/evaluations',  SupervisorEvaluationViewSet,  basename='supervisor-evaluations')
 
 urlpatterns = [
+    path('supervisor/dashboard/', SupervisorDashboardView.as_view(), name='supervisor-dashboard'),
     path('', include(router.urls)),
 ]

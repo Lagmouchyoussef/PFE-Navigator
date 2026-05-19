@@ -7,15 +7,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.authentication.models import User
+from apps.authentication.serializers import UserSerializer as AuthUserSerializer
 from apps.common.models import (
     Subject, Project, Document, DocumentRemark,
     Milestone, Appointment, Evaluation, Feedback, JuryAssignment,
+    Notification,
 )
 from .serializers import (
     SubjectSerializer, ProjectListSerializer, ProjectCreateSerializer,
-    DocumentSerializer, DocumentRemarkSerializer, AppointmentSerializer,
-    MilestoneSerializer, EvaluationSerializer, FeedbackSerializer,
-    JuryAssignmentSerializer,
+    ProjectDashboardSerializer,
+    DocumentSerializer, DocumentCreateSerializer, DocumentRemarkSerializer,
+    AppointmentSerializer, MilestoneSerializer, EvaluationSerializer,
+    FeedbackSerializer, JuryAssignmentSerializer,
 )
 
 
@@ -57,7 +60,33 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(student=request.user)
         except Project.DoesNotExist:
             return Response({'detail': 'No project found.'}, status=404)
-        return Response(ProjectListSerializer(project, context={'request': request}).data)
+
+        # Send a one-time "defense is today" notification using the reminder_sent flag
+        from django.utils import timezone
+        today = timezone.localdate()
+        defense_today = Appointment.objects.filter(
+            project=project,
+            type='defense',
+            date=today,
+            reminder_sent=False,
+        ).first()
+        if defense_today:
+            Notification.objects.create(
+                recipient=request.user,
+                title='Your Defense is Today!',
+                message=(
+                    f'Your thesis defense "{defense_today.title}" is scheduled for today'
+                    f' at {defense_today.time}'
+                    f'{" — " + defense_today.location if defense_today.location else ""}.'
+                    f' Good luck!'
+                ),
+                type='defense',
+                link='/student/schedule',
+            )
+            defense_today.reminder_sent = True
+            defense_today.save(update_fields=['reminder_sent'])
+
+        return Response(ProjectDashboardSerializer(project, context={'request': request}).data)
 
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
@@ -93,8 +122,21 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
 
     def get_queryset(self):
-        project_ids = get_user_projects(self.request.user).values_list('id', flat=True)
-        return Document.objects.filter(project_id__in=project_ids).select_related('student', 'project')
+        user = self.request.user
+        project_ids = get_user_projects(user).values_list('id', flat=True)
+        qs = Document.objects.filter(project_id__in=project_ids).select_related('student', 'project')
+        if user.role == 'supervisor':
+            qs = qs.filter(target='supervisor')
+        elif user.role == 'jury':
+            qs = qs.filter(target='jury', project__jury_documents_open=True)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = DocumentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        response_serializer = DocumentSerializer(serializer.instance, context={'request': request})
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -103,15 +145,55 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 project = Project.objects.get(student=user)
             except Project.DoesNotExist:
                 raise ValidationError({'detail': 'No project found for this student.'})
-            serializer.save(student=user, project=project)
+
+            target = serializer.validated_data.get('target', 'supervisor')
+            if target == 'jury' and not project.jury_documents_open:
+                raise ValidationError({'detail': 'Jury document submission is not open yet. Wait for the administrator to open the deadline.'})
+
+            doc = serializer.save(student=user, project=project)
+
+            if project.supervisor:
+                Notification.objects.create(
+                    recipient=project.supervisor,
+                    title='New document uploaded',
+                    message=f'{user.name} uploaded "{doc.title}" (for {doc.get_target_display()}).',
+                    type='info',
+                    link='/supervisor/documents',
+                )
+
+            for admin in User.objects.filter(role='admin', is_active=True):
+                Notification.objects.create(
+                    recipient=admin,
+                    title='New document uploaded',
+                    message=f'{user.name} uploaded "{doc.title}" targeting {doc.get_target_display()}.',
+                    type='info',
+                    link='/admin/documents',
+                )
         else:
             serializer.save()
+
+    def destroy(self, request, *args, **kwargs):
+        doc = self.get_object()
+        if doc.target == 'jury' and doc.status != 'pending':
+            return Response(
+                {'detail': 'This document has already been reviewed by the jury and cannot be deleted.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         doc = self.get_object()
         doc.status = 'approved'
         doc.save()
+        if doc.student:
+            Notification.objects.create(
+                recipient=doc.student,
+                title='Document Approved',
+                message=f'Your document "{doc.title}" has been approved by {request.user.name}.',
+                type='approved',
+                link='/student/reports',
+            )
         return Response(DocumentSerializer(doc, context={'request': request}).data)
 
     @action(detail=True, methods=['post'])
@@ -120,6 +202,14 @@ class DocumentViewSet(viewsets.ModelViewSet):
         doc.status = 'rejected'
         doc.comment = request.data.get('reason', '')
         doc.save()
+        if doc.student:
+            Notification.objects.create(
+                recipient=doc.student,
+                title='Document Rejected',
+                message=f'Your document "{doc.title}" was rejected. Reason: {doc.comment or "No reason provided."}',
+                type='rejected',
+                link='/student/reports',
+            )
         return Response(DocumentSerializer(doc, context={'request': request}).data)
 
 
@@ -151,21 +241,105 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if user.role == 'student':
             try:
                 project = Project.objects.get(student=user)
-                serializer.save(
+                appt = serializer.save(
                     student=user,
                     project=project,
                     supervisor=project.supervisor,
                 )
+                if project.supervisor:
+                    Notification.objects.create(
+                        recipient=project.supervisor,
+                        title='New Meeting Request',
+                        message=f'{user.name} requested a meeting: "{appt.title}" on {appt.date}.',
+                        type='info',
+                        link='/supervisor/schedule',
+                    )
+                for admin in User.objects.filter(role='admin', is_active=True):
+                    Notification.objects.create(
+                        recipient=admin,
+                        title='New Meeting Request',
+                        message=f'{user.name} requested a meeting with {project.supervisor.name if project.supervisor else "their supervisor"}: "{appt.title}" on {appt.date}.',
+                        type='info',
+                        link='/admin/dashboard',
+                    )
             except Project.DoesNotExist:
                 raise ValidationError({'detail': 'No project found for this student.'})
         else:
-            serializer.save()
+            appt = serializer.save()
+            if appt.type and appt.type.lower() == 'defense' and appt.project_id:
+                try:
+                    project = Project.objects.select_related('student', 'supervisor').get(pk=appt.project_id)
+                    location_str = f' — {appt.location}' if appt.location else ''
+                    student_name = project.student.name if project.student else 'a student'
+
+                    # Notify student
+                    if project.student:
+                        Notification.objects.create(
+                            recipient=project.student,
+                            title='Defense Date Scheduled',
+                            message=(
+                                f'Your thesis defense has been scheduled: "{appt.title}" '
+                                f'on {appt.date} at {appt.time}{location_str}. '
+                                f'Check your schedule for details.'
+                            ),
+                            type='defense',
+                            link='/student/schedule',
+                        )
+
+                    # Notify supervisor
+                    if project.supervisor:
+                        Notification.objects.create(
+                            recipient=project.supervisor,
+                            title='Defense Scheduled',
+                            message=(
+                                f'Defense scheduled for your student {student_name}: '
+                                f'"{appt.title}" on {appt.date} at {appt.time}{location_str}.'
+                            ),
+                            type='defense',
+                            link='/supervisor/schedule',
+                        )
+
+                    # Notify assigned jury members
+                    for ja in JuryAssignment.objects.filter(project=project).select_related('jury_member'):
+                        Notification.objects.create(
+                            recipient=ja.jury_member,
+                            title='Defense Assigned to You',
+                            message=(
+                                f'You are assigned as {ja.role} for the defense of {student_name}: '
+                                f'"{appt.title}" on {appt.date} at {appt.time}{location_str}.'
+                            ),
+                            type='defense',
+                            link='/jury/schedule',
+                        )
+
+                    # Notify all admins
+                    for admin in User.objects.filter(role='admin', is_active=True):
+                        Notification.objects.create(
+                            recipient=admin,
+                            title='Defense Scheduled',
+                            message=(
+                                f'Defense scheduled: "{appt.title}" for {student_name} '
+                                f'on {appt.date} at {appt.time}{location_str}.'
+                            ),
+                            type='defense',
+                            link='/admin/jury-planning',
+                        )
+                except Project.DoesNotExist:
+                    pass
 
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
         appointment = self.get_object()
         appointment.status = 'Cancelled'
         appointment.save()
+        if appointment.student and appointment.student != request.user:
+            Notification.objects.create(
+                recipient=appointment.student,
+                title='Appointment Cancelled',
+                message=f'Your appointment "{appointment.title}" on {appointment.date} was cancelled by {request.user.name}.',
+                type='rejected',
+                link='/student/schedule',
+            )
         return Response(AppointmentSerializer(appointment).data)
 
     @action(detail=True, methods=['post'])
@@ -173,6 +347,14 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         appointment = self.get_object()
         appointment.status = 'Confirmed'
         appointment.save()
+        if appointment.student:
+            Notification.objects.create(
+                recipient=appointment.student,
+                title='Appointment Confirmed',
+                message=f'Your appointment "{appointment.title}" on {appointment.date} has been confirmed by {request.user.name}.',
+                type='approved',
+                link='/student/schedule',
+            )
         return Response(AppointmentSerializer(appointment).data)
 
 
@@ -216,6 +398,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         evaluation = self.get_object()
         evaluation.is_published = True
         evaluation.save()
+        if evaluation.project.student:
+            Notification.objects.create(
+                recipient=evaluation.project.student,
+                title='Grades Published',
+                message='Your evaluation grades have been published by the administrator. You can now view your final score.',
+                type='grade',
+                link='/student/evaluation',
+            )
         return Response(EvaluationSerializer(evaluation).data)
 
     @action(detail=True, methods=['post'], url_path='update_weights')
@@ -237,7 +427,16 @@ class FeedbackViewSet(viewsets.ModelViewSet):
         return Feedback.objects.filter(project_id__in=project_ids).select_related('author', 'project')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        user = self.request.user
+        feedback = serializer.save(author=user)
+        if feedback.project.student:
+            Notification.objects.create(
+                recipient=feedback.project.student,
+                title='New Feedback Received',
+                message=f'{user.name} left feedback on your project: "{feedback.title}".',
+                type='info',
+                link='/student/dashboard',
+            )
 
 
 class JuryAssignmentViewSet(viewsets.ModelViewSet):
@@ -254,6 +453,34 @@ class JuryAssignmentViewSet(viewsets.ModelViewSet):
         else:
             project_ids = get_user_projects(user).values_list('id', flat=True)
             return JuryAssignment.objects.filter(project_id__in=project_ids).select_related('project', 'jury_member', 'project__student')
+
+    def perform_create(self, serializer):
+        assignment = serializer.save()
+        if assignment.project.student:
+            Notification.objects.create(
+                recipient=assignment.project.student,
+                title='Jury Member Assigned',
+                message=f'{assignment.jury_member.name} has been assigned as a jury member ({assignment.role}) for your project defense.',
+                type='defense',
+                link='/student/schedule',
+            )
+
+
+class StudentsView(APIView):
+    """Role-aware students list: supervisors see their students; admins see all."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role == 'supervisor':
+            student_ids = Project.objects.filter(supervisor=user).values_list('student_id', flat=True)
+            students = User.objects.filter(id__in=student_ids, role='student')
+        elif user.role in ('admin', 'jury'):
+            students = User.objects.filter(role='student', is_active=True)
+        else:
+            return Response([])
+
+        return Response(AuthUserSerializer(students, many=True).data)
 
 
 class AdminStatsView(APIView):

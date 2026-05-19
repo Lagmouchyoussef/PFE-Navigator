@@ -85,14 +85,21 @@ class JuryAssignmentSerializer(serializers.ModelSerializer):
 
 class AdminResourceSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.CharField(source='uploaded_by.name', read_only=True)
+    file_url = serializers.SerializerMethodField()
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return obj.url or None
 
     class Meta:
         model = Resource
         fields = [
-            'id', 'title', 'description', 'file', 'url', 'type',
-            'uploaded_by_name', 'created_at',
+            'id', 'title', 'description', 'file', 'file_url', 'url', 'type',
+            'year', 'uploaded_by_name', 'created_at',
         ]
-        read_only_fields = ['uploaded_by_name', 'created_at']
+        read_only_fields = ['uploaded_by_name', 'created_at', 'file_url']
 
 
 class AdminNoteSerializer(serializers.ModelSerializer):

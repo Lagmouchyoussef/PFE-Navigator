@@ -30,7 +30,15 @@ class MessageViewSet(viewsets.ModelViewSet):
         ).distinct().select_related('sender', 'recipient')
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+        sender = self.request.user
+        msg = serializer.save(sender=sender)
+        Notification.objects.create(
+            recipient=msg.recipient,
+            title='New Message',
+            message=f'{sender.name} sent you a message: "{msg.content[:80]}{"…" if len(msg.content) > 80 else ""}"',
+            type='message',
+            link=f'/{msg.recipient.role}/messages',
+        )
 
     @action(detail=True, methods=['post'], url_path='read')
     def mark_read(self, request, pk=None):
@@ -117,7 +125,27 @@ class AdminNoteViewSet(viewsets.ModelViewSet):
         return AdminNote.objects.filter(audience__in=allowed)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        author = self.request.user
+        note = serializer.save(author=author)
+        audience_role_map = {
+            'students':    ['student'],
+            'supervisors': ['supervisor'],
+            'juries':      ['jury'],
+            'all':         ['student', 'supervisor', 'jury'],
+        }
+        target_roles = audience_role_map.get(note.audience, [])
+        if target_roles:
+            recipients = User.objects.filter(role__in=target_roles, is_active=True)
+            Notification.objects.bulk_create([
+                Notification(
+                    recipient=u,
+                    title='New Admin Note',
+                    message=f'{author.name} published a note: "{note.title}".',
+                    type='info',
+                    link=f'/{u.role}/notes',
+                )
+                for u in recipients
+            ])
 
 
 class ResourceViewSet(viewsets.ModelViewSet):

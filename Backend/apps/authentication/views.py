@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from .models import User
 from .permissions import IsAdmin
@@ -153,3 +156,48 @@ class UserViewSet(viewsets.ModelViewSet):
     def students(self, request):
         users = User.objects.filter(role='student', is_active=True)
         return Response(UserSerializer(users, many=True).data)
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        try:
+            user = User.objects.get(email__iexact=email, is_active=True)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            frontend_url = 'http://localhost:5173'
+            reset_link = f'{frontend_url}/reset-password?uid={uid}&token={token}'
+            print(f'\n[PASSWORD RESET] Email: {user.email}\nReset link: {reset_link}\n')
+        except User.DoesNotExist:
+            pass
+        return Response({'detail': 'If this email exists, a reset link has been sent.'})
+
+
+class ResetPasswordConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        uid = request.data.get('uid', '')
+        token = request.data.get('token', '')
+        new_password = request.data.get('new_password', '')
+
+        if not all([uid, token, new_password]):
+            return Response({'detail': 'Missing required fields.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 8:
+            return Response({'detail': 'Password must be at least 8 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_pk = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_pk)
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Invalid reset link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not default_token_generator.check_token(user, token):
+            return Response({'detail': 'Reset link has expired or is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({'detail': 'Password reset successfully. You can now log in.'})

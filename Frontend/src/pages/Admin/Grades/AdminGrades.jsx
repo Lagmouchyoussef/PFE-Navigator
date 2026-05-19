@@ -22,7 +22,7 @@ const computeFinal = (supScore, juryScore, supW, juryW) => {
 };
 
 const AdminGrades = () => {
-  const { evaluations, projects, publishEvaluation, pfeWeights } = useApp();
+  const { evaluations, projects, publishEvaluation, pfeWeights, updateEvaluationWeights } = useApp();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showViewModal, setShowViewModal] = useState(false);
@@ -30,7 +30,18 @@ const AdminGrades = () => {
   const [publishingId, setPublishingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
+  const [supWeightInput, setSupWeightInput] = useState(50);
+  const [juryWeightInput, setJuryWeightInput] = useState(50);
+  const [isSavingWeights, setIsSavingWeights] = useState(false);
+
   const flash = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
+
+  const handleOpenViewModal = (ev) => {
+    setSelectedEval(ev);
+    setSupWeightInput(ev.supW ?? 50);
+    setJuryWeightInput(ev.juryW ?? 50);
+    setShowViewModal(true);
+  };
 
   const safeProjects = Array.isArray(projects) ? projects : [];
   const safeEvals    = Array.isArray(evaluations) ? evaluations : [];
@@ -194,7 +205,7 @@ const AdminGrades = () => {
                       <td className="px-4 py-3 text-end">
                         <div className="d-flex justify-content-end gap-1">
                           <Button variant="link" className="p-2 text-primary hover-bg-surface-alt rounded-circle border-0 shadow-none"
-                            onClick={() => { setSelectedEval(ev); setShowViewModal(true); }}>
+                            onClick={() => handleOpenViewModal(ev)}>
                             <Eye size={16} />
                           </Button>
                           {!ev.is_published && (
@@ -276,6 +287,74 @@ const AdminGrades = () => {
                       <small className="h6 text-muted ms-1 opacity-50">/20</small>
                     </div>
                   </div>
+                </div>
+              </Card>
+
+              {/* Weight settings */}
+              <Card className="rounded-4 bg-surface-alt p-4 border-0 mt-4 shadow-sm">
+                <h6 className="extra-small fw-bold text-navy text-uppercase mb-3 d-flex align-items-center gap-2">
+                  <Edit3 size={16} className="text-primary" /> Configuration des Coefficients (Pourcentages)
+                </h6>
+                <Row className="g-3 align-items-center">
+                  <Col sm={6}>
+                    <Form.Group>
+                      <Form.Label className="extra-small fw-bold text-muted mb-2">Pourcentage Encadrant: {supWeightInput}%</Form.Label>
+                      <Form.Range
+                        value={supWeightInput}
+                        min={0}
+                        max={100}
+                        step={5}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setSupWeightInput(val);
+                          setJuryWeightInput(100 - val);
+                        }}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col sm={6}>
+                    <Form.Group>
+                      <Form.Label className="extra-small fw-bold text-muted mb-2">Pourcentage Jury: {juryWeightInput}%</Form.Label>
+                      <Form.Range
+                        value={juryWeightInput}
+                        min={0}
+                        max={100}
+                        step={5}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setJuryWeightInput(val);
+                          setSupWeightInput(100 - val);
+                        }}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <div className="d-flex justify-content-end mt-3">
+                  <Button
+                    size="sm"
+                    className="btn-premium d-flex align-items-center gap-2"
+                    onClick={async () => {
+                      setIsSavingWeights(true);
+                      try {
+                        await updateEvaluationWeights(selectedEval.id, supWeightInput, juryWeightInput);
+                        setSelectedEval(prev => ({
+                          ...prev,
+                          supW: supWeightInput,
+                          juryW: juryWeightInput,
+                          supervisor_weight: supWeightInput,
+                          jury_weight: juryWeightInput
+                        }));
+                        flash("Coefficients enregistrés avec succès !");
+                      } catch (err) {
+                        flash("Erreur lors de l'enregistrement : " + (err?.message || "Veuillez réessayer"));
+                      } finally {
+                        setIsSavingWeights(false);
+                      }
+                    }}
+                    disabled={isSavingWeights}
+                  >
+                    {isSavingWeights ? <Spinner size="sm" /> : <Save size={16} />} Enregistrer les coefficients
+                  </Button>
                 </div>
               </Card>
             </>

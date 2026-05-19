@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Container, Card, Table, Badge, Button, Form, InputGroup, Modal, Row, Col } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { 
-  Search, FileText, Download, Eye, CheckCircle, XCircle, 
-  Clock, Archive, ChevronRight, Inbox, AlertCircle, X
+import {
+  Search, FileText, Download, Eye, CheckCircle, XCircle,
+  Clock, Archive, Inbox, X, Lock
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 const JuryDocumentsPage = () => {
-  const { documents = [], approveDocument, rejectDocument } = useApp();
+  const { documents = [], projects = [], approveDocument, rejectDocument } = useApp();
+  const isSubmissionOpen = (projects || []).some(p => p.jury_documents_open);
 
   const [searchTerm, setSearchTerm]       = useState('');
   const [filterStatus, setFilterStatus]   = useState('all');
@@ -159,8 +160,18 @@ const JuryDocumentsPage = () => {
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan="5" className="text-center py-5">
-                      <Inbox size={48} className="text-muted opacity-25 mb-3" />
-                      <p className="small fw-bold text-muted opacity-50">No documents found for this filter.</p>
+                      {!isSubmissionOpen && filterStatus === 'all' && searchTerm === '' ? (
+                        <>
+                          <Lock size={48} className="text-warning opacity-50 mb-3" />
+                          <p className="small fw-bold text-navy opacity-75 mb-1">Submission period not open</p>
+                          <p className="extra-small text-muted opacity-50">The administrator has not yet opened document access for the jury.</p>
+                        </>
+                      ) : (
+                        <>
+                          <Inbox size={48} className="text-muted opacity-25 mb-3" />
+                          <p className="small fw-bold text-muted opacity-50">No documents found for this filter.</p>
+                        </>
+                      )}
                     </td>
                   </tr>
                 )}

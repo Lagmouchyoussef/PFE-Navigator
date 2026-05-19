@@ -15,13 +15,19 @@ import { ErrorBoundary } from '../../../components/shared/ErrorBoundary';
 const JurySchedulePage = () => {
   const navigate = useNavigate();
   const { user, appointments, cancelAppointment } = useApp();
-  const [selectedDay, setSelectedDay] = useState(12);
+  const now = new Date();
+  const [selectedDay, setSelectedDay] = useState(now.getDate());
   const [openMenuId, setOpenMenuId] = useState(null);
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const days = Array.from({ length: new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-  // Filter active defense appointments
-  const defenseAppointments = (appointments || []).filter(app => app && (app.type === 'Defense' || app.type === 'Review') && app.status !== 'Cancelled');
+  // Filter active defense appointments case-insensitively
+  const defenseAppointments = (appointments || []).filter(app => 
+    app && 
+    (app.type?.toLowerCase() === 'defense' || app.type?.toLowerCase() === 'review') && 
+    app.status?.toLowerCase() !== 'cancelled'
+  );
 
   return (
     <div className="jury-schedule-layout py-4">
@@ -43,8 +49,8 @@ const JurySchedulePage = () => {
         <Row className="g-4 mb-5">
           {[
             { label: 'Planned Defenses', value: defenseAppointments.length, color: 'primary' },
-            { label: 'This Month', value: '15', color: 'success' },
-            { label: 'Avg Time', value: '5.5h', color: 'warning' },
+            { label: 'This Month', value: defenseAppointments.filter(a => { const d = new Date(a.date); return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear(); }).length, color: 'success' },
+            { label: 'Avg Duration', value: defenseAppointments.length > 0 ? '1h' : '—', color: 'warning' },
           ].map((stat, i) => (
             <Col lg={4} key={i}>
               <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
@@ -60,10 +66,10 @@ const JurySchedulePage = () => {
             <Card className="glass-card p-4 rounded-4 shadow-sm h-100 border border-light border-opacity-10">
               <div className="d-flex justify-content-between align-items-center mb-4 border-bottom border-light border-opacity-10 pb-3">
                 <div className="d-flex align-items-center gap-3">
-                  <h5 className="fw-bold text-navy mb-0">May 2026</h5>
-                  <Form.Control 
-                    type="date" 
-                    defaultValue="2026-05-12"
+                  <h5 className="fw-bold text-navy mb-0">{MONTH_NAMES[now.getMonth()]} {now.getFullYear()}</h5>
+                  <Form.Control
+                    type="date"
+                    defaultValue={`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`}
                     className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
                     style={{ maxWidth: '180px', cursor: 'pointer' }}
                   />
@@ -77,16 +83,22 @@ const JurySchedulePage = () => {
               <div className="calendar-grid d-grid gap-2" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
                 {weekDays.map(d => <div key={d} className="text-center extra-small fw-bold text-muted text-uppercase opacity-50 mb-2">{d}</div>)}
                 <div /><div /><div /><div />
-                {days.map(d => (
-                  <div 
-                    key={d} 
-                    className={`d-flex align-items-center justify-content-center rounded-4 small fw-bold cursor-pointer transition-all border ${selectedDay === d ? 'bg-primary text-white border-primary shadow-sm' : 'text-navy hover-bg-surface-alt border-transparent'} ${[5, 6, 7].includes(d) ? 'bg-primary-soft text-primary' : ''}`}
-                    style={{ aspectRatio: '1' }}
-                    onClick={() => setSelectedDay(d)}
-                  >
-                    {d}
-                  </div>
-                ))}
+                {days.map(d => {
+                  const hasEvent = defenseAppointments.some(app => {
+                    const dateObj = new Date(app.date);
+                    return dateObj.getDate() === d;
+                  });
+                  return (
+                    <div 
+                      key={d} 
+                      className={`d-flex align-items-center justify-content-center rounded-4 small fw-bold cursor-pointer transition-all border ${selectedDay === d ? 'bg-primary text-white border-primary shadow-sm' : 'text-navy hover-bg-surface-alt border-transparent'} ${hasEvent ? 'bg-primary-soft text-primary border-primary border-opacity-25' : ''}`}
+                      style={{ aspectRatio: '1' }}
+                      onClick={() => setSelectedDay(d)}
+                    >
+                      {d}
+                    </div>
+                  );
+                })}
               </div>
             </Card>
           </Col>
@@ -110,7 +122,7 @@ const JurySchedulePage = () => {
                   <div className="d-flex gap-3 align-items-center">
                     <div className="p-3 bg-primary-soft text-primary rounded-4 text-center" style={{ minWidth: '65px' }}>
                       <div className="fw-bold h4 mb-0">{(item.date || '').split('-')[2] || '—'}</div>
-                      <div className="extra-small fw-bold opacity-75 uppercase">MAY</div>
+                      <div className="extra-small fw-bold opacity-75 uppercase">{item.date ? MONTH_NAMES[new Date(item.date).getMonth()].slice(0,3).toUpperCase() : '—'}</div>
                     </div>
                     <div className="flex-grow-1 overflow-hidden">
                       <div className="small fw-bold text-navy text-truncate mb-1">{item.student_name || item.created_by_name || item.title}</div>

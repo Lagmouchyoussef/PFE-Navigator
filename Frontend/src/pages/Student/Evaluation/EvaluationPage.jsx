@@ -1,15 +1,13 @@
 import React from 'react';
 import { Container, Row, Col, Card, Badge, ProgressBar } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { Award, TrendingUp, CheckCircle, Clock, Activity, Star, FileText } from 'lucide-react';
+import { Award, TrendingUp, CheckCircle, Clock, Activity, Star, FileText, Lock, Eye } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Radar, RadarChart,
+  CartesianGrid, Tooltip, RadarChart, Radar,
   PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
 import { useApp } from '../../../context/AppContext';
-
-// ── helpers ───────────────────────────────────────────────────────────────────
 
 const toNum = (v) => {
   const n = Number.parseFloat(v);
@@ -31,36 +29,23 @@ const gradeVariant = (score) => {
   return 'danger';
 };
 
-const buildScoreIcon = (isPublished, grade) => {
-  if (!isPublished || grade === null) return <Activity size={28} className="text-muted mx-auto mb-2" />;
-  return grade >= 10
-    ? <CheckCircle size={28} className="text-success mx-auto mb-2" />
-    : <Clock size={28} className="text-danger mx-auto mb-2" />;
-};
-
-const buildResultLabel = (isPublished, grade) => {
-  if (!isPublished || grade === null) return 'Pending';
-  return grade >= 10 ? 'PASSED' : 'FAILED';
-};
-
-const buildResultVariant = (isPublished, grade) => {
-  if (!isPublished || grade === null) return 'muted';
-  return grade >= 10 ? 'success' : 'danger';
-};
-
-// ── component ─────────────────────────────────────────────────────────────────
-
 const EvaluationPage = () => {
-  const { evaluations: rawEvals, currentProject, user, isGradesPublished, pfeWeights } = useApp();
+  const { evaluations: rawEvals, currentProject, user, pfeWeights } = useApp();
   const evaluations = Array.isArray(rawEvals) ? rawEvals : [];
 
   const evaluation = evaluations[0] ?? null;
+  const isPublished = evaluation?.is_published ?? false;
+
+  // Scores are null when not published (backend masks them)
   const supScore  = evaluation ? toNum(evaluation.supervisor_score) : null;
   const juryScore = evaluation ? toNum(evaluation.jury_score) : null;
-  const supW  = pfeWeights?.supervisor ?? 50;
-  const juryW = pfeWeights?.jury ?? 50;
-  const pfeFinal = computeFinal(supScore, juryScore, supW, juryW);
-  const isPublished = evaluation?.is_published || isGradesPublished;
+  const supW  = evaluation?.supervisor_weight ?? pfeWeights?.supervisor ?? 50;
+  const juryW = evaluation?.jury_weight       ?? pfeWeights?.jury       ?? 50;
+  const pfeFinal = isPublished ? computeFinal(supScore, juryScore, supW, juryW) : null;
+
+  // Status flags from backend (available even before publication)
+  const supervisorScored = evaluation?.supervisor_scored ?? false;
+  const juryScored       = evaluation?.jury_scored       ?? false;
 
   const performanceData = [
     { name: 'Supervisor', score: supScore  ? (supScore  / 20) * 100 : 0 },
@@ -69,19 +54,12 @@ const EvaluationPage = () => {
   ];
 
   const criteriaData = [
-    { subject: 'Technical',       A: evaluation?.technical_quality ?? 0, fullMark: 100 },
-    { subject: 'Innovation',      A: evaluation?.innovation        ?? 0, fullMark: 100 },
-    { subject: 'Documentation',   A: evaluation?.documentation     ?? 0, fullMark: 100 },
-    { subject: 'Implementation',  A: evaluation?.implementation    ?? 0, fullMark: 100 },
-    { subject: 'Presentation',    A: evaluation?.presentation      ?? 0, fullMark: 100 },
+    { subject: 'Technical',      A: 0, fullMark: 100 },
+    { subject: 'Innovation',     A: 0, fullMark: 100 },
+    { subject: 'Documentation',  A: 0, fullMark: 100 },
+    { subject: 'Implementation', A: 0, fullMark: 100 },
+    { subject: 'Presentation',   A: 0, fullMark: 100 },
   ];
-
-  const scoreDisplay = (score) =>
-    score === null ? '—' : `${score}/20`;
-
-  const resultIcon    = buildScoreIcon(isPublished, pfeFinal);
-  const resultLabel   = buildResultLabel(isPublished, pfeFinal);
-  const resultVariant = buildResultVariant(isPublished, pfeFinal);
 
   return (
     <div className="evaluation-page-layout py-4">
@@ -97,15 +75,15 @@ const EvaluationPage = () => {
           </motion.div>
           <div className="d-flex gap-2 align-items-center">
             {isPublished
-              ? <Badge bg="success" className="px-3 py-2 rounded-pill">Grades Published</Badge>
-              : <Badge bg="warning" className="px-3 py-2 rounded-pill">Pending Publication</Badge>
+              ? <Badge bg="success" className="px-3 py-2 rounded-pill d-flex align-items-center gap-2"><Eye size={14}/> Grades Published</Badge>
+              : <Badge bg="warning" className="px-3 py-2 rounded-pill d-flex align-items-center gap-2"><Lock size={14}/> Awaiting Publication</Badge>
             }
           </div>
         </header>
 
         {/* Project Info */}
         {currentProject && (
-          <Row className="g-4 mb-5">
+          <Row className="g-4 mb-4">
             <Col>
               <Card className="glass-card border-0 shadow-sm p-4">
                 <div className="d-flex align-items-center gap-3">
@@ -113,8 +91,7 @@ const EvaluationPage = () => {
                   <div>
                     <div className="fw-bold text-navy fs-5">{currentProject.title}</div>
                     <div className="small text-muted">
-                      Supervisor: {currentProject.supervisor?.name || 'Not assigned'} &bull;
-                      Status: <span className="text-capitalize">{currentProject.status}</span>
+                      Supervisor: {currentProject.supervisor?.name || 'Not assigned'} &bull; Status: <span className="text-capitalize">{currentProject.status}</span>
                     </div>
                   </div>
                 </div>
@@ -123,46 +100,111 @@ const EvaluationPage = () => {
           </Row>
         )}
 
-        {/* Score Cards */}
-        <Row className="g-4 mb-5">
-          <Col lg={3} sm={6}>
-            <Card className="glass-card border-0 shadow-sm p-4 text-center">
-              <Award size={28} className="text-primary mx-auto mb-2" />
-              <div className="small text-muted fw-bold mb-1">Supervisor Score</div>
-              <div className={`fs-2 fw-bold text-${gradeVariant(supScore)}`}>
-                {scoreDisplay(supScore)}
+        {/* Not-published banner */}
+        {evaluation && !isPublished && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card mb-5 p-4 rounded-4 shadow-sm border-start border-warning border-4 d-flex align-items-start gap-3"
+          >
+            <Lock size={22} className="text-warning shrink-0 mt-1" />
+            <div>
+              <div className="fw-bold text-navy mb-1">Grades not yet published</div>
+              <p className="small text-muted mb-2 fw-bold opacity-75">
+                Your supervisor and jury have submitted their evaluations. The admin will publish the final grades when ready.
+              </p>
+              <div className="d-flex gap-3 flex-wrap">
+                <Badge bg={supervisorScored ? 'success' : 'secondary'} className="px-3 py-1 rounded-pill d-flex align-items-center gap-1">
+                  {supervisorScored ? <CheckCircle size={12}/> : <Clock size={12}/>}
+                  Supervisor {supervisorScored ? 'scored' : 'pending'}
+                </Badge>
+                <Badge bg={juryScored ? 'success' : 'secondary'} className="px-3 py-1 rounded-pill d-flex align-items-center gap-1">
+                  {juryScored ? <CheckCircle size={12}/> : <Clock size={12}/>}
+                  Jury {juryScored ? 'scored' : 'pending'}
+                </Badge>
               </div>
-            </Card>
-          </Col>
-          <Col lg={3} sm={6}>
-            <Card className="glass-card border-0 shadow-sm p-4 text-center">
-              <Star size={28} className="text-warning mx-auto mb-2" />
-              <div className="small text-muted fw-bold mb-1">Jury Score</div>
-              <div className={`fs-2 fw-bold text-${gradeVariant(juryScore)}`}>
-                {scoreDisplay(juryScore)}
-              </div>
-            </Card>
-          </Col>
-          <Col lg={3} sm={6}>
-            <Card className="glass-card border-0 shadow-sm p-4 text-center">
-              <TrendingUp size={28} className="text-success mx-auto mb-2" />
-              <div className="small text-muted fw-bold mb-1">Final Grade</div>
-              <div className={`fs-2 fw-bold text-${gradeVariant(isPublished ? pfeFinal : null)}`}>
-                {isPublished && pfeFinal !== null ? `${pfeFinal.toFixed(2)}/20` : '—'}
-              </div>
-            </Card>
-          </Col>
-          <Col lg={3} sm={6}>
-            <Card className="glass-card border-0 shadow-sm p-4 text-center">
-              {resultIcon}
-              <div className="small text-muted fw-bold mb-1">Result</div>
-              <div className={`fw-bold text-${resultVariant}`}>{resultLabel}</div>
-            </Card>
-          </Col>
-        </Row>
+            </div>
+          </motion.div>
+        )}
 
-        {/* Charts */}
+        {/* Score Cards */}
         {evaluation && (
+          <Row className="g-4 mb-5">
+            <Col lg={3} sm={6}>
+              <Card className={`glass-card border-0 shadow-sm p-4 text-center ${!isPublished ? 'opacity-50' : ''}`}>
+                <Award size={28} className={`mx-auto mb-2 ${isPublished ? 'text-primary' : 'text-muted'}`} />
+                <div className="small text-muted fw-bold mb-1">Supervisor Score</div>
+                {isPublished ? (
+                  <div className={`fs-2 fw-bold text-${gradeVariant(supScore)}`}>
+                    {supScore !== null ? `${supScore}/20` : '—'}
+                  </div>
+                ) : (
+                  <div className="fs-2 fw-bold text-muted d-flex align-items-center justify-content-center gap-1">
+                    <Lock size={18} className="opacity-50" /> <span className="fs-5">Hidden</span>
+                  </div>
+                )}
+                {supervisorScored && !isPublished && (
+                  <div className="extra-small text-success mt-1 fw-bold d-flex align-items-center justify-content-center gap-1">
+                    <CheckCircle size={11}/> Score submitted
+                  </div>
+                )}
+              </Card>
+            </Col>
+            <Col lg={3} sm={6}>
+              <Card className={`glass-card border-0 shadow-sm p-4 text-center ${!isPublished ? 'opacity-50' : ''}`}>
+                <Star size={28} className={`mx-auto mb-2 ${isPublished ? 'text-warning' : 'text-muted'}`} />
+                <div className="small text-muted fw-bold mb-1">Jury Score</div>
+                {isPublished ? (
+                  <div className={`fs-2 fw-bold text-${gradeVariant(juryScore)}`}>
+                    {juryScore !== null ? `${juryScore}/20` : '—'}
+                  </div>
+                ) : (
+                  <div className="fs-2 fw-bold text-muted d-flex align-items-center justify-content-center gap-1">
+                    <Lock size={18} className="opacity-50" /> <span className="fs-5">Hidden</span>
+                  </div>
+                )}
+                {juryScored && !isPublished && (
+                  <div className="extra-small text-success mt-1 fw-bold d-flex align-items-center justify-content-center gap-1">
+                    <CheckCircle size={11}/> Score submitted
+                  </div>
+                )}
+              </Card>
+            </Col>
+            <Col lg={3} sm={6}>
+              <Card className={`glass-card border-0 shadow-sm p-4 text-center ${!isPublished ? 'opacity-50' : ''}`}>
+                <TrendingUp size={28} className={`mx-auto mb-2 ${isPublished ? 'text-success' : 'text-muted'}`} />
+                <div className="small text-muted fw-bold mb-1">Final Grade</div>
+                {isPublished && pfeFinal !== null ? (
+                  <div className={`fs-2 fw-bold text-${gradeVariant(pfeFinal)}`}>
+                    {pfeFinal.toFixed(2)}/20
+                  </div>
+                ) : (
+                  <div className="fs-2 fw-bold text-muted d-flex align-items-center justify-content-center gap-1">
+                    <Lock size={18} className="opacity-50" /> <span className="fs-5">Hidden</span>
+                  </div>
+                )}
+              </Card>
+            </Col>
+            <Col lg={3} sm={6}>
+              <Card className={`glass-card border-0 shadow-sm p-4 text-center ${!isPublished ? 'opacity-50' : ''}`}>
+                {isPublished && pfeFinal !== null ? (
+                  pfeFinal >= 10
+                    ? <CheckCircle size={28} className="text-success mx-auto mb-2" />
+                    : <Clock size={28} className="text-danger mx-auto mb-2" />
+                ) : (
+                  <Lock size={28} className="text-muted mx-auto mb-2 opacity-50" />
+                )}
+                <div className="small text-muted fw-bold mb-1">Result</div>
+                <div className={`fw-bold text-${isPublished && pfeFinal !== null ? (pfeFinal >= 10 ? 'success' : 'danger') : 'muted'}`}>
+                  {isPublished && pfeFinal !== null ? (pfeFinal >= 10 ? 'PASSED' : 'FAILED') : 'Pending'}
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        )}
+
+        {/* Charts — only when published */}
+        {isPublished && evaluation && (
           <Row className="g-4 mb-5">
             <Col lg={6}>
               <Card className="glass-card border-0 shadow-sm p-4 h-100">
@@ -194,8 +236,8 @@ const EvaluationPage = () => {
           </Row>
         )}
 
-        {/* Weights & Comments */}
-        {evaluation && (
+        {/* Weights & Comments — only when published */}
+        {isPublished && evaluation && (
           <Row className="g-4 mb-5">
             <Col lg={6}>
               <Card className="glass-card border-0 shadow-sm p-4">
@@ -203,16 +245,16 @@ const EvaluationPage = () => {
                 <div className="mb-3">
                   <div className="d-flex justify-content-between mb-1">
                     <span className="small fw-bold">Supervisor</span>
-                    <span className="small text-muted">{evaluation.supervisor_weight ?? supW}%</span>
+                    <span className="small text-muted">{supW}%</span>
                   </div>
-                  <ProgressBar now={evaluation.supervisor_weight ?? supW} variant="primary" className="rounded-pill" style={{ height: '8px' }} />
+                  <ProgressBar now={supW} variant="primary" className="rounded-pill" style={{ height: '8px' }} />
                 </div>
                 <div>
                   <div className="d-flex justify-content-between mb-1">
                     <span className="small fw-bold">Jury</span>
-                    <span className="small text-muted">{evaluation.jury_weight ?? juryW}%</span>
+                    <span className="small text-muted">{juryW}%</span>
                   </div>
-                  <ProgressBar now={evaluation.jury_weight ?? juryW} variant="warning" className="rounded-pill" style={{ height: '8px' }} />
+                  <ProgressBar now={juryW} variant="warning" className="rounded-pill" style={{ height: '8px' }} />
                 </div>
               </Card>
             </Col>

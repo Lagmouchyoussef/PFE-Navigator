@@ -2,7 +2,7 @@ import apiClient from './client';
 
 export const studentsApi = {
   getAll: async (params?: any) => {
-    const response = await apiClient.get('/students/', { params });
+    const response = await apiClient.get('/supervisor/students/', { params });
     return response.data;
   },
   

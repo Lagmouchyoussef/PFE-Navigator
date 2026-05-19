@@ -6,7 +6,7 @@ import { useApp } from '../../../context/AppContext';
 const MessagesPage: React.FC = () => {
   const {
     messages, sendMessage, markMessageRead, deleteMessage,
-    contactableUsers, user, isLoading
+    contactableUsers, user, isLoading, currentProject,
   } = useApp();
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -24,9 +24,9 @@ const MessagesPage: React.FC = () => {
   const [usersSearch, setUsersSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  // Roles visible per connected user role
+  // Students can only message supervisor and admin
   const allowedRolesByUser: Record<string, string[]> = {
-    student:    ['student', 'supervisor', 'admin'],
+    student:    ['supervisor', 'admin'],
     supervisor: ['student', 'supervisor', 'jury', 'admin'],
     jury:       ['student', 'supervisor', 'jury', 'admin'],
     admin:      ['student', 'supervisor', 'jury', 'admin'],
@@ -41,17 +41,33 @@ const MessagesPage: React.FC = () => {
     }
   }, [contactableUsers]);
 
+  // For students: auto-add their supervisor from the project so the sidebar isn't empty
   useEffect(() => {
-    if (!selectedUserId && messages.length > 0 && localContacts.length > 0) {
+    if (user?.role === 'student' && currentProject?.supervisor?.id) {
+      setLocalContacts(prev => {
+        if (prev.some(c => c.id === currentProject.supervisor.id)) return prev;
+        return [currentProject.supervisor, ...prev];
+      });
+    }
+  }, [user?.role, currentProject?.supervisor]);
+
+  // Auto-select: first existing conversation, or supervisor for students
+  useEffect(() => {
+    if (selectedUserId) return;
+    if (messages.length > 0 && localContacts.length > 0) {
       const first = localContacts.find(contact =>
         messages.some(m =>
           (m.sender === user?.id && m.recipient === contact.id) ||
           (m.recipient === user?.id && m.sender === contact.id)
         )
       );
-      if (first) setSelectedUserId(first.id);
+      if (first) { setSelectedUserId(first.id); return; }
     }
-  }, [localContacts, selectedUserId, messages, user?.id]);
+    // For students with no messages, auto-select their supervisor
+    if (user?.role === 'student' && currentProject?.supervisor?.id) {
+      setSelectedUserId(currentProject.supervisor.id);
+    }
+  }, [localContacts, selectedUserId, messages, user?.id, user?.role, currentProject?.supervisor?.id]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -107,12 +123,16 @@ const MessagesPage: React.FC = () => {
     }
   }, [selectedUserId, conversationMessages, deleteMessage]);
 
-  const contactsWithConversation = localContacts.filter(contact =>
-    messages.some(m =>
+  const contactsWithConversation = localContacts.filter(contact => {
+    const hasMessages = messages.some(m =>
       (m.sender === user?.id && m.recipient === contact.id) ||
       (m.recipient === user?.id && m.sender === contact.id)
-    )
-  );
+    );
+    // Always show the supervisor in the sidebar for students (even before first message)
+    const isPinnedSupervisor =
+      user?.role === 'student' && contact.id === currentProject?.supervisor?.id;
+    return hasMessages || isPinnedSupervisor;
+  });
 
   const filteredContacts = contactsWithConversation.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) ||

@@ -3,11 +3,18 @@ import fetchClient from './client';
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const authHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem('pfe_access_token');
-  return token ? { Authorization: `Token ${token}` } : {};
+  const token = sessionStorage.getItem('pfe_access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // ── PROJECTS ──────────────────────────────────────────────────────────────────
+
+export const adminProjectsApi = {
+  toggleJuryDocs: async (projectId: number) => {
+    const res = await fetchClient.post(`/administration/projects/${projectId}/toggle-jury-docs/`, {});
+    return res.data as { jury_documents_open: boolean };
+  },
+};
 
 export const projectsApi = {
   getAll: async () => {
@@ -66,7 +73,15 @@ export const documentsApi = {
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || 'Upload failed');
+      let detail: string;
+      if (err.detail) {
+        detail = String(err.detail);
+      } else if (Array.isArray(err)) {
+        detail = err.join(' ');
+      } else {
+        detail = Object.values(err).flat().join(' ') || 'Upload failed';
+      }
+      throw new Error(detail);
     }
     return response.json();
   },

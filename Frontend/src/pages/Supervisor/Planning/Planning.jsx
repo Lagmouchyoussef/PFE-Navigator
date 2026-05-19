@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Planning = () => {
   const navigate = useNavigate();
-  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, deleteAppointment, sendReminder, projects } = useApp();
+  const { user, appointments, reminders, rescheduleAppointment, cancelAppointment, confirmAppointment, deleteAppointment, sendReminder, projects } = useApp();
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -57,9 +57,15 @@ const Planning = () => {
   const filteredAppointments = (appointments || []).filter(app => {
     if (!app || !app.date) return false;
     if (viewMode === 'month') return true;
-    // For 'week', show only events in May 2026 within a certain range (demo logic)
-    const day = parseInt(app.date.split('-')[2]);
-    return day >= 12 && day <= 19; // Current week demo range
+    const appDate = new Date(app.date);
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+    return appDate >= weekStart && appDate <= weekEnd;
   });
 
   return (
@@ -128,20 +134,20 @@ const Planning = () => {
               </div>
               <div className="calendar-grid-mini mb-4">
                 <div className="d-flex justify-content-center mb-3">
-                  <Form.Control 
-                    type="date" 
-                    value="2026-05-22"
+                  <Form.Control
+                    type="date"
+                    value={new Date().toISOString().split('T')[0]}
                     className="rounded-4 border-light-soft bg-surface-alt py-2 extra-small fw-bold shadow-none text-navy border-0"
                     style={{ maxWidth: '180px', cursor: 'pointer' }}
-                    onChange={(e) => alert(`Navigation to ${e.target.value}`)}
+                    readOnly
                   />
                 </div>
                 <div className="d-grid gap-2" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
                   {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
                     <div key={d} className="text-center extra-small opacity-25 fw-bold">{d}</div>
                   ))}
-                  {[...Array(31)].map((_, i) => (
-                    <div key={i} className={`text-center py-2 rounded-pill extra-small fw-bold transition-all ${i+1 === 12 ? 'bg-primary text-white shadow-sm' : 'text-navy hover-bg-surface-alt opacity-75'}`} style={{ cursor: 'pointer' }}>
+                  {[...Array(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate())].map((_, i) => (
+                    <div key={i} className={`text-center py-2 rounded-pill extra-small fw-bold transition-all ${i+1 === new Date().getDate() ? 'bg-primary text-white shadow-sm' : 'text-navy hover-bg-surface-alt opacity-75'}`} style={{ cursor: 'pointer' }}>
                       {i + 1}
                     </div>
                   ))}
@@ -160,9 +166,20 @@ const Planning = () => {
             </Card>
 
             <Card className="border shadow-sm rounded-4 p-4 bg-surface">
-              <h6 className="fw-bold mb-3 text-primary extra-small text-uppercase">Next Deadline</h6>
-              <div className="h2 fw-bold mb-1 text-navy">12 Days</div>
-              <p className="extra-small mb-0 text-muted fw-bold">Final Report Deadline</p>
+              <h6 className="fw-bold mb-3 text-primary extra-small text-uppercase">Next Appointment</h6>
+              {(() => {
+                const next = (appointments || [])
+                  .filter(a => a && a.date && a.status !== 'cancelled' && new Date(a.date) >= new Date())
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                if (!next) return <p className="extra-small mb-0 text-muted fw-bold">No upcoming appointments</p>;
+                const days = Math.ceil((new Date(next.date) - new Date()) / (1000 * 60 * 60 * 24));
+                return (
+                  <>
+                    <div className="h2 fw-bold mb-1 text-navy">{days} Day{days !== 1 ? 's' : ''}</div>
+                    <p className="extra-small mb-0 text-muted fw-bold">{next.title}</p>
+                  </>
+                );
+              })()}
             </Card>
           </Col>
 
@@ -236,6 +253,11 @@ const Planning = () => {
                               </Dropdown.Item>
                               {event.status !== 'cancelled' && (
                                 <>
+                                  {event.status === 'Pending' || event.status === 'pending' ? (
+                                    <Dropdown.Item className="py-2 fw-bold text-success" onClick={() => { confirmAppointment(event.id); handleAction(`Meeting request from ${event.student_name || 'Student'} confirmed.`); }}>
+                                      <CheckCircle size={14} className="text-success me-2" /> Accept request
+                                    </Dropdown.Item>
+                                  ) : null}
                                   <Dropdown.Item className="py-2 fw-bold text-navy" onClick={() => openReschedule(event)}>
                                     <Clock size={14} className="text-info me-2" /> Reschedule
                                   </Dropdown.Item>

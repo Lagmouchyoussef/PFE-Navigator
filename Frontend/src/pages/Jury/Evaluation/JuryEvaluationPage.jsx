@@ -6,7 +6,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardCheck, Clock, CheckCircle, AlertCircle,
-  Send, FileText, Edit3, Target, Award, X
+  Send, FileText, Edit3, Target, Award, X, TrendingUp, Eye
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
@@ -39,8 +39,19 @@ const gradeColor = (score) => {
   return 'success';
 };
 
+const computeFinal = (supScore, juryScore, supW, juryW) => {
+  const s = Number.parseFloat(supScore);
+  const j = Number.parseFloat(juryScore);
+  const sw = (supW ?? 50) / 100;
+  const jw = (juryW ?? 50) / 100;
+  if (!Number.isNaN(s) && !Number.isNaN(j)) return (s * sw + j * jw).toFixed(2);
+  if (!Number.isNaN(s)) return s.toFixed(2);
+  if (!Number.isNaN(j)) return j.toFixed(2);
+  return null;
+};
+
 const JuryEvaluationPage = () => {
-  const { evaluations: rawEvals, projects: rawProjects, submitJuryScore, isGradesPublished } = useApp();
+  const { evaluations: rawEvals, projects: rawProjects, submitJuryScore } = useApp();
   const evaluations = Array.isArray(rawEvals) ? rawEvals : [];
   const projects    = Array.isArray(rawProjects) ? rawProjects : [];
 
@@ -173,7 +184,7 @@ const JuryEvaluationPage = () => {
                     </Badge>
                   </div>
 
-                  {isEvaluated && (
+                  {isEvaluated && !ev.is_published && (
                     <div className="mb-3">
                       <div className="d-flex justify-content-between mb-1">
                         <span className="small fw-bold">Jury Score</span>
@@ -191,18 +202,35 @@ const JuryEvaluationPage = () => {
                     </div>
                   )}
 
-                  {isGradesPublished && supScore !== null && (
-                    <div className="mb-3">
-                      <div className="d-flex justify-content-between mb-1">
-                        <span className="small fw-bold">Supervisor Score</span>
-                        <span className="small text-primary fw-bold">{supScore}/20</span>
+                  {ev.is_published && (
+                    <div className="rounded-4 bg-success-soft p-3 mb-3">
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <Eye size={14} className="text-success" />
+                        <span className="extra-small fw-bold text-success text-uppercase">Published Results</span>
                       </div>
-                      <ProgressBar
-                        now={(Number.parseFloat(supScore) / 20) * 100}
-                        variant="primary"
-                        className="rounded-pill"
-                        style={{ height: '6px' }}
-                      />
+                      <div className="d-flex justify-content-between mb-1">
+                        <span className="extra-small fw-bold text-muted">Supervisor</span>
+                        <span className="extra-small fw-bold text-primary">{supScore !== null ? `${supScore}/20` : '—'}</span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-1">
+                        <span className="extra-small fw-bold text-muted">Jury</span>
+                        <span className="extra-small fw-bold text-success">{ev.jury_score !== null ? `${ev.jury_score}/20` : '—'}</span>
+                      </div>
+                      {(() => {
+                        const final = computeFinal(supScore, ev.jury_score, ev.supervisor_weight, ev.jury_weight);
+                        const passed = final !== null && Number.parseFloat(final) >= 10;
+                        return (
+                          <div className="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-success border-opacity-25">
+                            <span className="extra-small fw-bold d-flex align-items-center gap-1"><TrendingUp size={12} /> Final</span>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="small fw-bold text-navy">{final !== null ? `${final}/20` : '—'}</span>
+                              {final !== null && (
+                                <Badge bg={passed ? 'success' : 'danger'} className="extra-small px-2 py-1">{passed ? 'PASSED' : 'FAILED'}</Badge>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 

@@ -104,12 +104,12 @@ export const resourcesApi = {
     return res.data;
   },
   upload: async (formData: FormData) => {
-    const token = localStorage.getItem('pfe_access_token');
+    const token = sessionStorage.getItem('pfe_access_token');
     const response = await fetch(
       `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/admin/resources/`,
       {
         method: 'POST',
-        headers: token ? { Authorization: `Token ${token}` } : {},
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       }
     );

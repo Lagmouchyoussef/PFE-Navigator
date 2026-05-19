@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import {
   Container, Row, Col, Card, Badge,
   Button, Form, InputGroup, Modal, Spinner
@@ -7,21 +7,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Upload, Download, CheckCircle, Clock,
   Search, Trash2, Eye, Filter, FilePlus, X,
-  MessageSquare, AlertCircle
+  MessageSquare, AlertCircle, Lock
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 const statusConfig = {
-  approved: { color: 'success', icon: <CheckCircle size={14} />, label: 'Approved' },
-  pending:  { color: 'warning', icon: <Clock size={14} />,        label: 'Pending'  },
-  rejected: { color: 'danger',  icon: <AlertCircle size={14} />,  label: 'Rejected' },
+  approved:  { color: 'success',   icon: <CheckCircle size={14} />, label: 'Approved'   },
+  pending:   { color: 'warning',   icon: <Clock size={14} />,       label: 'Pending'    },
+  rejected:  { color: 'danger',    icon: <AlertCircle size={14} />, label: 'Rejected'   },
+  uploading: { color: 'secondary', icon: <Spinner animation="border" style={{ width: 14, height: 14 }} />, label: 'Uploading…' },
 };
 
 const ReportsPage = () => {
-  const { user, documents = [], deleteDocument, uploadDocument } = useApp();
+  const { user, documents = [], deleteDocument, uploadDocument, currentProject } = useApp();
+  const juryOpen = currentProject?.jury_documents_open === true;
   const [searchTerm, setSearchTerm] = useState('');
   const [targetFilter, setTargetFilter] = useState('All');
   const [uploadTarget, setUploadTarget] = useState('supervisor');
+  const [pendingDocs, setPendingDocs] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -58,19 +61,35 @@ const ReportsPage = () => {
       flash('Only PDF, DOCX and PPTX files are accepted.');
       return;
     }
+
+    // Afficher immédiatement les fichiers dans la liste pendant l'upload
+    const tempDocs = validFiles.map((file, i) => ({
+      id: `temp-${Date.now()}-${i}`,
+      title: file.name.replace(/\.[^.]+$/, ''),
+      target: uploadTarget,
+      status: 'uploading',
+      version: 1,
+      created_at: new Date().toISOString(),
+      remarks: [],
+      file_url: null,
+    }));
+    setPendingDocs(tempDocs);
     setUploading(true);
+
     try {
       for (const file of validFiles) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('title', file.name.replace(/\.[^.]+$/, ''));
         formData.append('target', uploadTarget);
+        if (currentProject?.id) formData.append('project', String(currentProject.id));
         await uploadDocument(formData);
       }
       flash(`${validFiles.length} file(s) sent to ${targetLabel(uploadTarget)}!`);
     } catch (uploadErr) {
-      flash(`Upload failed: ${uploadErr?.message || 'Please try again.'}`);
+      flash(uploadErr?.message || 'Upload failed. Please try again.');
     } finally {
+      setPendingDocs([]);
       setUploading(false);
     }
   };
@@ -98,7 +117,8 @@ const ReportsPage = () => {
   };
 
   // ── Filter ────────────────────────────────────────────────────────────────
-  const filtered = documents.filter(d => {
+  const allDocs = [...pendingDocs, ...documents];
+  const filtered = allDocs.filter(d => {
     const matchSearch = d.title?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchTarget = targetFilter === 'All' || d.target === targetFilter.toLowerCase();
     return matchSearch && matchTarget;
@@ -176,11 +196,19 @@ const ReportsPage = () => {
             <h6 className="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
               <Upload size={18} className="text-primary" /> Upload New Document
             </h6>
-            <div className="d-flex gap-3 mb-3 flex-wrap">
-              {['supervisor', 'jury', 'administration'].map(t => (
-                <Form.Check key={t} type="radio" id={`target-${t}`} label={t.charAt(0).toUpperCase() + t.slice(1)}
-                  checked={uploadTarget === t} onChange={() => setUploadTarget(t)} className="fw-bold small" />
-              ))}
+            <div className="d-flex gap-3 mb-3 flex-wrap align-items-center">
+              <Form.Check type="radio" id="target-supervisor" label="Supervisor"
+                checked={uploadTarget === 'supervisor'} onChange={() => setUploadTarget('supervisor')} className="fw-bold small" />
+              <div className="d-flex align-items-center gap-2">
+                <Form.Check type="radio" id="target-jury" label="Jury"
+                  checked={uploadTarget === 'jury'} onChange={() => juryOpen && setUploadTarget('jury')}
+                  disabled={!juryOpen} className="fw-bold small" />
+                {!juryOpen && (
+                  <span className="extra-small text-warning fw-bold d-flex align-items-center gap-1">
+                    <Lock size={13} /> Deadline not open
+                  </span>
+                )}
+              </div>
             </div>
             <label
               htmlFor="doc-file-upload"
@@ -217,54 +245,70 @@ const ReportsPage = () => {
                 <p className="fw-bold">No documents found.</p>
               </div>
             )}
+            <AnimatePresence initial={false}>
             {filtered.map(doc => {
+              const isUploading = doc.status === 'uploading';
+              const isJuryLocked = doc.target === 'jury' && doc.status !== 'pending' && !isUploading;
               const st = statusConfig[doc.status] || statusConfig.pending;
               return (
-                <div key={doc.id} className="p-4 border-bottom d-flex align-items-center gap-3 hover-bg-surface">
-                  <div className="p-2 bg-primary-soft rounded-3 text-primary shrink-0">
-                    <FileText size={20} />
+                <motion.div
+                  key={doc.id}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`p-4 border-bottom d-flex align-items-center gap-3 hover-bg-surface${isUploading ? ' opacity-75' : ''}`}
+                >
+                  <div className={`p-2 rounded-3 shrink-0 ${isJuryLocked ? 'bg-secondary bg-opacity-10 text-secondary' : 'bg-primary-soft text-primary'}`}>
+                    {isJuryLocked ? <Lock size={20} /> : <FileText size={20} />}
                   </div>
                   <div className="grow overflow-hidden">
                     <div className="fw-bold small text-navy text-truncate">{doc.title}</div>
                     <div className="extra-small text-muted fw-bold">
-                      Target: <span className="text-capitalize">{doc.target}</span> •
-                      v{doc.version} •
-                      {new Date(doc.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                      Target: <span className="text-capitalize">{doc.target}</span>
+                      {!isUploading && <> • v{doc.version} • {new Date(doc.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</>}
                     </div>
-                    {doc.rejection_reason && (
+                    {doc.comment && (
                       <div className="extra-small text-danger mt-1 fw-bold">
-                        Reason: {doc.rejection_reason}
+                        Reason: {doc.comment}
+                      </div>
+                    )}
+                    {isJuryLocked && (
+                      <div className="extra-small text-muted mt-1 fw-bold d-flex align-items-center gap-1">
+                        <Clock size={11} /> Awaiting grade publication
                       </div>
                     )}
                   </div>
                   <Badge bg={st.color} className="d-flex align-items-center gap-1 px-2 py-1">
                     {st.icon} {st.label}
                   </Badge>
-                  {doc.remarks?.length > 0 && (
+                  {!isUploading && doc.remarks?.length > 0 && (
                     <Button size="sm" variant="outline-info" className="rounded-pill d-flex align-items-center gap-1"
                       onClick={() => { setSelectedDoc(doc); setShowRemarkModal(true); }}>
                       <MessageSquare size={14} /> {doc.remarks.length}
                     </Button>
                   )}
-                  {doc.file_url && (
+                  {!isUploading && doc.file_url && (
                     <a href={doc.file_url} target="_blank" rel="noreferrer"
                       className="btn btn-sm btn-outline-primary rounded-pill d-flex align-items-center gap-1">
                       <Eye size={14} /> View
                     </a>
                   )}
-                  {doc.file_url && (
+                  {!isUploading && doc.file_url && (
                     <a href={doc.file_url} download={doc.title}
                       className="btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center gap-1">
                       <Download size={14} />
                     </a>
                   )}
-                  <Button size="sm" variant="outline-danger" className="rounded-pill"
-                    onClick={() => { setDocToDelete(doc); setShowDeleteModal(true); }}>
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
+                  {!isUploading && !isJuryLocked && (
+                    <Button size="sm" variant="outline-danger" className="rounded-pill"
+                      onClick={() => { setDocToDelete(doc); setShowDeleteModal(true); }}>
+                      <Trash2 size={14} />
+                    </Button>
+                  )}
+                </motion.div>
               );
             })}
+            </AnimatePresence>
           </Card.Body>
         </Card>
       </Container>

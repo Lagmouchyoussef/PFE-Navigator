@@ -6,7 +6,7 @@ from .views import (
     DocumentViewSet, DocumentRemarkViewSet,
     AppointmentViewSet, MilestoneViewSet,
     EvaluationViewSet, FeedbackViewSet,
-    JuryAssignmentViewSet, AdminStatsView,
+    JuryAssignmentViewSet, AdminStatsView, StudentsView,
 )
 
 router = DefaultRouter()
@@ -23,5 +23,6 @@ router.register('jury-assignments', JuryAssignmentViewSet, basename='jury-assign
 urlpatterns = [
     path('admin-stats/', AdminStatsView.as_view(), name='projects-admin-stats'),
     path('repository/', RepositoryView.as_view(), name='projects-repository'),
+    path('students/', StudentsView.as_view(), name='projects-students'),
     path('', include(router.urls)),
 ]

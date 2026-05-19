@@ -11,8 +11,8 @@ export class ApiError extends Error {
 }
 
 function clearSession() {
-  localStorage.removeItem('pfe_access_token');
-  localStorage.removeItem('pfe_refresh_token');
+  sessionStorage.removeItem('pfe_access_token');
+  sessionStorage.removeItem('pfe_refresh_token');
   // Redirect to login page without a full page reload loop
   if (!window.location.pathname.includes('/login')) {
     window.location.href = '/login';
@@ -20,7 +20,7 @@ function clearSession() {
 }
 
 async function request(endpoint: string, options: Record<string, unknown> = {}) {
-  const token = localStorage.getItem('pfe_access_token');
+  const token = sessionStorage.getItem('pfe_access_token');
 
   const isFormData = options.body instanceof FormData;
 

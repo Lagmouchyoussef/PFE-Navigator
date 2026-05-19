@@ -10,8 +10,8 @@ export const authApi = {
       throw new Error('Invalid response from server.');
     }
 
-    localStorage.setItem('pfe_access_token', access);
-    localStorage.setItem('pfe_refresh_token', refresh);
+    sessionStorage.setItem('pfe_access_token', access);
+    sessionStorage.setItem('pfe_refresh_token', refresh);
 
     if (user && typeof user.role === 'string') {
       user.role = user.role.toLowerCase();
@@ -26,8 +26,8 @@ export const authApi = {
     } catch {
       // Always clear tokens even if the server request fails
     } finally {
-      localStorage.removeItem('pfe_access_token');
-      localStorage.removeItem('pfe_refresh_token');
+      sessionStorage.removeItem('pfe_access_token');
+      sessionStorage.removeItem('pfe_refresh_token');
     }
   },
 

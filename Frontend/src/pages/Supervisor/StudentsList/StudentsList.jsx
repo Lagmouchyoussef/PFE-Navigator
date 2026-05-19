@@ -38,7 +38,7 @@ const normalizeStudent = (s) => {
   if (!s) return null;
   const proj = s.project || {};
   const projectTitle = typeof proj === 'string' ? proj : (proj.title || s.project_title || '—');
-  const status = s.status || proj.status || 'In Progress';
+  const rawStatus = s.project_status || s.status || proj.status || 'in_progress';
   return {
     ...s,
     name: s.name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
@@ -48,7 +48,7 @@ const normalizeStudent = (s) => {
     department: s.department || s.field || '—',
     progress: typeof s.progress === 'number' ? s.progress : (proj.progress || 0),
     lastActivity: s.lastActivity || s.last_login || '—',
-    status: status === 'completed' ? 'Validated' : status === 'in_progress' ? 'In Progress' : status,
+    status: rawStatus === 'completed' ? 'Validated' : rawStatus === 'in_progress' ? 'In Progress' : rawStatus,
     documents: s.documents || [],
   };
 };

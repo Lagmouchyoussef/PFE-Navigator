@@ -53,6 +53,7 @@ class Project(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    jury_documents_open = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,6 +85,8 @@ class Document(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     target = models.CharField(max_length=20, choices=TARGET_CHOICES, default='supervisor')
     comment = models.TextField(blank=True)
+    supervisor_approved_for_jury = models.BooleanField(default=False)
+    jury_confirmed = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -289,16 +292,18 @@ class AdminNote(models.Model):
 
 class Resource(models.Model):
     TYPE_CHOICES = [
-        ('document', 'Document'),
-        ('video', 'Video'),
-        ('link', 'Link'),
+        ('report', 'Report'),
         ('template', 'Template'),
+        ('guide', 'Guide'),
+        ('project', 'Project'),
+        ('other', 'Other'),
     ]
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     file = models.FileField(upload_to='resources/%Y/%m/', null=True, blank=True)
     url = models.URLField(blank=True)
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='document')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='report')
+    year = models.CharField(max_length=10, blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

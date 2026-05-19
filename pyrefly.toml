@@ -1,4 +1,15 @@
-# Configuration for the Pyrefly language server in VS Code
-[tool.pyrefly]
-search-path = ["Backend"]
+search-path = [
+  "Backend",
+  "Backend/venv/Lib/site-packages",
+]
 python-interpreter-path = "Backend/venv/Scripts/python.exe"
+python-platform = "windows"
+disable-type-errors-in-ide = true
+permissive-ignores = true
+project-excludes = [
+  "Frontend/**",
+  "**/node_modules/**",
+  "**/__pycache__/**",
+  "**/venv/**",
+  "**/migrations/**",
+]

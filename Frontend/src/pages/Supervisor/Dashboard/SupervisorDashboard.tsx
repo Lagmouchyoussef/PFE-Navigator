@@ -70,7 +70,7 @@ const SupervisorDashboard: React.FC = () => {
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h2 className="fw-bold mb-1 text-navy">Supervisor Dashboard</h2>
             <p className="text-muted small mb-0 fw-bold opacity-75">
-              Academic Year 2025/2026 • Great to see you again, Prof. {user?.name}
+              Academic Year {(() => { const n = new Date(); const y = n.getFullYear(); return n.getMonth() >= 8 ? `${y}/${y+1}` : `${y-1}/${y}`; })()} • Great to see you again, Prof. {user?.name}
             </p>
           </motion.div>
           <div className="d-flex gap-2">

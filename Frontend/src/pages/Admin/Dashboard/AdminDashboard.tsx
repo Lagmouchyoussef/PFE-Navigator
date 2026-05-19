@@ -252,8 +252,11 @@ const AdminDashboard: React.FC = () => {
                           </Button>
                         </div>
                       </div>
-                      <div className="d-flex align-items-center gap-3 extra-small text-muted fw-bold">
+                      <div className="d-flex align-items-center gap-3 extra-small text-muted fw-bold flex-wrap">
                         <span className="d-flex align-items-center gap-1"><Users size={12} /> {appt.student_name || appt.created_by_name || 'Student'}</span>
+                        {appt.supervisor_name && (
+                          <span className="d-flex align-items-center gap-1 text-info">→ {appt.supervisor_name}</span>
+                        )}
                         <span className="d-flex align-items-center gap-1"><Clock size={12} /> {appt.date} • {appt.time}</span>
                       </div>
                     </motion.div>

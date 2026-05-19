@@ -6,8 +6,19 @@ import {
 } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import {
-  CheckCircle, Clock, Award, Star, X, Edit3
+  CheckCircle, Clock, Award, Star, X, Edit3, TrendingUp, Eye
 } from 'lucide-react';
+
+const computeFinal = (supScore, juryScore, supW, juryW) => {
+  const s = Number.parseFloat(supScore);
+  const j = Number.parseFloat(juryScore);
+  const sw = (supW ?? 50) / 100;
+  const jw = (juryW ?? 50) / 100;
+  if (!Number.isNaN(s) && !Number.isNaN(j)) return (s * sw + j * jw).toFixed(2);
+  if (!Number.isNaN(s)) return s.toFixed(2);
+  if (!Number.isNaN(j)) return j.toFixed(2);
+  return null;
+};
 
 const CRITERIA = [
   { key: 'report',          label: 'Report Quality',   max: 5 },
@@ -136,16 +147,48 @@ const Evaluations = () => {
                     </Badge>
                   </div>
 
-                  {isEvaluated && (
+                  {isEvaluated && !ev.is_published && (
                     <div className="mb-3">
                       <div className="d-flex justify-content-between mb-1">
-                        <span className="small fw-bold">Score</span>
+                        <span className="small fw-bold">Your Score</span>
                         <span className="small text-primary fw-bold">{ev.supervisor_score}/20</span>
                       </div>
                       <ProgressBar now={(parseFloat(ev.supervisor_score) / 20) * 100} variant="primary" className="rounded-pill" style={{ height: '6px' }} />
                       {ev.supervisor_comment && (
                         <p className="extra-small text-muted mt-2 mb-0">{ev.supervisor_comment}</p>
                       )}
+                    </div>
+                  )}
+
+                  {ev.is_published && (
+                    <div className="rounded-4 bg-primary-soft p-3 mb-3">
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <Eye size={14} className="text-primary" />
+                        <span className="extra-small fw-bold text-primary text-uppercase">Published Results</span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-1">
+                        <span className="extra-small fw-bold text-muted">Supervisor</span>
+                        <span className="extra-small fw-bold text-primary">{ev.supervisor_score !== null ? `${ev.supervisor_score}/20` : '—'}</span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-1">
+                        <span className="extra-small fw-bold text-muted">Jury</span>
+                        <span className="extra-small fw-bold text-success">{ev.jury_score !== null ? `${ev.jury_score}/20` : '—'}</span>
+                      </div>
+                      {(() => {
+                        const final = computeFinal(ev.supervisor_score, ev.jury_score, ev.supervisor_weight, ev.jury_weight);
+                        const passed = final !== null && Number.parseFloat(final) >= 10;
+                        return (
+                          <div className="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-primary border-opacity-25">
+                            <span className="extra-small fw-bold d-flex align-items-center gap-1"><TrendingUp size={12} /> Final</span>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="small fw-bold text-navy">{final !== null ? `${final}/20` : '—'}</span>
+                              {final !== null && (
+                                <Badge bg={passed ? 'success' : 'danger'} className="extra-small px-2 py-1">{passed ? 'PASSED' : 'FAILED'}</Badge>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 

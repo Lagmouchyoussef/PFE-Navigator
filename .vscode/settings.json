@@ -13,6 +13,23 @@
     "reportMissingImports": "none",
     "reportMissingModuleSource": "none",
     "reportAttributeAccessIssue": "none",
-    "reportUnknownMemberType": "none"
-  }
+    "reportUnknownMemberType": "none",
+    "reportUnknownVariableType": "none",
+    "reportUnknownParameterType": "none",
+    "reportUnknownArgumentType": "none",
+    "reportUndefinedVariable": "none",
+    "reportGeneralTypeIssues": "none",
+    "reportCallIssue": "none",
+    "reportIndexIssue": "none",
+    "reportOperatorIssue": "none",
+    "reportReturnType": "none",
+    "reportArgumentType": "none",
+    "reportPrivateUsage": "none",
+    "reportIncompatibleVariableOverride": "none",
+    "reportIncompatibleMethodOverride": "none"
+  },
+  "pyrefly.disableLanguageFeatures": true,
+  "eslint.useFlatConfig": true,
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.ignore": ["**/*"]
 }
