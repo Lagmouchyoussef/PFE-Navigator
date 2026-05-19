@@ -7,7 +7,7 @@ import {
   Sun, Moon, LogOut, Briefcase, Activity, FileText,
   ChevronRight, Menu, X, MoreVertical, FolderOpen, Trophy, BookOpen
 } from 'lucide-react';
-import { Container, Button, Dropdown, Form } from 'react-bootstrap';
+import { Button, Dropdown, Form } from 'react-bootstrap';
 import { useApp } from './context/AppContext';
 
 import SidebarLink from './components/shared/SidebarLink';
@@ -37,7 +37,6 @@ import StudentDetail from './pages/Supervisor/StudentDetail/StudentDetail';
 import SupervisorPlanning from './pages/Supervisor/Planning/Planning';
 import SupervisorSubjects from './pages/Supervisor/Subjects/Subjects';
 import SupervisorEvaluations from './pages/Supervisor/Evaluations/Evaluations';
-import SupervisorMessages from './pages/Supervisor/Messages/Messages';
 // import SupervisorSettings from './pages/Supervisor/Settings/Settings';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
@@ -52,6 +51,7 @@ import AdminNotifications from './pages/Admin/Notifications/AdminNotifications';
 import AdminMessages from './pages/Admin/Messages/AdminMessages';
 import ResourceHub from './pages/Admin/Resources/ResourceHub';
 import AdminDocuments from './pages/Admin/Documents/AdminDocuments';
+import AdminGrades from './pages/Admin/Grades/AdminGrades';
 import SupervisorDocuments from './pages/Supervisor/Documents/SupervisorDocuments';
 
 import AdministrativeNotesPage from './pages/Common/AdministrativeNotes/AdministrativeNotesPage';
@@ -81,8 +81,6 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requiredRole }) => 
   }
   return <>{children}</>;
 };
-
-import AdminGrades from './pages/Admin/Grades/AdminGrades';
 
 function App() {
   const location = useLocation();
@@ -191,7 +189,7 @@ function App() {
           <Route path="projects" element={<ProjectsArchive />} />
           <Route path="analytics" element={<AnalyticsCenter />} />
           <Route path="resources" element={<ResourceHub />} />
-          <Route path="messages" element={<MessagesPage />} />
+          <Route path="messages" element={<AdminMessages />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="notes" element={<AdminNotes />} />
           <Route path="documents" element={<AdminDocuments />} />
@@ -563,7 +561,10 @@ function App() {
                       {user.role === 'jury' ? 'Jury Member' : user.role === 'supervisor' ? 'Supervisor Prof.' : 'PFE Student'}
                     </span>
                   </div>
-                  <div className="avatar-circle">{user?.name?.charAt(0) || 'U'}</div>
+                  {user?.avatar
+                    ? <img src={user.avatar} alt={user.name} className="avatar-circle" style={{ objectFit: 'cover' }} />
+                    : <div className="avatar-circle">{user?.name?.charAt(0) || 'U'}</div>
+                  }
                 </motion.div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">

@@ -750,6 +750,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (data.department !== undefined) backendFields.department = data.department;
     if (data.institutionalId !== undefined) backendFields.institutional_id = data.institutionalId;
     if (data.institutional_id !== undefined) backendFields.institutional_id = data.institutional_id;
+    if (data.avatar !== undefined) backendFields.avatar = data.avatar;
 
     // Map frontend status → backend is_active (status takes priority over is_active)
     if (data.status !== undefined) {
@@ -765,8 +766,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // frontendOnly keeps frontend-only fields (history, confirmationStatus, avatar…)
       // but we remove backend-managed fields so the backend response wins.
       const frontendOnly = { ...data };
-      ['name', 'first_name', 'last_name', 'is_active', 'institutional_id', 'phone_number', 'department'].forEach(k => delete frontendOnly[k]);
+      ['name', 'first_name', 'last_name', 'is_active', 'institutional_id', 'phone_number', 'department', 'avatar'].forEach(k => delete frontendOnly[k]);
       setAllUsers(prev => prev.map(u => (u.id === id ? { ...normalizeUser(updated), ...frontendOnly } : u)));
+      // Sync session user if the logged-in user was edited
+      setUser(prev => {
+        if (!prev || prev.id !== id) return prev;
+        return {
+          ...prev,
+          ...(updated.name && { name: updated.name }),
+          ...(updated.first_name && { first_name: updated.first_name }),
+          ...(updated.last_name !== undefined && { last_name: updated.last_name }),
+          ...(updated.avatar !== undefined && { avatar: updated.avatar }),
+        };
+      });
     } else {
       // Only frontend-only fields changed (history, confirmationStatus, etc.)
       setAllUsers(prev => prev.map(u => (u.id === id ? { ...u, ...data } : u)));

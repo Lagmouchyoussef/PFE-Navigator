@@ -361,7 +361,10 @@ const AdminLayout: React.FC = () => {
                   </span>
                   <span className="text-muted fw-black uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Administrator</span>
                 </div>
-                <div className="avatar-circle">{user?.name?.charAt(0) || 'A'}</div>
+                {user?.avatar
+                  ? <img src={user.avatar} alt={user?.name || 'Admin'} className="avatar-circle" style={{ objectFit: 'cover' }} />
+                  : <div className="avatar-circle">{user?.name?.charAt(0) || 'A'}</div>
+                }
               </Dropdown.Toggle>
               <Dropdown.Menu className="border-0 shadow-lg mt-2 p-2 rounded-4">
                 <Dropdown.Item as={Link} to="/admin/settings" className="rounded-3 py-2 small fw-bold text-navy">

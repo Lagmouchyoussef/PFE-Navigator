@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'first_name', 'last_name', 'name', 'initials',
             'role', 'institutional_id', 'phone_number', 'department',
-            'is_active', 'date_joined',
+            'avatar', 'is_active', 'date_joined',
         ]
         read_only_fields = ['id', 'date_joined']
 
@@ -37,6 +37,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     institutional_id = serializers.CharField(required=False, allow_blank=True, default='')
     phone_number = serializers.CharField(required=False, allow_blank=True, default='')
     department = serializers.CharField(required=False, allow_blank=True, default='')
+    avatar = serializers.CharField(required=False, allow_blank=True, default='')
     name = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
 
@@ -45,7 +46,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'password', 'first_name', 'last_name', 'name', 'initials',
             'role', 'institutional_id', 'phone_number', 'department',
-            'is_active', 'date_joined',
+            'avatar', 'is_active', 'date_joined',
         ]
         read_only_fields = ['id', 'name', 'initials', 'is_active', 'date_joined']
 
@@ -64,13 +65,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     institutional_id = serializers.CharField(required=False, allow_blank=True, default='')
     phone_number = serializers.CharField(required=False, allow_blank=True, default='')
     department = serializers.CharField(required=False, allow_blank=True, default='')
+    avatar = serializers.CharField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'name', 'initials',
             'role', 'institutional_id', 'phone_number', 'department',
-            'is_active', 'date_joined',
+            'avatar', 'is_active', 'date_joined',
         ]
         read_only_fields = ['id', 'email', 'role', 'date_joined', 'name', 'initials']
 

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
-  Search, Edit2, Trash2, Mail, Shield, 
-  Clock, XCircle, UserCheck, UserPlus, Users, 
+  Search, Edit2, Trash2, Mail, Shield,
+  Clock, XCircle, UserCheck, UserPlus, Users,
   MoreHorizontal, Camera, AlertCircle, CheckCircle, Smartphone, Eye, EyeOff,
   LayoutDashboard, FileText, Award, Calendar, Settings, Briefcase, UserCheck as UserIcon,
-  FileSpreadsheet, File
+  FileSpreadsheet, File, Upload, Link as LinkIcon, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Table, Button, InputGroup, Form, Badge, Dropdown, Modal, Tabs, Tab } from 'react-bootstrap';
@@ -72,6 +72,10 @@ const UserManagement: React.FC = () => {
   const [filterRole, setFilterRole] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  const [photoUrlInput, setPhotoUrlInput] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = (format: 'pdf' | 'csv' | 'word') => {
     const exportData = selectedUsers.length > 0
@@ -159,6 +163,37 @@ const UserManagement: React.FC = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingUser(null);
+    setShowPhotoMenu(false);
+    setShowUrlInput(false);
+    setPhotoUrlInput('');
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      setFormData(prev => ({ ...prev, avatar: result }));
+    };
+    reader.readAsDataURL(file);
+    setShowPhotoMenu(false);
+    // Reset input so the same file can be re-selected
+    e.target.value = '';
+  };
+
+  const handleApplyUrl = () => {
+    if (!photoUrlInput.trim()) return;
+    setFormData(prev => ({ ...prev, avatar: photoUrlInput.trim() }));
+    setPhotoUrlInput('');
+    setShowUrlInput(false);
+    setShowPhotoMenu(false);
+  };
+
+  const handleGenerateAvatar = () => {
+    const name = formData.name || 'User';
+    setFormData(prev => ({ ...prev, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128` }));
+    setShowPhotoMenu(false);
   };
 
   const handleProcessReport = (userId: number) => {
@@ -563,28 +598,97 @@ const UserManagement: React.FC = () => {
           <Modal.Title className="fw-bold fs-5 text-navy">{editingUser ? 'Edit User' : 'Add User'}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="d-none"
+            onChange={handleFileChange}
+          />
+
           <div className="d-flex flex-column align-items-center mb-4">
             <div className="position-relative mb-2">
-              <img 
-                src={formData.avatar || 'https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff'} 
-                alt="Avatar Preview" 
-                className="rounded-circle border shadow-sm" 
-                style={{ width: '80px', height: '80px', objectFit: 'cover' }} 
+              <img
+                src={formData.avatar || 'https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff'}
+                alt="Avatar Preview"
+                className="rounded-circle border shadow-sm"
+                style={{ width: '88px', height: '88px', objectFit: 'cover' }}
               />
-              <Button 
-                size="sm" 
-                className="position-absolute bottom-0 end-0 p-1 rounded-circle bg-primary border-white" 
+              <Button
+                size="sm"
+                className="position-absolute bottom-0 end-0 p-1 rounded-circle bg-primary border-white shadow"
                 style={{ width: '28px', height: '28px' }}
-                onClick={() => {
-                  const names = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan'];
-                  const randomName = names[Math.floor(Math.random() * names.length)];
-                  setFormData({...formData, avatar: `https://ui-avatars.com/api/?name=${randomName}&background=random&color=fff`});
-                }}
+                onClick={() => setShowPhotoMenu(v => !v)}
               >
                 <Camera size={14} color="white" />
               </Button>
             </div>
-            <div className="extra-small fw-bold text-muted text-uppercase">Profile Photo (Managed by Admin)</div>
+            <div className="extra-small fw-bold text-muted text-uppercase mb-1">Profile Photo</div>
+
+            {/* Photo options menu */}
+            <AnimatePresence>
+              {showPhotoMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
+                  className="bg-white border rounded-4 shadow-lg p-2 d-flex flex-column gap-1"
+                  style={{ minWidth: '210px' }}
+                >
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className="d-flex align-items-center gap-2 rounded-3 fw-bold extra-small text-navy text-start px-3 py-2"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload size={15} className="text-primary" /> Upload from computer
+                  </Button>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className="d-flex align-items-center gap-2 rounded-3 fw-bold extra-small text-navy text-start px-3 py-2"
+                    onClick={() => { setShowUrlInput(v => !v); }}
+                  >
+                    <LinkIcon size={15} className="text-info" /> Use image URL
+                  </Button>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className="d-flex align-items-center gap-2 rounded-3 fw-bold extra-small text-navy text-start px-3 py-2"
+                    onClick={handleGenerateAvatar}
+                  >
+                    <RefreshCw size={15} className="text-success" /> Generate from name
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* URL input */}
+            <AnimatePresence>
+              {showUrlInput && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="d-flex gap-2 mt-2 w-100 px-2"
+                  style={{ maxWidth: '320px' }}
+                >
+                  <Form.Control
+                    size="sm"
+                    placeholder="https://example.com/photo.jpg"
+                    value={photoUrlInput}
+                    onChange={e => setPhotoUrlInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleApplyUrl()}
+                    className="form-control-premium fw-bold extra-small"
+                  />
+                  <Button size="sm" className="btn-premium px-3 shrink-0" onClick={handleApplyUrl}>
+                    Apply
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <Form>
             <Row className="g-3">

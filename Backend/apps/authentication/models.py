@@ -34,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     institutional_id = models.CharField(max_length=50, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    avatar = models.TextField(blank=True, default='')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)

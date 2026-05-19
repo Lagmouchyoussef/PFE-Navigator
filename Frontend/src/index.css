@@ -1,4 +1,4 @@
-2026-05-19 20:24:38 [DEBUG] Resource server started on port 8829
+@import './styles/tokens.css';
 @import './styles/design-system.css';
 
 :root {
@@ -26,19 +26,18 @@ body {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
-}
+            'avatar', 'is_active', 'date_joined',
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
-    last_name = serializers.CharField(required=False, allow_blank=True, default='')
-
+}
+    avatar = models.TextField(blank=True, default='')
 /* --- Global Utility Classes --- */
 .glass-card {
-    name = serializers.ReadOnlyField()
-  backdrop-filter: var(--glass-blur);
+    avatar = serializers.CharField(required=False, allow_blank=True, default='')
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border) !important;
   box-shadow: var(--glass-shadow);
@@ -54,7 +53,7 @@ body {
 .bg-transparent-light { background-color: rgba(255, 255, 255, 0.4) !important; }
 .bg-transparent-dark { background-color: rgba(0, 0, 0, 0.2) !important; }
 
-    name = serializers.ReadOnlyField()r(--color-surface-alt) !important; }
+.bg-surface-alt { background-color: var(--color-surface-alt) !important; }
 .bg-primary-soft { background-color: var(--color-primary-soft) !important; }
 .bg-success-soft { background-color: var(--color-success-soft) !important; }
 .bg-warning-soft { background-color: var(--color-warning-soft) !important; }
@@ -65,7 +64,7 @@ body {
 .text-success { color: var(--color-success) !important; }
 .text-warning { color: var(--color-warning) !important; }
 .text-danger { color: var(--color-danger) !important; }
-.text-info { color: var(--color-info) !important; }
+    avatar = serializers.CharField(required=False, allow_blank=True, default='')
 .text-muted { color: var(--color-text-muted) !important; }
 .text-navy { color: var(--color-text-primary) !important; }
 .bg-surface { background-color: var(--color-surface) !important; }
@@ -148,5 +147,4 @@ body {
 .custom-checkbox .form-check-input:focus {
   box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
-
-    // Extract only the fields the backend's UserUpdateSerializer accepts    // Extract only the fields the backend accepts
+    if (data.avatar !== undefined) backendFields.avatar = data.avatar;      ['name', 'first_name', 'last_name', 'is_active', 'institutional_id', 'phone_number', 'department', 'avatar'].forEach(k => delete frontendOnly[k]);

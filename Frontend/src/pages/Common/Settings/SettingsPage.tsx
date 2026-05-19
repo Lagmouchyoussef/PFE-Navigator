@@ -177,9 +177,10 @@ const SettingsPage: React.FC = () => {
                   <motion.div key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <div className="d-flex align-items-center gap-4 mb-5 p-4 rounded-4 bg-surface-alt border">
                       <div className="position-relative">
-                        <div className="avatar-xl bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>
-                          {user?.name?.charAt(0)}
-                        </div>
+                        {user?.avatar
+                          ? <img src={user.avatar} alt={user.name} className="rounded-circle" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                          : <div className="avatar-xl bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold h2 mb-0" style={{ width: '100px', height: '100px' }}>{user?.name?.charAt(0)}</div>
+                        }
                         {user?.role === 'admin' && (
                           <Button className="position-absolute bottom-0 end-0 p-2 rounded-circle bg-primary border-0 shadow-sm" style={{ width: '36px', height: '36px' }} onClick={() => fileInputRef.current?.click()}>
                             <Camera size={16} color="white" />

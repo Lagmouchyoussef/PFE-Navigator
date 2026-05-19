@@ -14,6 +14,7 @@ export interface User {
   name: string;
   role: UserRole;
   initials?: string;
+  avatar?: string;
   status?: 'Active' | 'Inactive';
   lastLogin?: string;
   phone_number?: string;
