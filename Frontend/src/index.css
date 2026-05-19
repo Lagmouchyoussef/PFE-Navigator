@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useRef } from 'react';
 @import './styles/design-system.css';
 
 :root {
@@ -36,7 +35,7 @@ body {
 }
 
 /* --- Global Utility Classes --- */
-      (m.sender === user?.id && m.recipient === activeUserId) ||
+.glass-card {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border) !important;
@@ -55,7 +54,7 @@ body {
 
 .bg-surface-alt { background-color: var(--color-surface-alt) !important; }
 .bg-primary-soft { background-color: var(--color-primary-soft) !important; }
-    return msgs.at(-1);ground-color: var(--color-success-soft) !important; }
+.bg-success-soft { background-color: var(--color-success-soft) !important; }
 .bg-warning-soft { background-color: var(--color-warning-soft) !important; }
 .bg-danger-soft { background-color: var(--color-danger-soft) !important; }
 .bg-info-soft { background-color: var(--color-info-soft) !important; }
@@ -81,7 +80,7 @@ body {
 .hover-bg-surface-alt:hover { background-color: var(--color-surface-alt) !important; }
 .hover-bg-primary-soft:hover { background-color: var(--color-primary-soft) !important; }
 
-  const openUsersModal = async () => {
+.text-gradient {
   background: linear-gradient(135deg, var(--color-primary), var(--color-info));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -101,7 +100,6 @@ body {
 .btn-premium:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
-                    variant="outline-primary"
 }
 
 /* --- Form Controls Customization --- */
@@ -135,7 +133,6 @@ body {
   width: 1.2rem;
   height: 1.2rem;
   cursor: pointer;
-                      className={`conv-item w-100 text-start p-4 d-flex gap-3 align-items-center border-bottom transition-all ${contact.id === activeUserId ? 'active-conv' : 'hover-bg-surface'}`}
 }
 
 .custom-checkbox .form-check-input:checked {
@@ -143,8 +140,7 @@ body {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
-                    Button
+
 .custom-checkbox .form-check-input:focus {
   box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
-                    placeholder={activeUserId ? 'Type your message...' : 'Select a conversation first'}
