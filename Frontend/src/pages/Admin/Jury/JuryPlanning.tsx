@@ -96,7 +96,7 @@ const sendDefenseNotifications = async (params: {
 };
 
 const JuryPlanning: React.FC = () => {
-  const { allUsers } = useApp();
+  const { allUsers, projects, toggleJuryDocs } = useApp();
   const juryUsers = (allUsers || []).filter((u: any) => u && u.role === 'jury');
   const adminUsers = (allUsers || []).filter((u: any) => u && u.role === 'admin');
   const today = new Date();
@@ -104,7 +104,6 @@ const JuryPlanning: React.FC = () => {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [juries, setJuries] = useState<JurySession[]>(INITIAL_JURIES);
-  const [projects, setProjects] = useState<any[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<number | string>('');
   
   const [showModal, setShowModal] = useState(false);
@@ -141,10 +140,7 @@ const JuryPlanning: React.FC = () => {
   const handleToggleJuryDeadline = async (projectId: number, currentlyOpen: boolean) => {
     setTogglingDeadline(projectId);
     try {
-      await fetchClient.post(`/projects/projects/${projectId}/toggle_jury_deadline/`, {});
-      setProjects(prev => prev.map((p: any) =>
-        p.id === projectId ? { ...p, jury_documents_open: !currentlyOpen } : p
-      ));
+      await toggleJuryDocs(projectId);
       flashSuccess(
         currentlyOpen
           ? 'Jury deadline closed. The student can no longer submit jury documents.'
@@ -160,16 +156,17 @@ const JuryPlanning: React.FC = () => {
     }
   };
 
+  // Auto-select first project from context when projects load
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const projRes = await fetchClient.get('/projects/projects/');
-        const projList = Array.isArray(projRes.data) ? projRes.data : ((projRes.data as any)?.results || []);
-        setProjects(projList);
-        if (projList.length > 0) {
-          setSelectedProjectId(projList[0].id);
-        }
+    if (projects.length > 0 && !selectedProjectId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [projects]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const loadAppointments = async () => {
+      try {
         const apptRes = await fetchClient.get('/projects/appointments/');
         const apptList = Array.isArray(apptRes.data) ? apptRes.data : ((apptRes.data as any)?.results || []);
         const defenseAppts = apptList.filter((a: any) => a && (a.type?.toLowerCase() === 'defense'));
@@ -177,10 +174,10 @@ const JuryPlanning: React.FC = () => {
           setJuries(defenseAppts.map(mapAppointmentToJury));
         }
       } catch (err) {
-        console.error("Failed to load jury planning data:", err);
+        console.error("Failed to load appointments:", err);
       }
     };
-    loadData();
+    loadAppointments();
   }, []);
 
   const handleCancelSession = async (id: number) => {
@@ -331,10 +328,7 @@ const JuryPlanning: React.FC = () => {
   };
 
   const handleAddUnifiedDay = async () => {
-    if (projects.length === 0) {
-      alert("No active projects found to schedule a unified day.");
-      return;
-    }
+    if (projects.length === 0) return;
 
     const day = unifiedFormData.day;
     const month = unifiedFormData.month;
@@ -840,6 +834,12 @@ const JuryPlanning: React.FC = () => {
           <Modal.Title className="fw-bold fs-5 text-navy">Organize a Unified Defense Day</Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
+          {projects.length === 0 && (
+            <div className="d-flex align-items-center gap-2 p-3 mb-4 rounded-3 bg-warning-soft border border-warning border-opacity-25 extra-small fw-bold text-warning">
+              <AlertTriangle size={16} className="shrink-0" />
+              No active projects found. Add projects first before scheduling a unified defense day.
+            </div>
+          )}
           <Form>
             <Form.Group className="mb-4">
               <Form.Label className="extra-small fw-bold text-muted text-uppercase opacity-75">Event Title</Form.Label>
@@ -903,7 +903,7 @@ const JuryPlanning: React.FC = () => {
         </Modal.Body>
         <Modal.Footer className="border-0 p-4 pt-0">
           <Button variant="link" className="text-muted fw-bold text-decoration-none border-0" onClick={() => setShowUnifiedModal(false)}>Cancel</Button>
-          <Button className="btn-premium px-4 py-2" onClick={handleAddUnifiedDay}>Confirm Unified Day</Button>
+          <Button className="btn-premium px-4 py-2" onClick={handleAddUnifiedDay} disabled={projects.length === 0}>Confirm Unified Day</Button>
         </Modal.Footer>
       </Modal>
 

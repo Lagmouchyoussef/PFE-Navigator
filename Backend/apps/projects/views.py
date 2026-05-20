@@ -60,7 +60,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         try:
             project = Project.objects.get(student=request.user)
         except Project.DoesNotExist:
-            return Response({'detail': 'No project found.'}, status=404)
+            return Response({'has_project': False, 'id': None})
 
         from django.utils import timezone
         today = timezone.localdate()
@@ -321,10 +321,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         if user.role == 'student':
-            try:
-                project = Project.objects.get(student=user)
-            except Project.DoesNotExist:
-                raise ValidationError({'detail': 'No project found for this student.'})
+            project, _ = Project.objects.get_or_create(
+                student=user,
+                defaults={'title': f'Projet PFE — {user.name}', 'status': 'draft'},
+            )
 
             target = serializer.validated_data.get('target', 'supervisor')
             if target == 'jury' and not project.jury_documents_open:
@@ -437,31 +437,31 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         if user.role == 'student':
-            try:
-                project = Project.objects.get(student=user)
-                appt = serializer.save(
-                    student=user,
-                    project=project,
-                    supervisor=project.supervisor,
+            project, _ = Project.objects.get_or_create(
+                student=user,
+                defaults={'title': f'Projet PFE — {user.name}', 'status': 'draft'},
+            )
+            appt = serializer.save(
+                student=user,
+                project=project,
+                supervisor=project.supervisor,
+            )
+            if project.supervisor:
+                Notification.objects.create(
+                    recipient=project.supervisor,
+                    title='New Meeting Request',
+                    message=f'{user.name} requested a meeting: "{appt.title}" on {appt.date}.',
+                    type='info',
+                    link='/supervisor/schedule',
                 )
-                if project.supervisor:
-                    Notification.objects.create(
-                        recipient=project.supervisor,
-                        title='New Meeting Request',
-                        message=f'{user.name} requested a meeting: "{appt.title}" on {appt.date}.',
-                        type='info',
-                        link='/supervisor/schedule',
-                    )
-                for admin in User.objects.filter(role='admin', is_active=True):
-                    Notification.objects.create(
-                        recipient=admin,
-                        title='New Meeting Request',
-                        message=f'{user.name} requested a meeting with {project.supervisor.name if project.supervisor else "their supervisor"}: "{appt.title}" on {appt.date}.',
-                        type='info',
-                        link='/admin/dashboard',
-                    )
-            except Project.DoesNotExist:
-                raise ValidationError({'detail': 'No project found for this student.'})
+            for admin in User.objects.filter(role='admin', is_active=True):
+                Notification.objects.create(
+                    recipient=admin,
+                    title='New Meeting Request',
+                    message=f'{user.name} requested a meeting with {project.supervisor.name if project.supervisor else "their supervisor"}: "{appt.title}" on {appt.date}.',
+                    type='info',
+                    link='/admin/dashboard',
+                )
         else:
             appt = serializer.save()
             if appt.type and appt.type.lower() == 'defense' and appt.project_id:

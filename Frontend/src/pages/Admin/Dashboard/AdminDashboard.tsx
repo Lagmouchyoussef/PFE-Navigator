@@ -21,9 +21,9 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { appointments, deleteAppointment, projects, allUsers, deleteUser } = useApp() as any;
 
-  const users: any[]    = allUsers   || [];
-  const projs: any[]    = projects   || [];
-  const appts: any[]    = appointments || [];
+  const users: any[]    = React.useMemo(() => allUsers   || [], [allUsers]);
+  const projs: any[]    = React.useMemo(() => projects   || [], [projects]);
+  const appts: any[]    = React.useMemo(() => appointments || [], [appointments]);
 
   const [visibleCount,    setVisibleCount]    = React.useState(5);
   const [searchQuery,     setSearchQuery]     = React.useState('');

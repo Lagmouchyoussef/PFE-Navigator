@@ -4,7 +4,6 @@ import {
   Button, Modal, Form, Spinner
 } from 'react-bootstrap';
 import { useApp } from '../../../context/AppContext';
-import { appointmentsApi, juryAssignmentsApi } from '../../../api/projects';
 import { motion } from 'framer-motion';
 import {
   Calendar as CalendarIcon, Clock, MapPin,
@@ -56,34 +55,13 @@ const SchedulePage = () => {
     refreshProject,
   } = useApp();
 
-  // Local state for direct API fetch (ensures defense appointments always show)
-  const [directAppts, setDirectAppts] = useState([]);
-  const [directJury, setDirectJury] = useState([]);
-
   useEffect(() => {
     refreshProject();
-    // Also fetch directly from API — bypasses any AppContext caching issues
-    appointmentsApi.getAll()
-      .then(data => setDirectAppts(Array.isArray(data) ? data : (data?.results || [])))
-      .catch(() => {});
-    juryAssignmentsApi.getAll()
-      .then(data => setDirectJury(Array.isArray(data) ? data : (data?.results || [])))
-      .catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Merge context data with directly fetched data, preferring direct (freshest)
-  const allAppts = (() => {
-    const direct = directAppts;
-    const ctx = Array.isArray(rawAppointments) ? rawAppointments : [];
-    if (direct.length > 0) return direct;
-    return ctx;
-  })();
-  const allJury = (() => {
-    if (directJury.length > 0) return directJury;
-    return Array.isArray(juryAssignments) ? juryAssignments : [];
-  })();
-
-  const appointments = allAppts;
+  // Context appointments are polled every 10s by AppContext — always use them directly
+  const appointments = Array.isArray(rawAppointments) ? rawAppointments : [];
+  const allJury = Array.isArray(juryAssignments) ? juryAssignments : [];
 
   // split into supervisor meetings vs defense/jury
   const supervisorAppts  = appointments.filter(a => a && a.type?.toLowerCase() !== 'defense');

@@ -304,6 +304,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const { projectsApi } = await import('../api/projects');
       if (user.role === 'student') {
         const data = await projectsApi.getDashboard() as any;
+        // data.id is null when student has no project yet (has_project: false)
         if (data && data.id) {
           setCurrentProject(data);
           setDocuments(data.documents || []);
@@ -322,12 +323,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setIsGradesPublished(data.evaluation.is_published || false);
           }
         }
+        // else: student has no project yet — stay silent, no error
       } else {
         const data = await projectsApi.getAll() as any;
         setProjects(Array.isArray(data) ? data : (data?.results || []));
       }
-    } catch (err) {
-      console.error('Project refresh error:', err);
+    } catch (err: any) {
+      // 404 = student has no project yet (backend fallback), not a real error
+      if (err?.status !== 404) {
+        console.error('Project refresh error:', err);
+      }
     }
   }, [user]);
 
@@ -482,8 +487,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setDocuments(data.documents || []);
             setMilestones(data.milestones || []);
             setAppointments(data.appointments || []);
+            setFeedbacks(data.feedbacks || []);
             if (data.jury_assignments) setJuryAssignments(data.jury_assignments);
-            if (data.evaluation) setEvaluations([data.evaluation]);
+            if (data.evaluation) {
+              setEvaluations([data.evaluation]);
+              setIsGradesPublished(data.evaluation.is_published || false);
+              if (data.evaluation.supervisor_score !== null && data.evaluation.supervisor_score !== undefined) {
+                setScores((prev: any) => ({ ...prev, pfeSupervisor: parseFloat(data.evaluation.supervisor_score) }));
+              }
+              if (data.evaluation.jury_score !== null && data.evaluation.jury_score !== undefined) {
+                setScores((prev: any) => ({ ...prev, pfeJury: parseFloat(data.evaluation.jury_score) }));
+              }
+            }
           }
         } else {
           const data = await projectsApi.getAll() as any;
@@ -493,11 +508,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     const pollDocuments = async () => {
-      if (user.role !== 'jury' && user.role !== 'admin') return;
+      if (user.role !== 'jury' && user.role !== 'admin' && user.role !== 'supervisor') return;
       try {
         const { documentsApi } = await import('../api/projects');
         const docsData: any = await documentsApi.getAll();
         setDocuments(Array.isArray(docsData) ? docsData : (docsData?.results || []));
+      } catch { /* ignore polling errors */ }
+    };
+
+    const pollSubjects = async () => {
+      if (user.role !== 'student') return;
+      try {
+        const { projectsApi } = await import('../api/projects');
+        const data: any = await projectsApi.getSubjects();
+        setSubjects(Array.isArray(data) ? data : (data?.results || []));
       } catch { /* ignore polling errors */ }
     };
 
@@ -523,6 +547,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const docsId      = setInterval(() => { if (!document.hidden) pollDocuments(); }, 10000);
     const resourcesId = setInterval(() => { if (!document.hidden) pollResources(); }, 30000);
     const notesId     = setInterval(() => { if (!document.hidden) pollNotes(); }, 30000);
+    const subjectsId  = setInterval(() => { if (!document.hidden) pollSubjects(); }, 30000);
 
     return () => {
       clearInterval(msgId);
@@ -531,6 +556,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       clearInterval(docsId);
       clearInterval(resourcesId);
       clearInterval(notesId);
+      clearInterval(subjectsId);
     };
   }, [user]);
 

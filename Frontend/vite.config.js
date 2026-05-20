@@ -8,5 +8,8 @@ export default defineConfig({
     hmr: {
       overlay: false
     }
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 2000,
+  },
 })
