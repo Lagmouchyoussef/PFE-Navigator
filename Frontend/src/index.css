@@ -1,3 +1,4 @@
+@import './styles/tokens.css';
 @import './styles/design-system.css';
 
 :root {
@@ -86,20 +87,94 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.btn-premium {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-info));
-  color: white !important;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 0.6rem 1.5rem;
-  font-weight: 600;
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+/* =====================================================
+   PREMIUM BUTTONS & ICONS ENHANCEMENT
+   ===================================================== */
+
+/* Global Button Fixes & Animations */
+.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-premium:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+.btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.98) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Add a subtle ripple effect on hover for premium buttons */
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  transition: transform 0.5s ease-out;
+  pointer-events: none;
+}
+
+.btn:hover::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Premium Primary & Gradient Buttons */
+.btn-primary, .btn-premium {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #3b82f6 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+  padding: 0.6rem 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+.btn-primary:hover, .btn-premium:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, var(--color-primary) 100%) !important;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4) !important;
+}
+
+/* Global Icon Enhancements */
+svg.lucide, .icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+button:hover svg.lucide, .btn:hover svg.lucide, a:hover svg.lucide, .nav-link:hover svg.lucide {
+  transform: scale(1.15) !important;
+}
+
+/* Icon Wrappers for premium floating icons */
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  transition: all 0.3s ease;
+}
+
+.icon-wrapper:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 /* --- Form Controls Customization --- */

@@ -65,7 +65,7 @@ const JuryProjectsPage = () => {
         <Row className="g-4 mb-5">
           {stats.map((stat, i) => (
             <Col lg={4} md={6} key={i}>
-              <div className={`glass-card p-4 rounded-4 shadow-sm border border-light border-opacity-10 border-start-4 border-${stat.color}`}>
+              <div className={`glass-card p-4 rounded-4 shadow-sm border-start border-4 border-${stat.color}`}>
                 <div className="h3 fw-bold text-navy mb-1">{stat.value}</div>
                 <div className="extra-small text-muted fw-bold text-uppercase opacity-50">{stat.label}</div>
               </div>
@@ -155,7 +155,7 @@ const JuryProjectsPage = () => {
           </div>
           <div className="p-4">
             {selectedProject && (
-              <div className="space-y-4">
+              <div className="d-flex flex-column gap-4">
                 <div className="d-flex align-items-center gap-3 mb-4">
                   <div className={`p-4 rounded-circle bg-${selectedProject.color || 'primary'}-soft text-${selectedProject.color || 'primary'} fw-bold h4 mb-0 d-flex align-items-center justify-content-center`} style={{ width: '64px', height: '64px' }}>
                     {selectedProject.name.charAt(0)}

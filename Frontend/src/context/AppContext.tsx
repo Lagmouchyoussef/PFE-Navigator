@@ -761,7 +761,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     if (Object.keys(backendFields).length > 0) {
       const { usersApi } = await import('../api/users');
-      const updated = await usersApi.update(id, backendFields);
+      const updatedResponse = await usersApi.update(id, backendFields);
+      // Type assertion because update returns 'unknown' or 'any' from some api files
+      const updated = updatedResponse as Record<string, any>;
       // normalizeUser(updated) has correct first_name/last_name/name from backend.
       // frontendOnly keeps frontend-only fields (history, confirmationStatus, avatar…)
       // but we remove backend-managed fields so the backend response wins.
