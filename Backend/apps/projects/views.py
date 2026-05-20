@@ -251,13 +251,13 @@ class SubjectRequestActionView(APIView):
 
             # Assign subject to project
             subject = req.subject
-            try:
-                project = Project.objects.get(student=req.student)
-                project.subject = subject
-                project.supervisor = subject.supervisor
-                project.save()
-            except Project.DoesNotExist:
-                pass
+            project, _ = Project.objects.get_or_create(
+                student=req.student,
+                defaults={'title': f'Projet PFE — {req.student.name}', 'status': 'draft'},
+            )
+            project.subject = subject
+            project.supervisor = subject.supervisor
+            project.save()
 
             subject.status = 'taken'
             subject.save()

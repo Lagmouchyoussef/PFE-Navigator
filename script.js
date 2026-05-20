@@ -1,14 +1,19 @@
 /* BLUEPRINT-JS-START */
-// 🚀 Auto-generado para typescript: 5/19/2026, 11:18:24 PM
+// 🚀 Auto-generado para typescript: 5/20/2026, 3:43:22 AM
 
 'use strict';
 
 console.log('✅ 7 funciones y 0 clases detectadas');
 
 // Funciones interactivas
-function demo_sortedConversationMessages() {
-    console.log('▶️ Ejecutando: sortedConversationMessages()');
-    alert('Función sortedConversationMessages() ejecutada');
+function demo_handleKeyDown() {
+    console.log('▶️ Ejecutando: handleKeyDown()');
+    alert('Función handleKeyDown() ejecutada');
+}
+
+function demo_getUnreadCount() {
+    console.log('▶️ Ejecutando: getUnreadCount()');
+    alert('Función getUnreadCount() ejecutada');
 }
 
 function demo_getLastMessage() {
@@ -16,24 +21,19 @@ function demo_getLastMessage() {
     alert('Función getLastMessage() ejecutada');
 }
 
-function demo_msgs() {
-    console.log('▶️ Ejecutando: msgs()');
-    alert('Función msgs() ejecutada');
-}
-
-function demo_handleSend() {
-    console.log('▶️ Ejecutando: handleSend()');
-    alert('Función handleSend() ejecutada');
-}
-
 function demo_fetchProgramUsers() {
     console.log('▶️ Ejecutando: fetchProgramUsers()');
     alert('Función fetchProgramUsers() ejecutada');
 }
 
-function demo_openUsersModal() {
-    console.log('▶️ Ejecutando: openUsersModal()');
-    alert('Función openUsersModal() ejecutada');
+function demo_handleSelectContactFromModal() {
+    console.log('▶️ Ejecutando: handleSelectContactFromModal()');
+    alert('Función handleSelectContactFromModal() ejecutada');
+}
+
+function demo_initials() {
+    console.log('▶️ Ejecutando: initials()');
+    alert('Función initials() ejecutada');
 }
 
 function demo_initials() {

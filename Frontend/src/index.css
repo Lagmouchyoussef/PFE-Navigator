@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 @import './styles/design-system.css';
 
 :root {
@@ -24,7 +24,7 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
 }
-::-webkit-scrollbar-track {
+  // Students can message supervisor, jury and admin
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {

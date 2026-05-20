@@ -31,6 +31,7 @@ interface AppContextType {
   submitJuryScore: (evaluationId: number, score: number, comment: string, criteria?: any) => Promise<void>;
   publishEvaluation: (evaluationId: number) => Promise<void>;
   updateEvaluationWeights: (evaluationId: number, supervisorWeight: number, juryWeight: number) => Promise<void>;
+  updateEvaluationByAdmin: (id: number, data: any) => Promise<any>;
 
   // Appointments
   appointments: any[];
@@ -622,8 +623,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     evaluationId: number, supervisorWeight: number, juryWeight: number
   ) => {
     const { evaluationsApi } = await import('../api/projects');
-    const updated = await evaluationsApi.updateWeights(evaluationId, { supervisor_weight: supervisorWeight, jury_weight: juryWeight });
+    const updated = await evaluationsApi.update(evaluationId, { supervisor_weight: supervisorWeight, jury_weight: juryWeight });
     setEvaluations(prev => prev.map(e => e.id === evaluationId ? updated : e));
+  }, []);
+
+  const updateEvaluationByAdmin = useCallback(async (id: number, data: any) => {
+    const { evaluationsApi } = await import('../api/projects');
+    const updated = await evaluationsApi.update(id, data);
+    setEvaluations(prev => prev.map(e => e.id === id ? updated : e));
+    return updated;
   }, []);
 
   // ── APPOINTMENTS ───────────────────────────────────────────────────────────
@@ -963,12 +971,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return (
     <AppContext.Provider value={{
       user, login, logout, isLoading, error,
-
       projects, currentProject, refreshProject,
 
       documents, uploadDocument, deleteDocument, approveDocument, rejectDocument, addDocumentRemark,
 
-      evaluations, submitSupervisorScore, submitJuryScore, publishEvaluation, updateEvaluationWeights,
+      evaluations, submitSupervisorScore, submitJuryScore, publishEvaluation, updateEvaluationWeights, updateEvaluationByAdmin,
 
       appointments, createAppointment, updateAppointment, cancelAppointment, confirmAppointment, deleteAppointment,
 

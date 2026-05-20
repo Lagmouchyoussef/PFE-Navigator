@@ -201,7 +201,7 @@ class SupervisorSubjectViewSet(viewsets.ModelViewSet):
         return Subject.objects.filter(supervisor=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(supervisor=self.request.user, is_approved=False)
+        serializer.save(supervisor=self.request.user, is_approved=True)
 
 
 class SupervisorDashboardView(APIView):

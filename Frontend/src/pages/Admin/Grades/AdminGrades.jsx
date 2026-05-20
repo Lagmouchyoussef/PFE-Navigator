@@ -22,7 +22,7 @@ const computeFinal = (supScore, juryScore, supW, juryW) => {
 };
 
 const AdminGrades = () => {
-  const { evaluations, projects, publishEvaluation, pfeWeights, updateEvaluationWeights } = useApp();
+  const { evaluations, projects, publishEvaluation, pfeWeights, updateEvaluationByAdmin } = useApp();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showViewModal, setShowViewModal] = useState(false);
@@ -32,6 +32,9 @@ const AdminGrades = () => {
 
   const [supWeightInput, setSupWeightInput] = useState(50);
   const [juryWeightInput, setJuryWeightInput] = useState(50);
+  const [supScoreInput, setSupScoreInput] = useState('');
+  const [juryScoreInput, setJuryScoreInput] = useState('');
+  
   const [isSavingWeights, setIsSavingWeights] = useState(false);
 
   const flash = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
@@ -40,6 +43,8 @@ const AdminGrades = () => {
     setSelectedEval(ev);
     setSupWeightInput(ev.supW ?? 50);
     setJuryWeightInput(ev.juryW ?? 50);
+    setSupScoreInput(ev.supervisor_score !== null ? String(ev.supervisor_score) : '');
+    setJuryScoreInput(ev.jury_score !== null ? String(ev.jury_score) : '');
     setShowViewModal(true);
   };
 
@@ -206,7 +211,7 @@ const AdminGrades = () => {
                         <div className="d-flex justify-content-end gap-1">
                           <Button variant="link" className="p-2 text-primary hover-bg-surface-alt rounded-circle border-0 shadow-none"
                             onClick={() => handleOpenViewModal(ev)}>
-                            <Eye size={16} />
+                            <Edit3 size={16} />
                           </Button>
                           {!ev.is_published && (
                             <Button
@@ -241,7 +246,7 @@ const AdminGrades = () => {
         </Card>
       </Container>
 
-      {/* View Details Modal */}
+      {/* View/Edit Details Modal */}
       <Modal show={showViewModal} onHide={() => setShowViewModal(false)} centered size="lg">
         <Modal.Header closeButton className="border-0 p-4 pb-0">
           <Modal.Title className="fw-bold text-navy h5">Evaluation: {selectedEval?.studentName}</Modal.Title>
@@ -290,11 +295,41 @@ const AdminGrades = () => {
                 </div>
               </Card>
 
-              {/* Weight settings */}
+              {/* Edit settings */}
               <Card className="rounded-4 bg-surface-alt p-4 border-0 mt-4 shadow-sm">
                 <h6 className="extra-small fw-bold text-navy text-uppercase mb-3 d-flex align-items-center gap-2">
-                  <Edit3 size={16} className="text-primary" /> Configuration des Coefficients (Pourcentages)
+                  <Edit3 size={16} className="text-primary" /> Modify Grades & Coefficients
                 </h6>
+                <Row className="g-3 align-items-center mb-4">
+                  <Col sm={6}>
+                    <Form.Group>
+                      <Form.Label className="extra-small fw-bold text-muted mb-2">Supervisor Score (/20)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="0.5"
+                        value={supScoreInput}
+                        onChange={(e) => setSupScoreInput(e.target.value)}
+                        placeholder="e.g. 15.5"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col sm={6}>
+                    <Form.Group>
+                      <Form.Label className="extra-small fw-bold text-muted mb-2">Jury Score (/20)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="0.5"
+                        value={juryScoreInput}
+                        onChange={(e) => setJuryScoreInput(e.target.value)}
+                        placeholder="e.g. 16"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
                 <Row className="g-3 align-items-center">
                   <Col sm={6}>
                     <Form.Group>
@@ -329,22 +364,39 @@ const AdminGrades = () => {
                     </Form.Group>
                   </Col>
                 </Row>
-                <div className="d-flex justify-content-end mt-3">
+                <div className="d-flex justify-content-end mt-4">
                   <Button
                     size="sm"
-                    className="btn-premium d-flex align-items-center gap-2"
+                    className="btn-primary d-flex align-items-center gap-2"
                     onClick={async () => {
                       setIsSavingWeights(true);
                       try {
-                        await updateEvaluationWeights(selectedEval.id, supWeightInput, juryWeightInput);
+                        const patchData = {
+                          supervisor_weight: supWeightInput,
+                          jury_weight: juryWeightInput,
+                        };
+                        if (supScoreInput !== '') {
+                          patchData.supervisor_score = parseFloat(supScoreInput);
+                        } else {
+                          patchData.supervisor_score = null;
+                        }
+                        if (juryScoreInput !== '') {
+                          patchData.jury_score = parseFloat(juryScoreInput);
+                        } else {
+                          patchData.jury_score = null;
+                        }
+                        
+                        await updateEvaluationByAdmin(selectedEval.id, patchData);
                         setSelectedEval(prev => ({
                           ...prev,
                           supW: supWeightInput,
                           juryW: juryWeightInput,
                           supervisor_weight: supWeightInput,
-                          jury_weight: juryWeightInput
+                          jury_weight: juryWeightInput,
+                          supervisor_score: patchData.supervisor_score,
+                          jury_score: patchData.jury_score
                         }));
-                        flash("Coefficients enregistrés avec succès !");
+                        flash("Modifications enregistrées avec succès !");
                       } catch (err) {
                         flash("Erreur lors de l'enregistrement : " + (err?.message || "Veuillez réessayer"));
                       } finally {
@@ -353,7 +405,7 @@ const AdminGrades = () => {
                     }}
                     disabled={isSavingWeights}
                   >
-                    {isSavingWeights ? <Spinner size="sm" /> : <Save size={16} />} Enregistrer les coefficients
+                    {isSavingWeights ? <Spinner size="sm" /> : <Save size={16} />} Save Changes
                   </Button>
                 </div>
               </Card>
@@ -366,3 +418,4 @@ const AdminGrades = () => {
 };
 
 export default AdminGrades;
+

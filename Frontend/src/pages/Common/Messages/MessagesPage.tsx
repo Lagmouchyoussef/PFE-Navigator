@@ -24,9 +24,9 @@ const MessagesPage: React.FC = () => {
   const [usersSearch, setUsersSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  // Students can only message supervisor and admin
+  // Students can message supervisor, jury and admin
   const allowedRolesByUser: Record<string, string[]> = {
-    student:    ['supervisor', 'admin'],
+    student:    ['supervisor', 'jury', 'admin'],
     supervisor: ['student', 'supervisor', 'jury', 'admin'],
     jury:       ['student', 'supervisor', 'jury', 'admin'],
     admin:      ['student', 'supervisor', 'jury', 'admin'],
