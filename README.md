@@ -76,9 +76,9 @@ Topic proposal  →  Student request  →  Follow-up & documents  →  Defense  
 
 ### Supervisor
 
-| Dashboard | Student follow-up |
+| Dashboard | My students |
 |:---:|:---:|
-| ![Supervisor dashboard](docs/screenshots/supervisor-dashboard.png) | ![Supervisor student detail](docs/screenshots/supervisor-student-detail.png) |
+| ![Supervisor dashboard](docs/screenshots/supervisor-dashboard.png) | ![Supervisor students](docs/screenshots/supervisor-students.png) |
 
 ### Student
 
@@ -461,19 +461,22 @@ DB_PORT=5432
 
 | Method | Endpoint | Role | Description |
 |--------|----------|------|-------------|
-| `POST` | `/api/auth/token/` | All | Log in, returns JWT pair |
-| `POST` | `/api/auth/token/refresh/` | All | Renew access token |
-| `GET` | `/api/projects/subjects/` | All | List topics |
-| `POST` | `/api/projects/subjects/` | Supervisor | Create a topic |
+| `POST` | `/api/auth/login/` | All | Log in, returns JWT pair |
+| `POST` | `/api/auth/refresh/` | All | Renew access token |
+| `GET` | `/api/auth/me/` | All | Current user |
+| `GET` `POST` | `/api/projects/subjects/` | All / Supervisor | List or create topics |
 | `POST` | `/api/projects/subject-requests/` | Student | Request a topic |
-| `PATCH` | `/api/administration/subject-requests/{id}/` | Admin | Approve / reject a request |
+| `POST` | `/api/projects/subject-requests/{id}/{action}/` | Admin | Approve / reject a request |
 | `GET` | `/api/projects/projects/` | All | List projects |
-| `POST` | `/api/common/documents/` | Student | Submit a document |
-| `PATCH` | `/api/supervisor/documents/{id}/` | Supervisor | Review a document |
-| `GET` | `/api/jury/evaluations/` | Jury | View evaluations |
-| `POST` | `/api/administration/grades/publish/` | Admin | Publish grades |
-| `GET` | `/api/common/notifications/` | All | List notifications |
-| `POST` | `/api/common/messages/` | All | Send a message |
+| `GET` `POST` | `/api/student/documents/` | Student | List / submit documents |
+| `GET` | `/api/supervisor/dashboard/` | Supervisor | Supervisor dashboard data |
+| `GET` `POST` | `/api/supervisor/evaluations/` | Supervisor | Score students |
+| `GET` | `/api/jury/projects/` | Jury | Assigned projects |
+| `GET` `POST` | `/api/jury/evaluations/` | Jury | Defense evaluations |
+| `GET` | `/api/admin/stats/` · `/api/admin/analytics/` | Admin | Platform metrics |
+| `GET` | `/api/admin/evaluations/` | Admin | Review and publish grades |
+| `GET` | `/api/notifications/` | All | List notifications |
+| `GET` `POST` | `/api/messages/` | All | Messaging |
 
 Errors follow the DRF format, e.g. `{ "detail": "Authentication credentials were not provided." }`.
 

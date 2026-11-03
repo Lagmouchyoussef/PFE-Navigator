@@ -10,7 +10,7 @@ Drop PNG files here using **exactly** these names; the main README already point
 | `admin-users.png` | Admin > Users |
 | `admin-grades.png` | Admin > Grades |
 | `supervisor-dashboard.png` | Supervisor > Dashboard |
-| `supervisor-student-detail.png` | Supervisor > Student detail |
+| `supervisor-students.png` | Supervisor > My Students |
 | `student-dashboard.png` | Student > Dashboard |
 | `student-reports.png` | Student > Reports |
 | `jury-projects.png` | Jury > Projects |
